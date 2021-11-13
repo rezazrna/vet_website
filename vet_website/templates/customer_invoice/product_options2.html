@@ -1,0 +1,5 @@
+{% set product_list = frappe.get_list("Item", fields=['name', 'item_name']) %}
+	<option value=""></option>
+{% for p in product_list %}
+	<option value="{{ p.name }}" {{ "selected" if selected == p.name else '' }}>{{ p.item_name }}</option>
+{% endfor %}

@@ -1,0 +1,152 @@
+{% set page_title="Petty Cash" %}
+{% extends "templates/main.html" %}
+{% block title %}Petty Cash{% endblock %}
+{% block main_page %}
+<p class="fs18 fw600 text-dark mb-2">
+	Data
+</p>
+<div style="background: #fff; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1);" class="p-4 mb-4">
+	<div class="row mx-0">
+		<div class="col-3">
+			<div class="form-group">
+				<label for="journal" class="fs10 fw600">Journal</label>
+				<div class="row mx-0">
+					<input id="journal" class="form-control ">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="responsible" class="fs10 fw600">Responsible</label>
+				<div class="row mx-0">
+					<select id="responsible" class="form-control "></select>
+				</div>
+			</div>
+		</div>
+		<div class="col-3 offset-3">
+			<div class="form-group">
+				<label for="tanggal" class="fs10 fw600">Tanggal</label>
+				<div class="row mx-0">
+					<input type="date" id="tanggal" class="form-control ">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="closed_on_period" class="fs10 fw600">Closed on Period</label>
+				<div class="row mx-0">
+					<input id="closed_on_period" class="form-control ">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div style="background: #fff; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1);" class="p-4">
+	<ul class="nav nav-tabs" id="pettyCashTab" role="tablist">
+		<li class="nav-item">
+			<a class="nav-link active" id="cash-tab" data-toggle="tab" href="#cash" role="tab">Cash Transaction</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" id="journal-entries-tab" data-toggle="tab" href="#journal-entries" role="tab">Journal Entries</a>
+		</li>
+	</ul>
+	<div class="tab-content" id="pettyCashTabContent">
+		<div class="tab-pane show active py-4" id="cash" role="tabpanel">
+			<div class="pb-5">
+				<div class="row mx-0 mb-3 fs12 fw600" style="background: #CEEDFF; padding: 12px 0; color: #1B577B;">
+					<div class="col-auto">
+						<div style="width: 40px;">No</div>
+					</div>
+					<div class="col">
+						Date
+					</div>
+					<div class="col">
+						Communication
+					</div>
+					<div class="col">
+						Reference
+					</div>
+					<div class="col">
+						Partner
+					</div>
+					<div class="col">
+						Amount
+					</div>
+				</div>
+				<div class="row mx-0 mb-3 fs12 fw600" style="background: #F7FAF5; padding: 12px 0; color: #787E84;">
+					<div class="col-auto">
+						-
+					</div>
+					<div class="col">
+						-
+					</div>
+					<div class="col">
+						-
+					</div>
+					<div class="col">
+						-
+					</div>
+					<div class="col">
+						-
+					</div>
+					<div class="col">
+						-
+					</div>
+				</div>
+				<button class="btn btn-outline-danger mt-3 text-uppercase fs12 fwbold"><i class="fa fa-plus mr-2"></i>Tambah Item</button>
+			</div>
+			<div class="row justify-content-between mt-4">
+				<div class="col-4">
+					<div class="row fs16 fw600 mb-2">
+						<div class="col">
+							<span class="text-dark">Opening Balance</span>
+						</div>
+						<div class="col">
+							<span>:</span> Rp. 0
+						</div>
+					</div>
+					<div class="row fs14 fw600 mb-2">
+						<div class="col">
+							<span class="text-dark">+ Transactions</span>
+						</div>
+						<div class="col">
+							<span>:</span> Rp. 0
+						</div>
+					</div>
+					<div class="row fs14 fw600 mb-2">
+						<div class="col">
+							<span class="text-dark">= Theoretical Closing Balance</span>
+						</div>
+						<div class="col">
+							<span>:</span> Rp. 0
+						</div>
+					</div>
+				</div>
+				<div class="col-4">
+					<div class="row fs16 fw600 mb-2 text-right">
+						<div class="col">
+							<span class="text-dark">Real Closing Balance</span>
+						</div>
+						<div class="col">
+							<span>:</span> Rp. 0
+						</div>
+					</div>
+				</div>
+				<div class="col-12 border-bottom pb-3">
+				</div>
+				<div class="col-12 mt-4">
+					<div class="row fs14 fw600 mb-2 text-right justify-content-end">
+						<div class="col-1">
+							<span class="text-dark">Difference</span>
+						</div>
+						<div class="col-1">
+							<span>:</span> Rp. 0
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="tab-pane py-4" id="journal-entries" role="tabpanel">
+			<div class="text-center">
+				<h3>Hah, Kosong?</h3>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

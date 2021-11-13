@@ -1,0 +1,13 @@
+{% extends "templates/main_pos.html" %}
+{% block main_page %}
+{% set current_user = frappe.db.get_value("User", frappe.session.user, "full_name") %}
+<div id="main_pos" data-user="{{ current_user }}" data-pos_session_id="{{ pos_session_id }}">
+    <div class="pos-loading">
+        <div class="pos-loading-title">
+            Loading...
+        </div>
+    </div>
+</div>
+<script type="text/babel" src="/static/src/js/pagination-babel.js"></script>
+<script type="text/babel" src="/pos/index-babel.js"></script>
+{% endblock %}

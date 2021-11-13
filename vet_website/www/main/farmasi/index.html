@@ -1,0 +1,97 @@
+{% set page_title="Alur Farmasi" %}
+{% extends "templates/main.html" %}
+{% block main_page %}
+<div style="background: #FFFFFF; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1); padding: 80px 0;">
+	<div class="row justify-content-center">
+		<div class="col-auto">
+			<div class="row justify-content-center">
+				 <div class="col-auto text-center">
+				 	<p class="mb-0 fs16 fw500" style="font-family: Rubik;">
+				 		Farmasi
+				 	</p>
+				 	<img class="my-2" src="/static/img/main/menu/line-dashed-short-horizontal.png">
+				 </div>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-auto text-center" style="width: 240px;">
+					<a href="/main/farmasi/apotik" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+						<img src="/static/img/main/menu/menuApotik.png">
+						<p>
+							Apotik
+						</p>
+					</a>
+					<img src="/static/img/main/menu/bottom.png">
+				</div>
+				<div class="col-auto text-center">
+					<img src="/static/img/main/menu/left.png" class="mt-4">
+				</div>
+				<div class="col-auto text-center">
+					<p class="mb-0 fs12 fw600 rounded" style="background: #C6EAFF; padding: 14px 25px; color: #056EAD;">
+						Resep
+					</p>
+				</div>
+				<div class="col-auto text-center">
+					<img src="/static/img/main/menu/right.png" class="mt-4">
+				</div>
+				<div class="col-auto text-center" style="width: 240px;">
+					<a href="/main/dokter-dan-jasa/e-label" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+						<img src="/static/img/main/menu/menuElabel.png">
+						<p>
+							E-Label
+						</p>
+					</a>
+				</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-auto text-center">
+					<div class="row">
+						<div class="col">
+							<a href="#" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+								<img src="/static/img/main/menu/menuPembuatanObat.png">
+								<p>
+									Pembuatan obat & invoice
+								</p>
+							</a>
+						</div>
+						<div class="col-auto px-2">
+							<img src="/static/img/main/menu/right-short.png" class="mt-5">
+						</div>
+					</div>
+					<div class="text-right position-relative" class="mt-3">
+						<img src="/static/img/main/menu/double-bottom-right.png">
+						<span class="position-absolute fs12" style="color: #5FA630; bottom: 18px; right: 78px;">
+							Obat
+						</span>
+					</div>
+				</div>
+				<div class="col-auto text-center">
+					<div class="px-2 py-1 mx-1" style="border: 3px dashed #BDBDBD;">
+						<a href="/main/kasir" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+							<img src="/static/img/main/menu/menuKasir.png">
+							<p class="mb-2">
+								Kasir
+							</p>
+						</a>
+					</div>
+					<div class="px-2 py-1 mt-5 mx-1" style="border: 3px dashed #BDBDBD;">
+						<a href="/main/inventory/warehouse" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+							<img src="/static/img/main/menu/menuWarehouse.png">
+							<p class="mb-2">
+								Warehouse
+							</p>
+						</a>
+					</div>
+					<div class="px-2 py-1 mt-5 mx-1" style="border: 3px dashed #BDBDBD;">
+						<a href="/main/rekam-medis" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+							<img src="/static/img/main/menu/menuRekamMedis.png">
+							<p class="mb-2">
+								Rekam Medis
+							</p>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

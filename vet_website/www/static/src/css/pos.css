@@ -1,0 +1,296 @@
+.pos-bg1 {
+    background: #056EAD;
+}
+
+.pos-bg2 {
+    background: #84D1FF;
+}
+
+.pos-color1 {
+    color: #056EAD;
+}
+
+.pos-header {
+    height: 54px;
+    background: #056EAD;
+    color: #FFF;
+}
+
+.pos-header .pos-header-title, .pos-sidepanel {
+    max-width: 383px;
+}
+
+.pos-header .pos-tab {
+    border-radius: 3px 3px 0 0;
+    height: 50px;
+    background: #DCD9D7;
+    color: #767370;
+    margin-bottom: -3px;
+    margin-left: 1px;
+    margin-right: 1px;
+    padding: 12px 10px;
+    cursor: pointer;
+}
+
+.pos-header .pos-tab.active {
+    background: #FFF;
+    color: #056EAD;
+    cursor: default;
+}
+
+.pos-header .pos-tab .pos-tab-number {
+    font-size: 22px;
+    font-weight: 600;
+    display: inline-block;
+    padding: 0 8px;
+}
+
+.pos-header .pos-tab .pos-tab-title {
+    font-size: 16px;
+    font-weight: 600;
+    display: none;
+    padding: 0 12px;
+}
+
+.pos-header .pos-tab.active .pos-tab-number {
+    font-size: 20px;
+    width: 26px;
+    height: 26px;
+    line-height: 25px;
+    font-weight: 600;
+    color: #FFF;
+    background: #056EAD;
+    border-radius: 50%;
+    text-align: center;
+    padding: 0;
+}
+
+.pos-header .pos-tab.active .pos-tab-title {
+    display: inline-block;
+}
+
+.pos-header .pos-close {
+    cursor: pointer;
+}
+
+.pos-sidepanel {
+    height: calc(100vh - 54px);
+    background: #FFF;
+    box-shadow: 2px 4px 7px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+}
+
+.pos-sidepanel .pos-sidepanel-control {
+    background: #C4C4C4;
+    padding: 25px 16px;
+}
+
+.pos-sidepanel .pos-sidepanel-control table, .pos-payment .pos-payment-panel table.pos-payment-numpad {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pos-sidepanel .pos-sidepanel-control td {
+    border: 1px solid #3C505C !important;
+}
+
+.pos-sidepanel .pos-sidepanel-control .pos-sidepanel-button {
+    color: #3C505C;
+    background: #E5E8EA;
+    padding: 12px;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.pos-sidepanel .pos-sidepanel-control .pos-sidepanel-button:hover {
+    background: #f2f4f5;
+}
+
+.pos-sidepanel .pos-sidepanel-control .pos-sidepanel-button.active {
+    background: #5FA631;
+    color: #FFF;
+}
+
+.pos-sidepanel .pos-sidepanel-control .pos-sidepanel-button.disabled, .pos-sidepanel .pos-sidepanel-control .pos-sidepanel-button.disabled:hover {
+    color: #3C505C;
+    background: #d0d4d6;
+    cursor: default;
+}
+
+.pos-sidepanel .pos-sidepanel-item {
+    color: #056EAD;
+    padding: 15px 20px;
+    cursor: pointer;
+}
+
+.pos-sidepanel .pos-sidepanel-item.active {
+    background: #DEE9F2;
+    cursor: default;
+}
+
+.pos-sidepanel .pos-sidepanel-total {
+    border-top: 3px solid #056EAD;
+    color: #056EAD;
+    padding-top: 10px;
+}
+
+.pos-product, .pos-payment {
+    background: #DDDFDF;
+    height: calc(100vh - 54px);
+    overflow: hidden auto;
+}
+
+.pos-product .pos-product-searchbar {
+    background: #FFF;
+    height: 76px;
+}
+
+.pos-product .pos-product-searchbar .pos-product-search-wrapper{
+    position: relative;
+}
+
+.pos-product .pos-product-searchbar .pos-product-search-wrapper:before {
+    content: "\f002";
+    font-family: "FontAwesome";
+    font-size: 22px;
+    color: #6D7573;
+    position: absolute;
+    top: 0;
+    left: 16px;
+}
+
+.pos-product .pos-product-searchbar .pos-product-search-wrapper .pos-product-search {
+    background: #EAEAEA;
+    border-radius: 29px;
+    border: 0;
+    height: 35px;
+    width: 215px;
+    font-size: 14px;
+    padding: 8px 8px 8px 48px;
+}
+
+.pos-product .pos-product-grid {
+    overflow: hidden auto;
+    height: calc(100vh - 130px);
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.pos-product .pos-product-grid .pos-product-grid-item {
+    background: #FFFFFF;
+    box-shadow: 2px 4px 7px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    cursor: pointer;
+}
+
+.pos-product .pos-product-grid .pos-product-grid-item .pos-product-grid-item-price {
+    color: #FFF;
+    background: #056EAD;
+    border-top-right-radius: 5px;
+}
+
+.pos-product .pos-product-grid .pos-product-grid-item .pos-product-grid-item-image-wrapper {
+    width: 100%;
+    padding-top: 88%;
+    position: relative;
+}
+
+.pos-product .pos-product-grid .pos-product-grid-item .pos-product-grid-item-image-wrapper .pos-product-grid-item-image {
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    margin: auto;
+}
+
+.pos-loading {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+}
+
+.pos-loading .pos-loading-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #FFF;
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.pos-payment .pos-payment-panel {
+    background: #FFFFFF;
+    box-shadow: 2px 4px 7px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    padding: 30px;
+    margin-top: 40px;
+}
+
+.pos-payment .pos-payment-panel .pos-payment-button {
+    background: #DCD9D7;
+    border-radius: 2px;
+    cursor: pointer;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.pos-payment .pos-payment-panel .pos-payment-method-button {
+    background: #FFF;
+    color: #056EAD;
+    border: 2px solid #056EAD;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 10px 0;
+}
+
+.pos-payment .pos-payment-panel .pos-payment-method-button:hover, .pos-payment .pos-payment-panel .pos-payment-method-button.active {
+    background: #056EAD;
+    color: #FFF;
+}
+
+.pos-payment .pos-payment-panel .pos-payment-order-total {
+    color: #3C505C;
+    font-size: 50px;
+    font-weight: 600;
+    text-align: center;
+    margin: 50px 0;
+}
+
+.pos-payment .pos-payment-panel table.pos-payment-numpad td {
+    border: 1px solid #056EAD;
+}
+
+.pos-payment .pos-payment-panel .pos-payment-numpad .pos-payment-numpad-button {
+    color: #056EAD;
+    background: #DEF2FF;
+    padding: 12px;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+}
+
+.pos-payment .pos-payment-panel .pos-payment-numpad .pos-payment-numpad-button:hover {
+    background: #ebf7ff;
+}
+
+@media(min-width: 1400px) {
+    .pos-product .pos-product-grid .pos-product-grid-col {
+        max-width: 250px;
+    }
+}

@@ -1,0 +1,52 @@
+{
+ "actions": [],
+ "autoname": "VDL-.#",
+ "creation": "2020-09-23 10:08:45.765831",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "reference",
+  "depreciation_date",
+  "depreciation_value",
+  "cumulative_depreciation"
+ ],
+ "fields": [
+  {
+   "fieldname": "reference",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Reference",
+   "reqd": 1
+  },
+  {
+   "fieldname": "depreciation_value",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Depreciation Value",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cumulative_depreciation",
+   "fieldtype": "Float",
+   "label": "Cumulative Depreciaton"
+  },
+  {
+   "fieldname": "depreciation_date",
+   "fieldtype": "Date",
+   "label": "Depreciation Date"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2020-09-23 10:30:29.950827",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetDepreciationList",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

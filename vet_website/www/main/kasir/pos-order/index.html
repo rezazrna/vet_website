@@ -1,0 +1,9 @@
+{% set page_title="Order" %}
+{% extends "templates/main.html" %}
+{% block title %}Order{% endblock %}
+{% block main_page %}
+<div id="pos_order_list" data-show_open="{{ show_open }}"></div>
+<script type="text/babel" src="/static/src/js/filter-babel.js"></script>
+<script type="text/babel" src="/static/src/js/pagination-babel.js"></script>
+<script type="text/babel" src="/main/kasir/pos-order/index-babel.js"></script>
+{% endblock %}

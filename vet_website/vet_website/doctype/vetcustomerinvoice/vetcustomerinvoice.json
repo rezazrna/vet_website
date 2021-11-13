@@ -1,0 +1,258 @@
+{
+ "autoname": "VCI-.#",
+ "creation": "2020-04-14 11:48:08.885837",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "register_number",
+  "pet",
+  "pet_name",
+  "owner",
+  "owner_name",
+  "user",
+  "invoice_date",
+  "due_date",
+  "origin",
+  "invoice_line",
+  "subtotal",
+  "total",
+  "status",
+  "pembayaran",
+  "user_name",
+  "is_refund",
+  "already_refund",
+  "refund_date",
+  "potongan",
+  "no_exchange",
+  "rawat_inap",
+  "is_rawat_inap",
+  "pos_session",
+  "parent_customer_invoice",
+  "children_customer_invoice",
+  "amended_from",
+  "lft",
+  "rgt",
+  "is_group",
+  "old_parent",
+  "parent_vetcustomerinvoice"
+ ],
+ "fields": [
+  {
+   "fieldname": "register_number",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "No. Registrasi Penerimaan",
+   "options": "VetTask"
+  },
+  {
+   "fieldname": "pet",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "NIP",
+   "options": "VetPet",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "pet.pet_name",
+   "fieldname": "pet_name",
+   "fieldtype": "Data",
+   "label": "Nama Pasien"
+  },
+  {
+   "fieldname": "invoice_date",
+   "fieldtype": "Datetime",
+   "label": "Tanggal Invoice"
+  },
+  {
+   "fetch_from": "pet.parent",
+   "fieldname": "owner",
+   "fieldtype": "Link",
+   "label": "Pemilik",
+   "options": "VetPetOwner"
+  },
+  {
+   "fetch_from": "owner.owner_name",
+   "fieldname": "owner_name",
+   "fieldtype": "Data",
+   "label": "Nama Pemilik"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "Sales Person",
+   "options": "User"
+  },
+  {
+   "fieldname": "origin",
+   "fieldtype": "Data",
+   "label": "Source Document"
+  },
+  {
+   "fieldname": "invoice_line",
+   "fieldtype": "Table",
+   "label": "Invoice line",
+   "options": "VetCustomerInvoiceLine"
+  },
+  {
+   "fieldname": "subtotal",
+   "fieldtype": "Float",
+   "label": "Subtotal"
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Float",
+   "label": "Total"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nOpen\nPaid\nRefund\nCancel\nDone"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Datetime",
+   "label": "Tanggal Batas"
+  },
+  {
+   "fieldname": "pembayaran",
+   "fieldtype": "Table",
+   "label": "Pembayaran",
+   "options": "VetCustomerInvoicePay"
+  },
+  {
+   "fetch_from": "user.full_name",
+   "fieldname": "user_name",
+   "fieldtype": "Data",
+   "label": "Sales Person Name"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_refund",
+   "fieldtype": "Check",
+   "label": "is refund"
+  },
+  {
+   "default": "0",
+   "fieldname": "already_refund",
+   "fieldtype": "Check",
+   "label": "already refund"
+  },
+  {
+   "fieldname": "refund_date",
+   "fieldtype": "Datetime",
+   "label": "refund date"
+  },
+  {
+   "fieldname": "potongan",
+   "fieldtype": "Float",
+   "label": "Potongan"
+  },
+  {
+   "default": "0",
+   "fieldname": "no_exchange",
+   "fieldtype": "Check",
+   "label": "No Exchange"
+  },
+  {
+   "fieldname": "rawat_inap",
+   "fieldtype": "Link",
+   "label": "Rawat Inap",
+   "options": "VetRawatInap"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_rawat_inap",
+   "fieldtype": "Check",
+   "label": "is Rawat Inap"
+  },
+  {
+   "fieldname": "pos_session",
+   "fieldtype": "Link",
+   "label": "POS Session",
+   "options": "VetPosSessions"
+  },
+  {
+   "fieldname": "parent_customer_invoice",
+   "fieldtype": "Link",
+   "label": "Parent Customer Invoice",
+   "options": "VetCustomerInvoice"
+  },
+  {
+   "fieldname": "children_customer_invoice",
+   "fieldtype": "Table",
+   "label": "Children Customer Invoice",
+   "options": "VetCustomerInvoiceChildren"
+  },
+  {
+   "fieldname": "lft",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Left",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "rgt",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Right",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_group",
+   "fieldtype": "Check",
+   "label": "Is Group"
+  },
+  {
+   "fieldname": "old_parent",
+   "fieldtype": "Link",
+   "label": "Old Parent",
+   "options": "VetCustomerInvoice"
+  },
+  {
+   "fieldname": "parent_vetcustomerinvoice",
+   "fieldtype": "Link",
+   "label": "Parent VetCustomerInvoice",
+   "options": "VetCustomerInvoice"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "VetCustomerInvoice",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "modified": "2021-08-16 11:48:36.347088",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetCustomerInvoice",
+ "name_case": "UPPER CASE",
+ "nsm_parent_field": "parent_vetcustomerinvoice",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

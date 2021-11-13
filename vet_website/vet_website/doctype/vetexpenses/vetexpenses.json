@@ -1,0 +1,152 @@
+{
+ "actions": [],
+ "autoname": "VE-.#",
+ "creation": "2020-09-22 10:20:28.169459",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "expense_name",
+  "product",
+  "quantity",
+  "price",
+  "period",
+  "expense_date",
+  "responsible",
+  "description",
+  "status",
+  "responsible_name",
+  "product_name",
+  "cash_account",
+  "expense_account",
+  "cash_account_name",
+  "expense_account_name",
+  "warehouse",
+  "warehouse_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "expense_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Expense Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "product",
+   "fieldtype": "Link",
+   "label": "Product",
+   "options": "VetProduct"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Int",
+   "label": "Quantity"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Float",
+   "label": "Unit Price"
+  },
+  {
+   "fieldname": "period",
+   "fieldtype": "Data",
+   "label": "Period"
+  },
+  {
+   "fieldname": "expense_date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "responsible",
+   "fieldtype": "Link",
+   "label": "Responsible",
+   "options": "User"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  },
+  {
+   "default": "Approved",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nApproved\nPaid\nRefuse"
+  },
+  {
+   "fetch_from": "responsible.full_name",
+   "fieldname": "responsible_name",
+   "fieldtype": "Data",
+   "label": "Responsible Name"
+  },
+  {
+   "fetch_from": "product.product_name",
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "label": "Product Name"
+  },
+  {
+   "fieldname": "cash_account",
+   "fieldtype": "Link",
+   "label": "Cash Account",
+   "options": "VetCoa"
+  },
+  {
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "label": "Expense Account",
+   "options": "VetCoa"
+  },
+  {
+   "fetch_from": "cash_account.account_name",
+   "fieldname": "cash_account_name",
+   "fieldtype": "Data",
+   "label": "Cash Account Name"
+  },
+  {
+   "fetch_from": "expense_account.account_name",
+   "fieldname": "expense_account_name",
+   "fieldtype": "Data",
+   "label": "Expense Account Name"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "VetGudang"
+  },
+  {
+   "fetch_from": "warehouse.gudang_name",
+   "fieldname": "warehouse_name",
+   "fieldtype": "Data",
+   "label": "Warehouse Name"
+  }
+ ],
+ "links": [],
+ "modified": "2020-10-10 10:02:26.733740",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetExpenses",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

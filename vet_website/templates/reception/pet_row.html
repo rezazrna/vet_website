@@ -1,0 +1,58 @@
+{% set pet_types = frappe.get_all("VetPetType", fields=['name', 'type_name']) %}
+{% for pet in pets %}
+<div class="pet_row" id="{{ pet.name }}">
+	<div class="border-bottom fs12 fw600 py-2" style="color: #056EAD;">
+		<span class="pet_row_name">
+			{{ pet.pet_name }}
+		</span>
+	</div>
+	<div class="form-row py-2">
+		<div class="col-6">
+			<div class="form-group">
+				<label for="name_pet" class="fs10 fw600">No Induk Pasien (NIP)</label>
+				<input id="name_pet" name='name_pet' class="form-control border-0" value="{{ pet.name }}" placeholder="{{ pet.name }}" readonly>
+			</div>
+		</div>
+		<div class="col-6">
+			<div class="form-group">
+				<label for="pet_name" class="fs10 fw600">Nama Pasien</label>
+				<input required id="pet_name" name='pet_name' class="form-control border-0" value="{{ pet.pet_name }}" placeholder="{{ pet.pet_name if mode != 'Edit Pet' else '' }}" {{ 'readonly' if mode != 'Edit Pet' else '' }}>
+			</div>
+		</div>
+	</div>
+	<div class="form-row py-2">
+		<div class="col-6">
+			<div class="form-group">
+				{% set pet_type = frappe.get_doc("VetPetType", pet.hewan_jenis) %}
+				<label for="hewan_jenis" class="fs10 fw600">Hewan / Jenis</label>
+				{% if mode != 'Edit Pet' %}
+					<input required id="hewan_jenis" class="form-control border-0" name='hewan_jenis' value="{{ pet_type.type_name }}" readonly placeholder="{{ pet_type.type_name }}">
+				{% else %}
+					{% set pet_type = frappe.get_list("VetPetType", fields=["name", "type_name"]) %}
+					<select required id="hewan_jenis" class="form-control border-0" name='hewan_jenis'>
+						{% for type in pet_type %}
+							<option {{ 'selected' if type.name == pet.hewan_jenis else '' }} value="{{ type.name }}">{{ type.type_name }}</option>
+						{% endfor %}
+					</select>
+				{% endif %}
+			</div>
+		</div>
+		<div class="col-6">
+			<div class="form-group">
+				<label for="register_date" class="fs10 fw600">Tanggal Registrasi</label>
+				<input required id="register_date" class="form-control border-0" name='register_date' value="{{ pet.register_date }}" readonly placeholder="{{ pet.register_date }}">
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="pet_description" class="fs10 fw600">Keterangan</label>
+		<textarea {{ 'readonly' if mode != 'Edit Pet' else '' }} id="pet_description" class="form-control border-0" rows="3" name='pet_description' placeholder="{{ pet.description or '' }}">{{ pet.description if pet.description else '' }}</textarea>
+	</div>
+	{% if mode not in ['Detail', 'Edit Pet'] %}
+	<input type="radio" name="pet" id="pet_radio{{ pet.name }}" required value="{{ pet.name }}" style="opacity: 0;">
+	<button class="pet_row_select btn btn-block rounded-0 alert-secondary text-center text-muted text-uppercase fwbold fs18 py-2 mb-3">
+		Pilih
+	</button>
+	{% endif %}
+</div>
+{% endfor %}

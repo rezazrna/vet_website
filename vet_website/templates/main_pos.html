@@ -1,0 +1,18 @@
+{% extends "templates/web.html" %}
+
+{% set user_lang = frappe.db.get_all("User", filters={'name': frappe.session.user}, fields=["language"]) %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block page_content %}
+<section>
+	<div class="container-fluid">
+		{% block main_page %}
+		{% endblock %}
+	</div>
+</section>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+{% block sidebar %}{% endblock %}

@@ -1,0 +1,9 @@
+{% set page_title= alt_page_title or "Apotik" %}
+{% extends "templates/main.html" %}
+{% block title %}{{ alt_page_title or "Apotik" }}{% endblock %}
+{% block main_page %}
+<div id="apotik"></div>
+<script type="text/babel" src="/main/farmasi/apotik/form-babel.js"></script>
+<script type="text/babel" src="/static/src/js/record-navigator-babel.js"></script>
+<script type="text/babel" src="/static/src/js/status_row-babel.js"></script>
+{% endblock %}

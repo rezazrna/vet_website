@@ -1,0 +1,138 @@
+{
+ "actions": [],
+ "autoname": "field:default_code",
+ "creation": "2020-03-27 09:20:04.418561",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "default_code",
+  "product_name",
+  "price",
+  "service",
+  "product_uom",
+  "image",
+  "active",
+  "product_category",
+  "barcode",
+  "tags",
+  "suppliers",
+  "uom_name",
+  "category_name",
+  "pack"
+ ],
+ "fields": [
+  {
+   "fieldname": "default_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Internal Reference",
+   "reqd": 1
+  },
+  {
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nama Produk",
+   "reqd": 1
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Harga"
+  },
+  {
+   "fieldname": "service",
+   "fieldtype": "Link",
+   "label": "Tipe Layanan",
+   "options": "VetService"
+  },
+  {
+   "fieldname": "product_uom",
+   "fieldtype": "Link",
+   "label": "UOM",
+   "options": "VetUOM",
+   "reqd": 1
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach",
+   "label": "Image"
+  },
+  {
+   "default": "1",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "fieldname": "product_category",
+   "fieldtype": "Link",
+   "label": "Product Category",
+   "options": "VetProductCategory"
+  },
+  {
+   "fieldname": "barcode",
+   "fieldtype": "Data",
+   "label": "Barcode"
+  },
+  {
+   "fieldname": "tags",
+   "fieldtype": "Table",
+   "label": "Tags",
+   "options": "VetProductTags"
+  },
+  {
+   "fieldname": "suppliers",
+   "fieldtype": "Table",
+   "label": "Suppliers",
+   "options": "VetProductSuppliers"
+  },
+  {
+   "fetch_from": "product_uom.uom_name",
+   "fieldname": "uom_name",
+   "fieldtype": "Data",
+   "label": "UOM Name"
+  },
+  {
+   "fetch_from": "product_category.category_name",
+   "fieldname": "category_name",
+   "fieldtype": "Data",
+   "label": "Category Name"
+  },
+  {
+   "fieldname": "pack",
+   "fieldtype": "Table",
+   "label": "Pack",
+   "options": "VetProductPack"
+  }
+ ],
+ "links": [],
+ "modified": "2021-04-13 11:48:39.529914",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetProduct",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "search_fields": "product_name",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "product_name",
+ "track_changes": 1
+}

@@ -1,0 +1,8 @@
+{% set page_title= alt_page_title or "Rekam Medis" %}
+{% extends "templates/main.html" %}
+{% block title %}{{ alt_page_title or "Rekam Medis" }}{% endblock %}
+{% block main_page %}
+<div id="rekam_medis_form" mode="{{ mode }}"></div>
+<script type="text/babel" src="/static/src/js/record-navigator-babel.js"></script>
+<script type="text/babel" src="/main/rekam-medis/rekam-medis/rekam_medis_form-babel.js"></script>
+{% endblock %}

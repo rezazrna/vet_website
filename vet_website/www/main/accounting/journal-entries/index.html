@@ -1,0 +1,9 @@
+{% set page_title="Journal Entries" %}
+{% extends "templates/main.html" %}
+{% block main_page %}
+<div id="journal_entry_list"></div>
+<script type="text/babel" src="/static/src/js/filter-babel.js"></script>
+<script type="text/babel" src="/static/src/js/search-bar-babel.js"></script>
+<script type="text/babel" src="/static/src/js/pagination-babel.js"></script>
+<script type="text/babel" src="/main/accounting/journal-entries/index-babel.js"></script>
+{% endblock %}

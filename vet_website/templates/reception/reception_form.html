@@ -1,0 +1,12 @@
+{% set page_title= alt_page_title or "List Penerimaan Pasien" %}
+{% extends "templates/main.html" %}
+{% block title %}{{ alt_page_title or 'Penerimaan Pasien' }}{% endblock %}
+{% block main_page %}
+<div id="penerimaan_pasien" mode="{{ mode }}"></div>
+<script type="text/babel" src="/static/src/js/input-suggestion-babel.js"></script>
+<script type="text/babel" src="/static/src/js/search-bar-babel.js"></script>
+<script type="text/babel" src="/static/src/js/record-navigator-babel.js"></script>
+<script type="text/babel" src="/main/penerimaan/data-pemilik/list-popup-babel.js"></script>
+<script type="text/babel" src="/main/penerimaan/data-pasien/list-popup-babel.js"></script>
+<script type="text/babel" src="/main/penerimaan/penerimaan-pasien/form-babel.js"></script>
+{% endblock %}

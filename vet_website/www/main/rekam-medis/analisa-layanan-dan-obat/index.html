@@ -1,0 +1,156 @@
+{% set page_title="Analisa Layanan Dan Obat" %}
+{% extends "templates/main.html" %}
+{% block title %}Analisa Layanan dan Obat{% endblock %}
+{% block main_page %}
+<div style="background: #FFFFFF; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1); padding: 20px 32px; margin-bottom: 18px;">
+	<form class="row mx-0">
+		<div class="col">
+			<button class="btn btn-sm fs14 btn-outline-info btn-block text-uppercase">More</button>
+		</div>
+		<div class="col-3">
+			<input class="form-control form-control-sm fs14" placeholder="&#xF002;    Cari" style="font-family: Open Sans, FontAwesome;">
+		</div>
+		<div class="col-5">
+			<div class="row">
+				<div class="col pr-0">
+					<input type="date" class="form-control form-control-sm fs14">
+				</div>
+				<div class="col-auto">
+					-
+				</div>
+				<div class="col pl-0">
+					<input type="date" class="form-control form-control-sm fs14">
+				</div>
+			</div>
+		</div>
+		<div class="col">
+			<div class="row">
+				<label for="sort" class="col-5 fs12 my-auto">
+					Sort by
+				</label>
+				<select class="col form-control form-control-sm fs14" id="sort">
+				</select>
+			</div>
+		</div>
+	</form>
+</div>
+<div style="background: #FFFFFF; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1); padding: 40px 32px 40px 12px;">
+	<div class="row mx-0">
+		<div class="col-auto pl-2 pr-3 d-flex">
+			<input type="checkbox" class="d-block my-auto">
+		</div>
+		<div class="col row-header">
+			<div class="row mx-0 fs12 fw600">
+				<div class="col-auto d-flex">
+					<span class="my-auto" style="width: 25px;">No</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Tgl Rekam Medis</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">NIP</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Nama Pasien</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Nama Pemilik</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">No Reg Penerimaan</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Layanan</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Nama Obat / Makanan</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Quantity</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">UOM</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Suhu (C)</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Berat (Kg)</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Hasil Pengukuran</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Tindakan</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Kondisi</span>
+				</div>
+				<div class="col-auto px-2">
+					<div style="width: 4px;">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row mx-0">
+		<div class="col-auto pl-2 pr-3 d-flex">
+			<input type="checkbox" class="d-block my-auto">
+		</div>
+		<div class="col row-list">
+			<div class="row mx-0 fs12 fw600">
+				<div class="col-auto d-flex">
+					<span class="my-auto" style="width: 25px;">1</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">24/02/2020 4:20</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">PB-00712</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Wololo the sheep</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Boi</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">JS027</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Grooming</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Hay Bale</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">1</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Roll</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">20</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">12</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">-</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">-</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Sehat</span>
+				</div>
+				<div class="col-auto px-2 d-flex">
+					<a href="#" class="my-auto">
+						<img src="/static/img/main/dots.png">
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

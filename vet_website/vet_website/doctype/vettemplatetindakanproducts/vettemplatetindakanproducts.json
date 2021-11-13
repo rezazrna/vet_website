@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "autoname": "VTTP-.#",
+ "creation": "2020-08-15 09:40:30.416791",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "product",
+  "quantity",
+  "pagi",
+  "siang",
+  "sore",
+  "malam",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "product",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Product",
+   "options": "VetProduct"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantity"
+  },
+  {
+   "default": "0",
+   "fieldname": "pagi",
+   "fieldtype": "Check",
+   "label": "Pagi"
+  },
+  {
+   "default": "0",
+   "fieldname": "siang",
+   "fieldtype": "Check",
+   "label": "Siang"
+  },
+  {
+   "default": "0",
+   "fieldname": "sore",
+   "fieldtype": "Check",
+   "label": "Sore"
+  },
+  {
+   "default": "0",
+   "fieldname": "malam",
+   "fieldtype": "Check",
+   "label": "Malam"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2020-11-09 15:19:53.133514",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetTemplateTindakanProducts",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

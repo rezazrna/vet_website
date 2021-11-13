@@ -1,0 +1,347 @@
+{
+ "autoname": "VRM-.#",
+ "creation": "2020-04-13 10:30:03.992978",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "register_number",
+  "reception",
+  "pet",
+  "pet_name",
+  "pet_owner",
+  "pet_owner_name",
+  "record_date",
+  "service",
+  "temperature",
+  "weight",
+  "food_history",
+  "vaccine_history",
+  "anamnese",
+  "diagnosa_utama",
+  "prognosa",
+  "diagnosa_banding",
+  "action",
+  "result",
+  "description",
+  "state",
+  "bcs",
+  "vomit",
+  "auscl",
+  "ausch",
+  "pulse",
+  "respiration",
+  "abdominal_palpasi_pain",
+  "abdominal_palpasi_tension",
+  "limfonodule",
+  "mukosa",
+  "mata",
+  "hidung",
+  "mulut",
+  "telinga",
+  "kulit",
+  "ekstremitas",
+  "reflex",
+  "other",
+  "dokter",
+  "nama_dokter",
+  "attachment",
+  "marker",
+  "attachments",
+  "jasa",
+  "obat",
+  "other_pemeriksaan",
+  "other_diagnosa"
+ ],
+ "fields": [
+  {
+   "fieldname": "pet",
+   "fieldtype": "Link",
+   "label": "Nomor Induk Pasien",
+   "options": "VetPet"
+  },
+  {
+   "fetch_from": "pet.pet_name",
+   "fetch_if_empty": 1,
+   "fieldname": "pet_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nama Pasien"
+  },
+  {
+   "fieldname": "register_number",
+   "fieldtype": "Link",
+   "label": "No Registrasi",
+   "options": "VetTask",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "pet.parent",
+   "fetch_if_empty": 1,
+   "fieldname": "pet_owner",
+   "fieldtype": "Link",
+   "label": "Pemilik",
+   "options": "VetPetOwner"
+  },
+  {
+   "fetch_from": "pet_owner.owner_name",
+   "fieldname": "pet_owner_name",
+   "fieldtype": "Data",
+   "label": "Nama Pemilik"
+  },
+  {
+   "fieldname": "record_date",
+   "fieldtype": "Datetime",
+   "label": "Tanggal"
+  },
+  {
+   "fieldname": "service",
+   "fieldtype": "Select",
+   "label": "Layanan",
+   "options": "Dokter\nFarmasi\nGrooming\nLaboratorium\nOperasi\nRadiologi\nRawat Inap\nUSG\nAmbulance\nKamar Jenazah\nKremasi\nSewa"
+  },
+  {
+   "fieldname": "temperature",
+   "fieldtype": "Float",
+   "label": "Suhu",
+   "precision": "1"
+  },
+  {
+   "fieldname": "weight",
+   "fieldtype": "Float",
+   "label": "Berat",
+   "precision": "1"
+  },
+  {
+   "fieldname": "anamnese",
+   "fieldtype": "Text",
+   "label": "Anamnese"
+  },
+  {
+   "fieldname": "prognosa",
+   "fieldtype": "Data",
+   "label": "Prognosa"
+  },
+  {
+   "fieldname": "action",
+   "fieldtype": "Text",
+   "label": "Tindakan"
+  },
+  {
+   "default": "-",
+   "fieldname": "result",
+   "fieldtype": "Data",
+   "label": "Interpretasi Hasil"
+  },
+  {
+   "default": "-",
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Keterangan"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Select",
+   "label": "Hidup / Mati",
+   "options": "Hidup\nMati"
+  },
+  {
+   "fieldname": "bcs",
+   "fieldtype": "Data",
+   "label": "BCS"
+  },
+  {
+   "fieldname": "vomit",
+   "fieldtype": "Data",
+   "label": "Vomit"
+  },
+  {
+   "fieldname": "auscl",
+   "fieldtype": "Data",
+   "label": "Ausc. L"
+  },
+  {
+   "fieldname": "ausch",
+   "fieldtype": "Data",
+   "label": "Ausc. H"
+  },
+  {
+   "fieldname": "pulse",
+   "fieldtype": "Data",
+   "label": "Pulsus (/menit)",
+   "precision": "1"
+  },
+  {
+   "fieldname": "respiration",
+   "fieldtype": "Data",
+   "label": "Respirasi (/menit)",
+   "precision": "1"
+  },
+  {
+   "fieldname": "abdominal_palpasi_pain",
+   "fieldtype": "Data",
+   "label": "Abdominal Palpasi Pain"
+  },
+  {
+   "fieldname": "abdominal_palpasi_tension",
+   "fieldtype": "Data",
+   "label": "Abdominal Palpasi Tension"
+  },
+  {
+   "fieldname": "limfonodule",
+   "fieldtype": "Data",
+   "label": "Limfonodule"
+  },
+  {
+   "fieldname": "mukosa",
+   "fieldtype": "Data",
+   "label": "Mukosa"
+  },
+  {
+   "fieldname": "mata",
+   "fieldtype": "Data",
+   "label": "Mata"
+  },
+  {
+   "fieldname": "hidung",
+   "fieldtype": "Data",
+   "label": "Hidung"
+  },
+  {
+   "fieldname": "mulut",
+   "fieldtype": "Data",
+   "label": "Mulut"
+  },
+  {
+   "fieldname": "telinga",
+   "fieldtype": "Data",
+   "label": "Telinga"
+  },
+  {
+   "fieldname": "kulit",
+   "fieldtype": "Data",
+   "label": "Kulit"
+  },
+  {
+   "fieldname": "ekstremitas",
+   "fieldtype": "Data",
+   "label": "Ekstremitas"
+  },
+  {
+   "fieldname": "reflex",
+   "fieldtype": "Data",
+   "label": "Sensasi Refleks"
+  },
+  {
+   "fieldname": "other",
+   "fieldtype": "Data",
+   "label": "Lainnya"
+  },
+  {
+   "fieldname": "diagnosa_utama",
+   "fieldtype": "Data",
+   "label": "Diagnosa Utama"
+  },
+  {
+   "fieldname": "food_history",
+   "fieldtype": "Data",
+   "label": "Riwayat Makanan"
+  },
+  {
+   "fieldname": "vaccine_history",
+   "fieldtype": "Data",
+   "label": "Riwayat Vaksin"
+  },
+  {
+   "fetch_from": "register_number.reception",
+   "fetch_if_empty": 1,
+   "fieldname": "reception",
+   "fieldtype": "Link",
+   "label": "No. Antrian",
+   "options": "VetReception"
+  },
+  {
+   "fetch_from": "reception.owner",
+   "fetch_if_empty": 1,
+   "fieldname": "dokter",
+   "fieldtype": "Link",
+   "label": "Dokter",
+   "options": "User"
+  },
+  {
+   "fetch_from": "dokter.full_name",
+   "fetch_if_empty": 1,
+   "fieldname": "nama_dokter",
+   "fieldtype": "Data",
+   "label": "Nama Dokter"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attachment"
+  },
+  {
+   "fieldname": "diagnosa_banding",
+   "fieldtype": "Data",
+   "label": "Diagnosa Bandung"
+  },
+  {
+   "fieldname": "marker",
+   "fieldtype": "Link",
+   "label": "Marker",
+   "options": "VetMarker"
+  },
+  {
+   "fieldname": "attachments",
+   "fieldtype": "Table",
+   "label": "Attachments",
+   "options": "VetRekamMedisAttachments"
+  },
+  {
+   "fieldname": "jasa",
+   "fieldtype": "Table",
+   "label": "Jasa",
+   "options": "VetRekamMedisJasa"
+  },
+  {
+   "fieldname": "obat",
+   "fieldtype": "Table",
+   "label": "obat",
+   "options": "VetRekamMedisObat"
+  },
+  {
+   "fieldname": "other_pemeriksaan",
+   "fieldtype": "Data",
+   "label": "Lainnya Pemeriksaan"
+  },
+  {
+   "fieldname": "other_diagnosa",
+   "fieldtype": "Data",
+   "label": "Lainnya  Diagnosa"
+  }
+ ],
+ "modified": "2021-09-18 17:00:53.846754",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetRekamMedis",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

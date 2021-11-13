@@ -1,0 +1,78 @@
+{
+ "actions": [],
+ "creation": "2020-12-10 10:01:45.317719",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "produk",
+  "nama_produk",
+  "quantity",
+  "uom",
+  "uom_name",
+  "price",
+  "disc",
+  "amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "produk",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "produk",
+   "options": "VetProduct",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "produk.product_name",
+   "fieldname": "nama_produk",
+   "fieldtype": "Data",
+   "label": "nama produk"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "label": "quantity"
+  },
+  {
+   "fetch_from": "produk.product_uom",
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": "UOM",
+   "options": "VetUOM"
+  },
+  {
+   "fetch_from": "uom.uom_name",
+   "fieldname": "uom_name",
+   "fieldtype": "Data",
+   "label": "UOM name"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Float",
+   "label": "Unit Price"
+  },
+  {
+   "fieldname": "disc",
+   "fieldtype": "Float",
+   "label": "disc"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "label": "amount"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2020-12-10 10:39:01.580147",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetPosOrderProduk",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

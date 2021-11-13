@@ -1,0 +1,135 @@
+{
+ "actions": [],
+ "autoname": "PO.#",
+ "creation": "2020-08-25 13:26:46.808979",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "order_date",
+  "supplier",
+  "deliver_to",
+  "status",
+  "products",
+  "pembayaran",
+  "already_refund",
+  "is_refund",
+  "refund_date",
+  "deliver_from",
+  "supplier_name",
+  "deliver_to_name",
+  "first_action",
+  "potongan"
+ ],
+ "fields": [
+  {
+   "fieldname": "order_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Order Date"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Supplier",
+   "options": "VetSupplier"
+  },
+  {
+   "fieldname": "deliver_to",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Deliver To",
+   "options": "VetGudang"
+  },
+  {
+   "default": "RFQ",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nRFQ\nPurchase Order\nReceive\nPaid\nCancel\nRefund\nDone"
+  },
+  {
+   "fieldname": "products",
+   "fieldtype": "Table",
+   "label": "Products",
+   "options": "VetPurchaseProducts"
+  },
+  {
+   "fieldname": "pembayaran",
+   "fieldtype": "Table",
+   "label": "Pembayaran",
+   "options": "VetPurchasePay"
+  },
+  {
+   "default": "0",
+   "fieldname": "already_refund",
+   "fieldtype": "Check",
+   "label": "Already Refund"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_refund",
+   "fieldtype": "Check",
+   "label": "Is Refund"
+  },
+  {
+   "fieldname": "refund_date",
+   "fieldtype": "Date",
+   "label": "Refund Date"
+  },
+  {
+   "fieldname": "deliver_from",
+   "fieldtype": "Link",
+   "label": "Deliver From",
+   "options": "VetGudang"
+  },
+  {
+   "fetch_from": "supplier.supplier_name",
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Supplier Name"
+  },
+  {
+   "fetch_from": "deliver_to.gudang_name",
+   "fieldname": "deliver_to_name",
+   "fieldtype": "Data",
+   "label": "Deliver To Name"
+  },
+  {
+   "fieldname": "first_action",
+   "fieldtype": "Select",
+   "label": "First Action",
+   "options": "\nPay\nReceive"
+  },
+  {
+   "fieldname": "potongan",
+   "fieldtype": "Float",
+   "label": "Potongan"
+  }
+ ],
+ "links": [],
+ "modified": "2021-02-15 17:07:36.051665",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetPurchase",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

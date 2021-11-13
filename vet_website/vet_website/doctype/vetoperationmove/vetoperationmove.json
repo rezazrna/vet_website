@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "autoname": "VOM-.#",
+ "creation": "2020-08-26 16:11:28.847403",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "product",
+  "product_name",
+  "product_uom",
+  "uom_name",
+  "quantity",
+  "quantity_done",
+  "inventory_value",
+  "date",
+  "price"
+ ],
+ "fields": [
+  {
+   "fieldname": "product",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "product",
+   "options": "VetProduct",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "product.product_name",
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "label": "product_name"
+  },
+  {
+   "fetch_from": "product.product_uom",
+   "fetch_if_empty": 1,
+   "fieldname": "product_uom",
+   "fieldtype": "Link",
+   "label": "product_uom",
+   "options": "VetUOM"
+  },
+  {
+   "fetch_from": "product_uom.uom_name",
+   "fieldname": "uom_name",
+   "fieldtype": "Data",
+   "label": "uom_name"
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "quantity"
+  },
+  {
+   "fieldname": "quantity_done",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "quantity_done"
+  },
+  {
+   "fieldname": "inventory_value",
+   "fieldtype": "Float",
+   "label": "Inventory Value"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Float",
+   "label": "Price"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2021-04-17 11:53:48.775729",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetOperationMove",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "autoname": "VJI-.#",
+ "creation": "2020-09-15 10:38:11.584071",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "account",
+  "debit",
+  "credit",
+  "total",
+  "account_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Account",
+   "options": "VetCoa",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "debit",
+   "fieldtype": "Float",
+   "label": "Debit"
+  },
+  {
+   "default": "0",
+   "fieldname": "credit",
+   "fieldtype": "Float",
+   "label": "Credit"
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Float",
+   "label": "total"
+  },
+  {
+   "fetch_from": "account.account_name",
+   "fieldname": "account_name",
+   "fieldtype": "Data",
+   "label": "Account Name"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2020-10-10 12:34:10.267005",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetJournalItem",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -1,0 +1,17 @@
+<div class="row justify-content-end">
+	<div class="col-auto d-flex">
+		{% for status in statuses %}
+		<div class="col-auto status-col {{'active' if current_status == status else ''}}">
+			<div class="status-col-connector">
+				<i class="fa fa-lg fa-ellipsis-h"></i>
+			</div>
+			<div class="status-col-check">
+				<i class="fa fa-2x fa-check-circle"></i>
+			</div>
+			<span class="status-col-title">
+				{{ status }}
+			</span>
+		</div>
+		{% endfor %}
+	</div>
+</div>

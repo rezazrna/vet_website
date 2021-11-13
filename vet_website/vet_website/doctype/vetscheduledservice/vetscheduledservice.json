@@ -1,0 +1,143 @@
+{
+ "actions": [],
+ "autoname": "VSS-.#",
+ "creation": "2020-04-16 14:22:16.682376",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "create_date",
+  "register_number",
+  "pet",
+  "pet_name",
+  "pet_type",
+  "type_name",
+  "pet_owner",
+  "pet_owner_name",
+  "pet_owner_phone",
+  "service",
+  "user",
+  "description",
+  "schedule_date",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "create_date",
+   "fieldtype": "Datetime",
+   "label": "Tanggal Buat"
+  },
+  {
+   "fieldname": "pet",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "NIP",
+   "options": "VetPet",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "pet.pet_name",
+   "fieldname": "pet_name",
+   "fieldtype": "Data",
+   "label": "Nama Pasien"
+  },
+  {
+   "fetch_from": "pet.parent",
+   "fieldname": "pet_owner",
+   "fieldtype": "Link",
+   "label": "Pemilik",
+   "options": "VetPetOwner"
+  },
+  {
+   "fetch_from": "pet_owner.owner_name",
+   "fieldname": "pet_owner_name",
+   "fieldtype": "Data",
+   "label": "Nama Pemilk"
+  },
+  {
+   "fieldname": "service",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Asal Layanan",
+   "options": "Dokter\nFarmasi\nGrooming\nLaboratorium\nOperasi\nRadiologi\nRawat Inap\nUSG\nAmbulance\nKamar Jenazah\nKremasi\nSewa",
+   "reqd": 1
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Penjelasan"
+  },
+  {
+   "fieldname": "schedule_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Tanggal Jadwal",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nDone",
+   "reqd": 1
+  },
+  {
+   "fieldname": "register_number",
+   "fieldtype": "Link",
+   "label": "No Registrasi",
+   "options": "VetTask",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "pet_owner.phone",
+   "fieldname": "pet_owner_phone",
+   "fieldtype": "Data",
+   "label": "No Telp."
+  },
+  {
+   "fetch_from": "pet.hewan_jenis",
+   "fieldname": "pet_type",
+   "fieldtype": "Link",
+   "label": "Jenis Hewan",
+   "options": "VetPetType"
+  },
+  {
+   "fetch_from": "pet_type.type_name",
+   "fieldname": "type_name",
+   "fieldtype": "Data",
+   "label": "Nama Jenis Hewan"
+  }
+ ],
+ "links": [],
+ "modified": "2020-07-21 14:42:02.613829",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetScheduledService",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

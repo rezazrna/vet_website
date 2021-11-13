@@ -1,0 +1,10 @@
+{% set page_title="Purchase Order" %}
+{% extends "templates/main.html" %}
+{% block title %}Purchase Order{% endblock %}
+{% block main_page %}
+<div id="purchase_order_list"></div>
+<script type="text/babel" src="/static/src/js/filter-babel.js"></script>
+<script type="text/babel" src="/static/src/js/search-bar-babel.js"></script>
+<script type="text/babel" src="/static/src/js/pagination-babel.js"></script>
+<script type="text/babel" src="/main/purchases/purchase-order/index-babel.js"></script>
+{% endblock %}

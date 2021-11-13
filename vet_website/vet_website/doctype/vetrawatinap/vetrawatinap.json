@@ -1,0 +1,103 @@
+{
+ "actions": [],
+ "autoname": "VRI-.#",
+ "creation": "2020-08-18 12:41:33.396180",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "register_number",
+  "service",
+  "tindakan",
+  "status",
+  "cage",
+  "cage_name",
+  "reception",
+  "pet_name",
+  "owner_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "register_number",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "No Pendaftaran",
+   "options": "VetTask",
+   "reqd": 1
+  },
+  {
+   "fieldname": "service",
+   "fieldtype": "Select",
+   "label": "Layanan",
+   "options": "Dokter\nFarmasi\nGrooming\nLaboratorium\nOperasi\nRadiologi\nRawat Inap\nUSG\nAmbulance\nKamar Jenazah\nKremasi\nSewa"
+  },
+  {
+   "fieldname": "tindakan",
+   "fieldtype": "Table",
+   "label": "Tindakan",
+   "options": "VetRawatInapTindakan"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nOn Progress\nDone"
+  },
+  {
+   "fieldname": "cage",
+   "fieldtype": "Link",
+   "label": "kandang",
+   "options": "VetKandang"
+  },
+  {
+   "fetch_from": "cage.cage_name",
+   "fieldname": "cage_name",
+   "fieldtype": "Data",
+   "label": "nama kandang"
+  },
+  {
+   "fetch_from": "register_number.reception",
+   "fieldname": "reception",
+   "fieldtype": "Link",
+   "label": "Penerimaan",
+   "options": "VetReception"
+  },
+  {
+   "fetch_from": "reception.pet_name",
+   "fieldname": "pet_name",
+   "fieldtype": "Data",
+   "label": "Nama Pasien"
+  },
+  {
+   "fetch_from": "reception.pet_owner_name",
+   "fieldname": "owner_name",
+   "fieldtype": "Data",
+   "label": "Nama Pemilik"
+  }
+ ],
+ "links": [],
+ "modified": "2021-02-15 17:07:38.137647",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetRawatInap",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

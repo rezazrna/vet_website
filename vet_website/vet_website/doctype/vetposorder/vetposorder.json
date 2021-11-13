@@ -1,0 +1,146 @@
+{
+ "actions": [],
+ "autoname": "POSORDER-.#",
+ "creation": "2020-12-10 10:00:44.865806",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "session",
+  "order_date",
+  "responsible",
+  "responsible_name",
+  "produk",
+  "pet",
+  "pet_name",
+  "pet_owner",
+  "owner_name",
+  "subtotal",
+  "tax",
+  "total",
+  "payment",
+  "is_refund",
+  "already_refund",
+  "refund_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "session",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Session",
+   "options": "VetPosSessions",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "session.responsible",
+   "fieldname": "responsible",
+   "fieldtype": "Data",
+   "label": "Responsible"
+  },
+  {
+   "fetch_from": "session.responsible_name",
+   "fieldname": "responsible_name",
+   "fieldtype": "Data",
+   "label": "Responsible Name"
+  },
+  {
+   "fieldname": "produk",
+   "fieldtype": "Table",
+   "label": "Produk",
+   "options": "VetPosOrderProduk"
+  },
+  {
+   "fieldname": "pet",
+   "fieldtype": "Link",
+   "label": "Pet",
+   "options": "VetPet"
+  },
+  {
+   "fetch_from": "pet.pet_name",
+   "fieldname": "pet_name",
+   "fieldtype": "Data",
+   "label": "Pet Name"
+  },
+  {
+   "fetch_from": "pet.parent",
+   "fieldname": "pet_owner",
+   "fieldtype": "Link",
+   "label": "Owner",
+   "options": "VetPetOwner"
+  },
+  {
+   "fetch_from": "pet_owner.owner_name",
+   "fieldname": "owner_name",
+   "fieldtype": "Data",
+   "label": "Owner Name"
+  },
+  {
+   "fieldname": "subtotal",
+   "fieldtype": "Float",
+   "label": "Subtotal"
+  },
+  {
+   "fieldname": "tax",
+   "fieldtype": "Float",
+   "label": "tax"
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Float",
+   "label": "total"
+  },
+  {
+   "fieldname": "order_date",
+   "fieldtype": "Datetime",
+   "label": "Order Date"
+  },
+  {
+   "fieldname": "payment",
+   "fieldtype": "Table",
+   "label": "Payment",
+   "options": "VetPosOrderPayment"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_refund",
+   "fieldtype": "Check",
+   "label": "is refund"
+  },
+  {
+   "default": "0",
+   "fieldname": "already_refund",
+   "fieldtype": "Check",
+   "label": "already refund"
+  },
+  {
+   "fieldname": "refund_date",
+   "fieldtype": "Datetime",
+   "label": "refund date"
+  }
+ ],
+ "links": [],
+ "modified": "2020-12-19 14:21:24.546748",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetPosOrder",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

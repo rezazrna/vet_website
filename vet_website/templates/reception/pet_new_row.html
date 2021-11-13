@@ -1,0 +1,49 @@
+<div class="pet_row">
+	<div class="border-bottom fs12 fw600 py-2" style="color: #056EAD;">
+		<span class="pet_row_name">
+			Hewan Baru
+		</span>
+	</div>
+	<div class="form-row py-2">
+		<div class="col-6">
+			<div class="form-group">
+				<label for="name_pet" class="fs10 fw600">No Induk Pasien (NIP)</label>
+				<input id="name_pet" name='name_pet' class="form-control border-0" {{ "readonly placeholder='/'" if not search_nip else '' }}>
+			</div>
+		</div>
+		<div class="col-6">
+			<div class="form-group">
+				<label for="pet_name" class="fs10 fw600">Nama Pasien</label>
+				<input required id="pet_name" name='pet_name' class="form-control border-0">
+			</div>
+		</div>
+	</div>
+	<div class="form-row py-2">
+		<div class="col-6">
+			<div class="form-group">
+				<label for="hewan_jenis" class="fs10 fw600">Hewan / Jenis</label>
+				{% set pet_type = frappe.get_list("VetPetType", fields=["name", "type_name"]) %}
+				<select required id="hewan_jenis" class="form-control border-0" name='hewan_jenis'>
+					{% for type in pet_type %}
+						<option value="{{ type.name }}">{{ type.type_name }}</option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+		<div class="col-6">
+			<div class="form-group">
+				<label for="register_date" class="fs10 fw600">Tanggal Registrasi</label>
+				{% set random_number = range(1, 999) | random %}
+				<input required id="register_date{{ random_number }}" name='register_date' class="form-control border-0 datetimepicker  datetimepicker-input" data-toggle="datetimepicker" data-target="#register_date{{ random_number }}" readonly="">
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="pet_description" class="fs10 fw600">Keterangan</label>
+		<textarea id="pet_description" class="form-control border-0" rows="3" name='pet_description'></textarea>
+	</div>
+	<input type="radio" name="pet" required value="New" style="opacity: 0;">
+	<button class="pet_row_select btn btn-block rounded-0 alert-secondary text-center text-muted text-uppercase fwbold fs18 py-2 mb-3">
+		Pilih
+	</button>
+</div>

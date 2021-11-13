@@ -1,0 +1,9 @@
+{% set page_title= alt_page_title or "Tindakan Dokter" %}
+{% extends "templates/main.html" %}
+{% block title %}{{ alt_page_title or "Tindakan Dokter" }}{% endblock %}
+{% block main_page %}
+<div id="tindakan_dokter"></div>
+<script type="text/babel" src="/static/src/js/status_row-babel.js"></script>
+<script type="text/babel" src="/static/src/js/record-navigator-babel.js"></script>
+<script type="text/babel" src="/main/dokter-dan-jasa/tindakan-dokter/form-babel.js"></script>
+{% endblock %}

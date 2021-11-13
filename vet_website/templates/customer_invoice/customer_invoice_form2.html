@@ -1,0 +1,230 @@
+{% set page_title = alt_page_title or "Customer Invoices" %}
+{% extends "templates/main.html" %}
+{% block title %}{{ alt_page_title or "Customer Invoices" }}{% endblock %}
+{% block main_page %}
+<form method="POST" id="invoice_form">
+	<div style="background: #fff; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1);" class="p-4 mb-4">
+		<div class="row">
+			{% if invoice.status == 'Unpaid' %}
+			<div class="col-auto d-flex">
+				<button class="btn btn-danger text-uppercase fs12 fwbold mx-auto">Submit</button>
+			</div>
+			<div class="col-auto d-flex">
+				<button class="btn btn-outline-danger text-uppercase fs12 fwbold mx-auto">Send by Email</button>
+			</div>
+			<div class="col-auto d-flex">
+				<button class="btn btn-outline-danger text-uppercase fs12 fwbold mx-auto">Print</button>
+			</div>
+			<div class="col-auto d-flex">
+				<button class="btn btn-outline-danger text-uppercase fs12 fwbold mx-auto">Refund Invoice</button>
+			</div>
+			<div class="col-auto d-flex">
+				<button class="btn btn-outline-danger text-uppercase fs12 fwbold mx-auto">Cancel Invoice</button>
+			</div>
+			<div class="col-auto d-flex">
+				<button class="btn btn-outline-danger text-uppercase fs12 fwbold mx-auto">Submit to Farmasi</button>
+			</div>
+			{% endif %}
+			{% if mode == 'Detail' and invoice.status in ['Draft', 'Unpaid'] %}
+				<div class="col-auto">
+					<a href="/main/kasir/customer-invoices/edit?n={{ invoice.name }}" class="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3" style="line-height: 14px;">Edit</a>
+				</div>
+			{% elif mode == 'Edit' and invoice.status in ['Draft', 'Unpaid'] %}
+				<div class="col-auto ml-auto">
+					<button class="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3" style="line-height: 14px;">Simpan</button>
+				</div>
+				<div class="col-auto">
+					<a href="/main/kasir/customer-invoices" class="btn btn-sm fs12 btn-outline-danger text-uppercase h-100">Batalkan</a>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+	{% with current_status = invoice.status %}
+		{% include 'templates/status_row.html' %}
+	{% endwith %}
+	<div style="background: #fff; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1);" class="p-4 my-4">
+		<div class="row mx-0">
+			<div class="col-3">
+				<div class="form-group">
+					<label for="pet_name" class="fs10 fw600">Nama Pasien</label>
+					<div class="row mx-0">
+						{% if mode == 'Edit' %}
+							<input required id="pet_name" name='pet_name' class="form-control border-0 lightbg" readonly value="{{ invoice.pet_name }}">
+						{% elif mode == 'Detail' %}
+							<span class="fs16 px-2" id="reception">{{ invoice.pet_name if invoice and mode == 'Detail' else '' }}</span>
+						{% endif %}
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="register_number" class="fs10 fw600">No. registrasi pembayaran</label>
+					<div class="row mx-0">
+						{% if mode == 'Edit' %}
+							<input required id="register_number" name='register_number' class="form-control border-0 lightbg" readonly value="{{ invoice.register_number }}">
+						{% elif mode == 'Detail' %}
+							<span class="fs16 px-2" id="reception">{{ invoice.register_number if invoice and mode == 'Detail' else '' }}</span>
+						{% endif %}
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="invoice_date" class="fs10 fw600">Tanggal Invoice</label>
+					<div class="row mx-0">
+						{% if mode == 'Edit' %}
+							<input required id="invoice_date" name='invoice_date' class="form-control border-0 lightbg" readonly value="{{ invoice.posting_date }}">
+						{% elif mode == 'Detail' %}
+							<span class="fs16 px-2" id="reception">{{ invoice.posting_date if invoice and mode == 'Detail' else '' }}</span>
+						{% endif %}
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="owner_name" class="fs10 fw600">Nama Pemilik</label>
+					<div class="row mx-0">
+						{% if mode == 'Edit' %}
+							<input required id="owner_name" name='owner_name' class="form-control border-0 lightbg" readonly value="{{ invoice.owner_name }}">
+						{% elif mode == 'Detail' %}
+							<span class="fs16 px-2" id="owner_name">{{ invoice.owner_name if invoice and mode == 'Detail' else '' }}</span>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+			<div class="col-3 offset-3">
+				<div class="form-group">
+					<label for="owner" class="fs10 fw600">Sales person</label>
+					<div class="row mx-0">
+						{% if mode == 'Edit' %}
+							<input required id="user" name='user' class="form-control border-0 lightbg" readonly value="{{ invoice.owner }}">
+						{% elif mode == 'Detail' %}
+							<span class="fs16 px-2" id="user">{{ invoice.owner if invoice and mode == 'Detail' else '' }}</span>
+						{% endif %}
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="origin" class="fs10 fw600">Source Document</label>
+					<div class="row mx-0">
+						{% if mode == 'Edit' %}
+							<input required id="origin" name='origin' class="form-control border-0 lightbg" readonly value="{{ invoice.origin }}">
+						{% elif mode == 'Detail' %}
+							<span class="fs16 px-2" id="origin">{{ invoice.origin if invoice and mode == 'Detail' else '' }}</span>
+						{% endif %}
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="payment_method" class="fs10 fw600">Payment Method</label>
+					<div class="row mx-0">
+						<input id="payment_method" class="form-control ">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div style="background: #fff; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1);" class="p-4">
+		<ul class="nav nav-tabs" id="customerInvoicesTab" role="tablist">
+			<li class="nav-item">
+				<a class="nav-link active" id="invoices-line-tab" data-toggle="tab" href="#invoices-line" role="tab">Invoices Line</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="other-info-tab" data-toggle="tab" href="#other-info" role="tab">Other Info</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="payments-tab" data-toggle="tab" href="#payments" role="tab">Payments</a>
+			</li>
+		</ul>
+		<div class="tab-content" id="customerInvoicesTabContent">
+			<div class="tab-pane show active py-4" id="invoices-line" role="tabpanel">
+				<div class="pb-5">
+					<div class="row mx-0 mb-3 fs12 fw600" style="background: #CEEDFF; padding: 12px 0; color: #1B577B;">
+						<div class="col-auto">
+							<div style="width: 40px;">
+								No
+							</div>
+						</div>
+						<div class="col">
+							Produk
+						</div>
+						<div class="col">
+							Deskripsi
+						</div>
+						<div class="col">
+							Account
+						</div>
+						<div class="col">
+							Quantity
+						</div>
+						<div class="col">
+							Unit of Measurement
+						</div>
+						<div class="col">
+							Unit Price
+						</div>
+						<div class="col">
+							Diskon (Rp)
+						</div>
+						<div class="col">
+							Taxes
+						</div>
+						<div class="col">
+							Amount
+						</div>
+					</div>
+					<div id="product_list">
+						{% for line in invoice.items %}
+							{% include 'templates/customer_invoice/invoice_line_list2.html' %}
+						{% endfor %}
+					</div>
+					{% if mode == 'Edit' %}
+						<button id="add_invoice_line" class="btn btn-outline-danger mt-3 text-uppercase fs12 fwbold"><i class="fa fa-plus mr-2"></i>Tambah Item</button>
+					{% endif %}
+				</div>
+			</div>
+			<div class="tab-pane py-4" id="other-info" role="tabpanel">
+				<div class="text-center">
+					<h3>Hah, Kosong?</h3>
+				</div>
+			</div>
+			<div class="tab-pane py-4" id="payments" role="tabpanel">
+				<div class="text-center">
+					<h3>Hah, Kosong?</h3>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="mt-5 p-4">
+		<div class="row justify-content-end">
+			<div class="col-2">
+				<div class="row fs14 fw600 mb-2">
+					<div class="col-6">
+						<span class="text-dark">Sub total</span>
+					</div>
+					<div class="col-6 text-right">
+						<span>{{ frappe.utils.fmt_money(invoice.subtotal,currency="Rp",precision=0) }}</span>
+					</div>
+				</div>
+				<div class="row fs14 fw600 mb-2">
+					<div class="col-6">
+						<span class="text-dark">Tax</span>
+					</div>
+					<div class="col-6 text-right">
+						<span>Rp 0</span>
+					</div>
+				</div>
+				<div class="border-bottom mb-2"></div>
+				<div class="row fs16 fw600">
+					<div class="col-6">
+						<span class="text-dark text-uppercase">Total</span>
+					</div>
+					<div class="col-6 text-right">
+						<span>{{ frappe.utils.fmt_money(invoice.total,currency="Rp",precision=0) }}</span>
+					</div>
+				</div>
+				<div class="row fs16 fw600">
+					<div class="col-6">
+						<span class="text-dark">Balance</span>
+					</div>
+					<div class="col-6 text-right">
+						<span>Rp 0</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+{% endblock %}

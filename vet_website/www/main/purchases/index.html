@@ -1,0 +1,102 @@
+{% set page_title="Alur Purchase" %}
+{% extends "templates/main.html" %}
+{% block main_page %}
+<div style="background: #FFFFFF; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1); padding: 80px 0;">
+	<div class="row justify-content-center">
+		<div class="col-auto">
+		    <div class="row justify-content-center">
+			    <div class="col-auto text-center">
+					<img class="my-2 mx-2" src="/static/img/main/menu/product.png">
+				</div>
+				<div class="col-auto text-center">
+					<img class="my-2 mx-2" src="/static/img/main/menu/supplier.png">
+				</div>
+			</div>
+			<div class="row justify-content-center">
+			    <div class="col text-center">
+					<p class="mb-0 my-3 fs16 fw600 rounded" style="background: #C6EAFF; padding: 8px 25px; color: #056EAD;">
+						Terdaftar
+					</p>
+				</div>
+			</div>
+			<div class="row justify-content-around">
+			    <div class="col-auto text-center" style="width: 320px;">
+			        <img src="/static/img/main/menu/bottom.png" class="ml-5 my-2"><span class="fs16 fw600">Tidak</span>
+					<div class="px-2 py-4 mx-4 position-relative" style="border: 3px dashed #BDBDBD;">
+						<a href="/main/inventory" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+							<img src="/static/img/main/menu/menuInventory.png">
+							<p class="mb-2">
+								Inventory
+							</p>
+						</a>
+						<img src="/static/img/main/menu/purchase-merge-bottom-left.png" class="position-absolute" style="top: 240px; transform: scale(200%); left: 240px;">
+					</div>
+				</div>
+				<div class="col-auto text-center" style="width: 320px;">
+					<img src="/static/img/main/menu/bottom.png" class="ml-5 my-2"><span class="fs16 fw600">Tidak</span>
+					<div class="py-4">
+						<a href="/main/purchases/suppliers/form" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+							<img src="/static/img/main/menu/menuSupplier.png">
+							<p class="mb-2">
+								Tambah Supplier
+							</p>
+						</a>
+					</div>
+				</div>
+				<div class="col-auto text-center" style="width: 320px;">
+				    <div class="text-center">
+				        <img src="/static/img/main/menu/bottom-extra-long.png" class="ml-4 my-2"><span class="fs16 fw600">Ya</span>
+				    </div>
+				    <div class="py-5">
+				    	<a href="/main/purchases/purchase-order/form" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+							<img src="/static/img/main/menu/menuRFQ.png">
+							<p class="mb-2">
+								Request For<br>Quotation
+							</p>
+						</a>
+				    </div>
+					<div class="text-center">
+				        <img src="/static/img/main/menu/bottom.png">
+				    </div>
+				</div>
+			</div>
+			<div class="row justify-content-end">
+				<div class="col-auto text-center">
+					<div class="px-5 py-4 position-relative" style="border: 3px dashed #BDBDBD;">
+						<a href="/main/inventory" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+							<img src="/static/img/main/menu/menuInventory.png">
+							<p class="mb-0">
+								Inventory
+							</p>
+						</a>
+					</div>
+				</div>
+				<div class="col-auto text-center">
+					<img src="/static/img/main/menu/left-short.png" class="mt-5 pt-4">
+				</div>
+			    <div class="col-auto text-center mr-5" style="width: 240px;">
+			    	<div class="py-4">
+			    		<a href="/main/purchases/purchase-order" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+							<img src="/static/img/main/menu/menuPurchaseOrder.png">
+							<p class="mb-2">
+								Purchase Order
+							</p>
+						</a>
+			    	</div>
+					<div class="text-center">
+				        <img src="/static/img/main/menu/bottom.png">
+				    </div>
+				    <div class="py-4">
+				    	<a href="#" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+							<img src="/static/img/main/menu/menuInvoice.png">
+							<p class="mb-0">
+								Invoice
+							</p>
+						</a>
+				    </div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% set page_title = alt_page_title or "Customer Invoices" %}
+{% extends "templates/main.html" %}
+{% block title %}{{ alt_page_title or "Customer Invoices" }}{% endblock %}
+{% block main_page %}
+<div id="customer_invoice_form"></div>
+<script type="text/babel" src="/static/src/js/status_row-babel.js"></script>
+<script type="text/babel" src="/static/src/js/record-navigator-babel.js"></script>
+<script type="text/babel" src="/main/kasir/customer-invoices/form-babel.js"></script>
+{% endblock %}

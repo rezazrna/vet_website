@@ -1,0 +1,64 @@
+{
+ "actions": [],
+ "autoname": "VAID-.#",
+ "creation": "2020-09-29 09:39:40.369944",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "product",
+  "product_name",
+  "theoritical_quantity",
+  "real_quantity",
+  "diff_quantity",
+  "adjustment_value"
+ ],
+ "fields": [
+  {
+   "fieldname": "product",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "product",
+   "options": "VetProduct",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "product.product_name",
+   "fieldname": "product_name",
+   "fieldtype": "Data",
+   "label": "product name"
+  },
+  {
+   "fieldname": "theoritical_quantity",
+   "fieldtype": "Data",
+   "label": "theoritical quantity"
+  },
+  {
+   "fieldname": "real_quantity",
+   "fieldtype": "Data",
+   "label": "real quantity"
+  },
+  {
+   "fieldname": "diff_quantity",
+   "fieldtype": "Data",
+   "label": "diff quantity"
+  },
+  {
+   "fieldname": "adjustment_value",
+   "fieldtype": "Float",
+   "label": "adjustment_value"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2020-09-30 09:47:51.745033",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetAdjustmentInventoryDetails",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

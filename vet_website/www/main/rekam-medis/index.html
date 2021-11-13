@@ -1,0 +1,55 @@
+{% set page_title="Alur Rekam Medis" %}
+{% extends "templates/main.html" %}
+{% block main_page %}
+<div style="background: #FFFFFF; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1); padding: 80px 0;">
+	<div class="row justify-content-center">
+		<div class="col-auto">
+			<div class="row justify-content-center">
+				 <div class="col-auto text-center">
+				 	<p class="mb-0 fs16 fw500" style="font-family: Rubik;">
+				 		Dokter & Jasa,<br>Farmasi
+				 	</p>
+				 	<img class="my-2" src="/static/img/main/menu/line-dashed-short-horizontal.png">
+				 </div>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-auto text-center" style="width: 240px;">
+					<a href="/main/rekam-medis/rekam-medis" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+						<img src="/static/img/main/menu/menuListDataRekamMedis.png">
+						<p>
+							List data Rekam Medis
+						</p>
+					</a>
+				</div>
+				<div class="col-auto text-center" style="width: 200px;">
+					<img src="/static/img/main/menu/left.png" class="mt-4">
+					<p class="fs12 mt-4 mb-0">
+						<span style="color: #E93D52;">Anamnese dan Diagnosa (<b>Tindakan Dokter</b>)</span>,<br>
+						<span style="color: #056EAD;">pengecekan (<b>Grooming</b>)</span>
+					</p>
+				</div>
+				<div class="col-auto text-center">
+					<p class="mb-0 fs12 fw600 rounded" style="background: #C6EAFF; padding: 14px 25px; color: #056EAD;">
+						Rekaman<br>medis
+					</p>
+				</div>
+				<div class="col-auto text-center" style="width: 200px;">
+					<img src="/static/img/main/menu/right.png" class="mt-4">
+					<p class="fs12 mt-4 mb-0">
+						<span style="color: #E93D52;">Dokter, Tindakan Lanjut dan Jasa Lain (<b>Tindakan Dokter</b>)</span>,<br>
+						<span style="color: #05AD6E;">Obat (<b>Farmasi</b>)</span>
+					</p>
+				</div>
+				<div class="col-auto text-center" style="width: 240px;">
+					<a href="/main/rekam-medis/analisa-layanan-dan-obat" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+						<img src="/static/img/main/menu/menuListDataAnalisa.png">
+						<p>
+							List data analisa Layanan<br>dan Obat
+						</p>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

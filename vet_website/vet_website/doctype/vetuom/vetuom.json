@@ -1,0 +1,76 @@
+{
+ "actions": [],
+ "autoname": "field:uom_name",
+ "creation": "2020-03-27 09:26:57.287449",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "uom_name",
+  "unit_master",
+  "ratio",
+  "unit_master_label",
+  "unit_master_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "uom_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "UOM Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "unit_master",
+   "fieldtype": "Link",
+   "label": "Unit Master",
+   "options": "VetUOM"
+  },
+  {
+   "fieldname": "ratio",
+   "fieldtype": "Float",
+   "label": "Ratio"
+  },
+  {
+   "fetch_from": "unit_master.uom_name",
+   "fetch_if_empty": 1,
+   "fieldname": "unit_master_label",
+   "fieldtype": "Data",
+   "label": "Unit Master Label"
+  },
+  {
+   "fetch_from": "unit_master.uom_name",
+   "fieldname": "unit_master_name",
+   "fieldtype": "Data",
+   "label": "Unit Master Name"
+  }
+ ],
+ "links": [],
+ "modified": "2020-11-03 16:23:24.154505",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetUOM",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "search_fields": "uom_name",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "uom_name",
+ "track_changes": 1
+}

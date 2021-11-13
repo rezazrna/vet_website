@@ -1,0 +1,123 @@
+{
+ "actions": [],
+ "autoname": "POS.#",
+ "creation": "2020-12-08 12:59:32.517273",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "opening_session",
+  "closing_session",
+  "responsible",
+  "responsible_name",
+  "transaction",
+  "status",
+  "opening_balance",
+  "kas_masuk",
+  "kas_keluar",
+  "current_balance",
+  "closing_balance",
+  "difference"
+ ],
+ "fields": [
+  {
+   "fieldname": "opening_session",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Opening Session",
+   "reqd": 1
+  },
+  {
+   "fieldname": "closing_session",
+   "fieldtype": "Datetime",
+   "label": "Closing Session"
+  },
+  {
+   "fieldname": "responsible",
+   "fieldtype": "Link",
+   "label": "Responsible",
+   "options": "User"
+  },
+  {
+   "fetch_from": "responsible.full_name",
+   "fieldname": "responsible_name",
+   "fieldtype": "Data",
+   "label": "Responsible Name"
+  },
+  {
+   "default": "0",
+   "fieldname": "transaction",
+   "fieldtype": "Float",
+   "label": "Transaction"
+  },
+  {
+   "default": "In Progress",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "In Progress\nClosed & Posted"
+  },
+  {
+   "default": "0",
+   "fieldname": "kas_masuk",
+   "fieldtype": "Table",
+   "label": "Kas Masuk",
+   "options": "VetPosSessionsKasMasuk"
+  },
+  {
+   "default": "0",
+   "fieldname": "kas_keluar",
+   "fieldtype": "Table",
+   "label": "Kas Keluar",
+   "options": "VetPosSessionsKasKeluar"
+  },
+  {
+   "default": "0",
+   "fieldname": "current_balance",
+   "fieldtype": "Float",
+   "label": "Current Balance"
+  },
+  {
+   "default": "0",
+   "fieldname": "closing_balance",
+   "fieldtype": "Float",
+   "label": "Closing Balance"
+  },
+  {
+   "default": "0",
+   "fieldname": "opening_balance",
+   "fieldtype": "Float",
+   "label": "Opening Balance"
+  },
+  {
+   "default": "0",
+   "fieldname": "difference",
+   "fieldtype": "Float",
+   "label": "Difference"
+  }
+ ],
+ "links": [],
+ "modified": "2021-02-08 14:07:37.073925",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetPosSessions",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

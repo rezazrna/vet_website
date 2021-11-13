@@ -1,0 +1,52 @@
+{% set page_title="Alur Kasir" %}
+{% extends "templates/main.html" %}
+{% block main_page %}
+<div style="background: #FFFFFF; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1); padding: 80px 0;">
+	<div class="row justify-content-center">
+		<div class="col-auto">
+			<div class="row justify-content-center">
+				 <div class="col-auto text-center">
+				 	<p class="mb-0 fs16 fw500" style="font-family: Rubik;">
+				 		Dokter & Jasa,<br>Farmasi
+				 	</p>
+				 	<img class="my-2" src="/static/img/main/menu/line-dashed-short-horizontal.png">
+				 </div>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-auto text-center mr-5" style="width: 240px;">
+					<a href="/main/kasir/customer-invoices" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+						<img src="/static/img/main/menu/menuInvoice.png">
+						<p>
+							Customer Invoices
+						</p>
+					</a>
+				</div>
+				<div class="col-auto text-center mr-3" style="width: 200px;">
+					<img src="/static/img/main/menu/left-dashed.png" class="mt-4">
+				</div>
+				<div class="col-auto text-center mr-3" style="width: 200px;">
+					<img src="/static/img/main/menu/right-dashed.png" class="mt-4">
+				</div>
+				<div class="col-auto text-center ml-5" style="width: 240px;">
+					<a href="/main/rekam-medis/analisa-layanan-dan-obat" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+						<img src="/static/img/main/menu/menuListDataAnalisa.png">
+						<p>
+							List data analisa Layanan<br>dan Obat
+						</p>
+					</a>
+				</div>
+			</div>
+			<div class="row justify-content-center position-relative">
+				<img class="position-absolute" src="/static/img/main/menu/cashier-direction-bottom-right.png" style="left: 120px;">
+				<div class="col-auto text-center" style="width: 240px; margin-top: 80px;">
+					<a href="/main/kasir/customer-payments" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+						<img src="/static/img/main/menu/menuCustomerPayment.png">
+						<p>
+							Customer Payments
+						</p>
+					</a>
+				</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

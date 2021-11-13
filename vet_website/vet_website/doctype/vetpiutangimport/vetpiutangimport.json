@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "creation": "2021-02-15 14:56:05.094030",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "nominal",
+  "pet_owner"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Tanggal",
+   "reqd": 1
+  },
+  {
+   "fieldname": "nominal",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Nominal",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pet_owner",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Pet Owner",
+   "options": "VetPetOwner",
+   "reqd": 1
+  }
+ ],
+ "links": [],
+ "modified": "2021-02-15 14:56:05.094030",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetPiutangImport",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

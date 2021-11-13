@@ -1,0 +1,60 @@
+<nav class="navbar navbar-light navbar-expand-md main-navbar py-2 px-0">
+	<div class="container-fluid">
+		<span id="sidebar-toggler" class="mr-3">
+		</span>
+		<span class="page-title">
+			{{ page_title or "Insert paget title here" }}
+		</span>
+		<ul class="navbar-nav ml-auto d-md-none">
+		{% if frappe.session.user != "Guest" %}
+		<li class="navbar-item mx-4">
+			<a class="nav-link" href="#">
+				<i class="fa fa-bell-o fa-lg"></i>
+			</a>
+		</li>
+		{% endif %}
+		</ul>
+		<button class="navbar-toggler border-0 sidebar-toggler" type="button">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav ml-auto mr-5">
+				{% if frappe.session.user != "Guest" %}
+				<li class="navbar-item mx-4">
+					<label class="lang-select my-2" for="select_language_navbar">
+			        	<select id="select_language_navbar">
+			        		<option value="en" {{ 'selected' if user_lang[0].language == 'en' else '' }}>ENG</option>
+					        <option value="id"{{ 'selected' if user_lang[0].language == 'id' else '' }}>IND</option>
+			        	</select>
+			        </label>
+			    </li>
+				<li class="navbar-item mx-4">
+					<a class="nav-link" href="#">
+						<i class="fa fa-bell-o fa-lg"></i>
+					</a>
+				</li>
+				<li class="navbar-item dropdown">
+					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">{{ frappe.db.get_value("User", frappe.session.user, "full_name") }}</a>
+					<ul class="dropdown-menu dropdown-menu-right rounded mt-3">
+						<a class="dropdown-item text-left pl-0" href="/rental/my-profile">
+							<i class="mr-2 fa fa-user-o">
+							</i>
+							Profile
+						</a>
+						<a class="dropdown-item text-left pl-0" href="/?cmd=web_logout">
+							<i class="mr-2 fa fa-sign-out fa-rotate-180"></i>
+							Logout
+						</a>
+					</ul>
+				</li>
+				{% else %}
+				<li class="navbar-item">
+					<a class="nav-link" href="/login">
+						Login
+					</a>
+				</li>
+				{% endif %}
+			</ul>
+		</div>
+	</div>
+</nav>

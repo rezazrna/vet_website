@@ -1,0 +1,8 @@
+{% set page_title= alt_page_title or "Tindakan Baru" %}
+{% extends "templates/main.html" %}
+{% block title %}{{ alt_page_title or "Tindakan Baru" }}{% endblock %}
+{% block main_page %}
+<div id="rawat_inap_new"></div>
+<script type="text/babel" src="/main/dokter-dan-jasa/rawat-inap/form_new-babel.js"></script>
+<script type="text/babel" src="/static/src/js/record-navigator-babel.js"></script>
+{% endblock %}

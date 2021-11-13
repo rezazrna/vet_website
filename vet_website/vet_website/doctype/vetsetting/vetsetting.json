@@ -1,0 +1,41 @@
+{
+ "actions": [],
+ "creation": "2020-11-09 09:31:16.088912",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "apotik_warehouse"
+ ],
+ "fields": [
+  {
+   "fieldname": "apotik_warehouse",
+   "fieldtype": "Link",
+   "label": "Apotik Last Warehouse",
+   "options": "VetGudang"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2020-11-09 09:31:16.088912",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetSetting",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

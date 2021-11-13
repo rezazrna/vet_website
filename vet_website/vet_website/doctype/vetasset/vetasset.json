@@ -1,0 +1,197 @@
+{
+ "actions": [],
+ "autoname": "VAS-.#",
+ "creation": "2020-09-22 14:41:44.718605",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "asset_name",
+  "period",
+  "book_value",
+  "original_value",
+  "acquistion_date",
+  "asset_date",
+  "fixed_asset_account",
+  "depreciation_account",
+  "expense_account",
+  "method",
+  "residual_value",
+  "duration",
+  "duration_type",
+  "status",
+  "fixed_asset_account_name",
+  "depreciation_account_name",
+  "expense_account_name",
+  "fixed_asset_account_code",
+  "depreciation_account_code",
+  "expense_account_code",
+  "depreciation_list",
+  "payment_account",
+  "payment_account_name",
+  "payment_account_code"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name"
+  },
+  {
+   "fieldname": "period",
+   "fieldtype": "Data",
+   "label": "Period"
+  },
+  {
+   "fieldname": "book_value",
+   "fieldtype": "Float",
+   "label": "Book Value"
+  },
+  {
+   "fieldname": "original_value",
+   "fieldtype": "Data",
+   "label": "Original Value"
+  },
+  {
+   "fieldname": "acquistion_date",
+   "fieldtype": "Date",
+   "label": "Acquistion Date"
+  },
+  {
+   "fieldname": "asset_date",
+   "fieldtype": "Date",
+   "label": "Asset Date"
+  },
+  {
+   "fieldname": "fixed_asset_account",
+   "fieldtype": "Link",
+   "label": "Fixed Asse Account",
+   "options": "VetCoa"
+  },
+  {
+   "fieldname": "depreciation_account",
+   "fieldtype": "Link",
+   "label": "Depreciation Account",
+   "options": "VetCoa"
+  },
+  {
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "label": "Expense Account",
+   "options": "VetCoa"
+  },
+  {
+   "fieldname": "duration",
+   "fieldtype": "Int",
+   "label": "duration"
+  },
+  {
+   "fieldname": "duration_type",
+   "fieldtype": "Select",
+   "label": "Duration Type",
+   "options": "Month\nYear"
+  },
+  {
+   "default": "Running",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nRunning\nSell/Dispose"
+  },
+  {
+   "fetch_from": "fixed_asset_account.account_name",
+   "fieldname": "fixed_asset_account_name",
+   "fieldtype": "Data",
+   "label": "Fixed Asset Account Name"
+  },
+  {
+   "fetch_from": "depreciation_account.account_name",
+   "fieldname": "depreciation_account_name",
+   "fieldtype": "Data",
+   "label": "Depreciation Account Name"
+  },
+  {
+   "fetch_from": "expense_account.account_name",
+   "fieldname": "expense_account_name",
+   "fieldtype": "Data",
+   "label": "Expense Account Name"
+  },
+  {
+   "fetch_from": "fixed_asset_account.account_code",
+   "fieldname": "fixed_asset_account_code",
+   "fieldtype": "Data",
+   "label": "Fixed Asset Account Code"
+  },
+  {
+   "fetch_from": "depreciation_account.account_code",
+   "fieldname": "depreciation_account_code",
+   "fieldtype": "Data",
+   "label": "Depreciation Account Code"
+  },
+  {
+   "fetch_from": "expense_account.account_code",
+   "fieldname": "expense_account_code",
+   "fieldtype": "Data",
+   "label": "Expense Account Code"
+  },
+  {
+   "fieldname": "method",
+   "fieldtype": "Select",
+   "label": "Method",
+   "options": "Linear\nDegressive\nAccelerated Degressive"
+  },
+  {
+   "fieldname": "depreciation_list",
+   "fieldtype": "Table",
+   "label": "Depreciation List",
+   "options": "VetDepreciationList"
+  },
+  {
+   "fieldname": "residual_value",
+   "fieldtype": "Float",
+   "label": "Residual Value"
+  },
+  {
+   "fieldname": "payment_account",
+   "fieldtype": "Link",
+   "label": "payment account",
+   "options": "VetCoa"
+  },
+  {
+   "fetch_from": "payment_account.account_name",
+   "fieldname": "payment_account_name",
+   "fieldtype": "Data",
+   "label": "payment account name"
+  },
+  {
+   "fetch_from": "payment_account.account_code",
+   "fieldname": "payment_account_code",
+   "fieldtype": "Data",
+   "label": "payment account code"
+  }
+ ],
+ "links": [],
+ "modified": "2020-09-29 13:01:45.566648",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetAsset",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

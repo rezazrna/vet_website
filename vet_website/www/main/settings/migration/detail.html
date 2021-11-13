@@ -1,0 +1,9 @@
+{% set page_title=alt_page_title %}
+{% extends "templates/main.html" %}
+{% block title %}{{ alt_page_title }}{% endblock %}
+{% block main_page %}
+<div id="migration_detail"></div>
+<!--<div id="embedding"></div>-->
+<script type="text/babel" src="/main/settings/migration/detail-babel.js"></script>
+<!--<script type="text/babel" src="https://cors-anywhere.herokuapp.com/http://3.1.136.192:8069/pengaturan/embedding-babel.js"></script>-->
+{% endblock %}

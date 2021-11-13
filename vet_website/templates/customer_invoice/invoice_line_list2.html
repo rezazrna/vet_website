@@ -1,0 +1,59 @@
+{% if line %}
+	{% set selected = line.item_code %}
+{% endif %}
+<div  {% if line %} id="{{ line.name }}" {% endif %} class="row mx-0 mb-3 fs12 fw600 invoice_line_row" style="background: #F7FAF5; padding: 12px 0; color: #787E84;">
+	<div class="col-auto">
+		<div style="width: 40px;">
+			{{ 1 }}
+		</div>
+	</div>
+	<div class="col">
+		{% if mode == 'Detail' or invoice.status == 'Paid' %}
+			{{ line.item_name or '' }}
+		{% elif mode == 'Edit' and invoice.status != 'Paid' %}
+			<select required name='product' class="form-control fs12 border-0 lightbg product_options p-0">
+				{% include 'templates/customer_invoice/product_options2.html' %}
+			</select>
+		{% endif %}
+	</div>
+	<div class="col product_name_col">
+		{% if line %}
+		{{ line.item_name or '' }}
+		{% endif %}
+	</div>
+	<div class="col">
+		-
+	</div>
+	<div class="col">
+		{% if mode == 'Detail' or invoice.status == 'Paid' %}
+			{{ line.qty or '' }}
+		{% elif mode == 'Edit' and invoice.status != 'Paid' %}
+			<input required name='quantity' class="form-control fs12 border-0 lightbg" {% if line %} value="{{ line.qty or 0 }}" {% else %} value="1" {% endif %}>
+		{% endif %}
+	</div>
+	<div class="col uom_col">
+		{% if line %}
+		{{ line.uom or '' }}
+		{% endif %}
+	</div>
+	<div class="col unit_price_col">
+		{% if line %}
+		{{ frappe.utils.fmt_money(line.rate,currency="Rp",precision=0) }}
+		{% endif %}
+	</div>
+	<div class="col">
+		{% if line %}
+		{{ frappe.utils.fmt_money(line.discount_amount,currency="Rp",precision=0) }}
+		{% else %}
+		{{ frappe.utils.fmt_money(0,currency="Rp",precision=0) }}
+		{% endif %}
+	</div>
+	<div class="col">
+		{{ frappe.utils.fmt_money(0,currency="Rp",precision=0) }}
+	</div>
+	<div class="col total_col">
+		{% if line %}
+		{{ frappe.utils.fmt_money(line.amount,currency="Rp",precision=0) }}
+		{% endif %}
+	</div>
+</div>

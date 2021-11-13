@@ -1,0 +1,693 @@
+.fs8 {
+    font-size: 8px;
+}
+
+.fs10 {
+    font-size: 10px;
+}
+
+.fs12 {
+    font-size: 12px;
+}
+
+.fs14 {
+    font-size: 14px;
+}
+
+.fs16 {
+    font-size: 16px;
+}
+
+.fs18 {
+    font-size: 18px;
+}
+
+.fs20 {
+    font-size: 20px;
+}
+
+.fs22 {
+    font-size: 22px;
+}
+
+.fs24 {
+    font-size: 24px;
+}
+
+.fs26 {
+    font-size: 26px;
+}
+
+.fs28 {
+    font-size: 28px;
+}
+
+.fs30 {
+    font-size: 30px;
+}
+
+.fs32 {
+    font-size: 32px;
+}
+
+.fs34 {
+    font-size: 34px;
+}
+
+.fs36 {
+    font-size: 36px;
+}
+
+.fs38 {
+    font-size: 38px;
+}
+
+.fs40 {
+    font-size: 40px;
+}
+
+.fs42 {
+    font-size: 42px;
+}
+
+.fs44 {
+    font-size: 44px;
+}
+
+.fs46 {
+    font-size: 46px;
+}
+
+.fs48 {
+    font-size: 48px;
+}
+
+.fs50 {
+    font-size: 50px;
+}
+
+.fs52 {
+    font-size: 52px;
+}
+
+.fs54 {
+    font-size: 54px;
+}
+
+.fs56 {
+    font-size: 56px;
+}
+
+.fs58 {
+    font-size: 58px;
+}
+
+.fs60 {
+    font-size: 60px;
+}
+
+.fs62 {
+    font-size: 62px;
+}
+
+.fs64 {
+    font-size: 64px;
+}
+
+.fs66 {
+    font-size: 66px;
+}
+
+.fs68 {
+    font-size: 68px;
+}
+
+.fs70 {
+    font-size: 70px;
+}
+
+.fs72 {
+    font-size: 72px;
+}
+
+.fs74 {
+    font-size: 74px;
+}
+
+.fs76 {
+    font-size: 76px;
+}
+
+.fs78 {
+    font-size: 78px;
+}
+
+.fs80 {
+    font-size: 80px;
+}
+
+.fw900 {
+    font-weight: 900;
+}
+
+.fw800 {
+    font-weight: 800;
+}
+
+.fw700 {
+    font-weight: 700;
+}
+
+.fw600 {
+    font-weight: 600;
+}
+
+.fw500 {
+    font-weight: 500;
+}
+
+.fw400 {
+    font-weight: 400;
+}
+
+.fw300 {
+    font-weight: 300;
+}
+
+.fw200 {
+    font-weight: 200;
+}
+
+.fw100 {
+    font-weight: 100;
+}
+
+.fwbold {
+    font-weight: bold;
+}
+
+.fwbolder {
+    font-weight: bolder;
+}
+
+.fwnormal {
+    font-weight: normal;
+}
+
+@media (min-width: 768px) {
+    .fs8md {
+        font-size: 8px;
+    }
+
+    .fs10md {
+        font-size: 10px;
+    }
+
+	.fs12md {
+    font-size: 12px;
+    }
+
+    .fs14md {
+        font-size: 14px;
+    }
+
+    .fs16md {
+        font-size: 16px;
+    }
+
+    .fs18md {
+        font-size: 18px;
+    }
+
+    .fs20md {
+        font-size: 20px;
+    }
+
+    .fs22md {
+        font-size: 22px;
+    }
+
+    .fs24md {
+        font-size: 24px;
+    }
+
+    .fs26md {
+        font-size: 26px;
+    }
+
+    .fs28md {
+        font-size: 28px;
+    }
+
+    .fs30md {
+        font-size: 30px;
+    }
+
+    .fs32md {
+        font-size: 32px;
+    }
+
+    .fs34md {
+        font-size: 34px;
+    }
+
+    .fs36md {
+        font-size: 36px;
+    }
+
+    .fs38md {
+        font-size: 38px;
+    }
+
+    .fs40md {
+        font-size: 40px;
+    }
+
+    .fs42md {
+        font-size: 42px;
+    }
+
+    .fs44md {
+        font-size: 44px;
+    }
+
+    .fs46md {
+        font-size: 46px;
+    }
+
+    .fs48md {
+        font-size: 48px;
+    }
+
+    .fs50md {
+        font-size: 50px;
+    }
+
+    .fs52md {
+        font-size: 52px;
+    }
+
+    .fs54md {
+        font-size: 54px;
+    }
+
+    .fs56md {
+        font-size: 56px;
+    }
+
+    .fs58md {
+        font-size: 58px;
+    }
+
+    .fs60md {
+        font-size: 60px;
+    }
+
+    .fs62md {
+        font-size: 62px;
+    }
+
+    .fs64md {
+        font-size: 64px;
+    }
+
+    .fs66md {
+        font-size: 66px;
+    }
+
+    .fs68md {
+        font-size: 68px;
+    }
+
+    .fs70md {
+        font-size: 70px;
+    }
+
+    .fs72md {
+        font-size: 72px;
+    }
+
+    .fs74md {
+        font-size: 74px;
+    }
+
+    .fs76md {
+        font-size: 76px;
+    }
+
+    .fs78md {
+        font-size: 78px;
+    }
+
+    .fs80md {
+        font-size: 80px;
+    }
+
+    .fw900md {
+    font-weight: 900;
+    }
+
+    .fw800md {
+        font-weight: 800;
+    }
+
+    .fw700md {
+        font-weight: 700;
+    }
+
+    .fw600md {
+        font-weight: 600;
+    }
+
+    .fw500md {
+        font-weight: 500;
+    }
+
+    .fw400md {
+        font-weight: 400;
+    }
+
+    .fw300md {
+        font-weight: 300;
+    }
+
+    .fw200md {
+        font-weight: 200;
+    }
+
+    .fw100md {
+        font-weight: 100;
+    }
+
+    .fwboldmd {
+        font-weight: bold;
+    }
+
+    .fwboldermd {
+        font-weight: bolder;
+    }
+
+    .fwnormalmd {
+        font-weight: normal;
+    }
+}	
+
+@media (max-height:650px){
+    .fs8 {
+        font-size: 6px;
+    }
+    
+    .fs10 {
+        font-size: 8px;
+    }
+    
+    .fs12 {
+        font-size: 9.5px;
+    }
+    
+    .fs14 {
+        font-size: 11px;
+    }
+    
+    .fs16 {
+        font-size: 13px;
+    }
+    
+    .fs18 {
+        font-size: 15px;
+    }
+    
+    .fs20 {
+        font-size: 17px;
+    }
+    
+    .fs22 {
+        font-size: 19px;
+    }
+    
+    .fs24 {
+        font-size: 21px;
+    }
+    
+    .fs26 {
+        font-size: 23px;
+    }
+    
+    .fs28 {
+        font-size: 25px;
+    }
+    
+    .fs30 {
+        font-size: 27px;
+    }
+    
+    .fs32 {
+        font-size: 29px;
+    }
+    
+    .fs34 {
+        font-size: 31px;
+    }
+    
+    .fs36 {
+        font-size: 33px;
+    }
+    
+    .fs38 {
+        font-size: 35px;
+    }
+    
+    .fs40 {
+        font-size: 37px;
+    }
+    
+    .fs42 {
+        font-size: 39px;
+    }
+    
+    .fs44 {
+        font-size: 41px;
+    }
+    
+    .fs46 {
+        font-size: 43px;
+    }
+    
+    .fs48 {
+        font-size: 45px;
+    }
+    
+    .fs50 {
+        font-size: 47px;
+    }
+    
+    .fs52 {
+        font-size: 49px;
+    }
+    
+    .fs54 {
+        font-size: 51px;
+    }
+    
+    .fs56 {
+        font-size: 53px;
+    }
+    
+    .fs58 {
+        font-size: 55px;
+    }
+    
+    .fs60 {
+        font-size: 57px;
+    }
+    
+    .fs62 {
+        font-size: 59px;
+    }
+    
+    .fs64 {
+        font-size: 61px;
+    }
+    
+    .fs66 {
+        font-size: 63px;
+    }
+    
+    .fs68 {
+        font-size: 65px;
+    }
+    
+    .fs70 {
+        font-size: 67px;
+    }
+    
+    .fs72 {
+        font-size: 69px;
+    }
+    
+    .fs74 {
+        font-size: 71px;
+    }
+    
+    .fs76 {
+        font-size: 73px;
+    }
+    
+    .fs78 {
+        font-size: 75px;
+    }
+    
+    .fs80 {
+        font-size: 77px;
+    }
+}
+
+@media (max-height:650px) and (min-width: 769px){
+    .fs8md {
+        font-size: 6px;
+    }
+    
+    .fs10md {
+        font-size: 8px;
+    }
+    
+    .fs12md {
+        font-size: 9.5px;
+    }
+    
+    .fs14md {
+        font-size: 11px;
+    }
+    
+    .fs16md {
+        font-size: 13px;
+    }
+    
+    .fs18md {
+        font-size: 15px;
+    }
+    
+    .fs20md {
+        font-size: 17px;
+    }
+    
+    .fs22md {
+        font-size: 19px;
+    }
+    
+    .fs24md {
+        font-size: 21px;
+    }
+    
+    .fs26md {
+        font-size: 23px;
+    }
+    
+    .fs28md {
+        font-size: 25px;
+    }
+    
+    .fs30md {
+        font-size: 27px;
+    }
+    
+    .fs32md {
+        font-size: 29px;
+    }
+    
+    .fs34md {
+        font-size: 31px;
+    }
+    
+    .fs36md {
+        font-size: 33px;
+    }
+    
+    .fs38md {
+        font-size: 35px;
+    }
+    
+    .fs40md {
+        font-size: 37px;
+    }
+    
+    .fs42md {
+        font-size: 39px;
+    }
+    
+    .fs44md {
+        font-size: 41px;
+    }
+    
+    .fs46md {
+        font-size: 43px;
+    }
+    
+    .fs48md {
+        font-size: 45px;
+    }
+    
+    .fs50md {
+        font-size: 47px;
+    }
+    
+    .fs52md {
+        font-size: 49px;
+    }
+    
+    .fs54md {
+        font-size: 51px;
+    }
+    
+    .fs56md {
+        font-size: 53px;
+    }
+    
+    .fs58md {
+        font-size: 55px;
+    }
+    
+    .fs60md {
+        font-size: 57px;
+    }
+    
+    .fs62md {
+        font-size: 59px;
+    }
+    
+    .fs64md {
+        font-size: 61px;
+    }
+    
+    .fs66md {
+        font-size: 63px;
+    }
+    
+    .fs68md {
+        font-size: 65px;
+    }
+    
+    .fs70md {
+        font-size: 67px;
+    }
+    
+    .fs72md {
+        font-size: 69px;
+    }
+    
+    .fs74md {
+        font-size: 71px;
+    }
+    
+    .fs76md {
+        font-size: 73px;
+    }
+    
+    .fs78md {
+        font-size: 75px;
+    }
+    
+    .fs80md {
+        font-size: 77px;
+    }
+}

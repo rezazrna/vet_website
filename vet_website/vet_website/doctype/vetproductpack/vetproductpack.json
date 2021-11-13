@@ -1,0 +1,40 @@
+{
+ "actions": [],
+ "autoname": "VPPK-.#",
+ "creation": "2020-10-27 16:04:24.575099",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "quantity_pack",
+  "harga_pack"
+ ],
+ "fields": [
+  {
+   "fieldname": "quantity_pack",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantity Pack",
+   "reqd": 1
+  },
+  {
+   "fieldname": "harga_pack",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Harga Pack",
+   "reqd": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2020-10-27 16:04:24.575099",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetProductPack",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

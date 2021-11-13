@@ -1,0 +1,109 @@
+{
+ "actions": [],
+ "autoname": "VA-.#",
+ "creation": "2020-07-23 09:00:15.683788",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "register_number",
+  "status",
+  "description",
+  "obat",
+  "warehouse",
+  "warehouse_name",
+  "reception",
+  "pet_name",
+  "owner_name",
+  "pet"
+ ],
+ "fields": [
+  {
+   "fieldname": "register_number",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "No Pendaftaran",
+   "options": "VetTask"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nDone\nCancel"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Catatan"
+  },
+  {
+   "fieldname": "obat",
+   "fieldtype": "Table",
+   "label": "Obat",
+   "options": "VetApotikProduct"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "VetGudang"
+  },
+  {
+   "fetch_from": "warehouse.gudang_name",
+   "fieldname": "warehouse_name",
+   "fieldtype": "Data",
+   "label": "Warehouse Name"
+  },
+  {
+   "fetch_from": "register_number.reception",
+   "fieldname": "reception",
+   "fieldtype": "Link",
+   "label": "Penerimaan",
+   "options": "VetReception"
+  },
+  {
+   "fetch_from": "reception.pet_name",
+   "fieldname": "pet_name",
+   "fieldtype": "Data",
+   "label": "Nama Pasien"
+  },
+  {
+   "fetch_from": "reception.pet_owner_name",
+   "fieldname": "owner_name",
+   "fieldtype": "Data",
+   "label": "Nama Pemilik"
+  },
+  {
+   "fetch_from": "reception.pet",
+   "fieldname": "pet",
+   "fieldtype": "Link",
+   "label": "NIP",
+   "options": "VetPet"
+  }
+ ],
+ "links": [],
+ "modified": "2021-02-15 17:07:36.997626",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetApotik",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

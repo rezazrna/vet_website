@@ -1,0 +1,86 @@
+{
+ "_comments": "[]",
+ "_liked_by": "[]",
+ "actions": [],
+ "autoname": "field:account_code",
+ "creation": "2020-09-14 09:34:18.077521",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "account_code",
+  "account_name",
+  "account_type",
+  "is_parent",
+  "saldo",
+  "account_parent"
+ ],
+ "fields": [
+  {
+   "fieldname": "account_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Account Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "account_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Account Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "account_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Account Type",
+   "options": "Asset\nEquity\nExpense\nIncome\nLiability",
+   "reqd": 1
+  },
+  {
+   "fieldname": "saldo",
+   "fieldtype": "Float",
+   "label": "Saldo"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_parent",
+   "fieldtype": "Check",
+   "label": "Is Parent"
+  },
+  {
+   "fieldname": "account_parent",
+   "fieldtype": "Link",
+   "label": "Account Parent",
+   "options": "VetCoa"
+  }
+ ],
+ "links": [],
+ "modified": "2020-11-03 16:24:32.039316",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetCoa",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "search_fields": "account_name",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "account_name",
+ "track_changes": 1
+}

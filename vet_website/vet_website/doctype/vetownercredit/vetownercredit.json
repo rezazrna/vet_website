@@ -1,0 +1,160 @@
+{
+ "actions": [],
+ "autoname": "VOC-.#",
+ "creation": "2020-10-07 12:27:43.844926",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "register_number",
+  "type",
+  "nominal",
+  "invoice",
+  "pet_owner",
+  "pet_owner_name",
+  "purchase",
+  "supplier",
+  "supplier_name",
+  "metode_pembayaran",
+  "credit",
+  "credit_mutation",
+  "debt",
+  "debt_mutation",
+  "status",
+  "is_deposit",
+  "exchange"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "register_number",
+   "fieldtype": "Link",
+   "label": "No Registrasi",
+   "options": "VetTask"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Payment\nSales\nRefund\nCancel\nPurchase"
+  },
+  {
+   "fieldname": "invoice",
+   "fieldtype": "Link",
+   "label": "No Invoice",
+   "options": "VetCustomerInvoice"
+  },
+  {
+   "fieldname": "nominal",
+   "fieldtype": "Float",
+   "label": "nominal"
+  },
+  {
+   "fieldname": "credit",
+   "fieldtype": "Float",
+   "label": "credit"
+  },
+  {
+   "fieldname": "purchase",
+   "fieldtype": "Link",
+   "label": "Purchase",
+   "options": "VetPurchase"
+  },
+  {
+   "fetch_from": "purchase.supplier",
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "supplier",
+   "options": "VetSupplier"
+  },
+  {
+   "fetch_from": "invoice.owner",
+   "fetch_if_empty": 1,
+   "fieldname": "pet_owner",
+   "fieldtype": "Link",
+   "label": "Owner",
+   "options": "VetPetOwner"
+  },
+  {
+   "default": "Done",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "status",
+   "options": "Draft\nDone"
+  },
+  {
+   "fetch_from": "pet_owner.owner_name",
+   "fieldname": "pet_owner_name",
+   "fieldtype": "Data",
+   "label": "Owner Name"
+  },
+  {
+   "fetch_from": "supplier.supplier_name",
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Supplier Name"
+  },
+  {
+   "fieldname": "metode_pembayaran",
+   "fieldtype": "Data",
+   "label": "metode_pembayaran"
+  },
+  {
+   "fieldname": "credit_mutation",
+   "fieldtype": "Float",
+   "label": "credit mutation"
+  },
+  {
+   "fieldname": "debt",
+   "fieldtype": "Float",
+   "label": "debt"
+  },
+  {
+   "fieldname": "debt_mutation",
+   "fieldtype": "Float",
+   "label": "debt mutation"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_deposit",
+   "fieldtype": "Check",
+   "label": "Is Deposit"
+  },
+  {
+   "fieldname": "exchange",
+   "fieldtype": "Float",
+   "label": "Exchange"
+  }
+ ],
+ "links": [],
+ "modified": "2021-01-11 09:50:36.026725",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetOwnerCredit",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

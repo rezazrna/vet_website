@@ -1,0 +1,17 @@
+<div {% if action %} id={{ action.name }} {% endif %} class="row mx-0 mb-3 fs12 fw600 grooming_actions" style="background: #F7FAF5; padding: 12px 0; color: #787E84;">
+	<div class="col-5 border-right">
+		{% if mode == 'Detail' or grooming.status == 'Done' %}
+			{{ action.date or '' }}
+		{% elif mode == 'Edit' and grooming.status == 'Draft' %}
+			{% set random_number = range(1, 999) | random %}
+			<input required id="date{{ random_number }}" name='date' class="form-control border-0 datetimepicker  datetimepicker-input fs12 lightbg" data-toggle="datetimepicker" data-target="#date{{ random_number }}" {% if action %} value="{{ action.date }}" {% endif %}>
+		{% endif %}
+	</div>
+	<div class="col-7 text-center">
+		{% if mode == 'Detail' or grooming.status == 'Done' %}
+			{{ action.note or '' }}
+		{% elif mode == 'Edit' and grooming.status == 'Draft' %}
+			<input required name='note' class="form-control fs12 border-0 lightbg" {% if action %} value="{{ action.note }}" {% endif %}>
+		{% endif %}
+	</div>
+</div>

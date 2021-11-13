@@ -1,0 +1,114 @@
+{
+ "actions": [],
+ "autoname": ".#",
+ "creation": "2020-03-21 16:57:14.464488",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "reception_date",
+  "description",
+  "register_number",
+  "service",
+  "service_detail",
+  "pet",
+  "queue",
+  "pet_name",
+  "pet_owner",
+  "pet_owner_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "reception_date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Tanggal Penerimaan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Keterangan"
+  },
+  {
+   "fieldname": "register_number",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "label": "No. Pendaftaran",
+   "options": "VetTask"
+  },
+  {
+   "fieldname": "service",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Layanan",
+   "options": "VetService",
+   "reqd": 1
+  },
+  {
+   "fieldname": "service_detail",
+   "fieldtype": "Link",
+   "label": "Detail Jasa",
+   "options": "VetProduct",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pet",
+   "fieldtype": "Link",
+   "label": "Hewan",
+   "options": "VetPet",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "queue",
+   "fieldtype": "Int",
+   "label": "No. Antrian"
+  },
+  {
+   "fetch_from": "pet.pet_name",
+   "fieldname": "pet_name",
+   "fieldtype": "Data",
+   "label": "Nama Hewan"
+  },
+  {
+   "fetch_from": "pet.parent",
+   "fieldname": "pet_owner",
+   "fieldtype": "Link",
+   "label": "Pet Owner",
+   "options": "VetPetOwner"
+  },
+  {
+   "fetch_from": "pet_owner.owner_name",
+   "fieldname": "pet_owner_name",
+   "fieldtype": "Data",
+   "label": "Pet Owner Name"
+  }
+ ],
+ "links": [],
+ "modified": "2021-01-05 14:23:57.576175",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetReception",
+ "name_case": "Title Case",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

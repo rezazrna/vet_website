@@ -1,0 +1,35 @@
+{
+ "actions": [],
+ "creation": "2020-08-11 11:50:05.716844",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "attachment"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Judul"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "File"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2020-08-11 11:50:09.782033",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetInstalasiMedisAttachments",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

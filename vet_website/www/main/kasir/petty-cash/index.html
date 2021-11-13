@@ -1,0 +1,132 @@
+{% set page_title="Petty Cash" %}
+{% extends "templates/main.html" %}
+{% block title %}Petty Cash{% endblock %}
+{% block main_page %}
+<div style="background: #FFFFFF; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1); padding: 20px 32px; margin-bottom: 18px;">
+	<form class="row mx-0">
+		<div class="col">
+			<button class="btn btn-sm fs14 btn-outline-info btn-block text-uppercase">More</button>
+		</div>
+		<div class="col-3">
+			<input class="form-control form-control-sm fs14" placeholder="&#xF002;    Cari" style="font-family: Open Sans, FontAwesome;">
+		</div>
+		<div class="col-5">
+			<div class="row">
+				<div class="col pr-0">
+					<input type="date" class="form-control form-control-sm fs14">
+				</div>
+				<div class="col-auto">
+					-
+				</div>
+				<div class="col pl-0">
+					<input type="date" class="form-control form-control-sm fs14">
+				</div>
+			</div>
+		</div>
+		<div class="col">
+			<div class="row">
+				<label for="sort" class="col-5 fs12 my-auto">
+					Sort by
+				</label>
+				<select class="col form-control form-control-sm fs14" id="sort">
+				</select>
+			</div>
+		</div>
+	</form>
+</div>
+<div style="background: #FFFFFF; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1); padding: 40px 32px 40px 12px;">
+	<div class="row mx-0">
+		<div class="col-auto pl-2 pr-3">
+			<input type="checkbox" class="d-block my-3">
+		</div>
+		<div class="col row-header">
+			<div class="row mx-0 fs12 fw600">
+				<div class="col-auto d-flex">
+					<div style="width: 35px" class="my-auto">
+						No
+					</div>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Reference</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Date</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Tgl Inv</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Journal</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Responsible</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Starting Balance</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Ending Balance</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Sub total</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">Status</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% for i in range (1,10) %}
+	<div class="row mx-0">
+		<div class="col-auto pl-2 pr-3">
+			<input type="checkbox" class="d-block my-3">
+		</div>
+		<div class="col row-list">
+			<div class="row mx-0 fs12 fw600">
+				<div class="col-auto d-flex">
+					<div style="width: 35px" class="my-auto">
+						{{ loop.index }}
+					</div>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">
+					AP2020</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">
+					24/02/2020</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">
+					24/02/2020</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">
+					Cash</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">
+					Admin</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">
+					0</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">
+					50000</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">
+					0</span>
+				</div>
+				<div class="col d-flex">
+					<span class="my-auto">
+					Closed</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% endblock %}

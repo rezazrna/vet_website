@@ -1,0 +1,10 @@
+{% set page_title="Spending" %}
+{% extends "templates/main.html" %}
+{% block title %}Spending{% endblock %}
+{% block main_page %}
+<div id="spending_list"></div>
+<script type="text/babel" src="/static/src/js/search-bar-babel.js"></script>
+<script type="text/babel" src="/main/penerimaan/data-pemilik/spending-babel.js"></script>
+<script type="text/babel" src="/static/src/js/pagination-babel.js"></script>
+<script type="text/babel" src="/static/src/js/filter-babel.js"></script>
+{% endblock %}

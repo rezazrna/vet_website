@@ -1,0 +1,46 @@
+{
+ "actions": [],
+ "autoname": "VPPA-.#",
+ "creation": "2020-08-26 11:51:36.827043",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "jumlah",
+  "tanggal",
+  "metode_pembayaran"
+ ],
+ "fields": [
+  {
+   "fieldname": "jumlah",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Jumlah Bayar",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tanggal",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Tanggal Bayar",
+   "reqd": 1
+  },
+  {
+   "fieldname": "metode_pembayaran",
+   "fieldtype": "Data",
+   "label": "Metodde Pembayaran"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2021-02-11 10:48:20.642367",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetPurchasePay",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

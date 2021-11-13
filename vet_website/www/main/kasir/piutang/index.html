@@ -1,0 +1,10 @@
+{% set page_title="Piutang" %}
+{% extends "templates/main.html" %}
+{% block title %}Piutang{% endblock %}
+{% block main_page %}
+<div id="customer_payments" data-mode="debt"></div>
+<script type="text/babel" src="/static/src/js/search-bar-babel.js"></script>
+<script type="text/babel" src="/main/penerimaan/data-pemilik/credit-babel.js"></script>
+<script type="text/babel" src="/static/src/js/pagination-babel.js"></script>
+<script type="text/babel" src="/static/src/js/filter-babel.js"></script>
+{% endblock %}

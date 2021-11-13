@@ -1,0 +1,9 @@
+{% set page_title="Sessions" %}
+{% extends "templates/main.html" %}
+{% block title %}Sessions{% endblock %}
+{% block main_page %}
+<div id="pos_sessions_list" data-user="{{ frappe.session.user }}"></div>
+<script type="text/babel" src="/static/src/js/filter-babel.js"></script>
+<script type="text/babel" src="/static/src/js/pagination-babel.js"></script>
+<script type="text/babel" src="/main/kasir/pos-sessions/index-babel.js"></script>
+{% endblock %}

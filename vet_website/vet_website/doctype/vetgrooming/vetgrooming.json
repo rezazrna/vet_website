@@ -1,0 +1,337 @@
+{
+ "autoname": "VG-.#",
+ "creation": "2020-03-27 11:03:56.189637",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "reception",
+  "pet",
+  "pet_name",
+  "reception_date",
+  "register_number",
+  "description",
+  "products",
+  "actions",
+  "limfonodule",
+  "mata",
+  "hidung",
+  "mulut",
+  "telinga",
+  "kulit",
+  "status",
+  "temperature",
+  "weight",
+  "rekam_medis",
+  "invoice",
+  "attachments",
+  "marker",
+  "vaccine_history",
+  "food_history",
+  "anamenese",
+  "diagnosa_utama",
+  "prognosa",
+  "diagnosa_banding",
+  "bcs",
+  "vomit",
+  "auscl",
+  "ausch",
+  "pulse",
+  "respiration",
+  "abdominal_palpasi_pain",
+  "abdominal_palpasi_tension",
+  "mukosa",
+  "ekstremitas",
+  "reflex",
+  "other",
+  "action",
+  "pet_owner",
+  "owner_name",
+  "other_pemeriksaan",
+  "other_diagnosa"
+ ],
+ "fields": [
+  {
+   "fieldname": "reception",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "No Antrian",
+   "options": "VetReception",
+   "reqd": 1
+  },
+  {
+   "fieldname": "limfonodule",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Limfonodule"
+  },
+  {
+   "fieldname": "mata",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Mata"
+  },
+  {
+   "fieldname": "hidung",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Hidung"
+  },
+  {
+   "fieldname": "mulut",
+   "fieldtype": "Data",
+   "label": "Mulut"
+  },
+  {
+   "fieldname": "telinga",
+   "fieldtype": "Data",
+   "label": "Telinga"
+  },
+  {
+   "fieldname": "kulit",
+   "fieldtype": "Data",
+   "label": "Kulit"
+  },
+  {
+   "fieldname": "products",
+   "fieldtype": "Table",
+   "label": "Products",
+   "options": "VetGroomingProduct"
+  },
+  {
+   "fieldname": "actions",
+   "fieldtype": "Table",
+   "label": "Actions",
+   "options": "VetGroomingAction"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nChecked\nDone\nCancel"
+  },
+  {
+   "fetch_from": "reception.reception_date",
+   "fetch_if_empty": 1,
+   "fieldname": "reception_date",
+   "fieldtype": "Datetime",
+   "label": "Tanggal Pendaftaran",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "reception.pet",
+   "fetch_if_empty": 1,
+   "fieldname": "pet",
+   "fieldtype": "Link",
+   "label": "Nomor Induk Pasien",
+   "options": "VetPet",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "pet.pet_name",
+   "fetch_if_empty": 1,
+   "fieldname": "pet_name",
+   "fieldtype": "Data",
+   "label": "Nama Pasien",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "reception.register_number",
+   "fetch_if_empty": 1,
+   "fieldname": "register_number",
+   "fieldtype": "Link",
+   "label": "Nomor Pendaftaran",
+   "options": "VetTask",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "reception.description",
+   "fetch_if_empty": 1,
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Catatan",
+   "read_only": 1
+  },
+  {
+   "fieldname": "temperature",
+   "fieldtype": "Float",
+   "label": "Suhu",
+   "precision": "1"
+  },
+  {
+   "fieldname": "weight",
+   "fieldtype": "Float",
+   "label": "Berat",
+   "precision": "1"
+  },
+  {
+   "fieldname": "rekam_medis",
+   "fieldtype": "Link",
+   "label": "Rekam Medis",
+   "options": "VetRekamMedis"
+  },
+  {
+   "fieldname": "invoice",
+   "fieldtype": "Link",
+   "label": "Invoice",
+   "options": "VetCustomerInvoice"
+  },
+  {
+   "fieldname": "attachments",
+   "fieldtype": "Table",
+   "label": "Attachments",
+   "options": "VetGroomingAttachments"
+  },
+  {
+   "fieldname": "marker",
+   "fieldtype": "Link",
+   "label": "Marker",
+   "options": "VetMarker"
+  },
+  {
+   "fieldname": "vaccine_history",
+   "fieldtype": "Data",
+   "label": "Riwayat Vaksin"
+  },
+  {
+   "fieldname": "food_history",
+   "fieldtype": "Data",
+   "label": "Riwayat Makanan"
+  },
+  {
+   "fieldname": "anamenese",
+   "fieldtype": "Data",
+   "label": "Anamnese"
+  },
+  {
+   "fieldname": "diagnosa_utama",
+   "fieldtype": "Data",
+   "label": "Diagnosa Utama"
+  },
+  {
+   "fieldname": "prognosa",
+   "fieldtype": "Data",
+   "label": "Prognosa"
+  },
+  {
+   "fieldname": "diagnosa_banding",
+   "fieldtype": "Data",
+   "label": "Diagnosa Banding"
+  },
+  {
+   "fieldname": "bcs",
+   "fieldtype": "Data",
+   "label": "BCS"
+  },
+  {
+   "fieldname": "vomit",
+   "fieldtype": "Data",
+   "label": "Vomit"
+  },
+  {
+   "fieldname": "auscl",
+   "fieldtype": "Data",
+   "label": "Ausc. L"
+  },
+  {
+   "fieldname": "ausch",
+   "fieldtype": "Data",
+   "label": "Ausc. H"
+  },
+  {
+   "fieldname": "pulse",
+   "fieldtype": "Data",
+   "label": "Pulsus"
+  },
+  {
+   "fieldname": "respiration",
+   "fieldtype": "Data",
+   "label": "Respirasi"
+  },
+  {
+   "fieldname": "abdominal_palpasi_pain",
+   "fieldtype": "Data",
+   "label": "Abdomnal Palpasi Pain"
+  },
+  {
+   "fieldname": "abdominal_palpasi_tension",
+   "fieldtype": "Data",
+   "label": "Abdominal Palpasi Tension"
+  },
+  {
+   "fieldname": "mukosa",
+   "fieldtype": "Data",
+   "label": "Mukosa"
+  },
+  {
+   "fieldname": "ekstremitas",
+   "fieldtype": "Data",
+   "label": "Ekstremitas"
+  },
+  {
+   "fieldname": "reflex",
+   "fieldtype": "Data",
+   "label": "Sensasi Refleks"
+  },
+  {
+   "fieldname": "other",
+   "fieldtype": "Data",
+   "label": "Lainnya"
+  },
+  {
+   "fieldname": "action",
+   "fieldtype": "Data",
+   "label": "Tindakan"
+  },
+  {
+   "fetch_from": "pet_owner.owner_name",
+   "fetch_if_empty": 1,
+   "fieldname": "owner_name",
+   "fieldtype": "Data",
+   "label": "Nama Pemilik"
+  },
+  {
+   "fetch_from": "pet.parent",
+   "fetch_if_empty": 1,
+   "fieldname": "pet_owner",
+   "fieldtype": "Link",
+   "label": "Pemilik",
+   "options": "VetPetOwner"
+  },
+  {
+   "fieldname": "other_pemeriksaan",
+   "fieldtype": "Data",
+   "label": "Lainnya Pemeriksaan"
+  },
+  {
+   "fieldname": "other_diagnosa",
+   "fieldtype": "Data",
+   "label": "Lainnya Diagnosa"
+  }
+ ],
+ "modified": "2021-09-18 16:41:00.170656",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetGrooming",
+ "name_case": "UPPER CASE",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

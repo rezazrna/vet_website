@@ -1,0 +1,10 @@
+{% set page_title="Asset" %}
+{% extends "templates/main.html" %}
+{% block title %}Asset{% endblock %}
+{% block main_page %}
+<div id="asset_list"></div>
+<script type="text/babel" src="/static/src/js/filter-babel.js"></script>
+<script type="text/babel" src="/static/src/js/search-bar-babel.js"></script>
+<script type="text/babel" src="/static/src/js/pagination-babel.js"></script>
+<script type="text/babel" src="/main/accounting/asset/index-babel.js"></script>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% set page_title="List Penerimaan Pasien" %}
+{% extends "templates/main.html" %}
+{% block title %}Penerimaan Pasien{% endblock %}
+{% block main_page %}
+<div id="reception_list"></div>
+<script type="text/babel" src="/static/src/js/filter-babel.js"></script>
+<script type="text/babel" src="/static/src/js/search-bar-babel.js"></script>
+<script type="text/babel" src="/static/src/js/pagination-babel.js"></script>
+<script type="text/babel" src="/main/penerimaan/penerimaan-pasien/index-babel.js"></script>
+{% endblock %}

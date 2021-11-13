@@ -1,0 +1,88 @@
+{% set page_title="Penerimaan" %}
+{% extends "templates/main.html" %}
+{% block main_page %}
+<div style="background: #FFFFFF; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1); padding: 80px 0;">
+	<div class="row justify-content-center">
+		<div class="col-auto">
+			<div class="row justify-content-end">
+				<div class="col-auto text-center ml-auto">
+					<img src="/static/img/main/menu/client.png">
+					<img src="/static/img/main/menu/bottom-long.png" class="d-block mx-auto" style="margin-top: 15px; margin-bottom: 14px;">
+				</div>
+				<div class="col-auto mx-auto">
+					<img src="/static/img/main/menu/right.png" class="mt-4">
+				</div>
+				<div class="col-auto text-center" style="width: 240px;">
+					<p class="mb-0 mt-2 fs16 fw600 rounded" style="background: #C6EAFF; padding: 10px 25px; color: #056EAD">
+						Terdaftar
+					</p>
+					<div>
+						<span class="fs12 mb-0">Ya</span>
+						<img src="/static/img/main/menu/bottom-long.png" class="mr-3" style="margin-top: 40px; margin-bottom: 14px;">
+					</div>
+				</div>
+				<div class="col-auto text-center">
+					<p class="fs12 mb-0">Tidak</p>
+					<img src="/static/img/main/menu/right.png" class="mt-1 d-block">
+				</div>
+				<div class="col-auto text-center">
+					<a href="/main/penerimaan/penerimaan-pasien/form" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+						<img src="/static/img/main/menu/menuRegistrasiPemilik.png">
+						<p>
+							Registrasi Pemilik
+						</p>
+					</a>
+					<img src="/static/img/main/menu/bottom-short.png" class="d-block mx-auto mb-2">
+				</div>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-auto text-center" style="width: 240px;">
+					<a href="/main/penerimaan/layanan-berjadwal" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+						<img src="/static/img/main/menu/menuLayananBerjadwal.png">
+						<p>
+							Layanan Berjadwal
+						</p>
+					</a>
+				</div>
+				<div class="col-auto">
+					<img src="/static/img/main/menu/right.png" class="mt-5 d-block">
+				</div>
+				<div class="col-auto text-center">
+					<a href="/main/penerimaan/penerimaan-pasien" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+						<img src="/static/img/main/menu/menuDaftarPenerimaanPasien.png">
+						<p>
+							Daftar Penerimaan Pasien
+						</p>
+					</a>
+				</div>
+				<div class="col-auto">
+					<img src="/static/img/main/menu/left.png" class="mt-5 d-block">
+				</div>
+				<div class="col-auto text-center">
+					<a href="/main/penerimaan/penerimaan-pasien/form" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+						<img src="/static/img/main/menu/menuRegistrasiPasien.png">
+						<p>
+							Registrasi Pasien
+						</p>
+					</a>
+				</div>
+			</div>
+			<div class="row justify-content-end">
+				<div class="col-auto text-center">
+					<img src="/static/img/main/menu/reception-bottom-right.png" style="margin-right: 50px; margin-top: 20px; transform: scale(1.05);">
+				</div>
+				<div class="col-auto text-center">
+					<div class="px-2 py-1 position-relative" style="border: 3px dashed #BDBDBD; margin-top: 90px;">
+						<a href="/main/dokter-dan-jasa" style="font-family: Rubik; text-decoration: none; color: inherit; font-weight: 500; font-size: 16px;">
+							<img src="/static/img/main/menu/menuDokterdanJasa.png">
+							<p class="mb-2">
+								Dokter dan Jasa
+							</p>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{
+ "autoname": "PL-.####",
+ "creation": "2020-03-21 16:39:34.003177",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "nik",
+  "owner_name",
+  "phone",
+  "email",
+  "address",
+  "pets",
+  "code",
+  "foto_identitas",
+  "tanggal_lahir",
+  "tempat_lahir",
+  "jenis_kelamin",
+  "tanggal_pembuatan_kartu",
+  "profesi",
+  "status_pernikahan",
+  "negara",
+  "agama",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "nik",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "NIK"
+  },
+  {
+   "fieldname": "owner_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nama Pemilik",
+   "reqd": 1
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "No. Handphone"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Email"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Data",
+   "label": "Alamat",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pets",
+   "fieldtype": "Table",
+   "label": "Hewan",
+   "options": "VetPet"
+  },
+  {
+   "fieldname": "code",
+   "fieldtype": "Data",
+   "label": "Code"
+  },
+  {
+   "fieldname": "foto_identitas",
+   "fieldtype": "Attach Image",
+   "label": "Foto KTP / SIM"
+  },
+  {
+   "fieldname": "tanggal_lahir",
+   "fieldtype": "Date",
+   "label": "Tanggal Lahir"
+  },
+  {
+   "fieldname": "tempat_lahir",
+   "fieldtype": "Data",
+   "label": "Tempat Lahir"
+  },
+  {
+   "fieldname": "jenis_kelamin",
+   "fieldtype": "Data",
+   "label": "Jenis Kelamin"
+  },
+  {
+   "fieldname": "tanggal_pembuatan_kartu",
+   "fieldtype": "Date",
+   "label": "Tanggal Pembuatan Kartu"
+  },
+  {
+   "fieldname": "profesi",
+   "fieldtype": "Data",
+   "label": "Profesi"
+  },
+  {
+   "fieldname": "status_pernikahan",
+   "fieldtype": "Data",
+   "label": "Status Pernikahan"
+  },
+  {
+   "fieldname": "negara",
+   "fieldtype": "Data",
+   "label": "negara"
+  },
+  {
+   "fieldname": "agama",
+   "fieldtype": "Data",
+   "label": "agama"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "VetPetOwner",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "modified": "2021-05-03 08:49:44.025330",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetPetOwner",
+ "name_case": "Title Case",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

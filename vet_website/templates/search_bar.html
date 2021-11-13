@@ -1,0 +1,37 @@
+<div style="background: #FFFFFF; box-shadow: 0px 4px 23px rgba(0, 0, 0, 0.1); padding: 20px 32px; margin-bottom: 18px;">
+	<form method="GET" class="row mx-0" id="search_bar">
+		<div class="col-4">
+			<input name="search" class="form-control form-control-sm fs14" placeholder="&#xF002;    Cari" style="font-family: Open Sans, FontAwesome;" value="{{ search or '' }}">
+		</div>
+		<div class="col-4">
+			<div class="row">
+				<div class="col pr-0">
+					<input type="date" class="form-control form-control-sm fs14" name="min_date" value="{{ min_date or '' }}">
+				</div>
+				<div class="col-auto">
+					-
+				</div>
+				<div class="col pl-0">
+					<input type="date" class="form-control form-control-sm fs14" name="max_date" value="{{ max_date or '' }}">
+				</div>
+			</div>
+		</div>
+		<div class="col">
+			<button class="btn btn-sm fs14 btn-outline-info btn-block text-uppercase">More</button>
+		</div>
+		<div class="col">
+			<div class="row">
+				<label for="sort" class="col-5 fs12 my-auto">
+					Sort by
+				</label>
+				<select class="col-7 form-control form-control-sm fs14" id="sort" name="sort">
+					{% if sorts %}
+						{% for s in sorts %}
+							<option {{ 'selected' if sort == s.sort else '' }} value="{{ s.sort }}">{{ s.label }}</option>
+						{% endfor %}
+					{% endif %}
+				</select>
+			</div>
+		</div>
+	</form>
+</div>

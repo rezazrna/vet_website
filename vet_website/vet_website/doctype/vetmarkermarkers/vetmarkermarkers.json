@@ -1,0 +1,45 @@
+{
+ "actions": [],
+ "creation": "2020-08-08 10:06:36.264213",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "x",
+  "y",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "x",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "X",
+   "reqd": 1
+  },
+  {
+   "fieldname": "y",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Y",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Keterangan"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2020-08-08 10:06:36.264213",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetMarkerMarkers",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

@@ -1,0 +1,7 @@
+{% if not products %}
+	{% set products = frappe.get_list("VetProduct", fields=['name', 'product_name']) %}
+{% endif %}
+	<option value=""></option>
+{% for product in products %}
+	<option value="{{ product.name }}">{{ product.product_name }}</option>
+{% endfor %}

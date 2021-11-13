@@ -1,0 +1,100 @@
+{
+ "autoname": "PN-.####",
+ "creation": "2020-03-21 16:42:36.398263",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "pet_name",
+  "hewan_jenis",
+  "pet_description",
+  "register_date",
+  "pet_image",
+  "pet_image_thumbnail",
+  "status",
+  "birth_date",
+  "jenis_name",
+  "jenis_kelamin",
+  "code"
+ ],
+ "fields": [
+  {
+   "fieldname": "hewan_jenis",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Hewan / Jenis",
+   "options": "VetPetType",
+   "reqd": 1
+  },
+  {
+   "fieldname": "register_date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Tanggal Registrasi",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pet_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nama Hewan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pet_description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Keterangan"
+  },
+  {
+   "fieldname": "pet_image",
+   "fieldtype": "Attach",
+   "label": "Foto Hewan"
+  },
+  {
+   "fieldname": "pet_image_thumbnail",
+   "fieldtype": "Attach",
+   "label": "Foto Hewan Thumbnail"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nNonactive"
+  },
+  {
+   "fieldname": "birth_date",
+   "fieldtype": "Date",
+   "label": "Tanggal Lahir"
+  },
+  {
+   "fetch_from": "hewan_jenis.type_name",
+   "fieldname": "jenis_name",
+   "fieldtype": "Data",
+   "label": "Nama Jenis"
+  },
+  {
+   "fieldname": "jenis_kelamin",
+   "fieldtype": "Select",
+   "label": "Jenis Kelamin",
+   "options": "Jantan\nBetina"
+  },
+  {
+   "fieldname": "code",
+   "fieldtype": "Data",
+   "label": "Code"
+  }
+ ],
+ "istable": 1,
+ "modified": "2021-05-03 08:49:44.355019",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetPet",
+ "name_case": "Title Case",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

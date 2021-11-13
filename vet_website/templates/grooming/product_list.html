@@ -1,0 +1,28 @@
+{% if product %}
+	{% set product_rec = frappe.get_doc("VetProduct", product.product) %}
+	{% set uom = frappe.get_doc("VetUOM", product_rec.product_uom) %}
+	{% set selected = product.product %}
+{% endif %}
+<div {% if product %} id="{{ product.name }}" {% endif %} class="row mx-0 mb-3 fs12 fw600 grooming_products" style="background: #F7FAF5; padding: 12px 0; color: #787E84;">
+	<div class="col border-right">
+		{% if mode == 'Detail' or grooming.status == 'Done' %}
+			{{ product_rec.product_name or '' }}
+		{% elif mode == 'Edit' and grooming.status == 'Draft' %}
+			<select required name='product' class="form-control fs12 border-0 lightbg">
+				{% include 'templates/grooming/product_options.html' %}
+			</select>
+		{% endif %}
+	</div>
+	<div class="col-3 text-center border-right">
+		{% if mode == 'Detail' or grooming.status == 'Done' %}
+			{{ product.quantity or '' }}
+		{% elif mode == 'Edit' and grooming.status == 'Draft' %}
+			<input required name='quantity' class="form-control fs12 border-0 lightbg" {% if product %} value="{{ product.quantity or 0 }}" {% endif %}>
+		{% endif %}
+	</div>
+	<div class="col text-center border-right">
+		{% if uom %}
+			{{ uom.uom_name or '' }}
+		{% endif %}
+	</div>
+</div>
