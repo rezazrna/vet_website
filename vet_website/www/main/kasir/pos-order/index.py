@@ -10,6 +10,8 @@ def get_context(context):
 	context.show_open = False
 	
 	session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
+	print('cari pos session')
+	print(session_search)
 	if len(session_search) > 0:
 		context.show_open = True
 

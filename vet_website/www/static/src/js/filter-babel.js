@@ -165,9 +165,11 @@ class Filter extends React.Component {
         }
         
         var filter_list = []
-        this.state.filters.filters.forEach((item, index) => {
-            filter_list.push(<FilterChilds item={item} key={index.toString()} deleteFilter={() => this.deleteFilter(index.toString())}/>)
-        })
+        if (this.state.filters.filters != null) {
+            this.state.filters.filters.forEach((item, index) => {
+                filter_list.push(<FilterChilds item={item} key={index.toString()} deleteFilter={() => this.deleteFilter(index.toString())}/>)
+            })
+        }
         
         var sort_list = []
         if (this.state.filters.sorts != null) {

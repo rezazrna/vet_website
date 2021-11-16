@@ -265,7 +265,7 @@ def get_pos_data(name):
 	allCustomer = list(get_pet())
 	
 	owner_no_pet = []
-	owner_no_pet_search = frappe.get_list('VetPetOwner', filters={'name': ['not in', (p.parent for p in get_pet())]}, fields=['nik', 'owner_name', 'phone', 'name'])
+	owner_no_pet_search = frappe.get_list('VetPetOwner', filters={'name': ['not in', (p.parent for p in get_pet()['pet'])]}, fields=['nik', 'owner_name', 'phone', 'name'])
 	for o in owner_no_pet_search:
 		owner_no_pet.append({
 			'pet_owner': o
@@ -274,7 +274,7 @@ def get_pos_data(name):
 	data = {
 		"session": frappe.get_doc("VetPosSessions", name),
 		"orders": get_order_list(json.dumps(pos_order_filters)),
-		"allProduct": get_product_list(),
+		"allProduct": get_product_list()['product'],
 		"allCustomer": allCustomer+owner_no_pet,
 		"allPaymentMethod": get_payment_method_list(json.dumps(payment_method_filter)).get('list')
 	}

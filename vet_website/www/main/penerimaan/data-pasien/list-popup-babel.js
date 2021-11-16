@@ -20,7 +20,7 @@ class PetOwnerPopup extends React.Component {
             callback: function(r){
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({'data': r.message, 'loaded': true});
+                    po.setState({'data': r.message.pet_owner, 'loaded': true});
                 }
             }
         });
@@ -35,7 +35,7 @@ class PetOwnerPopup extends React.Component {
             callback: function(r){
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({'data': r.message});
+                    po.setState({'data': r.message.pet_owner});
                 }
             }
         });

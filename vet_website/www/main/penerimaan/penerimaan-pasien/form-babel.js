@@ -232,13 +232,14 @@ class PenerimaanPasien extends React.Component {
     
     getPetOwnerSuggestion(filters, state_field, label_field, value_field){
         var vr = this;
+        console.log(filters)
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetpetowner.vetpetowner.get_pet_owner",
             args: {filters: filters},
             callback: function(r){
                 if (r.message) {
-                    var suggests = r.message.slice()
+                    var suggests = r.message.pet_owner.slice()
                     suggests.forEach((r, index) => {
                         r.label = r[label_field]
                         r.value = r[value_field]

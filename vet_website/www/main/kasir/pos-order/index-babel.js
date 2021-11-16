@@ -102,6 +102,7 @@ class PosOrder extends React.Component {
         
         filters['currentpage'] = 1;
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+        console.log(filters)
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetposorder.vetposorder.get_order_list",
@@ -180,9 +181,9 @@ class PosOrder extends React.Component {
     }
     
     openPOS(){
-        !['False',false].includes(this.props.show_open)?
-        window.location.href = "/pos":
-        frappe.msgprint('POS Session belum dibuka')
+        !['False',false].includes(this.props.show_open)
+        ? window.location.href = "/pos"
+        : frappe.msgprint('POS Session belum dibuka')
     }
     
     render() {
@@ -411,4 +412,6 @@ class PosOrderListRow extends React.Component {
 }
 
 var elem = document.getElementById('pos_order_list')
-elem?ReactDOM.render(<PosOrder show_open={elem.dataset.show_open||false}/>, elem):false
+elem
+? ReactDOM.render(<PosOrder show_open={elem.dataset.show_open||false}/>, elem)
+: false
