@@ -37,7 +37,7 @@ class UnitOfMeasure extends React.Component {
             args: {filters: {'currentpage': this.state.currentpage}},
             callback: function(r){
                 if (r.message) {
-                    td.setState({'data': td.state.data.concat(r.message.uom), 'loaded': true, 'datalength': r.message.datalength});
+                    td.setState({'data': td.state.data.concat(r.message.uom_list), 'loaded': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -62,7 +62,7 @@ class UnitOfMeasure extends React.Component {
                 args: {filters: filters},
                 callback: function(r){
                     if (r.message) {
-                        po.setState({'data': po.state.data.concat(r.message.uom), 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': po.state.data.concat(r.message.uom_list), 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
@@ -256,14 +256,14 @@ class UnitOfMeasureList extends React.Component {
         
         if (items.length != 0 ){
             var list = this
-            const indexOfLastTodo = this.props.currentpage * 30;
-            const indexOfFirstTodo = indexOfLastTodo - 30;
-            var currentItems
-            ![false,''].includes(search)?
-            currentItems = items.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
-            currentItems = items.slice(indexOfFirstTodo, indexOfLastTodo)
-            
-            currentItems.forEach(function(item, index){
+            // const indexOfLastTodo = this.props.currentpage * 30;
+            // const indexOfFirstTodo = indexOfLastTodo - 30;
+            // var currentItems
+            // ![false,''].includes(search)?
+            // currentItems = items.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
+            // currentItems = items.slice(indexOfFirstTodo, indexOfLastTodo)
+            console.log(items)
+            items.forEach(function(item, index){
                 rows.push(
                     <UnitOfMeasureListRow key={index.toString()} item={item} checkRow={() => list.props.checkRow(index)} toggleShowForm={() => list.props.toggleShowForm(index.toString())}/>
                 )

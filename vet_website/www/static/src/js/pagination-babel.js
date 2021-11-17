@@ -12,7 +12,7 @@ class Pagination extends React.Component {
                 callback: function(data, pagination) {
                     if ( pagination.pageNumber != Number(pager.props.currentpage) ) {
                         var mainpage = document.getElementsByClassName('main-page')
-                        // document.body.scrollTop = document.documentElement.scrollTop = 0;
+                        // // document.body.scrollTop = document.documentElement.scrollTop = 0;
                         mainpage[0]?mainpage[0].scrollTop = 0:false
                         pager.props.paginationClick(pagination.pageNumber)
                     }
