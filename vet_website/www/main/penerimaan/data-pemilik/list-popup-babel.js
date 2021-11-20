@@ -4,9 +4,13 @@ class PetPopup extends React.Component {
         this.state = {
             'data': [],
             'loaded': false,
+            'filters': {},
+            'currentpage': 1,
+            'datalength': 0,
         }
         
         this.petSearch = this.petSearch.bind(this);
+        this.paginationClick = this.paginationClick.bind(this);
         this.rowClick = this.rowClick.bind(this);
         this.close = this.close.bind(this)
     }
@@ -20,7 +24,7 @@ class PetPopup extends React.Component {
             callback: function(r){
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({'data': r.message, 'loaded': true});
+                    po.setState({'data': r.message.pet, 'loaded': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -28,6 +32,9 @@ class PetPopup extends React.Component {
     
     petSearch(filters) {
         var po = this
+        this.setState({
+            filters: filters
+        })
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetpet.vetpet.get_pet",
@@ -35,10 +42,37 @@ class PetPopup extends React.Component {
             callback: function(r){
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({'data': r.message});
+                    po.setState({'data': r.message.pet, 'datalength': r.message.datalength});
                 }
             }
         });
+    }
+
+    paginationClick(number) {
+        var po = this
+        var filters = this.state.filters
+
+        filters['currentpage'] = Number(number)
+
+        this.setState({
+          currentpage: Number(number),
+          filters: filters,
+        });
+
+
+        // if (number * 30 > this.state.data.length) {
+            frappe.call({
+                type: "GET",
+                method:"vet_website.vet_website.doctype.vetpet.vetpet.get_pet",
+                args: {filters: filters},
+                callback: function(r){
+                    if (r.message) {
+                        console.log(r.message);
+                        po.setState({'data': r.message.pet, 'loaded': true, 'datalength': r.message.datalength});
+                    }
+                }
+            });
+        // }
     }
     
     rowClick(value){
@@ -65,7 +99,7 @@ class PetPopup extends React.Component {
                             <i className="fa fa-times float-right mt-2" style={cursor_style} onClick={() => this.close()}></i>
                         </div>
                         <SearchBarPopup sorts={[]} searchAction={this.petSearch}/>
-                        <PetListPopup pets={this.state.data} searchAction={this.petSearch} rowClick={this.rowClick}/>
+                        <PetListPopup pets={this.state.data} searchAction={this.petSearch} rowClick={this.rowClick} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>
                     </div>
                     <div className="menu-popup-close" onClick={() => this.close()}></div>
                 </div>
@@ -118,6 +152,7 @@ class PetListPopup extends React.Component {
             		    </div>
             		</div>
         		    {pet_rows}
+                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10'/>
         	    </div>
             )
         }

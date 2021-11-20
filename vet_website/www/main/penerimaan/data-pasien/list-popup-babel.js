@@ -10,6 +10,7 @@ class PetOwnerPopup extends React.Component {
         }
         
         this.ownerSearch = this.ownerSearch.bind(this);
+        this.paginationClick = this.paginationClick.bind(this);
         this.rowClick = this.rowClick.bind(this);
         this.close = this.close.bind(this)
     }
@@ -56,7 +57,6 @@ class PetOwnerPopup extends React.Component {
         this.setState({
           currentpage: Number(number),
           filters: filters,
-          loaded: false,
         });
 
 
@@ -157,7 +157,7 @@ class PetOwnerListPopup extends React.Component {
             		    </div>
             		</div>
         		    {owner_rows}
-                    {/* <Pagination datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10'/> */}
+                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10'/>
         	    </div>
             )
         }
