@@ -84,9 +84,13 @@ def get_product_list(filters=None):
 		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
+
+		if search:
+			td_filters.append({'product_name': ['like', '%'+search+'%']})
 		
 		if filters_json:
 			for fj in filters_json:

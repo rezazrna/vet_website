@@ -274,7 +274,7 @@ def get_pos_data(name):
 	data = {
 		"session": frappe.get_doc("VetPosSessions", name),
 		"orders": get_order_list(json.dumps(pos_order_filters)),
-		"allProduct": get_product_list()['product'],
+		"allProduct": get_product_list(),
 		"allCustomer": allCustomer+owner_no_pet,
 		"allPaymentMethod": get_payment_method_list(json.dumps(payment_method_filter)).get('list')
 	}

@@ -35,6 +35,8 @@ class MainPOS extends React.Component {
             selectCustomer: false,
             historyTransaction: false,
             online: true,
+            currentpage: 1,
+            datalength: 0,
         }
         
         this.enterSearch = this.enterSearch.bind(this)
@@ -53,6 +55,7 @@ class MainPOS extends React.Component {
         this.addNewCustomer = this.addNewCustomer.bind(this)
         this.setSelectedPayment = this.setSelectedPayment.bind(this)
         this.deletePayment = this.deletePayment.bind(this)
+        this.paginationClick = this.paginationClick.bind(this);
     }
     
     componentDidMount(){
@@ -69,10 +72,10 @@ class MainPOS extends React.Component {
                     var new_data = Object.assign({}, th.state.data)
                     new_data.session = r.message.session
                     new_data.orders = r.message.orders
-                    new_data.allProduct = r.message.allProduct
+                    new_data.allProduct = r.message.allProduct.product,
                     new_data.allCustomer = r.message.allCustomer
                     new_data.allPaymentMethod = r.message.allPaymentMethod
-                    th.setState({data: new_data})
+                    th.setState({data: new_data, datalength: r.message.allProduct.datalength})
                 }
             }
         })
@@ -91,6 +94,30 @@ class MainPOS extends React.Component {
         }, 500)
         
         document.addEventListener('keydown', e => this.keyDown(e));
+    }
+
+    paginationClick(number) {
+        var po = this
+
+        this.setState({
+          currentpage: Number(number),
+          loaded: false,
+        });
+
+        // if (number * 30 > this.state.data.length) {
+            frappe.call({
+                type: "GET",
+                method:"vet_website.vet_website.doctype.vetproduct.vetproduct.get_product_list",
+                args: {filters: {currentpage: this.state.currentpage, search: this.state.search}},
+                callback: function(r){
+                    if (r.message) {
+                        var new_data = Object.assign({}, po.state.data)
+                        new_data.allProduct = r.message.product 
+                        po.setState({'data': new_data, 'loaded': true, 'datalength': r.message.datalength});
+                    }
+                }
+            });
+        // }
     }
     
     keyDown(e){
@@ -254,10 +281,11 @@ class MainPOS extends React.Component {
         var search = e.target.value
         if(e.key == 'Enter' && search != ''){
             if(this.state.data.allProduct != undefined){
-                var allProduct = this.state.data.allProduct.slice()
-                allProduct = allProduct.filter(p => p.product_name.toLowerCase().includes(search.toLowerCase()) || p.default_code.toLowerCase().includes(search.toLowerCase()) || ![null,false,undefined].includes(p.barcode)?p.default_code.toLowerCase().includes(search.toLowerCase()):false)
-                this.addProductToCurrentOrder(allProduct[0])
-                this.setState({search: ''})
+                this.paginationClick(1)
+                // var allProduct = this.state.data.allProduct.slice()
+                // allProduct = allProduct.filter(p => p.product_name.toLowerCase().includes(search.toLowerCase()) || p.default_code.toLowerCase().includes(search.toLowerCase()) || ![null,false,undefined].includes(p.barcode)?p.default_code.toLowerCase().includes(search.toLowerCase()):false)
+                // this.addProductToCurrentOrder(allProduct[0])
+                // this.setState({search: ''})
             }
         }
     }
@@ -513,7 +541,11 @@ class MainPOS extends React.Component {
                 <div className="row">
                     <MainPOSHeader selectedOrder={this.state.selectedOrder} currentOrders={this.state.data.currentOrders} addSessionOrder={() => this.addSessionOrder()} setSelectedOrder={this.setSelectedOrder} deleteSessionOrder={() => this.deleteSessionOrder(this.state.selectedOrder)} closeInterface={() => this.closeInterface()}/>
                     {
-                        this.state.data.currentOrders[this.state.selectedOrder].payment?<MainPOSPayment online={this.state.online} allPaymentMethod={this.state.data.allPaymentMethod} currentOrder={this.state.data.currentOrders[this.state.selectedOrder]} togglePayment={() => this.togglePayment(this.state.selectedOrder)} setSelectedPayment={this.setSelectedPayment} addPayment={this.addPayment} deletePayment={this.deletePayment} addPaymentValue={this.addPaymentValue} validatePayment={() => this.validatePayment()}/>:[<MainPOSSidepanel key="sidepanel" online={this.state.online} currentOrder={this.state.data.currentOrders[this.state.selectedOrder]} togglePayment={() => this.togglePayment(this.state.selectedOrder)} toggleSelectCustomer={() => this.toggleSelectCustomer()} toggleHistoryTransaction={() => this.toggleHistoryTransaction()} toggleEditItem={this.toggleEditItem} setSelectedItem={this.setSelectedItem}/>,<MainPOSProducts key="product" search={this.state.search} allProduct={this.state.data.allProduct} changeSearch={this.changeSearch} enterSearch={this.enterSearch} addProductToCurrentOrder={this.addProductToCurrentOrder}/>]
+                        this.state.data.currentOrders[this.state.selectedOrder].payment
+                        ? <MainPOSPayment online={this.state.online} allPaymentMethod={this.state.data.allPaymentMethod} currentOrder={this.state.data.currentOrders[this.state.selectedOrder]} togglePayment={() => this.togglePayment(this.state.selectedOrder)} setSelectedPayment={this.setSelectedPayment} addPayment={this.addPayment} deletePayment={this.deletePayment} addPaymentValue={this.addPaymentValue} validatePayment={() => this.validatePayment()}/>
+                        : [
+                        <MainPOSSidepanel key="sidepanel" online={this.state.online} currentOrder={this.state.data.currentOrders[this.state.selectedOrder]} togglePayment={() => this.togglePayment(this.state.selectedOrder)} toggleSelectCustomer={() => this.toggleSelectCustomer()} toggleHistoryTransaction={() => this.toggleHistoryTransaction()} toggleEditItem={this.toggleEditItem} setSelectedItem={this.setSelectedItem}/>,
+                        <MainPOSProducts key="product" search={this.state.search} allProduct={this.state.data.allProduct} changeSearch={this.changeSearch} enterSearch={this.enterSearch} addProductToCurrentOrder={this.addProductToCurrentOrder} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>]
                     }
                     {
                         this.state.selectCustomer?(<MainPOSCustomerSelector toggleSelectCustomer={() => this.toggleSelectCustomer()} addNewCustomer={this.addNewCustomer} allCustomer={this.state.data.allCustomer} setCustomer={this.setCustomer}/>):false
@@ -610,9 +642,9 @@ function MainPOSProducts(props){
     var products = []
     if(props.allProduct != undefined){
         var allProduct = props.allProduct
-        if(![false,undefined,""].includes(props.search)){
-            allProduct = props.allProduct.filter(p => [null,false,undefined].includes(p.barcode)?p.product_name.toLowerCase().includes(props.search.toLowerCase()) || p.default_code.toLowerCase().includes(props.search.toLowerCase()):p.product_name.toLowerCase().includes(props.search.toLowerCase()) || p.default_code.toLowerCase().includes(props.search.toLowerCase()) || p.barcode.toLowerCase().includes(props.search.toLowerCase()))
-        }
+        // if(![false,undefined,""].includes(props.search)){
+        //     allProduct = props.allProduct.filter(p => [null,false,undefined].includes(p.barcode)?p.product_name.toLowerCase().includes(props.search.toLowerCase()) || p.default_code.toLowerCase().includes(props.search.toLowerCase()):p.product_name.toLowerCase().includes(props.search.toLowerCase()) || p.default_code.toLowerCase().includes(props.search.toLowerCase()) || p.barcode.toLowerCase().includes(props.search.toLowerCase()))
+        // }
         allProduct.forEach((p, index) => products.push(<MainPOSProductsItem key={index.toString()} product={p}  addProductToCurrentOrder={() => props.addProductToCurrentOrder(p)}/>))
     }
     
@@ -623,6 +655,7 @@ function MainPOSProducts(props){
                 <div className="row pos-product-grid justify-content-around">
                     {products}
                 </div>
+                <Pagination paginationClick={props.paginationClick} datalength={props.datalength} currentpage={props.currentpage} itemperpage='30'/>
             </div>
         </div>
     )
