@@ -32,6 +32,7 @@ class MainPOS extends React.Component {
             search: "",
             selectedOrder: false,
             loaded: false,
+            loadedProducts: false,
             selectCustomer: false,
             historyTransaction: false,
             online: true,
@@ -101,7 +102,7 @@ class MainPOS extends React.Component {
 
         this.setState({
           currentpage: Number(number),
-          loaded: false,
+          loadedProducts: false,
         });
 
         // if (number * 30 > this.state.data.length) {
@@ -113,7 +114,7 @@ class MainPOS extends React.Component {
                     if (r.message) {
                         var new_data = Object.assign({}, po.state.data)
                         new_data.allProduct = r.message.product 
-                        po.setState({'data': new_data, 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': new_data, 'loadedProducts': true, 'datalength': r.message.datalength});
                     }
                 }
             });
@@ -177,7 +178,7 @@ class MainPOS extends React.Component {
         if (session) {
             var new_data = Object.assign({}, this.state.data)
             new_data.currentOrders = JSON.parse(session)
-            this.setState({data: new_data, selectedOrder: 0, loaded: true})
+            this.setState({data: new_data, selectedOrder: 0, loaded: true, loadedProducts: true})
         } else {
             frappe.call({
                 type: "GET",
@@ -186,7 +187,7 @@ class MainPOS extends React.Component {
                 callback: function(r){
                     var new_data = Object.assign({}, th.state.data)
                     new_data.currentOrders = [{items: [], order_date: r.message, selectedItem: 0}]
-                    th.setState({data: new_data, selectedOrder: 0, loaded: true})
+                    th.setState({data: new_data, selectedOrder: 0, loaded: true, loadedProducts: true})
                     th.saveSession(new_data.currentOrders)
                 }
             })
@@ -543,9 +544,21 @@ class MainPOS extends React.Component {
                     {
                         this.state.data.currentOrders[this.state.selectedOrder].payment
                         ? <MainPOSPayment online={this.state.online} allPaymentMethod={this.state.data.allPaymentMethod} currentOrder={this.state.data.currentOrders[this.state.selectedOrder]} togglePayment={() => this.togglePayment(this.state.selectedOrder)} setSelectedPayment={this.setSelectedPayment} addPayment={this.addPayment} deletePayment={this.deletePayment} addPaymentValue={this.addPaymentValue} validatePayment={() => this.validatePayment()}/>
-                        : [
-                        <MainPOSSidepanel key="sidepanel" online={this.state.online} currentOrder={this.state.data.currentOrders[this.state.selectedOrder]} togglePayment={() => this.togglePayment(this.state.selectedOrder)} toggleSelectCustomer={() => this.toggleSelectCustomer()} toggleHistoryTransaction={() => this.toggleHistoryTransaction()} toggleEditItem={this.toggleEditItem} setSelectedItem={this.setSelectedItem}/>,
-                        <MainPOSProducts key="product" search={this.state.search} allProduct={this.state.data.allProduct} changeSearch={this.changeSearch} enterSearch={this.enterSearch} addProductToCurrentOrder={this.addProductToCurrentOrder} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>]
+                        : 
+                        [
+                            <MainPOSSidepanel key="sidepanel" online={this.state.online} currentOrder={this.state.data.currentOrders[this.state.selectedOrder]} togglePayment={() => this.togglePayment(this.state.selectedOrder)} toggleSelectCustomer={() => this.toggleSelectCustomer()} toggleHistoryTransaction={() => this.toggleHistoryTransaction()} toggleEditItem={this.toggleEditItem} setSelectedItem={this.setSelectedItem}/>,
+                            this.state.loadedProducts
+                            ? <MainPOSProducts key="product" search={this.state.search} allProduct={this.state.data.allProduct} changeSearch={this.changeSearch} enterSearch={this.enterSearch} addProductToCurrentOrder={this.addProductToCurrentOrder} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>
+                            : <div className="col px-0">
+                                <div className="row justify-content-center" key='0'>
+                                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                </div>
+                        ]
                     }
                     {
                         this.state.selectCustomer?(<MainPOSCustomerSelector toggleSelectCustomer={() => this.toggleSelectCustomer()} addNewCustomer={this.addNewCustomer} allCustomer={this.state.data.allCustomer} setCustomer={this.setCustomer}/>):false
@@ -654,8 +667,8 @@ function MainPOSProducts(props){
                 <MainPOSSearchBar search={props.search} changeSearch={props.changeSearch} enterSearch={props.enterSearch}/>
                 <div className="row pos-product-grid justify-content-around">
                     {products}
+                    <Pagination paginationClick={props.paginationClick} datalength={props.datalength} currentpage={props.currentpage} itemperpage='30'/>
                 </div>
-                <Pagination paginationClick={props.paginationClick} datalength={props.datalength} currentpage={props.currentpage} itemperpage='30'/>
             </div>
         </div>
     )
