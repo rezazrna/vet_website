@@ -181,9 +181,28 @@ class PosOrder extends React.Component {
     }
     
     openPOS(){
-        !['False',false].includes(this.props.show_open)
-        ? window.location.href = "/pos"
-        : frappe.msgprint('POS Session belum dibuka')
+        frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                'doctype': 'VetPosSessions',
+                'filters': {'status': 'In Progress'},
+                'fieldname': ['name']
+            },
+            callback: function(r) {
+                console.log(r)
+                if (!r.exc) {
+                    if (r.message.name) {
+                        window.location.href = "/pos"
+                    } else {
+                        frappe.msgprint('POS Session belum dibuka')
+                    }
+                    // code snippet
+                }
+            }
+        });
+        // !['False',false].includes(this.props.show_open)
+        // ? window.location.href = "/pos"
+        // : frappe.msgprint('POS Session belum dibuka')
     }
     
     render() {

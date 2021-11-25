@@ -45,11 +45,42 @@ def get_rekam_medis_list(filters=None):
 			rekam_medis_filters.append({'pet': pet})
 	
 	try:
-		rekam_medis = frappe.get_list("VetRekamMedis", filters=rekam_medis_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
+		rekam_medis = frappe.get_list("VetRekamMedis", filters=rekam_medis_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetRekamMedis", filters=rekam_medis_filters, as_list=True))
 		for r in rekam_medis:
 			r['diagnose_name'] = r['diagnosa_utama']
 		return {'rekam_medis': rekam_medis, 'datalength': datalength}
+		
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
+def get_name_list(filters=None):
+
+	rekam_medis_filters = []
+	filter_json = False
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		pet = filter_json.get('pet', False)
+		filters_json = filter_json.get('filters', False)
+
+		if filters_json:
+			for fj in filters_json:
+				rekam_medis_filters.append(fj)
+				
+		if pet:
+			rekam_medis_filters.append({'pet': pet})
+	
+	try:
+		namelist = frappe.get_list("VetRekamMedis", filters=rekam_medis_filters, fields=["*"], as_list=True)
+
+		return list(map(lambda item: item[0], namelist))
 		
 	except PermissionError as e:
 		return {'error': e}

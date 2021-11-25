@@ -34,12 +34,11 @@ class RekamMedisForm extends React.Component {
         var gr = this
         frappe.call({
             type: "GET",
-            method:"vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rekam_medis_list",
+            method:"vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_name_list",
             args: {filters: lastfilter},
             callback: function(r){
                 if (r.message) {
-                    var namelist = r.message.rekam_medis.map(r => r.name)
-                    gr.setState({'namelist': namelist});
+                    gr.setState({'namelist': r.message});
                 }
             }
         })

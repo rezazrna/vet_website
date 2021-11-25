@@ -54,6 +54,16 @@ class RekamMedis extends React.Component {
     
     componentDidMount() {
         var po = this
+        var new_filters = {filters: [], sorts: []}
+        
+        if (sessionStorage.getItem(window.location.pathname) != null && (document.referrer.includes('/main/rekam-medis/rekam-medis/detail'))) {
+            new_filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+        }
+
+        if (new_filters.hasOwnProperty("currentpage")) {
+            this.setState({'currentpage': new_filters['currentpage']})
+        }
+
         if (document.location.href.includes('?')) {
          var url = document.location.href,
             params = url.split('?')[1].split('='),
@@ -62,18 +72,19 @@ class RekamMedis extends React.Component {
         }
             
         if (params) {
-            var filters = {[key]: value}
-            this.rekamMedisSearch(filters)
+            new_filters[key] = value
+            sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
+            this.rekamMedisSearch(new_filters)
         } else {
-            sessionStorage.setItem(window.location.pathname, JSON.stringify({}))
+            sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rekam_medis_list",
-                args: {filters: {'currentpage': this.state.currentpage}},
+                args: {filters: new_filters},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({'data': po.state.data.concat(r.message.rekam_medis), 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': r.message.rekam_medis, 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
@@ -83,16 +94,18 @@ class RekamMedis extends React.Component {
     paginationClick(number) {
         console.log('Halo')
         var po = this
-        var filters = {}
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         this.setState({
           currentpage: Number(number),
-          loaded: number * 30 <= this.state.data.length,
+          loaded: false,
         });
 
         filters['currentpage'] = this.state.currentpage
 
-        if (number * 30 > this.state.data.length) {
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+
+        // if (number * 30 > this.state.data.length) {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rekam_medis_list",
@@ -100,11 +113,11 @@ class RekamMedis extends React.Component {
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({'data': po.state.data.concat(r.message.rekam_medis), 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': r.message.rekam_medis, 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
-        }
+        // }
     }
     
     rekamMedisSearch(filters) {
@@ -112,8 +125,14 @@ class RekamMedis extends React.Component {
             filters.pet = pet
         }
         var po = this
+
+        this.setState({
+            currentpage: 1,
+            loaded: false,
+          });
+        
+        filters['currentpage'] = 1
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
-        filters['currentpage'] = this.state.currentpage
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rekam_medis_list",
@@ -121,7 +140,7 @@ class RekamMedis extends React.Component {
             callback: function(r){
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({'data': po.state.data.concat(r.message.rekam_medis), 'loaded': true, 'datalength': r.message.datalength});
+                    po.setState({'data': r.message.rekam_medis, 'loaded': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -307,7 +326,7 @@ class RekamMedis extends React.Component {
                             <input className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({search: e.target.value})}/>
                         </div>
                         <div className="col-7">
-                            <Filter sorts={sorts} searchAction={this.rekamMedisSearch} field_list={field_list}/>
+                            <Filter sorts={sorts} searchAction={this.rekamMedisSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))}/>
                         </div>
                     </div>
                     {content}
@@ -344,19 +363,19 @@ class RekamMedisList extends React.Component {
         var col_style = {width: '25px'}
         if (this.props.data.length != 0){
             var pol = this
-            const indexOfLastTodo = this.props.currentpage * 30;
-            const indexOfFirstTodo = indexOfLastTodo - 30;
-            var currentItems
-            ![false,''].includes(search)?
-            currentItems = this.props.data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
-            currentItems = this.props.data.slice(indexOfFirstTodo, indexOfLastTodo)
+            // const indexOfLastTodo = this.props.currentpage * 30;
+            // const indexOfFirstTodo = indexOfLastTodo - 30;
+            // var currentItems
+            // ![false,''].includes(search)?
+            // currentItems = this.props.data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
+            // currentItems = this.props.data.slice(indexOfFirstTodo, indexOfLastTodo)
             
             this.props.data.forEach(function(item, index){
-                if (currentItems.includes(item)){
+                // if (currentItems.includes(item)){
                     rekam_medis_rows.push(
                         <RekamMedisListRow key={item.name} data={item} checkRow={() => pol.props.checkRow(index)}/>
                     )
-                }
+                // }
             })
             
             return(
@@ -395,7 +414,7 @@ class RekamMedisList extends React.Component {
                 		</div>
                 	</div>
         		    {rekam_medis_rows}
-        		    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30'/>
+        		    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10'/>
         	    </div>
             )
         }
