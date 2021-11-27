@@ -72,7 +72,7 @@ class MainPOS extends React.Component {
                     th.getSession();
                     var new_data = Object.assign({}, th.state.data)
                     new_data.session = r.message.session
-                    new_data.orders = r.message.orders
+                    new_data.orders = r.message.orders.order
                     new_data.allProduct = r.message.allProduct.product,
                     new_data.allCustomer = r.message.allCustomer
                     new_data.allPaymentMethod = r.message.allPaymentMethod
@@ -501,7 +501,7 @@ class MainPOS extends React.Component {
                 method: "vet_website.vet_website.doctype.vetpossessions.vetpossessions.pos_add_order",
                 args: {data: order_data},
                 callback: function(r){
-                    new_data.orders = r.message.orders
+                    new_data.orders = r.message.orders.order
                     var newSelectedOrder = th.state.selectedOrder
                     new_data.currentOrders.splice(th.state.selectedOrder, 1)
                     if(new_data.currentOrders.length == 0){
