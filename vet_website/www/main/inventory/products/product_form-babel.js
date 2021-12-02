@@ -36,12 +36,11 @@ class Products extends React.Component {
         });
         frappe.call({
             type: "GET",
-            method:"vet_website.vet_website.doctype.vetproduct.vetproduct.get_product_list",
+            method:"vet_website.vet_website.doctype.vetproduct.vetproduct.get_name_list",
             args: {filters: lastfilter},
             callback: function(r){
                 if (r.message) {
-                    var namelist = r.message.product.map(r => r.name)
-                    gr.setState({'namelist': namelist});
+                    gr.setState({'namelist': r.message});
                 }
             }
         })

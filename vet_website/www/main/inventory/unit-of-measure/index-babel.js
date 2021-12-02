@@ -21,6 +21,8 @@ class UnitOfMeasure extends React.Component {
     
     componentDidMount() {
         var td = this
+        var new_filters = {filters: [], sorts: []}
+
         frappe.call({
             type: "GET",
             method:"vet_website.methods.get_current_user",
@@ -31,13 +33,15 @@ class UnitOfMeasure extends React.Component {
                 }
             }
         });
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
+
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetuom.vetuom.get_uom_list",
-            args: {filters: {'currentpage': this.state.currentpage}},
+            args: {filters: new_filters},
             callback: function(r){
                 if (r.message) {
-                    td.setState({'data': td.state.data.concat(r.message.uom_list), 'loaded': true, 'datalength': r.message.datalength});
+                    td.setState({'data': r.message.uom_list, 'loaded': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -46,27 +50,29 @@ class UnitOfMeasure extends React.Component {
     paginationClick(number) {
         console.log('Halo')
         var po = this
-        var filters = {}
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         this.setState({
           currentpage: Number(number),
-          loaded: number * 30 <= this.state.data.length,
+          loaded: false,
         });
 
         filters['currentpage'] = this.state.currentpage
 
-        if (number * 30 > this.state.data.length) {
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+
+        // if (number * 30 > this.state.data.length) {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetuom.vetuom.get_uom_list",
                 args: {filters: filters},
                 callback: function(r){
                     if (r.message) {
-                        po.setState({'data': po.state.data.concat(r.message.uom_list), 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': r.message.uom_list, 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
-        }
+        // }
     }
     
     checkAll() {
@@ -287,7 +293,7 @@ class UnitOfMeasureList extends React.Component {
                 		</div>
                 	</div>
                 	{rows}
-                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30'/>
+                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10'/>
                 </div>
             )
         }

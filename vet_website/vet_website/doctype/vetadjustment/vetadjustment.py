@@ -43,13 +43,40 @@ def get_adjustment_list(filters=None):
 			default_sort = sort
 		
 	try:
-		adjustment = frappe.get_list("VetAdjustment", filters=po_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
-		datalength = len(frappe.get_all("VetReception", filters=po_filters, as_list=True))
+		adjustment = frappe.get_list("VetAdjustment", filters=po_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetAdjustment", filters=po_filters, as_list=True))
 		for a in adjustment:
 			inventory_details = frappe.get_list('VetAdjustmentInventoryDetails', filters={'parent': a['name']}, fields=['adjustment_value'])
 			a['adjustment_value'] = sum(i.adjustment_value for i in inventory_details)
 		
 		return {'adjustment': adjustment, 'datalength': datalength}
+		
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
+def get_name_list(filters=None):
+	default_sort = "creation desc"
+	po_filters = []
+	filter_json = False
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		filters_json = filter_json.get('filters', False)
+		
+		if filters_json:
+			for fj in filters_json:
+				po_filters.append(fj)
+		
+	try:
+		namelist = frappe.get_all("VetAdjustment", filters=po_filters, as_list=True)
+		
+		return list(map(lambda item: item[0], namelist))
 		
 	except PermissionError as e:
 		return {'error': e}

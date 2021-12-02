@@ -55,7 +55,7 @@ def get_uom_list(filters=None):
 		if td_filters == {}:
 			td_filters.update({'unit_master': ['in', ['',False,None,'0']]})
 		
-		uoms = frappe.get_list("VetUOM", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
+		uoms = frappe.get_list("VetUOM", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetUOM", filters=td_filters, as_list=True))
 		for uom in uoms:
 			uom_list.append(uom)

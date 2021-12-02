@@ -21,6 +21,9 @@ class Warehouse extends React.Component {
     
     componentDidMount() {
         var td = this
+        var new_filters = {filters: [], sorts: []}
+        
+
         frappe.call({
             type: "GET",
             method:"vet_website.methods.get_current_user",
@@ -34,11 +37,11 @@ class Warehouse extends React.Component {
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetgudang.vetgudang.get_gudang_list",
-            args: {filters: {'currentpage': this.state.currentpage}},
+            args: {filters: new_filters},
             callback: function(r){
                 console.log(r.message)
                 if (r.message) {
-                    td.setState({'data': td.state.data.concat(r.message.gudang), 'loaded': true, 'datalength': r.message.datalength});
+                    td.setState({'data': r.message.gudang, 'loaded': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -46,16 +49,18 @@ class Warehouse extends React.Component {
     
     paginationClick(number) {
         var po = this
-        var filters = {}
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         this.setState({
           currentpage: Number(number),
-          loaded: number * 30 <= this.state.data.length,
+          loaded: false,
         });
 
         filters['currentpage'] = this.state.currentpage
 
-        if (number * 30 > this.state.data.length) {
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+
+        // if (number * 30 > this.state.data.length) {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetgudang.vetgudang.get_gudang_list",
@@ -63,24 +68,31 @@ class Warehouse extends React.Component {
                 callback: function(r){
                     console.log(r.message)
                     if (r.message) {
-                        po.setState({'data': po.state.data.concat(r.message.gudang), 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': r.message.gudang, 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
-        }
+        // }
     }
     
     gudangSearch(filters) {
         var po = this
+        this.setState({
+            currentpage: 1,
+            loaded: false,
+        });
+        
+        filters['currentpage'] = 1;
+        
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
-        filters['currentpage'] = this.state.currentpage
+
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetgudang.vetgudang.get_gudang_list",
             args: {filters: filters},
             callback: function(r){
                 if (r.message) {
-                    po.setState({'data': po.state.data.concat(r.message.reception), 'datalength': r.message.datalength});
+                    po.setState({'data': r.message.reception, 'datalength': r.message.datalength, 'loaded': true});
                 }
             }
         });
@@ -267,7 +279,7 @@ class Warehouse extends React.Component {
                             <input className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({search: e.target.value})}/>
                         </div>
                         <div className="col-7">
-                            <Filter sorts={sorts} searchAction={this.gudangSearch} field_list={field_list}/>
+                            <Filter sorts={sorts} searchAction={this.gudangSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))}/>
                         </div>
                     </div>
                     <WarehouseGrid items={this.state.data} search={this.state.search} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} toggleShowForm={this.toggleShowForm} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>
@@ -306,19 +318,19 @@ class WarehouseGrid extends React.Component {
         
         if (items.length != 0 ){
             var list = this
-            const indexOfLastTodo = this.props.currentpage * 30;
-            const indexOfFirstTodo = indexOfLastTodo - 30;
-            var currentItems
-            ![false,''].includes(search)?
-            currentItems = items.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
-            currentItems = items.slice(indexOfFirstTodo, indexOfLastTodo)
+            // const indexOfLastTodo = this.props.currentpage * 30;
+            // const indexOfFirstTodo = indexOfLastTodo - 30;
+            // var currentItems
+            // ![false,''].includes(search)?
+            // currentItems = items.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
+            // currentItems = items.slice(indexOfFirstTodo, indexOfLastTodo)
             
             items.forEach(function(item, index){
-                if (currentItems.includes(item)){
+                // if (currentItems.includes(item)){
                     cols.push(
                         <WarehouseGridCol key={index.toString()} item={item} checkRow={() => list.props.checkRow(index)} toggleShowForm={() => list.props.toggleShowForm(index.toString())}/>
                     )
-                }
+                // }
             })
             
             return(
@@ -326,7 +338,7 @@ class WarehouseGrid extends React.Component {
                 	<div className="row mx-0">
                 		{cols}
                 	</div>
-                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30'/>
+                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10'/>
                 </div>
             )
         }

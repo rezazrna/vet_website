@@ -100,7 +100,7 @@ def get_product_list(filters=None):
 			default_sort = sort
 			
 	try:
-		product_list = frappe.get_list("VetProduct", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
+		product_list = frappe.get_list("VetProduct", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetProduct", filters=td_filters, as_list=True))
 		for p in product_list:
 			uom_name = frappe.db.get_value('VetUOM', p.product_uom, 'uom_name')
@@ -115,6 +115,36 @@ def get_product_list(filters=None):
 			p.update({'uom_name': uom_name, 'tags': tags, 'quantity': sum(q.quantity for q in quantity), 'purchase_number': len(purchase_number), 'sales_number': len(sales_number)})
 			
 		return {'product': product_list, 'datalength': datalength}
+		
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
+def get_name_list(filters=None):
+	td_filters = []
+	filter_json = False
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		filters_json = filter_json.get('filters', False)
+		search = filter_json.get('search', False)
+
+		if search:
+			td_filters.append({'product_name': ['like', '%'+search+'%']})
+		
+		if filters_json:
+			for fj in filters_json:
+				td_filters.append(fj)
+			
+	try:
+		namelist = frappe.get_all("VetProduct", filters=td_filters, as_list=True)
+			
+		return list(map(lambda item: item[0], namelist))
 		
 	except PermissionError as e:
 		return {'error': e}

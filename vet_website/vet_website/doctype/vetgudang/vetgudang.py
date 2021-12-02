@@ -39,7 +39,7 @@ def get_gudang_list(filters=None):
 			default_sort = sort
 			
 	try:
-		gudang_list = frappe.get_list("VetGudang", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
+		gudang_list = frappe.get_list("VetGudang", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetGudang", filters=td_filters, as_list=True))
 		
 		for g in gudang_list:

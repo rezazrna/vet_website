@@ -18,33 +18,39 @@ class Operation extends React.Component {
     
     componentDidMount() {
         var po = this
-        var filters = {filters: [['is_usage', '=', this.props.is_usage?'1':'0']]}
-        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+        var filters = {filters: [], sorts: []}
+
+        if (sessionStorage.getItem(window.location.pathname) != null && document.referrer.includes('/main/inventory/operation/edit')) {
+            filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+        }
+
+        filters.filters.push(['is_usage', '=', this.props.is_usage?'1':'0'])
+
         if (document.location.href.includes('?')) {
          var url = document.location.href,
             params = url.split('?')[1].split('='),
             key = params[0],
             value = params[1]   
         }
+
+        if (filters.hasOwnProperty("currentpage")) {
+            this.setState({'currentpage': filters['currentpage']})
+        }
             
         if (params) {
-            var filters = {[key]: value}
+            filters = {[key]: value}
+            sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             this.operationSearch(filters)
         } else {
-            var args = {filters: {filters: [['is_usage', '=', '0']]}}
-            if(this.props.usage){
-                args = {filters: {filters: [['is_usage', '=', '1']]}}
-            }
-            args.filters['currentpage'] = this.state.currentpage
-
             var td = this
+            sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetoperation.vetoperation.get_operation_list",
-                args: args,
+                args: {filters: filters},
                 callback: function(r){
                     if (r.message) {
-                        td.setState({'data': po.state.data.concat(r.message.operation), 'loaded': true, 'datalength': r.message.datalength});
+                        td.setState({'data': r.message.operation, 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
@@ -53,27 +59,27 @@ class Operation extends React.Component {
     
     paginationClick(number) {
         var po = this
-        var filters = {}
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         this.setState({
           currentpage: Number(number),
-          loaded: number * 30 <= this.state.data.length,
+          loaded: false,
         });
 
         filters['currentpage'] = this.state.currentpage
 
-        if (number * 30 > this.state.data.length) {
+        // if (number * 30 > this.state.data.length) {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetoperation.vetoperation.get_operation_list",
                 args: {filters: filters},
                 callback: function(r){
                     if (r.message) {
-                        td.setState({'data': po.state.data.concat(r.message.operation), 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': r.message.operation, 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
-        }
+        // }
     }
     
     operationSearch(filters) {
@@ -81,20 +87,28 @@ class Operation extends React.Component {
         
         var new_filters = Object.assign({}, filters)
         filters.filters?new_filters.filters = filters.filters.slice():new_filters.filters=[]
-        if (this.props.usage){
-            new_filters.filters.push(['is_usage', '=', '1'])
-        } else {
-            new_filters.filters.push(['is_usage', '=', '0'])
-        }
+        // if (this.props.usage){
+        //     new_filters.filters.push(['is_usage', '=', '1'])
+        // } else {
+        //     new_filters.filters.push(['is_usage', '=', '0'])
+        // }
+
+        this.setState({
+            currentpage: 1,
+            loaded: false,
+        });
+        
+        new_filters['currentpage'] = 1;
+
         sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
-        new_filters['currentpage'] = this.state.currentpage
+
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetoperation.vetoperation.get_operation_list",
             args: {filters: new_filters},
             callback: function(r){
                 if (r.message) {
-                    td.setState({'data': td.state.data.concat(r.message.operation), 'loaded': true, 'datalength': r.message.datalength});
+                    td.setState({'data': r.message.operation, 'loaded': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -221,7 +235,7 @@ class Operation extends React.Component {
                             <input className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({search: e.target.value})}/>
                         </div>
                         <div className="col-7">
-                            <Filter sorts={sorts} searchAction={this.operationSearch} field_list={field_list}/>
+                            <Filter sorts={sorts} searchAction={this.operationSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))}/>
                         </div>
                     </div>
                     <OperationList usage={this.props.usage} items={this.state.data} search={this.state.search} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>
@@ -258,18 +272,18 @@ class OperationList extends React.Component {
         
         if (items.length != 0 ){
             var list = this
-            const indexOfLastTodo = this.props.currentpage * 30;
-            const indexOfFirstTodo = indexOfLastTodo - 30;
-            var currentItems
-            ![false,''].includes(search)?
-            currentItems = items.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
-            currentItems = items.slice(indexOfFirstTodo, indexOfLastTodo)
+            // const indexOfLastTodo = this.props.currentpage * 30;
+            // const indexOfFirstTodo = indexOfLastTodo - 30;
+            // var currentItems
+            // ![false,''].includes(search)?
+            // currentItems = items.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
+            // currentItems = items.slice(indexOfFirstTodo, indexOfLastTodo)
             items.forEach(function(item, index){
-                if (currentItems.includes(item)){
+                // if (currentItems.includes(item)){
                     rows.push(
                         <OperationListRow usage={list.props.usage} key={index.toString()} item={item} checkRow={() => list.props.checkRow(index)}/>
                     )
-                }
+                // }
             })
             
             return(
@@ -302,7 +316,7 @@ class OperationList extends React.Component {
                 		</div>
                 	</div>
                 	{rows}
-                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30'/>
+                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10'/>
                 </div>
             )
         }

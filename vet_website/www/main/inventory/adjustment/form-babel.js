@@ -31,12 +31,11 @@ class Adjustment extends React.Component {
         });
         frappe.call({
             type: "GET",
-            method:"vet_website.vet_website.doctype.vetadjustment.vetadjustment.get_adjustment_list",
+            method:"vet_website.vet_website.doctype.vetadjustment.vetadjustment.get_name_list",
             args: {filters: lastfilter},
             callback: function(r){
                 if (r.message) {
-                    var namelist = r.message.adjustment.map(r => r.name)
-                    gr.setState({'namelist': namelist});
+                    gr.setState({'namelist': r.message});
                 }
             }
         })

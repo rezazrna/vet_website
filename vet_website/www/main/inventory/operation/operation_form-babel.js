@@ -35,12 +35,11 @@ class Operation extends React.Component {
         });
         frappe.call({
             type: "GET",
-            method:"vet_website.vet_website.doctype.vetoperation.vetoperation.get_operation_list",
+            method:"vet_website.vet_website.doctype.vetoperation.vetoperation.get_name_list",
             args: {filters: lastfilter},
             callback: function(r){
                 if (r.message) {
-                    var namelist = r.message.operation.map(r => r.name)
-                    gr.setState({'namelist': namelist});
+                    gr.setState({'namelist': r.message});
                 }
             }
         })

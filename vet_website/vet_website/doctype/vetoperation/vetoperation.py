@@ -52,11 +52,48 @@ def get_operation_list(filters=None):
 	
 	try:
 		print(td_filters)
-		operations = frappe.get_list("VetOperation", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
+		operations = frappe.get_list("VetOperation", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetOperation", filters=td_filters, as_list=True))
 		print(operations)
 			
 		return {'operation': operations,'datalength': datalength}
+		
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
+def get_name_list(filters=None):
+	td_filters = []
+	filter_json = False
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		filters_json = filter_json.get('filters', False)
+		receipts = filter_json.get('receipts', False)
+		delivery_orders = filter_json.get('delivery_orders', False)
+		
+		if filters_json:
+			for fj in filters_json:
+				td_filters.append(fj)
+			
+		if receipts:
+			td_filters.append(('to', '=', unquote(receipts)))
+			td_filters.append(('status', '!=', 'Done'))
+			
+		if delivery_orders:
+			td_filters.append(('from', '=', unquote(delivery_orders)))
+			td_filters.append(('status', '!=', 'Done'))
+	
+	try:
+		print(td_filters)
+		namelist = frappe.get_all("VetOperation", filters=td_filters, as_list=True)
+			
+		return list(map(lambda item: item[0], namelist))
 		
 	except PermissionError as e:
 		return {'error': e}
@@ -343,7 +380,7 @@ def get_stock_move_list(filters=None):
 			td_filters.append({'product': product})
 	
 	try:
-		stock_move = frappe.get_list("VetOperationMove", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
+		stock_move = frappe.get_list("VetOperationMove", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetOperationMove", filters=td_filters, as_list=True))
 		
 		for s in stock_move:

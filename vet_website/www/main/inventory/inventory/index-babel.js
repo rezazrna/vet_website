@@ -28,7 +28,9 @@ class Inventory extends React.Component {
         if(this.props.valuation){
             valuation = true
         }
-        args['currentpage'] = this.state.currentpage
+
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(args))
+
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetproductquantity.vetproductquantity.get_quantity_list",
@@ -36,7 +38,7 @@ class Inventory extends React.Component {
             callback: function(r){
                 if (r.message) {
                     console.log(r.message)
-                    td.setState({'data': td.state.data.concat(r.message.product_quantity), 'loaded': true, 'datalength': r.message.datalength});
+                    td.setState({'data': r.message.product_quantity, 'loaded': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -44,7 +46,7 @@ class Inventory extends React.Component {
     
     paginationClick(number) {
         var po = this
-        var filters = {}
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
         var valuation
 
         if(this.props.valuation){
@@ -53,12 +55,14 @@ class Inventory extends React.Component {
 
         this.setState({
           currentpage: Number(number),
-          loaded: number * 30 <= this.state.data.length,
+          loaded: false,
         });
 
         filters['currentpage'] = this.state.currentpage
 
-        if (number * 30 > this.state.data.length) {
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+
+        // if (number * 30 > this.state.data.length) {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetproductquantity.vetproductquantity.get_quantity_list",
@@ -66,11 +70,11 @@ class Inventory extends React.Component {
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message)
-                        po.setState({'data': po.state.data.concat(r.message.product_quantity), 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': r.message.product_quantity, 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
-        }
+        // }
     }
     
     inventorySearch(filters) {
@@ -83,14 +87,23 @@ class Inventory extends React.Component {
         if(this.state.valuation){
             valuation = true
         }
-        filters['currentpage'] = this.state.currentpage
+
+        this.setState({
+            currentpage: 1,
+            loaded: false,
+          });
+
+        filters['currentpage'] = 1
+
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetproductquantity.vetproductquantity.get_quantity_list",
             args: {filters: filters, valuation: valuation},
             callback: function(r){
                 if (r.message) {
-                    td.setState({'data': td.state.data.concat(r.message.product_quantity), 'datalength': r.message.datalength});
+                    td.setState({'data': r.message.product_quantity, 'datalength': r.message.datalength, 'loaded': true});
                 }
             }
         });
@@ -217,7 +230,7 @@ class Inventory extends React.Component {
                         </div>
                         {product_info}
                         <div className={"col-6 my-auto "+col_class}>
-                            <Filter sorts={sorts} searchAction={this.inventorySearch} field_list={field_list}/>
+                            <Filter sorts={sorts} searchAction={this.inventorySearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))}/>
                         </div>
                     </div>
                     <InventoryList items={this.state.data} valuation={this.state.valuation} toggleShowQuantityGroup={this.toggleShowQuantityGroup} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>
@@ -246,23 +259,23 @@ class InventoryList extends React.Component {
         var items = this.props.items
         
         if (items.length != 0 ){
-            var list = this
-            const indexOfLastTodo = this.props.currentpage * 30;
-            const indexOfFirstTodo = indexOfLastTodo - 30;
-            const currentItems = this.props.items.slice(indexOfFirstTodo, indexOfLastTodo)
+            // var list = this
+            // const indexOfLastTodo = this.props.currentpage * 30;
+            // const indexOfFirstTodo = indexOfLastTodo - 30;
+            // const currentItems = this.props.items.slice(indexOfFirstTodo, indexOfLastTodo)
             
-            items.forEach(function(item, index){
+            // items.forEach(function(item, index){
                 if (currentItems.includes(item)){
                     rows.push(
                         <InventoryListRow valuation={list.props.valuation} key={index.toString()} item={item} toggleShowQuantityGroup={() => list.props.toggleShowQuantityGroup(index.toString())}/>
                     )
                 }
-            })
+            // })
             
             return(
                 <div style={panel_style}>
                 	{rows}
-                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30'/>
+                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10'/>
                 </div>
             )
         }
