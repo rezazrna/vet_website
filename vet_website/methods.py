@@ -262,7 +262,7 @@ def get_pos_data(name):
 		"session": name
 	}
 	
-	allCustomer = list(get_pet())
+	allCustomer = list(get_pet()['pet'])
 	
 	owner_no_pet = []
 	owner_no_pet_search = frappe.get_list('VetPetOwner', filters={'name': ['not in', (p.parent for p in get_pet()['pet'])]}, fields=['nik', 'owner_name', 'phone', 'name'])

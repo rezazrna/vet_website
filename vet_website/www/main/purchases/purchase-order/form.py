@@ -1,9 +1,9 @@
 import frappe
 
 def get_context(context):
-    # context.no_cache = True
+    context.no_cache = True
     context.alt_page_title = "Purchase Order Baru"
     if frappe.session.user == 'Guest':
-    	frappe.local.flags.redirect_location = frappe.utils.get_url('/login')
-    	raise frappe.Redirect
+        frappe.local.flags.redirect_location = frappe.utils.get_url('/login')
+        raise frappe.Redirect
     return context

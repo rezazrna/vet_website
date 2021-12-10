@@ -532,18 +532,19 @@ class CustomerInvoice extends React.Component {
                     }
                 })
             } else if (id == undefined) {
+                old_data['invoice_date'] = moment().format("YYYY-MM-DD HH:mm:ss")
                 console.log(old_data)
                 
-                frappe.call({
-                    type: "POST",
-                    method:"vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.new_invoice",
-                    args: {data: old_data},
-                    callback: function(r){
-                        if (r.message.name) {
-                            window.location.href = "/main/kasir/customer-invoices/edit?n=" + r.message.name
-                        }
-                    }
-                })
+                // frappe.call({
+                //     type: "POST",
+                //     method:"vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.new_invoice",
+                //     args: {data: old_data},
+                //     callback: function(r){
+                //         if (r.message.name) {
+                //             window.location.href = "/main/kasir/customer-invoices/edit?n=" + r.message.name
+                //         }
+                //     }
+                // })
             }
         }
     }

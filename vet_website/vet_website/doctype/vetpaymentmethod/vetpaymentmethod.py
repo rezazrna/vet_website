@@ -45,8 +45,9 @@ def get_payment_method_list(filters=None):
 			account_name = frappe.db.get_value('VetCoa', pm.account, 'account_name')
 			pm.account_name = account_name
 			
-		cash_and_bank_parent = frappe.get_list('VetCoa', filters={'account_code': '1-11000'}, fields=['name'])
-		account_list = frappe.get_list('VetCoa', filters={'account_parent': cash_and_bank_parent[0].name}, fields=['name', 'account_name'])
+		# cash_and_bank_parent = frappe.get_list('VetCoa', filters={'account_code': '1-11000'}, fields=['name'])
+		# account_list = frappe.get_list('VetCoa', filters={'account_parent': cash_and_bank_parent[0].name}, fields=['name', 'account_name'])
+		account_list = frappe.get_list('VetCoa', fields=['name', 'account_name'])
 			
 		return {'list': pm_list, 'account_list': account_list, 'datalength': datalength}
 		

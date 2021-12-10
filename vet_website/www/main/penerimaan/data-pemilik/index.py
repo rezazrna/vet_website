@@ -2,7 +2,7 @@ import frappe
 from datetime import datetime as dt
 
 def get_context(context):
-	# context.no_cache = True
+	context.no_cache = True
 	if frappe.session.user == 'Guest':
 		frappe.local.flags.redirect_location = frappe.utils.get_url('/login')
 		raise frappe.Redirect

@@ -227,7 +227,7 @@ class JournalEntry extends React.Component {
         var color = {color: '#056EAD', cursor: 'pointer'}
         var data = this.state.data
         var submit_button, batal_button
-        var backButton = <span key="999" className="fs16 fw600" style={color} onClick={() => window.location.href='/main/accounting/journal-entries'}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
+        var backButton = <span key="999" className="fs16 fw600" style={color} onClick={() => {history.back()}}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
         var write = checkPermission('VetJournalEntry', this.state.currentUser, 'write')
         
         if (this.state.loaded) {

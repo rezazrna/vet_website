@@ -1,7 +1,7 @@
 import frappe
 
 def get_context(context):
-    # context.no_cache = True
+    context.no_cache = True
 
     context.mode = "New"
     context.alt_page_title = "New Customer Invoice"

@@ -9,6 +9,8 @@ class Pagination extends React.Component {
                 pageSize: Number(this.props.itemperpage),
                 showPrevious: false,
                 showNext: false,
+                showGoInput: true,
+                showGoButton: true,
                 callback: function(data, pagination) {
                     if ( pagination.pageNumber != Number(pager.props.currentpage) ) {
                         var mainpage = document.getElementsByClassName('main-page')
@@ -30,6 +32,8 @@ class Pagination extends React.Component {
                 pageSize: Number(this.props.itemperpage),
                 showPrevious: false,
                 showNext: false,
+                showGoInput: true,
+                showGoButton: true,
                 callback: function(data, pagination) {
                     if ( pagination.pageNumber != Number(pager.props.currentpage) ) {
                         var mainpage = document.getElementsByClassName('main-page')
