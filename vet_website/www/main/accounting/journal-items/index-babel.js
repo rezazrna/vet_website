@@ -21,21 +21,22 @@ class JournalItems extends React.Component {
     
     componentDidMount() {
         var po = this
-        var args = {filters: {}}
+        var new_filters = {filters: [], sorts: []}
+
         if(this.props.account != undefined){
-            args.filters.account = this.props.account
+            new_filters.filters.account = this.props.account
         }
 
-        args.filters.currentpage = this.state.currentpage
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
         
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
-            args: args,
+            args: {filters: new_filters},
             callback: function(r){
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({'data': po.state.data.concat(r.message.journal_items), 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength});
+                    po.setState({'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -43,16 +44,18 @@ class JournalItems extends React.Component {
     
     paginationClick(number) {
         var po = this
-        var filters = {}
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         this.setState({
           currentpage: Number(number),
-          loaded: number * 30 <= this.state.data.length,
+          loaded: false,
         });
 
         filters['currentpage'] = this.state.currentpage
 
-        if (number * 30 > this.state.data.length) {
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+
+        // if (number * 30 > this.state.data.length) {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
@@ -60,11 +63,11 @@ class JournalItems extends React.Component {
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({'data': po.state.data.concat(r.message.journal_items), 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
-        }
+        // }
     }
     
     itemSearch(filters) {
@@ -75,14 +78,22 @@ class JournalItems extends React.Component {
             filters.account = this.props.account
         }
         var po = this
-        filters['currentpage'] = this.state.currentpage;
+        this.setState({
+            currentpage: 1,
+            loaded: false,
+        });
+        
+        filters['currentpage'] = 1;
+        
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
             args: {filters: filters},
             callback: function(r){
                 if (r.message) {
-                    po.setState({'data': po.state.data.concat(r.message.journal_items), 'loaded': true, 'datalength': r.message.datalength});
+                    po.setState({'data': r.message.journal_items, 'loaded': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -219,7 +230,7 @@ class JournalItems extends React.Component {
                             <input className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({search: e.target.value})}/>
                         </div>
                         <div className="col-7">
-                            <Filter sorts={[]} searchAction={this.itemSearch} field_list={field_list}/>
+                            <Filter sorts={[]} searchAction={this.itemSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))}/>
                         </div>
                     </div>
                     <JournalItemsList account={this.props.account} search={this.state.search} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>
@@ -269,19 +280,19 @@ class JournalItemsList extends React.Component {
             //         d.computed_total = total
             //     }
             // })
-            const indexOfLastTodo = this.props.currentpage * 30;
-            const indexOfFirstTodo = indexOfLastTodo - 30;
-            var currentItems
-            ![false,''].includes(search)?
-            currentItems = data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
-            currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
+            // const indexOfLastTodo = this.props.currentpage * 30;
+            // const indexOfFirstTodo = indexOfLastTodo - 30;
+            // var currentItems
+            // ![false,''].includes(search)?
+            // currentItems = data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
+            // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
             data.forEach(function(item, index){
                 if (item.debit != 0 || item.credit != 0) {
-                    if (currentItems.includes(item)){
+                    // if (currentItems.includes(item)){
                         item_rows.push(
                             <JournalItemsListRow account={ji.props.account} key={item.name} item={item} checkRow={() => ji.props.checkRow(index)}/>
                         )
-                    }
+                    // }
                 }
             })
             
@@ -324,7 +335,7 @@ class JournalItemsList extends React.Component {
             		    </div>
             		</div>
         		    {item_rows}
-        		    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30'/>
+        		    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10'/>
         	    </div>
             )
         }

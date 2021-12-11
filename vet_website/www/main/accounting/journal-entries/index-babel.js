@@ -19,26 +19,39 @@ class JournalEntries extends React.Component {
     
     componentDidMount() {
         var po = this
+        var new_filters = {filters: [], sorts: []}
+        
+        if (sessionStorage.getItem(window.location.pathname) != null && document.referrer.includes('/main/accounting/journal-entries')) {
+            new_filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+        }
+
         if (document.location.href.includes('?')) {
          var url = document.location.href,
             params = url.split('?')[1].split('='),
             key = params[0],
             value = params[1]   
         }
+
+        if (new_filters.hasOwnProperty("currentpage")) {
+            this.setState({'currentpage': new_filters['currentpage']})
+        }
+
         if (params) {
-            var filters = {[key]: value}
-            this.itemSearch(filters)
-            sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+            new_filters[key] = value
+            sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
+
+            this.itemSearch(new_filters)
         } else {
-            sessionStorage.setItem(window.location.pathname, JSON.stringify({}))
+            sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
+
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetjournalentry.vetjournalentry.get_journal_entry_list",
-                args: {filters: {'currentpage': this.state.currentpage}},
+                args: {filters: new_filters},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message)
-                        po.setState({'data': po.state.data.concat(r.message.journal_entries), 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': r.message.journal_entries, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
@@ -48,7 +61,8 @@ class JournalEntries extends React.Component {
     paginationClick(number) {
         console.log('Halo')
         var po = this
-        var filters = {}
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
         if (document.location.href.includes('?')) {
             var url = document.location.href,
             params = url.split('?')[1].split('='),
@@ -62,39 +76,49 @@ class JournalEntries extends React.Component {
 
         this.setState({
           currentpage: Number(number),
-          loaded: number * 30 <= this.state.data.length,
+          loaded: false,
         });
 
         filters['currentpage'] = this.state.currentpage
 
-        if (number * 30 > this.state.data.length) {
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+
+        // if (number * 30 > this.state.data.length) {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetjournalentry.vetjournalentry.get_journal_entry_list",
                 args: {filters: filters},
                 callback: function(r){
                     if (r.message) {
-                        po.setState({'data': po.state.data.concat(r.message.journal_entries), 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': r.message.journal_entries, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
-        }
+        // }
     }
     
     itemSearch(filters) {
+        var po = this
         if(filters.sort != undefined){
             filters.journal = filters.sort
         }
+
+        this.setState({
+            currentpage: 1,
+            loaded: false,
+        });
+        
+        filters['currentpage'] = 1;
+        
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
-        var po = this
-        filters['currentpage'] = this.state.currentpage;
+
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetjournalentry.vetjournalentry.get_journal_entry_list",
             args: {filters: filters},
             callback: function(r){
                 if (r.message) {
-                    po.setState({'data': po.state.data.concat(r.message.journal_entries), 'loaded': true, 'datalength': r.message.datalength});
+                    po.setState({'data': r.message.journal_entries, 'loaded': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -191,7 +215,7 @@ class JournalEntries extends React.Component {
                             <input className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({search: e.target.value})}/>
                         </div>
                         <div className="col-7">
-                            <Filter sorts={[]} searchAction={this.itemSearch} field_list={field_list}/>
+                            <Filter sorts={[]} searchAction={this.itemSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))}/>
                         </div>
                     </div>
                     <JournalEntriesList data={this.state.data} search={this.state.search} expandCollapse={this.expandCollapse} toggleShow={this.toggleShow} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>
@@ -230,19 +254,19 @@ class JournalEntriesList extends React.Component {
         
         if (data.length != 0 ){
             var cl = this
-            const indexOfLastTodo = this.props.currentpage * 30;
-            const indexOfFirstTodo = indexOfLastTodo - 30;
-            var currentItems
-            ![false,''].includes(search)?
-            currentItems = data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
-            currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
+            // const indexOfLastTodo = this.props.currentpage * 30;
+            // const indexOfFirstTodo = indexOfLastTodo - 30;
+            // var currentItems
+            // ![false,''].includes(search)?
+            // currentItems = data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
+            // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
 
             data.forEach(function(value, index){
-                if (currentItems.includes(value)){
+                // if (currentItems.includes(value)){
                     rows.push(
                         <JournalEntriesListRow key={value.name} item={value} index={index.toString()} toggleShow={cl.props.toggleShow}/>
                     )
-                }
+                // }
             })
             
             return(
@@ -253,7 +277,7 @@ class JournalEntriesList extends React.Component {
                         <span onClick={e => this.props.expandCollapse(e, 'collapse')} style={cursor}>Collapse All</span>
                     </div>
                 	{rows}
-                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30'/>
+                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10'/>
                 </div>
             )
         }

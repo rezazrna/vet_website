@@ -46,6 +46,7 @@ class Coa extends React.Component {
             args: {},
             callback: function(r){
                 if (r.message) {
+                    console.log(r.message)
                     td.setState({'currentUser': r.message});
                 }
             }
@@ -143,7 +144,9 @@ class Coa extends React.Component {
     coaSearch(filters, all=false) {
         var td = this
         var args = {filters: filters}
-        if(all){args.all_children = true}
+        if (all) { args.all_children = true }
+        console.log(args)
+
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
@@ -599,14 +602,28 @@ class CoaListRow extends React.Component {
         var children_row = []
         var color = {color: '#056EAD', cursor:'pointer'}
         
-        if (this.state.show && this.state.loaded) {
-            if (this.state.children.length != 0) {
-                var cl = this
-                this.state.children.forEach(function(value, index){
-                    children_row.push(
-                        <CoaListRow key={value.account_name} item={value} selected={cl.props.selected} selectRow={cl.props.selectRow} dc_mode={cl.props.dc_mode} month={cl.props.month} year={cl.props.year}/>
-                    )
-                })
+        if (this.state.show) {
+            if (this.state.loaded) {
+                if (this.state.children.length != 0) {
+                    var cl = this
+                    this.state.children.forEach(function(value, index){
+                        children_row.push(
+                            <CoaListRow key={value.account_name} item={value} selected={cl.props.selected} selectRow={cl.props.selectRow} dc_mode={cl.props.dc_mode} month={cl.props.month} year={cl.props.year}/>
+                        )
+                    })
+                }
+            } else {
+                children_row.push(
+                    <div className="col py-2" key="0">
+        			    <div className="row justify-content-center">
+                            <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                                <p className="mb-0 fs24md fs16 fw600 text-muted">
+                                    <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                                </p>
+                            </div>
+                        </div>
+        			</div>
+                )
             }
             
             chevron_class = "fa fa-chevron-down my-auto p-2"

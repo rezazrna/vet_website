@@ -24,9 +24,10 @@ class Expenses extends React.Component {
     }
     
     componentDidMount() {
-        var filters = {}
+        var new_filters = {filters: [], sorts: []}
+
         if(n){
-            filters.n = n
+            new_filters['n'] = n
         }
         var po = this
         frappe.call({
@@ -39,15 +40,16 @@ class Expenses extends React.Component {
                 }
             }
         });
-        filters['currentpage'] = this.state.currentpage
+
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetexpenses.vetexpenses.get_expenses_list",
-            args: {filters: filters},
+            args: {filters: new_filters},
             callback: function(r){
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({'data': po.state.data.concat(r.message.expenses), 'loaded': true, 'datalength': r.message.datalength});
+                    po.setState({'data': r.message.expenses, 'loaded': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -56,16 +58,18 @@ class Expenses extends React.Component {
     paginationClick(number) {
         console.log('Halo')
         var po = this
-        var filters = {}
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         this.setState({
           currentpage: Number(number),
-          loaded: number * 30 <= this.state.data.length
+          loaded: false,
         });
 
         filters['currentpage'] = this.state.currentpage
 
-        if (number * 30 > this.state.data.length) {
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+
+        // if (number * 30 > this.state.data.length) {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetexpenses.vetexpenses.get_expenses_list",
@@ -73,18 +77,25 @@ class Expenses extends React.Component {
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({'data': po.state.data.concat(r.message.expenses), 'loaded': true, 'datalength': r.message.datalength});
+                        po.setState({'data': r.message.expenses, 'loaded': true, 'datalength': r.message.datalength});
                     }
                 }
             });
-        }
+        // }
     }
     
     expensesSearch(filters) {
-        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
         var po = this
+        
+        this.setState({
+            currentpage: 1,
+            loaded: false,
+        });
+        
+        filters['currentpage'] = 1;
 
-        filters['currentpage'] = this.state.currentpage;
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetexpenses.vetexpenses.get_expenses_list",
@@ -92,7 +103,7 @@ class Expenses extends React.Component {
             callback: function(r){
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({'data': po.state.data.concat(r.message.expenses), 'filter': true, 'datalength': this.state.datalength});
+                    po.setState({'data': r.message.expenses, 'loaded': true, 'filter': true, 'datalength': r.message.datalength});
                 }
             }
         });
@@ -237,7 +248,7 @@ class Expenses extends React.Component {
                             <input className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({search: e.target.value})}/>
                         </div>
                         <div className="col-8">
-                            <Filter sorts={sorts} searchAction={this.expensesSearch} field_list={field_list}/>
+                            <Filter sorts={sorts} searchAction={this.expensesSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))}/>
                         </div>
                     </div>
                     <ExpensesList data={this.state.data} search={this.state.search} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} filter={this.state.filter} toggle={this.toggle} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>
@@ -830,21 +841,21 @@ class ExpensesList extends React.Component {
         if (this.props.data.length != 0 || !this.props.filter){
             var pol = this
             
-            const indexOfLastTodo = this.props.currentpage * 30;
-            const indexOfFirstTodo = indexOfLastTodo - 30;
-            var currentItems
-            ![false,''].includes(search)?
-            currentItems = this.props.data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
-            currentItems = this.props.data.slice(indexOfFirstTodo, indexOfLastTodo)
+            // const indexOfLastTodo = this.props.currentpage * 30;
+            // const indexOfFirstTodo = indexOfLastTodo - 30;
+            // var currentItems
+            // ![false,''].includes(search)?
+            // currentItems = this.props.data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
+            // currentItems = this.props.data.slice(indexOfFirstTodo, indexOfLastTodo)
             
             this.props.data.forEach(function(item, index){
-                if (currentItems.includes(item)){
+                // if (currentItems.includes(item)){
                     expenses_rows.push(
                         <ExpensesListRow key={index.toString()} item={item} checkRow={() => pol.props.checkRow(index)} toggle={pol.props.toggle}/>
                     )
                     
                     total_expenses += item.quantity * item.price
-                }
+                // }
             })
             
             return(
@@ -882,7 +893,7 @@ class ExpensesList extends React.Component {
         				<div className="col-2 d-flex">
         				</div>
                 	</div>
-                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30'/>
+                	<Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10'/>
                 </div>
             )
         } else {

@@ -44,7 +44,7 @@ class PosOrder extends React.Component {
         }
         
         if (params) {
-            filters = {[key]: value}
+            filters[key] = value
             sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             this.orderSearch(filters)
         } else {

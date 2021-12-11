@@ -38,7 +38,7 @@ class Operation extends React.Component {
         }
             
         if (params) {
-            filters = {[key]: value}
+            filters[key] = value
             sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             this.operationSearch(filters)
         } else {
@@ -403,5 +403,5 @@ var usage_list = document.getElementById('usage_list')
 if(operation_list){
     ReactDOM.render(<Operation />, operation_list)
 } else if(usage_list){
-    ReactDOM.render(<Operation usage={true}/>, usage_list)
+    ReactDOM.render(<Operation is_usage={true}/>, usage_list)
 }

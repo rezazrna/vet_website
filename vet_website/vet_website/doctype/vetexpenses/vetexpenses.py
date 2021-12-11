@@ -46,7 +46,7 @@ def get_expenses_list(filters=None):
 			default_sort = sort
 	
 	try:
-		expenses = frappe.get_list("VetExpenses", filters=po_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
+		expenses = frappe.get_list("VetExpenses", filters=po_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetExpenses", filters=po_filters, as_list=True))
 		for e in expenses:
 			e['responsible'] = frappe.get_value('User', e['responsible'], 'full_name')

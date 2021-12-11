@@ -42,7 +42,7 @@ def get_asset_list(filters=None):
 			default_sort = sort
 	
 	try:
-		asset = frappe.get_list("VetAsset", filters=asset_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
+		asset = frappe.get_list("VetAsset", filters=asset_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetAsset", filters=asset_filters, as_list=True))
 		for a in asset:
 			a['first_depreciation_date'] = frappe.get_value('VetDepreciationList', {'parent': a['name']}, 'depreciation_date')

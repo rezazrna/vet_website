@@ -47,15 +47,15 @@ def get_journal_entry_list(filters=None):
 	
 	try:
 		journals = frappe.get_list("VetJournal", fields=["name","journal_name"])
-		journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
+		journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetJournalEntry", filters=je_filters, as_list=True))
 
 		for j in journal_entry_search:
-		    journal_items = frappe.get_list("VetJournalItem", filters={'parent': j.name}, fields=['debit','credit'])
-		    j['amount'] = (sum(ji.debit for ji in journal_items) + sum(ji.credit for ji in journal_items))/2
-		    j['journal_name'] = frappe.db.get_value('VetJournal', j.journal, 'journal_name')
-		    j['show'] = False
-		    j['loaded'] = False
+			journal_items = frappe.get_list("VetJournalItem", filters={'parent': j.name}, fields=['debit','credit'])
+			j['amount'] = (sum(ji.debit for ji in journal_items) + sum(ji.credit for ji in journal_items))/2
+			j['journal_name'] = frappe.db.get_value('VetJournal', j.journal, 'journal_name')
+			j['show'] = False
+			j['loaded'] = False
 		    
 
 		return {'journal_entries': journal_entry_search, 'journals': journals, 'datalength': datalength}
@@ -88,8 +88,8 @@ def get_journal_entry_form(name=False):
 			journal_entry['journal_name'] = frappe.db.get_value('VetJournal', journal_entry.journal, 'journal_name')
 			journal_items = frappe.get_list('VetJournalItem', filters={'parent': journal_entry.name}, fields=['*'])
 			for ji in journal_items:
-			    ji.account_name = frappe.db.get_value('VetCoa', ji.account, 'account_name')
-			    ji.account_code = frappe.db.get_value('VetCoa', ji.account, 'account_code')
+				ji.account_name = frappe.db.get_value('VetCoa', ji.account, 'account_name')
+				ji.account_code = frappe.db.get_value('VetCoa', ji.account, 'account_code')
 			journal_entry['journal_items'] = journal_items
 			form_data.update({'journal_entry': journal_entry})
 			
@@ -211,8 +211,8 @@ def post_journal_entry(name):
 			# 	set_journal_item_total(ji.name, ji.account)
 			
 			if je.status == 'Unposted':
-			    je.status = 'Posted'
-			    je.save()
+				je.status = 'Posted'
+				je.save()
 			return je
 			
 	except PermissionError as e:
@@ -223,8 +223,8 @@ def get_journal_entry_detail(name):
 	try:
 		journal_items = frappe.get_list('VetJournalItem', filters={'parent': name}, fields=['*'])
 		for ji in journal_items:
-		    ji.account_name = frappe.db.get_value('VetCoa', ji.account, 'account_name')
-		    ji.account_code = frappe.db.get_value('VetCoa', ji.account, 'account_code')
+			ji.account_name = frappe.db.get_value('VetCoa', ji.account, 'account_name')
+			ji.account_code = frappe.db.get_value('VetCoa', ji.account, 'account_code')
 		return journal_items
 	except:
 		return {'error': "Gagal mendapatkan children"}

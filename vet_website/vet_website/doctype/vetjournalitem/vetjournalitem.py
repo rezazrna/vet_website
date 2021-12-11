@@ -44,7 +44,7 @@ def get_journal_item_list(filters=None):
 	try:
 		journals = frappe.get_list("VetJournal", fields=["name","journal_name"])
 		journal_items = []
-		journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
+		journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = frappe.db.count("VetJournalItem")
 		if len(journal_entry_search):
 			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
