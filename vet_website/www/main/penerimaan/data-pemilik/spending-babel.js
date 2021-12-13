@@ -1,7 +1,8 @@
 var petOwner = getUrlParameter('petOwner')
 var pet = getUrlParameter('pet')
 
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 
 class Spending extends React.Component {
     constructor(props){

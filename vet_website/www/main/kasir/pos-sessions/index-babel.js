@@ -1,5 +1,6 @@
 const user = document.getElementById('pos_sessions_list').dataset.user
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 class PosSessions extends React.Component {
     constructor(props) {
         super(props)

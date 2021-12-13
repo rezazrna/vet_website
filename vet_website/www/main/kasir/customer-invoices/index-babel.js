@@ -1,4 +1,5 @@
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 var petOwner = getUrlParameter('petOwner')
 var petAll = getUrlParameter('petAll')
 var session = getUrlParameter('session')

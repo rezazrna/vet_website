@@ -2,7 +2,8 @@ var mode = document.getElementById('grooming_form').getAttribute('mode')
 var list = document.getElementsByTagName("title")[0].innerHTML.split('/')
 // var id = list[list.length - 1].replace(' ', '')
 var id = getUrlParameter('n')
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 
 class Grooming extends React.Component {
     constructor(props) {

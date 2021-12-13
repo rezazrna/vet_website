@@ -1,7 +1,8 @@
 var mode = document.getElementById('rekam_medis_form').getAttribute('mode')
 var list = document.getElementsByTagName("title")[0].innerHTML.split('/')
 var id = list[list.length - 1].replace(' ', '')
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 
 var kondisiOptions = [
         {label: 'Sehat', value: 'Sehat'},

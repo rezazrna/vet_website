@@ -1,5 +1,6 @@
 var id = getUrlParameter('n')
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 
 class PosOrder extends React.Component {
     constructor(props) {

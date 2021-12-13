@@ -1,5 +1,6 @@
 var pet = getUrlParameter('pet')
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 var checks = [
         {'label': 'Riwayat Vaksin', 'name': 'vaccine_history'},
         {'label': 'Riwayat Makanan', 'name': 'food_history'},

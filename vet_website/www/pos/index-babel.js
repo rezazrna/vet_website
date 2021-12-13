@@ -1,7 +1,8 @@
 var main = document.getElementById("main_pos")
 var user = main.dataset.user
 var pos_session_id = main.dataset.pos_session_id
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 
 console.log(pos_session_id)
 

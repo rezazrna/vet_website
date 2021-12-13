@@ -1,4 +1,5 @@
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 var register_number = getUrlParameter('register_number')
 
 class RawatInap extends React.Component {

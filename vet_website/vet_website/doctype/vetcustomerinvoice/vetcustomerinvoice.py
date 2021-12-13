@@ -291,8 +291,17 @@ def join_invoice(name_list, datetime):
 	
 	children_customer_invoice = []
 	for name in nl_json:
-		children_customer_invoice.append({'customer_invoice': name})
+		has_children = frappe.db.get_list('VetCustomerInvoiceChildren', filters={'parent': name}, fields=['customer_invoice'])
+		print('has_children')
+		print(has_children)
+		if has_children:
+			print('masuk')
+			for child in has_children:
+				children_customer_invoice.append({'customer_invoice': child.customer_invoice})
+		else:
+			children_customer_invoice.append({'customer_invoice': name})
 	
+	print(children_customer_invoice)
 	new_invoice_data = {
 		'pet': first_pet,
 		'user': frappe.session.user,

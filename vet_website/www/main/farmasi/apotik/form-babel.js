@@ -1,6 +1,7 @@
 // var list = document.getElementsByTagName("title")[0].innerHTML.split('/')
 var id = getUrlParameter('n')
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 
 class Apotik extends React.Component {
     constructor(props) {

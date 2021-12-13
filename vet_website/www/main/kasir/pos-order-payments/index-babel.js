@@ -1,5 +1,6 @@
 var session = getUrlParameter('session')
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 
 class OrderPayment extends React.Component {
     constructor(props){

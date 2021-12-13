@@ -1,5 +1,6 @@
 var id = getUrlParameter('n')
-var tzOffset = new Date().getTimezoneOffset()
+// var tzOffset = new Date().getTimezoneOffset()
+var tzOffset = 0
 
 class CustomerInvoice extends React.Component {
     constructor(props) {
@@ -535,16 +536,16 @@ class CustomerInvoice extends React.Component {
                 old_data['invoice_date'] = moment().format("YYYY-MM-DD HH:mm:ss")
                 console.log(old_data)
                 
-                // frappe.call({
-                //     type: "POST",
-                //     method:"vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.new_invoice",
-                //     args: {data: old_data},
-                //     callback: function(r){
-                //         if (r.message.name) {
-                //             window.location.href = "/main/kasir/customer-invoices/edit?n=" + r.message.name
-                //         }
-                //     }
-                // })
+                frappe.call({
+                    type: "POST",
+                    method:"vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.new_invoice",
+                    args: {data: old_data},
+                    callback: function(r){
+                        if (r.message.name) {
+                            window.location.href = "/main/kasir/customer-invoices/edit?n=" + r.message.name
+                        }
+                    }
+                })
             }
         }
     }
