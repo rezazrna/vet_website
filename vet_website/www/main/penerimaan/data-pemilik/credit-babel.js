@@ -65,15 +65,17 @@ class Credit extends React.Component {
         // }
         
         if (params) {
-            filters [key] = value
+            filters[key] = value
             sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             this.creditSearch(filters)
         } else {
+            console.log(this.props.mode)
+            console.log(this.props.mode&&id?false:this.props.no_filter || false)
             sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetpetowner.vetpetowner.get_credit_list",
-                args: {name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, filters: filters},
+                args: {name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, filters: filters, only_deposit: this.props.mode && this.props.mode == 'credit'},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message);
@@ -107,7 +109,7 @@ class Credit extends React.Component {
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetpetowner.vetpetowner.get_credit_list",
-            args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false,},
+            args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false, only_deposit: this.props.mode && this.props.mode == 'credit'},
             callback: function(r){
                 if (r.message) {
                     po.setState({'data': r.message.owner_credit_list, 'owner_list': r.message.owner_list, 'payment_method_list': r.message.payment_method_list, 'loaded': true, 'datalength': r.message.datalength});
@@ -133,7 +135,7 @@ class Credit extends React.Component {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetpetowner.vetpetowner.get_credit_list",
-                args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false},
+                args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false, only_deposit: this.props.mode && this.props.mode == 'credit'},
                 callback: function(r){
                     if (r.message) {
                         po.setState({'data': r.message.owner_credit_list, 'owner_list': r.message.owner_list, 'payment_method_list': r.message.payment_method_list, 'loaded': true, 'datalength': r.message.datalength});
@@ -664,13 +666,13 @@ class CreditList extends React.Component {
         
         console.log(this.props.mode)
         if (!this.props.supplier){
-            !this.props.mode?data_names = data.filter(filterRow).filter(d => d.type=='Payment'&&d.nominal>=0).map(d => d.name):
-            this.props.mode=='debt'?data_names = data.filter(filterRow).filter(d => d.debt_mutation != 0).map(d => d.name):
-            this.props.mode=='credit'?data_names = data.filter(filterRow).filter(d => d.credit_mutation != 0).map(d => d.name):false
+            !this.props.mode ? data_names = data.filter(filterRow).filter(d => d.type=='Payment' && d.nominal>=0).map(d => d.name) :
+            this.props.mode=='debt' ? data_names = data.filter(filterRow).filter(d => d.debt_mutation != 0).map(d => d.name) :
+            this.props.mode=='credit' ? data_names = data.filter(filterRow).filter(d => d.credit_mutation != 0).map(d => d.name):false
         } else {
-            !this.props.mode?data_names = data.filter(filterRow).filter(d => d.type=='Payment'&&d.nominal>=0).map(d => d.name):
-            this.props.mode=='debt'?data_names = data.filter(filterRow).filter(d => d.debt_mutation != 0).map(d => d.name):
-            this.props.mode=='credit'?data_names = data.filter(filterRow).filter(d => d.credit_mutation != 0).map(d => d.name):false
+            !this.props.mode ? data_names = data.filter(filterRow).filter(d => d.type=='Payment' && d.nominal>=0).map(d => d.name):
+            this.props.mode=='debt' ? data_names = data.filter(filterRow).filter(d => d.debt_mutation != 0).map(d => d.name) :
+            this.props.mode=='credit' ? data_names = data.filter(filterRow).filter(d => d.credit_mutation != 0).map(d => d.name) : false
         }
         
         if (data_names.length != 0){

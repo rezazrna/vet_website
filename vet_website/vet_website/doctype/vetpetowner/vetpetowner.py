@@ -377,7 +377,7 @@ def delete_pet_owner(data):
 	return {'success': True}
 	
 @frappe.whitelist()
-def get_credit_list(name=False, no_filter=False, filters=None, supplier=False):
+def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, only_deposit=False):
 	
 	def process_odd_filter(fj):
 		f = fj
@@ -408,8 +408,12 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False):
 			return lambda a: eval(string)
 		else:
 			return lambda a: a[f[0]] > datetime.datetime.strptime(f[2][0], '%Y-%m-%d') and a[f[0]] < datetime.datetime.strptime(f[2][1], '%Y-%m-%d')
-	
+	# print('only_deposit')
+	# print(only_deposit)
 	credit_filters = []
+	if only_deposit == 'true':
+		credit_filters = [['is_deposit', '=', True]]
+	# print(credit_filters)
 	odd_filters = []
 	filter_json = False
 	session = ''
