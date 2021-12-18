@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "VOC-.#",
  "creation": "2020-10-07 12:27:43.844926",
  "doctype": "DocType",
@@ -23,7 +22,8 @@
   "debt_mutation",
   "status",
   "is_deposit",
-  "exchange"
+  "exchange",
+  "invoice_status"
  ],
  "fields": [
   {
@@ -131,10 +131,15 @@
    "fieldname": "exchange",
    "fieldtype": "Float",
    "label": "Exchange"
+  },
+  {
+   "fetch_from": "invoice.status",
+   "fieldname": "invoice_status",
+   "fieldtype": "Data",
+   "label": "Invoice Status"
   }
  ],
- "links": [],
- "modified": "2021-01-11 09:50:36.026725",
+ "modified": "2021-12-18 14:58:36.440542",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetOwnerCredit",

@@ -71,11 +71,12 @@ class Credit extends React.Component {
         } else {
             console.log(this.props.mode)
             console.log(this.props.mode&&id?false:this.props.no_filter || false)
+            console.log(this.props.mode && this.props.mode == 'debt')
             sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetpetowner.vetpetowner.get_credit_list",
-                args: {name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, filters: filters, only_deposit: this.props.mode && this.props.mode == 'credit'},
+                args: {name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, filters: filters, only_deposit: this.props.mode && this.props.mode == 'credit', only_piutang_hutang: this.props.mode && this.props.mode == 'debt'},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message);
@@ -109,7 +110,7 @@ class Credit extends React.Component {
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetpetowner.vetpetowner.get_credit_list",
-            args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false, only_deposit: this.props.mode && this.props.mode == 'credit'},
+            args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false, only_deposit: this.props.mode && this.props.mode == 'credit', only_piutang_hutang: this.props.mode && this.props.mode == 'debt'},
             callback: function(r){
                 if (r.message) {
                     po.setState({'data': r.message.owner_credit_list, 'owner_list': r.message.owner_list, 'payment_method_list': r.message.payment_method_list, 'loaded': true, 'datalength': r.message.datalength});
@@ -135,7 +136,7 @@ class Credit extends React.Component {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetpetowner.vetpetowner.get_credit_list",
-                args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false, only_deposit: this.props.mode && this.props.mode == 'credit'},
+                args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false, only_deposit: this.props.mode && this.props.mode == 'credit', only_piutang_hutang: this.props.mode && this.props.mode == 'debt'},
                 callback: function(r){
                     if (r.message) {
                         po.setState({'data': r.message.owner_credit_list, 'owner_list': r.message.owner_list, 'payment_method_list': r.message.payment_method_list, 'loaded': true, 'datalength': r.message.datalength});
@@ -684,9 +685,11 @@ class CreditList extends React.Component {
             
             data.forEach(function(item, index){
                 // if (currentItems.includes(item.name)){
+                // if ((th.props.mode == 'credit' && item.credit_mutation != 0) || th.props.mode != 'credit') {
                     item_rows.push(
                         <CreditListRow payment_method_list={th.props.payment_method_list} key={index.toString()} item={item} checkRow={() => th.props.checkRow(index.toString())} no_filter={th.props.no_filter || false} supplier={th.props.supplier || false} mode={th.props.mode} printPDF={th.props.printPDF}/>
                     )
+                // }
                 // }
             })
             
@@ -697,7 +700,7 @@ class CreditList extends React.Component {
             }
             
             if (data[0].invoice || data[0].pet_owner) {
-                var balanceHeader, statusHeader, debtHeader, depositHeader, debitHeader, creditHeader, nominalHeader
+                var balanceHeader, statusHeader, debtHeader, depositHeader, debitHeader, creditHeader, nominalHeader, methodHeader
                 
                 // if (!document.location.href.includes('?session')) {
                 //     statusHeader = <div className="col-1 text-center">
@@ -710,26 +713,32 @@ class CreditList extends React.Component {
                 
                 
                 if (this.props.mode == 'debt' || this.props.mode == 'credit'){
-                    debitHeader = <div className="col d-flex">
-                        					<span className="my-auto">Debit</span>
-                        				</div>
-                    creditHeader = <div className="col d-flex">
-                    					<span className="my-auto">Credit</span>
-                    				</div>
-                    
                     if (this.props.mode == 'debt'){
                         debtHeader = <div className="col d-flex">
-                        					<span className="my-auto">Piutang</span>
+                        					<span className="my-auto">Remaining</span>
                         				</div>
                     } else if (this.props.mode == 'credit'){
                         depositHeader = <div className="col d-flex">
                         					<span className="my-auto">Deposit</span>
                         				</div>
+
+                        debitHeader = <div className="col d-flex">
+                                        <span className="my-auto">Debit</span>
+                                    </div>
+                        creditHeader = <div className="col d-flex">
+                                        <span className="my-auto">Credit</span>
+                                    </div>
+                        methodHeader = <div className="col d-flex">
+                                        <span className="my-auto">Metode Pembayaran</span>
+                                    </div>
                     }
                 } else {
                     nominalHeader = <div className="col d-flex">
                     					<span className="my-auto">Nominal</span>
                     				</div>
+                    methodHeader = <div className="col d-flex">
+                                        <span className="my-auto">Metode Pembayaran</span>
+                                    </div>
                 }
                 
                 return(
@@ -752,9 +761,7 @@ class CreditList extends React.Component {
                     				{nominalHeader}
                     				{debitHeader}
                     				{creditHeader}
-                    				<div className="col d-flex">
-                    					<span className="my-auto">Metode Pembayaran</span>
-                    				</div>
+                    				{methodHeader}
                     				{balanceHeader}
                     				{debtHeader}
                     				{depositHeader}
@@ -908,7 +915,7 @@ class CreditListRow extends React.Component {
         }
         
         if (item.invoice || item.pet_owner) {
-            var balanceRow, statusRow, debtRow, depositRow, debitRow, creditRow, nominalRow
+            var balanceRow, statusRow, debtRow, depositRow, debitRow, creditRow, nominalRow, methodRow
             
             // if (!document.location.href.includes('?session')) {
             //     statusRow = <div className="col-1 px-0 text-right">
@@ -923,27 +930,30 @@ class CreditListRow extends React.Component {
             
             if(this.props.mode == 'debt'){
                 debtRow = <div className="col d-flex">
-            					<span className="my-auto">{formatter.format(item.debt)}</span>
+            					<span className="my-auto">{formatter.format(item.remaining)}</span>
             				</div>
-            	if (item.debt_mutation >= 0){
-            	    debitRow = <div className="col d-flex">
-            					<span className="my-auto">{formatter.format(item.debt_mutation)}</span>
-            				</div>
-            		creditRow = <div className="col d-flex">
-            					<span className="my-auto">{formatter.format(0)}</span>
-            				</div>
-            	} else {
-            	    debitRow = <div className="col d-flex">
-            					<span className="my-auto">{formatter.format(0)}</span>
-            				</div>
-            		creditRow = <div className="col d-flex">
-            					<span className="my-auto">{formatter.format(-item.debt_mutation)}</span>
-            				</div>
-            	}
+            	// if (item.debt_mutation >= 0){
+            	//     debitRow = <div className="col d-flex">
+            	// 				<span className="my-auto">{formatter.format(item.debt_mutation)}</span>
+            	// 			</div>
+            	// 	creditRow = <div className="col d-flex">
+            	// 				<span className="my-auto">{formatter.format(0)}</span>
+            	// 			</div>
+            	// } else {
+            	//     debitRow = <div className="col d-flex">
+            	// 				<span className="my-auto">{formatter.format(0)}</span>
+            	// 			</div>
+            	// 	creditRow = <div className="col d-flex">
+            	// 				<span className="my-auto">{formatter.format(-item.debt_mutation)}</span>
+            	// 			</div>
+            	// }
             } else if (this.props.mode == 'credit'){
                 depositRow = <div className="col d-flex">
             					<span className="my-auto">{formatter.format(item.credit)}</span>
             				</div>
+                methodRow = <div className="col d-flex">
+                                <span className="my-auto">{payment_method || ''}</span>
+                            </div>
             	if (item.credit_mutation >= 0){
             	    debitRow = <div className="col d-flex">
             					<span className="my-auto">{formatter.format(item.credit_mutation)}</span>
@@ -963,6 +973,9 @@ class CreditListRow extends React.Component {
                 nominalRow = <div className="col d-flex">
             					<span className="my-auto">{formatter.format(item.nominal-(item.exchange||0))}</span>
             				</div>
+                methodRow = <div className="col d-flex">
+                                <span className="my-auto">{payment_method || ''}</span>
+                            </div>
             }
             
             var credit_link
@@ -1002,9 +1015,7 @@ class CreditListRow extends React.Component {
             				{nominalRow}
             				{debitRow}
             				{creditRow}
-            				<div className="col d-flex">
-            					<span className="my-auto">{payment_method || ''}</span>
-            				</div>
+                            {methodRow}
             				{balanceRow}
             				{debtRow}
             				{depositRow}
