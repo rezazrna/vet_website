@@ -592,7 +592,7 @@ class PopupPay extends React.Component {
     constructor(props) {
         super(props)
         this.state={
-            'data': {'name': this.props.name}
+            'data': {'name': this.props.name, 'tanggal': moment().format('YYYY-MM-DD')}
         }
         
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -732,7 +732,7 @@ class PopupPay extends React.Component {
 
         var tanggal_input = <div className="form-group">
                                 <span className="fs14 fw600 mb-2">Tanggal</span>
-                                <input required type="date" id="tanggal" name='tanggal' className="form-control border-0 fs22 fw600 mb-4" onChange={this.handleInputChange} defaultValue={moment().format('YYYY-MM-DD') || ''} style={inputStyle}/>
+                                <input required type="date" id="tanggal" name='tanggal' className="form-control border-0 fs22 fw600 mb-4" onChange={this.handleInputChange} defaultValue={this.state.data.tanggal || ''} style={inputStyle}/>
                             </div>
         
         return (
@@ -917,6 +917,7 @@ class PopupReceive extends React.Component {
             'data': {
                 'name': this.props.name,
                 'products': this.props.products,
+                'receive_date': moment().format('YYYY-MM-DD'),
             },
             'backOrder': true,
             'showBackOrder': false,
@@ -938,6 +939,9 @@ class PopupReceive extends React.Component {
             } else {
                 this.setState({backOrder: true})
             }
+        } else if (name == 'receive_date') {
+            new_data.date = value
+            this.setState({data: new_data})
         } else {
             var showBackOrder = this.state.showBackOrder
             if (new_data.products[i].quantity > value) {
@@ -980,7 +984,7 @@ class PopupReceive extends React.Component {
                 frappe.call({
             		type: "POST",
             		method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.edit_receive_purchase",
-            		args: {name: new_data.name, products: new_data.products},
+            		args: {name: new_data.name, products: new_data.products, receive_date: new_data.receive_date},
             		freeze: true,
             		callback: function(r){
             			if (r.message.purchase) {
@@ -995,7 +999,7 @@ class PopupReceive extends React.Component {
                 frappe.call({
             		type: "POST",
             		method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.receive_purchase",
-            		args: {name: new_data.name, products: products},
+            		args: {name: new_data.name, products: products, receive_date: new_data.receive_date},
             		freeze: true,
             		callback: function(r){
             			if (r.message.purchase) {
@@ -1070,6 +1074,10 @@ class PopupReceive extends React.Component {
             				</div>
             			</div>
             			{row_products}
+                        <div className="form-group mt-2">
+                            <span className="fs14 fw600 mb-2">Tanggal</span>
+                            <input required type="date" id="receive_date" name='receive_date' className="form-control border-0 fs22 fw600 mb-2" onChange={this.handleInputChange} defaultValue={this.state.data.receive_date || ''} style={qtyStyle}/>
+                        </div>
             			{backOrder}
                         <div className="row justify-content-center mb-2">
                             <div className="col-auto d-flex mt-4">

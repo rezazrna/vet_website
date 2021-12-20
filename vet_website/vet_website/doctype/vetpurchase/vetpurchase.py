@@ -534,13 +534,13 @@ def submit_pembayaran(data):
 			purchase.save()
 			frappe.db.commit()
 			
-			create_purchase_payment_journal_items(purchase.name, value, False, data_json.get('deposit', 0), data_json.get('payment_method'))
+			create_purchase_payment_journal_items(purchase.name, value, False, data_json.get('deposit', 0), data_json.get('payment_method'), dt.strptime(pay.tanggal, '%Y-%m-%d'))
 			purchase.reload()
 			
 			if not data_json.get('from_owner_credit'):
 				owner_credit = frappe.new_doc('VetOwnerCredit')
 				owner_credit.update({
-					'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+					'date': dt.strftime(dt.strptime(pay.tanggal, '%Y-%m-%d'), "%Y-%m-%d %H:%M:%S"),
 					'purchase': purchase.name,
 					'type': 'Payment',
 					'nominal': pay.jumlah,
@@ -600,7 +600,7 @@ def submit_refund(data):
 			purchase.save()
 			frappe.db.commit()
 			
-			create_purchase_payment_journal_items(purchase.name, data_json.get('refund'), True, 0, data_json.get('payment_method'))
+			create_purchase_payment_journal_items(purchase.name, data_json.get('refund'), True, 0, data_json.get('payment_method'), dt.strptime(pay.tanggal, '%Y-%m-%d'))
 			
 			if check_paid_purchase(purchase.name):
 				purchase.status = 'Refund'
@@ -687,7 +687,7 @@ def refund_purchase(name):
 		return {'error': e}
 		
 @frappe.whitelist()
-def receive_purchase(name, products):
+def receive_purchase(name, products, receive_date):
 	print('########## Receive Purchase ##########')
 	try:
 		# pindahin ke confirm_purchase
@@ -720,6 +720,7 @@ def receive_purchase(name, products):
 		for m in moves:
 			purchase_product = next((p for p in purchase.products if p.product == m.product), False)
 			purchase_product_received = next((p for p in json.loads(products) if p.get('product_id') == m.product), False)
+			m.receive_date = receive_date
 			if purchase_product:
 				m.quantity_done = purchase_product.quantity_receive
 			if purchase_product_received:
@@ -732,7 +733,7 @@ def receive_purchase(name, products):
 		return {'error': e}
 		
 @frappe.whitelist()
-def edit_receive_purchase(name, products):
+def edit_receive_purchase(name, products, receive_date):
 	print('########## Edit Receive Purchase ##########')
 	try:
 		purchase = frappe.get_doc('VetPurchase', name)
@@ -782,6 +783,7 @@ def edit_receive_purchase(name, products):
 		for m in moves:
 			purchase_product = next((p for p in purchase.products if p.product == m.product), False)
 			purchase_product_received = next((p for p in json.loads(products) if p.get('product_id') == m.product), False)
+			m.receive_date = receive_date
 			if purchase_product:
 				m.quantity_done = purchase_product.quantity_receive
 			if purchase_product_received:
@@ -951,7 +953,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False):
 			frappe.db.commit()
 			set_owner_credit_total(purchase.supplier, True)
 	
-def create_purchase_payment_journal_items(purchase_name, amount, refund=False, deposit=0, method=False):
+def create_purchase_payment_journal_items(purchase_name, amount, refund=False, deposit=0, method=False, date=False):
 	#create payment choose payment journal
 	# purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
 	
@@ -1038,8 +1040,8 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 	
 	je_data = {
 		'journal': purchase_journal,
-		'period': dt.now().strftime('%m/%Y'),
-		'date': dt.now().date().strftime('%Y-%m-%d'),
+		'period': (date or dt.now()).strftime('%m/%Y'),
+		'date': (date or dt.now()).date().strftime('%Y-%m-%d'),
 		'reference': purchase_name,
 		'journal_items': jis
 	}
