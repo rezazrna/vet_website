@@ -23,7 +23,8 @@
   "status",
   "is_deposit",
   "exchange",
-  "invoice_status"
+  "invoice_status",
+  "purchase_status"
  ],
  "fields": [
   {
@@ -137,9 +138,15 @@
    "fieldname": "invoice_status",
    "fieldtype": "Data",
    "label": "Invoice Status"
+  },
+  {
+   "fetch_from": "purchase.status",
+   "fieldname": "purchase_status",
+   "fieldtype": "Data",
+   "label": "Purchase Status"
   }
  ],
- "modified": "2021-12-18 14:58:36.440542",
+ "modified": "2021-12-20 20:49:44.105411",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetOwnerCredit",

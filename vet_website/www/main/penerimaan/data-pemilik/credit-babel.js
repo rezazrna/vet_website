@@ -774,7 +774,7 @@ class CreditList extends React.Component {
             	    </div>
                 )
             } else {
-                var balanceHeader, statusHeader, debtHeader, depositHeader, debitHeader, creditHeader, nominalHeader
+                var balanceHeader, statusHeader, debtHeader, depositHeader, debitHeader, creditHeader, nominalHeader, methodHeader
                 
                 // if (!document.location.href.includes('?session')) {
                 //     balanceHeader = <div className="col d-flex">
@@ -787,26 +787,42 @@ class CreditList extends React.Component {
                 // }
                 
                 if (this.props.mode == 'debt' || this.props.mode == 'credit'){
-                    debitHeader = <div className="col d-flex">
-                        					<span className="my-auto">Debit</span>
-                        				</div>
-                    creditHeader = <div className="col d-flex">
-                    					<span className="my-auto">Credit</span>
-                    				</div>
+                    // debitHeader = <div className="col d-flex">
+                    //     					<span className="my-auto">Debit</span>
+                    //     				</div>
+                    // creditHeader = <div className="col d-flex">
+                    // 					<span className="my-auto">Credit</span>
+                    // 				</div>
                     
                     if (this.props.mode == 'debt'){
                         debtHeader = <div className="col d-flex">
-                        					<span className="my-auto">Hutang</span>
+                        					<span className="my-auto">Remaining</span>
                         				</div>
                     } else if (this.props.mode == 'credit'){
+
+                        debitHeader = <div className="col d-flex">
+                        					<span className="my-auto">Debit</span>
+                        				</div>
+                        creditHeader = <div className="col d-flex">
+                                            <span className="my-auto">Credit</span>
+                                        </div>
+                                        
                         depositHeader = <div className="col d-flex">
                         					<span className="my-auto">Deposit</span>
                         				</div>
+
+                        methodHeader = <div className="col d-flex">
+                                        <span className="my-auto">Metode Pembayaran</span>
+                                    </div>
                     }
                 } else {
                     nominalHeader = <div className="col d-flex">
                     					<span className="my-auto">Nominal</span>
                     				</div>
+
+                    methodHeader = <div className="col d-flex">
+                                        <span className="my-auto">Metode Pembayaran</span>
+                                    </div>
                 }
                 
                 return(
@@ -827,9 +843,7 @@ class CreditList extends React.Component {
                     				{nominalHeader}
                     				{debitHeader}
                     				{creditHeader}
-                    				<div className="col d-flex">
-                    					<span className="my-auto">Metode Pembayaran</span>
-                    				</div>
+                    				{methodHeader}
                     				{balanceHeader}
                     				{debtHeader}
                     				{depositHeader}
@@ -1027,7 +1041,7 @@ class CreditListRow extends React.Component {
                 </div>
             )
         } else {
-            var balanceRow, statusRow, debtRow, depositRow, debitRow, creditRow, nominalRow
+            var balanceRow, statusRow, debtRow, depositRow, debitRow, creditRow, nominalRow, methodRow
             
             if (!document.location.href.includes('?session')) {
                 // balanceRow = <div className="col d-flex">
@@ -1042,23 +1056,23 @@ class CreditListRow extends React.Component {
             	
             	if(this.props.mode == 'debt'){
                     debtRow = <div className="col d-flex">
-                					<span className="my-auto">{formatter.format(item.debt)}</span>
+                					<span className="my-auto">{formatter.format(item.remaining)}</span>
                 				</div>
-                	if (item.debt_mutation >= 0){
-                	    debitRow = <div className="col d-flex">
-                					<span className="my-auto">{formatter.format(item.debt_mutation)}</span>
-                				</div>
-                		creditRow = <div className="col d-flex">
-                					<span className="my-auto">{formatter.format(0)}</span>
-                				</div>
-                	} else {
-                	    debitRow = <div className="col d-flex">
-                					<span className="my-auto">{formatter.format(0)}</span>
-                				</div>
-                		creditRow = <div className="col d-flex">
-                					<span className="my-auto">{formatter.format(-item.debt_mutation)}</span>
-                				</div>
-                	}
+                	// if (item.debt_mutation >= 0){
+                	//     debitRow = <div className="col d-flex">
+                	// 				<span className="my-auto">{formatter.format(item.debt_mutation)}</span>
+                	// 			</div>
+                	// 	creditRow = <div className="col d-flex">
+                	// 				<span className="my-auto">{formatter.format(0)}</span>
+                	// 			</div>
+                	// } else {
+                	//     debitRow = <div className="col d-flex">
+                	// 				<span className="my-auto">{formatter.format(0)}</span>
+                	// 			</div>
+                	// 	creditRow = <div className="col d-flex">
+                	// 				<span className="my-auto">{formatter.format(-item.debt_mutation)}</span>
+                	// 			</div>
+                	// }
                 } else if (this.props.mode == 'credit'){
                     depositRow = <div className="col d-flex">
                 					<span className="my-auto">{formatter.format(item.credit)}</span>
@@ -1078,10 +1092,18 @@ class CreditListRow extends React.Component {
                 					<span className="my-auto">{formatter.format(-item.credit_mutation)}</span>
                 				</div>
                 	}
+
+                    methodRow = <div className="col d-flex">
+                                    <span className="my-auto">{payment_method || ''}</span>
+                                </div>
                 } else {
                     nominalRow = <div className="col d-flex">
                 					<span className="my-auto">{formatter.format(item.nominal-(item.exchange||0))}</span>
                 				</div>
+
+                    methodRow = <div className="col d-flex">
+                                <span className="my-auto">{payment_method || ''}</span>
+                                </div>
                 }			
                 
             }
@@ -1116,9 +1138,7 @@ class CreditListRow extends React.Component {
             				{nominalRow}
             				{debitRow}
             				{creditRow}
-            				<div className="col d-flex">
-            					<span className="my-auto">{payment_method || ''}</span>
-            				</div>
+            				{methodRow}
             				{balanceRow}
             				{debtRow}
             				{depositRow}

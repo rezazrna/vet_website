@@ -510,15 +510,15 @@ def submit_pembayaran(data):
 			pp_data = {}
 			pp_data.update({'parent': purchase.name, 'parenttype': 'VetPurchase', 'parentfield': 'pembayaran'})
 			
-			tanggal = dt.strftime(dt.now(), "%Y-%m-%d")
+			# tanggal = dt.strftime(dt.now(), "%Y-%m-%d")
 			
 			value = data_json.get('jumlah')
 			if data_json.get('payment_method') == 'Deposit':
-				 value = data_json.get('jumlah') if remaining >= data_json.get('jumlah') else remaining
-			
+				value = data_json.get('jumlah') if remaining >= data_json.get('jumlah') else remaining
+
 			pay = frappe.new_doc("VetPurchasePay")
 			pay.jumlah = value
-			pay.tanggal = tanggal
+			pay.tanggal = data_json.get('tanggal')
 			pay.metode_pembayaran = data_json.get('payment_method')
 			pay.update(pp_data)
 			pay.insert()

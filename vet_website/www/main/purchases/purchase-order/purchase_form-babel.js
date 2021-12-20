@@ -729,6 +729,11 @@ class PopupPay extends React.Component {
                                 <span className="fs14 fw600 mb-2">Jumlah</span>
                                 <input required name='jumlah' id="jumlah" className="form-control border-0 fs22 fw600 mb-4" onChange={this.handleInputChange} value={this.state.data.jumlah||''} style={inputStyle}/>
                             </div>
+
+        var tanggal_input = <div className="form-group">
+                                <span className="fs14 fw600 mb-2">Tanggal</span>
+                                <input required type="date" id="tanggal" name='tanggal' className="form-control border-0 fs22 fw600 mb-4" onChange={this.handleInputChange} defaultValue={moment().format('YYYY-MM-DD') || ''} style={inputStyle}/>
+                            </div>
         
         return (
                 <div className="menu-popup">
@@ -741,6 +746,7 @@ class PopupPay extends React.Component {
                                 {pm_buttons}
                             </div>
                             {this.state.data.payment_method&&this.state.data.payment_method!='Deposit'?value_input:false}
+                            {this.state.data.payment_method&&this.state.data.payment_method!='Deposit'?tanggal_input:false}
                             <div className="row justify-content-center mb-2">
                                 <div className="col-auto d-flex mt-4">
                                     <button className="btn btn-sm fs18 h-100 fwbold px-4" style={payStyle} onClick={this.submitPay}>Pay</button>

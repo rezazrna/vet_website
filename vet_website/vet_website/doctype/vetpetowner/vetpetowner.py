@@ -415,7 +415,10 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 	if only_deposit == 'true':
 		credit_filters = [['credit_mutation', '!=', 0]]
 	if only_piutang_hutang == 'true':
-		credit_filters.append(['invoice_status', 'in', ['Draft', 'Open']])
+		if supplier == 'true':
+			credit_filters.append(['purchase_status', 'in', ['Draft', 'RFQ', 'Purchase Order', 'Receive']])
+		else:
+			credit_filters.append(['invoice_status', 'in', ['Draft', 'Open']])
 		credit_filters.append(['type', 'in', ['Sales', 'Purchase']])
 	# print(credit_filters)
 	odd_filters = []
@@ -462,12 +465,13 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 				datalength = len(frappe.get_all("VetOwnerCredit", or_filters={'supplier': ['!=', ''], 'purchase': ['!=', '']}, filters=credit_filters, as_list=True))
 				for oc in owner_credit_list:
 					oc['owner_full_name'] = frappe.db.get_value('User', oc['owner'], 'full_name')
-					customer_invoice = frappe.db.get_value('VetCustomerInvoice', oc['invoice'], ['subtotal', 'potongan', 'name'], as_dict=1)
-					all_payments = frappe.get_list('VetCustomerInvoicePay', filters={'parent': customer_invoice.name}, fields=['jumlah'])
-					paid = 0
-					for a in list(map(lambda item: item['jumlah'], all_payments)):
-						paid += a
-					oc['remaining'] = (customer_invoice.subtotal - customer_invoice.potongan) - paid
+					if oc['invoice']:
+						customer_invoice = frappe.db.get_value('VetCustomerInvoice', oc['invoice'], ['subtotal', 'potongan', 'name'], as_dict=1)
+						all_payments = frappe.get_list('VetCustomerInvoicePay', filters={'parent': customer_invoice.name}, fields=['jumlah'])
+						paid = 0
+						for a in list(map(lambda item: item['jumlah'], all_payments)):
+							paid += a
+						oc['remaining'] = (customer_invoice.subtotal - customer_invoice.potongan) - paid
 				owner_list = frappe.get_list('VetSupplier', fields=['*'])
 			else:
 				if session not in ['',False]: 
@@ -492,24 +496,38 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 				datalength = len(frappe.get_all("VetOwnerCredit", or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, as_list=True))
 				for oc in owner_credit_list:
 					oc['owner_full_name'] = frappe.db.get_value('User', oc['owner'], 'full_name')
-					customer_invoice = frappe.db.get_value('VetCustomerInvoice', oc['invoice'], ['subtotal', 'potongan', 'name'], as_dict=1)
-					all_payments = frappe.get_list('VetCustomerInvoicePay', filters={'parent': customer_invoice.name}, fields=['jumlah'])
-					paid = 0
-					for a in list(map(lambda item: item['jumlah'], all_payments)):
-						paid += a
-					oc['remaining'] = (customer_invoice.subtotal - customer_invoice.potongan) - paid
+					if oc['invoice']:
+						customer_invoice = frappe.db.get_value('VetCustomerInvoice', oc['invoice'], ['subtotal', 'potongan', 'name'], as_dict=1)
+						all_payments = frappe.get_list('VetCustomerInvoicePay', filters={'parent': customer_invoice.name}, fields=['jumlah'])
+						paid = 0
+						for a in list(map(lambda item: item['jumlah'], all_payments)):
+							paid += a
+						oc['remaining'] = (customer_invoice.subtotal - customer_invoice.potongan) - paid
 				owner_list = frappe.get_list('VetPetOwner', fields=['*'])
 		else:
 			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters=[{'pet_owner': name}, {'supplier': name}], filters=credit_filters, fields=['*'], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 			datalength = len(frappe.get_all("VetOwnerCredit", or_filters=[{'pet_owner': name}, {'supplier': name}], filters=credit_filters, as_list=True))
 			for oc in owner_credit_list:
 				oc['owner_full_name'] = frappe.db.get_value('User', oc['owner'], 'full_name')
-				customer_invoice = frappe.db.get_value('VetCustomerInvoice', oc['invoice'], ['subtotal', 'potongan', 'name'], as_dict=1)
-				all_payments = frappe.get_list('VetCustomerInvoicePay', filters={'parent': customer_invoice.name}, fields=['jumlah'])
-				paid = 0
-				for a in list(map(lambda item: item['jumlah'], all_payments)):
-					paid += a
-				oc['remaining'] = (customer_invoice.subtotal - customer_invoice.potongan) - paid
+				if oc['invoice']:
+					customer_invoice = frappe.db.get_value('VetCustomerInvoice', oc['invoice'], ['subtotal', 'potongan', 'name'], as_dict=1)
+					all_payments = frappe.get_list('VetCustomerInvoicePay', filters={'parent': customer_invoice.name}, fields=['jumlah'])
+					paid = 0
+					for a in list(map(lambda item: item['jumlah'], all_payments)):
+						paid += a
+					oc['remaining'] = (customer_invoice.subtotal - customer_invoice.potongan) - paid
+				elif oc['purchase']:
+					pembayaran = frappe.db.get_list('VetPurchasePay', filters={'parent': oc['purchase']}, fields=['jumlah'])
+					barang = frappe.db.get_list('VetPurchaseProducts', filters={'parent': oc['purchase']}, fields=['product', 'price', 'quantity', 'discount'])
+					paid = 0
+					subtotal = 0
+					for p in pembayaran:
+						paid += p['jumlah']
+							
+					for b in barang:
+						if b['product'] and b['quantity'] and b['price']:
+							subtotal = subtotal + (b['price'] * b['quantity'] - ((b['discount'] or 0) / 100 * (b['price'] * b['quantity'])))
+					oc['remaining'] = subtotal - paid
 
 			owner_list = []
 			
