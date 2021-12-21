@@ -623,7 +623,9 @@ def create_journal_entry(tipe, nominal, owner_credit, method=False, is_deposit=F
 	debit_account = frappe.db.get_value('VetPaymentMethod', {'name': method}, 'account')
 	penjualan_account = frappe.db.get_value('VetCoa', {'account_code': '4-10001'}, 'name')
 	kas_account = frappe.db.get_value('VetCoa', {'account_code': '1-11101'}, 'name')
-	deposit_account = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')
+	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Customer'}, 'account')
+	if not deposit_account:
+		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')
 	supplier_deposit_account = frappe.db.get_value('VetCoa', {'account_code': '1-16204'}, 'name')
 	
 	if tipe == 'Sales':

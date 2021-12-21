@@ -599,7 +599,7 @@ class Popup extends React.Component {
             } else if(pm.method_type == 'Card'){
                 img = "/static/img/main/menu/method-card.png"
                     
-            } else if(pm.method_type == 'Deposit'){
+            } else if(pm.method_type == 'Deposit Customer' || pm.method_type == 'Deposit Supplier'){
                 img = "/static/img/main/menu/method-deposit.png"
             }
             detail = (

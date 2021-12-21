@@ -378,7 +378,7 @@ class PaymentMethodListRow extends React.Component {
             icon = <img style={imgStyle} src="/static/img/main/menu/method-cash.png"/>
         } else if(item.method_type == 'Card'){
             icon = <img style={imgStyle} src="/static/img/main/menu/method-card.png"/>
-        } else if(item.method_type == 'Deposit'){
+        } else if(item.method_type == 'Deposit Customer' || item.method_type == 'Deposit Supplier'){
             icon = <img style={imgStyle} src="/static/img/main/menu/method-deposit.png"/>
         }
         

@@ -1331,8 +1331,12 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 		debit_account = frappe.db.get_value('VetPaymentMethod', {'name': method}, 'account')
 	else:
 		debit_account = frappe.db.get_value('VetCoa', {'account_code': '1-11101'}, 'name')
+
+	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Customer'}, 'account')
+	if not deposit_account:
+		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')
+
 	credit_account = frappe.db.get_value('VetCoa', {'account_code': '1-13001'}, 'name')
-	uang_muka_lain = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')
 	retur_account = frappe.db.get_value('VetCoa', {'account_code': '4-11001'}, 'name')
 	if refund:
 		jis = [
@@ -1350,7 +1354,7 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 		jis = []
 		
 		if deposit != 0:
-			jis.append({'account': uang_muka_lain, 'debit': deposit})
+			jis.append({'account': deposit_account, 'debit': deposit})
 		
 		if float(paid) - float(invoice.total) > 0:
 			# jas = [
@@ -1395,7 +1399,9 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 	invoice = frappe.get_doc('VetCustomerInvoice', invoice_name)
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	credit_account = frappe.db.get_value('VetPaymentMethod', {'name': method}, 'account')
-	deposit_account = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')
+	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Customer'}, 'account')
+	if not deposit_account:
+		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')
 	
 	if deposit:
 		jis = [
@@ -1472,7 +1478,9 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 	
 def add_payment_from_deposit(data):
 	credit_account = frappe.db.get_value('VetCoa', {'account_code': '1-13001'}, 'name')
-	deposit_account = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')
+	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Customer'}, 'account')
+	if not deposit_account:
+		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')
 	# sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	if check_payment_journal():
 		sales_journal = frappe.db.get_value('VetJournal', {'name': 'PAY'}, 'name')

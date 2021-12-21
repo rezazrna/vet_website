@@ -548,12 +548,12 @@ def deliver_to_customer(name):
 def create_pos_journal_entry(name, payment, refund=False):
 	pos_order = frappe.get_doc('VetPosOrder', name)
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
-	journal_debit = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'default_debit_account')
-	journal_credit = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'default_credit_account')
-	potongan_account = frappe.db.get_value('VetCoa', {'account_code': '4-90001'}, 'name')
-	credit_account = frappe.db.get_value('VetCoa', {'account_code': '1-13001'}, 'name')
-	uang_muka_lain = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')
-	retur_account = frappe.db.get_value('VetCoa', {'account_code': '4-11001'}, 'name')
+	# journal_debit = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'default_debit_account')
+	# journal_credit = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'default_credit_account')
+	# potongan_account = frappe.db.get_value('VetCoa', {'account_code': '4-90001'}, 'name')
+	# credit_account = frappe.db.get_value('VetCoa', {'account_code': '1-13001'}, 'name')
+	# uang_muka_lain = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')
+	# retur_account = frappe.db.get_value('VetCoa', {'account_code': '4-11001'}, 'name')
 	
 	produk = frappe.get_list('VetPosOrderProduk', filters={'parent': name}, fields=['*'])
 	jis = []

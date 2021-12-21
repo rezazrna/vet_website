@@ -833,7 +833,9 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False):
 	purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
 	purchase_journal_debit = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'default_debit_account')
 	purchase_journal_credit = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'default_credit_account')
-	uang_muka_lain = frappe.db.get_value('VetCoa', {'account_code': '1-16204'}, 'name')
+	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Supplier'}, 'account')
+	if not deposit_account:
+		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '1-16204'}, 'name')
 	jis = []
 	total = 0
 	paid = sum(i.jumlah for i in purchase.pembayaran)
@@ -891,7 +893,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False):
 			print(total)
 			if (paid-subtotal) >= total:
 				jis.append({
-					'account': uang_muka_lain,
+					'account': deposit_account,
 					'credit': total,
 				})
 			else:
@@ -901,7 +903,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False):
 				})
 				
 				jis.append({
-					'account': uang_muka_lain,
+					'account': deposit_account,
 					'credit': paid - subtotal,
 				})
 		elif not purchase.pembayaran or purchase.first_action == 'Receive' or subtotal > paid:
@@ -914,7 +916,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False):
 		else:
 			print('else')
 			jis.append({
-				'account': uang_muka_lain,
+				'account': deposit_account,
 				'credit': total,
 			})	
 			
@@ -967,7 +969,10 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 		credit_account = frappe.db.get_value('VetPaymentMethod', {'name': method}, 'account')
 	else:
 		credit_account = frappe.db.get_value('VetCoa', {'account_code': '1-11102'}, 'name')
-	uang_muka_lain = frappe.db.get_value('VetCoa', {'account_code': '1-16204'}, 'name')
+
+	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Supplier'}, 'account')
+	if not deposit_account:
+		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '1-16204'}, 'name')
 	
 	if refund:
 		jis = [
@@ -990,23 +995,23 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 		
 		if float(paid) > float(subtotal):
 			if deposit:
-				jis.append({'account': uang_muka_lain, 'credit': deposit})
+				jis.append({'account': deposit_account, 'credit': deposit})
 			
 			if float(subtotal) - (float(paid) - float(amount)) > 0:
 				jas = [
 					{'account': credit_account, 'credit': amount},
 					{'account': debit_account, 'debit': float(subtotal) - (float(paid) - float(amount))},
-					{'account': uang_muka_lain, 'debit': float(paid) - float(subtotal)}
+					{'account': deposit_account, 'debit': float(paid) - float(subtotal)}
 					]
 			else:
 				jas = [
 						{'account': credit_account, 'credit': amount},
-						{'account': uang_muka_lain, 'debit': amount}
+						{'account': deposit_account, 'debit': amount}
 					]
 			jis.extend(jas)
 		elif not all(t.quantity_receive == 0 for t in purchase.products) or purchase.first_action == 'Receive' or subtotal > paid:
 			if deposit:
-				jis.append({'account': uang_muka_lain, 'credit': deposit})
+				jis.append({'account': deposit_account, 'credit': deposit})
 			
 			jas = [
 					{
@@ -1020,11 +1025,11 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 			jis.extend(jas)
 		else:
 			if deposit:
-				jis.append({'account': uang_muka_lain, 'credit': deposit})
+				jis.append({'account': deposit_account, 'credit': deposit})
 				
 			jas = [
 				{
-					'account': uang_muka_lain,
+					'account': deposit_account,
 					'debit': float(amount) + float(deposit),
 				},{
 					'account': credit_account,

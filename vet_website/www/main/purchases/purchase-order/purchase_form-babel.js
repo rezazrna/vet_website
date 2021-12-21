@@ -708,7 +708,7 @@ class PopupPay extends React.Component {
                     </div>
                 </div>
                 )
-            } else if(pm.method_type == 'Deposit' && this.props.total_credit > 0){
+            } else if((pm.method_type == 'Deposit Customer' || pm.method_type == 'Deposit Supplier') && this.props.total_credit > 0){
                 detail = (
                 <div className="row mx-n1">
                     <div className="col-auto px-1 d-flex">
@@ -863,7 +863,7 @@ class PopupRefund extends React.Component {
                     </div>
                 </div>
                 )
-            } else if(pm.method_type == 'Deposit' && this.props.total_credit > 0){
+            } else if((pm.method_type == 'Deposit Customer' || pm.method_type == 'Deposit Supplier') && this.props.total_credit > 0){
                 detail = (
                 <div className="row mx-n1">
                     <div className="col-auto px-1 d-flex">
