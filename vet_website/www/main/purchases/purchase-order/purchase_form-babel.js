@@ -940,7 +940,7 @@ class PopupReceive extends React.Component {
                 this.setState({backOrder: true})
             }
         } else if (name == 'receive_date') {
-            new_data.date = value
+            new_data.receive_date = value
             this.setState({data: new_data})
         } else {
             var showBackOrder = this.state.showBackOrder

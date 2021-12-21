@@ -256,7 +256,7 @@ def action_receive(name, moves):
 					move = frappe.get_doc('VetOperationMove', m.get('name', False))
 					move.update({
 						'quantity_done': m.get('quantity_done', False),
-						'receive_date': m.get('receive_date', False),
+						'receive_date': m.get('receive_date', dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S")),
 					})
 					move.save()
 					frappe.db.commit()

@@ -691,12 +691,12 @@ class OperationStockMove extends React.Component {
             list.forEach(function(l, index){
                 console.log(list)
                 rows.push(
-                    <OperationStockMoveListRow edit_mode={sl.props.edit_mode} usage={sl.props.usage} index={index.toString()} product_list={product_list} uom_list={sl.props.uom_list} key={index.toString()} item={l} status={sl.props.status} changeInput={e => sl.props.changeInput(e, index.toString())} inputBlur={sl.props.inputBlur}/>
+                    <OperationStockMoveListRow show_receive_date={list.some((l) => l.receive_date)} edit_mode={sl.props.edit_mode} usage={sl.props.usage} index={index.toString()} product_list={product_list} uom_list={sl.props.uom_list} key={index.toString()} item={l} status={sl.props.status} changeInput={e => sl.props.changeInput(e, index.toString())} inputBlur={sl.props.inputBlur}/>
                 )
             })
         }
         
-        var qty_done, price, subtotal
+        var qty_done, price, subtotal, receive_date
         if (![undefined, 'Draft'].includes(this.props.status)) {
             qty_done = <div className="col text-center">
         					<span className="my-auto">Qty Done</span>
@@ -710,6 +710,12 @@ class OperationStockMove extends React.Component {
             subtotal = <div className="col text-center">
         					<span className="my-auto">Subtotal</span>
         				</div>
+        }
+
+        if (list.some((l) => l.receive_date)) {
+            receive_date = <div className="col text-center">
+                            <span className="my-auto">Receive Date</span>
+                        </div>
         }
         
         var total_detail
@@ -739,6 +745,7 @@ class OperationStockMove extends React.Component {
         				<div className="col-4 text-center">
         					<span className="my-auto">Product</span>
         				</div>
+                        {receive_date}
         				<div className="col-3 text-center">
         					<span className="my-auto">Unit Of Measurement</span>
         				</div>
@@ -768,7 +775,13 @@ class OperationStockMoveListRow extends React.Component {
         if(Object.keys(item).filter(n => !['product', 'product_name'].includes(n)).length != 0){
             required = true
         }
+        var receive_date
         var product = <span className="my-auto">{item.product_name||item.product}</span>
+        if (this.props.show_receive_date) {
+            receive_date = <div className="col text-center">
+                <span className="my-auto">{item.receive_date ? moment(item.receive_date).format('DD-MM-YYYY') : ''}</span>
+                </div>
+        }
         var quantity = <span className="my-auto">{item.quantity}</span>
         var uom = <span className="my-auto">{item.uom_name||item.product_uom}</span>
         
@@ -819,6 +832,7 @@ class OperationStockMoveListRow extends React.Component {
         				<div className="col-4">
         					{product}
         				</div>
+                        {receive_date}
         				<div className="col-3 text-center">
         					{uom}{uom_datalist}
         				</div>
