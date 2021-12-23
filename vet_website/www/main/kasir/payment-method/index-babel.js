@@ -501,7 +501,8 @@ class PaymentMethodPopupForm extends React.Component {
                 	            <option value=''/>
                 	            <option>Cash</option>
                 	            <option>Card</option>
-                	            <option>Deposit</option>
+                	            <option>Deposit Customer</option>
+                                <option>Deposit Supplier</option>
                 	        </select>
                 	    </div>
                 	    <div className="row justify-content-center">

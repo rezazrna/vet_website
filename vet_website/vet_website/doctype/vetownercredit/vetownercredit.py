@@ -407,7 +407,7 @@ def bayar_hutang_purchase(nominal, supplier, method):
 			
 			create_journal_entry('Purchase Payment', all_debt, debt_payment.name, method)
 			
-			if method != 'Deposit':
+			if 'Deposit' not in method:
 				credit_payment = frappe.new_doc('VetOwnerCredit')
 				credit_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': current_nominal-all_debt, 'supplier': supplier, 'metode_pembayaran': method})
 				credit_payment.insert()
@@ -416,7 +416,7 @@ def bayar_hutang_purchase(nominal, supplier, method):
 				
 				create_journal_entry('Purchase Payment', current_nominal-all_debt, credit_payment.name, method, True)
 			current_nominal = 0
-	elif all_debt <= 0 and current_nominal > 0 and method != 'Deposit':
+	elif all_debt <= 0 and current_nominal > 0 and 'Deposit' not in method:
 		credit_payment = frappe.new_doc('VetOwnerCredit')
 		credit_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': current_nominal, 'supplier': supplier, 'metode_pembayaran': method})
 		credit_payment.insert()
@@ -481,7 +481,7 @@ def bayar_hutang_invoice(nominal, pet_owner, method):
 			
 			create_journal_entry('Purchase Payment', all_debt, debt_payment.name, method)
 			
-			if method != 'Deposit':
+			if 'Deposit' not in method:
 				credit_payment = frappe.new_doc('VetOwnerCredit')
 				credit_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'invoice': '', 'type': 'Payment', 'nominal': current_nominal-all_debt, 'pet_owner': pet_owner, 'metode_pembayaran': method})
 				credit_payment.insert()
@@ -490,7 +490,7 @@ def bayar_hutang_invoice(nominal, pet_owner, method):
 				
 				create_journal_entry('Payment', current_nominal-all_debt, credit_payment.name, method, True)
 			current_nominal = 0
-	elif all_debt <= 0 and current_nominal > 0 and method != 'Deposit':
+	elif all_debt <= 0 and current_nominal > 0 and 'Deposit' not in method:
 		credit_payment = frappe.new_doc('VetOwnerCredit')
 		credit_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'invoice': '', 'type': 'Payment', 'nominal': current_nominal, 'pet_owner': pet_owner, 'metode_pembayaran': method})
 		credit_payment.insert()

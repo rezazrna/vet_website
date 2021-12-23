@@ -513,7 +513,7 @@ def submit_pembayaran(data):
 			# tanggal = dt.strftime(dt.now(), "%Y-%m-%d")
 			
 			value = data_json.get('jumlah')
-			if data_json.get('payment_method') == 'Deposit':
+			if 'Deposit' in data_json.get('payment_method'):
 				value = data_json.get('jumlah') if remaining >= data_json.get('jumlah') else remaining
 
 			pay = frappe.new_doc("VetPurchasePay")

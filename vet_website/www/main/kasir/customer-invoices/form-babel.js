@@ -2451,12 +2451,12 @@ class CustomerInvoicePaymentRow extends React.Component {
         var payment_field, edit_button
         if(this.state.edit_mode){
             var payment_method_options = []
-            this.props.payment_method_list.forEach(p => p.name!='Deposit'||p.method_type!='Deposit'?payment_method_options.push(<option key={p.name} value={p.name}>{p.method_name}</option>):false)
+            this.props.payment_method_list.forEach(p => !p.name,includes('Deposit') || !p.method_type.includes('Deposit') ? payment_method_options.push(<option key={p.name} value={p.name}>{p.method_name}</option>):false)
             payment_field = <select name="payment_method" className="form-control fs14 p-0 h-auto" value={this.state.payment_method} onChange={e => this.changePaymentMethod(e)}>
                 {payment_method_options}
             </select>
             edit_button = <i className="fa fa-floppy-o ml-2" style={cursor} onClick={() => this.editPayment()}/>
-        } else if (th.state.payment_method != 'Deposit' && th.state.current_session.name == item.pos_session){
+        } else if (!th.state.payment_method.includes('Deposit') && th.state.current_session.name == item.pos_session){
             payment_field = <span>{payment_method || ''}</span>
             edit_button = <i className="fa fa-pencil ml-2" style={cursor} onClick={() => this.toggleEditMode()}/>
         } else {
@@ -2557,7 +2557,7 @@ class PopupPay extends React.Component {
             var new_data = Object.assign({}, this.state.data)
             new_data.jumlah = parseFloat(new_data.jumlah.replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
             typeof new_data.name == 'object'?method = "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.add_payment_multiple":false
-            if(new_data.payment_method=='Deposit'&&new_data.jumlah>this.props.total_credit){
+            if(new_data.payment_method.includes('Deposit')&&new_data.jumlah>this.props.total_credit){
                 frappe.msgprint('Nominal melebihi deposit, jumlah deposit tersedia '+formatter.format(this.props.total_credit))
             } else {
                 frappe.call({
@@ -2644,7 +2644,7 @@ class PopupPay extends React.Component {
                     </div>
                 </div>
                 )
-            } else if((pm.method_type == 'Deposit Customer' || pm.method_type == 'Deposit Supplier') && this.props.total_credit > 0){
+            } else if((pm.method_type == 'Deposit Customer') && this.props.total_credit > 0){
                 detail = (
                 <div className="row mx-n1">
                     <div className="col-auto px-1 d-flex">
@@ -2658,7 +2658,7 @@ class PopupPay extends React.Component {
             } else {
                 return;
             }
-            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.name?payStyle:batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.name)}>{detail}</button></div>)
+            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.method_name?payStyle:batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.method_name)}>{detail}</button></div>)
         })
         
         return (
@@ -2816,7 +2816,7 @@ class PopupRefund extends React.Component {
                     </div>
                 </div>
                 )
-            } else if((pm.method_type == 'Deposit Customer' || pm.method_type == 'Deposit Supplier') && this.props.total_credit > 0){
+            } else if((pm.method_type == 'Deposit Customer') && this.props.total_credit > 0){
                 detail = (
                 <div className="row mx-n1">
                     <div className="col-auto px-1 d-flex">
@@ -2830,7 +2830,7 @@ class PopupRefund extends React.Component {
             } else {
                 return;
             }
-            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.name? payStyle :batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.name)}>{detail}</button></div>)
+            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.method_name? payStyle :batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.method_name)}>{detail}</button></div>)
         })
         
         return (

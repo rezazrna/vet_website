@@ -692,7 +692,7 @@ def set_owner_credit_total(name, supplier=False):
 				
 				owner_credit.debt = debt
 				
-			elif owner_credit.metode_pembayaran == 'Deposit':
+			elif 'Deposit' in owner_credit.metode_pembayaran:
 				# Pembayaran dari Deposit
 				# print("Pembayaran dari Deposit")
 				purchase_search = frappe.get_list('VetPurchase', filters={'name': owner_credit.purchase}, fields=['name'])
@@ -708,11 +708,11 @@ def set_owner_credit_total(name, supplier=False):
 					# print(excess)
 					# print(debt_mutation)
 
-					# if excess >= 0:
-					# 	owner_credit.credit = 0
-					# 	credit += excess
-					# 	owner_credit.credit = credit
-					# 	owner_credit.credit_mutation = excess
+					if excess >= 0:
+						owner_credit.credit = 0
+						credit += excess
+						owner_credit.credit = credit
+						owner_credit.credit_mutation = excess
 					
 					owner_credit.credit = 0
 					credit -= debt_mutation

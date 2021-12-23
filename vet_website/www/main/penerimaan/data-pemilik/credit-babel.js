@@ -585,7 +585,7 @@ class Popup extends React.Component {
         console.log(this.props.tipe)
         
         var pm_buttons = []
-        this.props.payment_method_list.filter(pm => pm.method_type != 'Deposit').forEach(pm => {
+        this.props.payment_method_list.filter(pm => !pm.method_type.includes('Deposit')).forEach(pm => {
             var detail
             var iconStyle = {maxWidth: 36, maxHeight: 36}
             
@@ -612,7 +612,7 @@ class Popup extends React.Component {
                     </div>
                 </div>
             )
-            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.name?simpanStyle:batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.name)}>{detail}</button></div>)
+            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.method_name?simpanStyle:batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.method_name)}>{detail}</button></div>)
         })
         
         return <div className="menu-popup">

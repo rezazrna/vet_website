@@ -646,7 +646,7 @@ class PopupPay extends React.Component {
             console.log(this.state.data)
             var new_data = Object.assign({}, this.state.data)
             new_data.jumlah = parseInt(new_data.jumlah.replace(/\D/g,''))
-            new_data.payment_method == 'Deposit'?new_data.jumlah = this.props.total_credit:false
+            new_data.payment_method.includes('Deposit') ? new_data.jumlah = this.props.total_credit:false
             console.log(new_data)
             if(new_data.payment_method){
                 frappe.call({
@@ -708,7 +708,7 @@ class PopupPay extends React.Component {
                     </div>
                 </div>
                 )
-            } else if((pm.method_type == 'Deposit Customer' || pm.method_type == 'Deposit Supplier') && this.props.total_credit > 0){
+            } else if((pm.method_type == 'Deposit Supplier') && this.props.total_credit > 0){
                 detail = (
                 <div className="row mx-n1">
                     <div className="col-auto px-1 d-flex">
@@ -722,7 +722,7 @@ class PopupPay extends React.Component {
             } else {
                 return;
             }
-            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.name?payStyle:batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.name)}>{detail}</button></div>)
+            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.method_name?payStyle:batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.method_name)}>{detail}</button></div>)
         })
         
         var value_input = <div className="form-group">
@@ -745,8 +745,8 @@ class PopupPay extends React.Component {
                             <div className="row mx-n1 my-3">
                                 {pm_buttons}
                             </div>
-                            {this.state.data.payment_method&&this.state.data.payment_method!='Deposit'?value_input:false}
-                            {this.state.data.payment_method&&this.state.data.payment_method!='Deposit'?tanggal_input:false}
+                            {this.state.data.payment_method&&!this.state.data.payment_method.includes('Deposit')?value_input:false}
+                            {this.state.data.payment_method&&!this.state.data.payment_method.includes('Deposit')?tanggal_input:false}
                             <div className="row justify-content-center mb-2">
                                 <div className="col-auto d-flex mt-4">
                                     <button className="btn btn-sm fs18 h-100 fwbold px-4" style={payStyle} onClick={this.submitPay}>Pay</button>
@@ -863,7 +863,7 @@ class PopupRefund extends React.Component {
                     </div>
                 </div>
                 )
-            } else if((pm.method_type == 'Deposit Customer' || pm.method_type == 'Deposit Supplier') && this.props.total_credit > 0){
+            } else if((pm.method_type == 'Deposit Supplier') && this.props.total_credit > 0){
                 detail = (
                 <div className="row mx-n1">
                     <div className="col-auto px-1 d-flex">
@@ -877,7 +877,7 @@ class PopupRefund extends React.Component {
             } else {
                 return;
             }
-            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.name?payStyle:batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.name)}>{detail}</button></div>)
+            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.method_name?payStyle:batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.method_name)}>{detail}</button></div>)
         })
         
         return (

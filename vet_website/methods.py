@@ -252,7 +252,7 @@ def edit_doctype_autoname(doctype, value, filepath):
 def get_pos_data(name):
 	payment_method_filter = {
 		"filters": [
-			['method_type', '!=', 'Deposit'],
+			['method_type', 'not in', ['Deposit Customer', 'Deposit Supplier']],
 			['account', '!=', 'VC-104'],
 			# ['account', '!=', '1-11102'],
 		]

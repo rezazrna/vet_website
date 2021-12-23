@@ -543,13 +543,13 @@ class PosSessionsListRow extends React.Component {
                                 <button className="btn text-center fs14 py-2" style={styles.btnOpenPos} onClick={() => this.goToPos()}>Open POS</button>
                             </div>
                             
-        var non_cash_transaction = session.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).reduce((total, p) => total += (p.value - (p.exchange+p.credit_mutation)), 0)
-        var non_cash_deposit = session.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).reduce((total, p) => total += p.credit_mutation, 0)
-        var non_cash_deposit_return = session.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).reduce((total, p) => total += p.credit_mutation_return, 0)
-        var non_cash_debt = session.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).reduce((total, p) => total += p.debt_mutation, 0)
+        var non_cash_transaction = session.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).reduce((total, p) => total += (p.value - (p.exchange+p.credit_mutation)), 0)
+        var non_cash_deposit = session.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).reduce((total, p) => total += p.credit_mutation, 0)
+        var non_cash_deposit_return = session.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).reduce((total, p) => total += p.credit_mutation_return, 0)
+        var non_cash_debt = session.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).reduce((total, p) => total += p.debt_mutation, 0)
         
-        var deposit_transaction = session.non_cash_payment.filter(item => item.type=='Deposit').reduce((total, p) => total += p.value, 0)
-        var deposit_debt = session.non_cash_payment.filter(item => item.type=='Deposit').reduce((total, p) => total += p.debt_mutation, 0)
+        var deposit_transaction = session.non_cash_payment.filter(item => ['Deposit Customer','Deposit Supplier'].includes(item.type)).reduce((total, p) => total += p.value, 0)
+        var deposit_debt = session.non_cash_payment.filter(item => ['Deposit Customer','Deposit Supplier'].includes(item.type)).reduce((total, p) => total += p.debt_mutation, 0)
         
         var cash_transaction = session.cash_payment.reduce((total, p) => total += (p.value - (p.exchange+p.credit_mutation)), 0)
         var cash_deposit = session.cash_payment.reduce((total, p) => total += p.credit_mutation, 0)
@@ -645,10 +645,10 @@ class PosSessionsListRow extends React.Component {
             }
             
             var nonCashPayment
-            if (session.non_cash_payment && session.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).length > 0) {
+            if (session.non_cash_payment && session.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).length > 0) {
                 var nonCashRow = []
                 
-                session.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).forEach(function(item, index) {
+                session.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).forEach(function(item, index) {
                     var transaction = item.value - (item.exchange+item.credit_mutation)
                     var credit_mutation = item.credit_mutation
                     var credit_mutation_return = item.credit_mutation_return
@@ -1213,13 +1213,13 @@ class PDF extends React.Component{
     render(){
         var data = this.props.data
         
-        var non_cash_transaction = data.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).reduce((total, p) => total += (p.value - (p.exchange+p.credit_mutation)), 0)
-        var non_cash_deposit = data.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).reduce((total, p) => total += p.credit_mutation, 0)
-        var non_cash_deposit_return = data.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).reduce((total, p) => total += p.credit_mutation_return, 0)
-        var non_cash_debt = data.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).reduce((total, p) => total += p.debt_mutation, 0)
+        var non_cash_transaction = data.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).reduce((total, p) => total += (p.value - (p.exchange+p.credit_mutation)), 0)
+        var non_cash_deposit = data.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).reduce((total, p) => total += p.credit_mutation, 0)
+        var non_cash_deposit_return = data.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).reduce((total, p) => total += p.credit_mutation_return, 0)
+        var non_cash_debt = data.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).reduce((total, p) => total += p.debt_mutation, 0)
         
-        var deposit_transaction = data.non_cash_payment.filter(item => item.type=='Deposit').reduce((total, p) => total += p.value, 0)
-        var deposit_debt = data.non_cash_payment.filter(item => item.type=='Deposit').reduce((total, p) => total += p.debt_mutation, 0)
+        var deposit_transaction = data.non_cash_payment.filter(item => ['Deposit Customer','Deposit Supplier'].includes(item.type)).reduce((total, p) => total += p.value, 0)
+        var deposit_debt = data.non_cash_payment.filter(item => ['Deposit Customer','Deposit Supplier'].includes(item.type)).reduce((total, p) => total += p.debt_mutation, 0)
         
         var cash_transaction = data.cash_payment.reduce((total, p) => total += (p.value - (p.exchange+p.credit_mutation)), 0)
         var cash_deposit = data.cash_payment.reduce((total, p) => total += p.credit_mutation, 0)
@@ -1256,10 +1256,10 @@ class PDF extends React.Component{
         var thead = {background: '#d9d9d9', fontSize: 11}
         
         var nonCashPayment
-        if (data.non_cash_payment && data.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).length > 0) {
+        if (data.non_cash_payment && data.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).length > 0) {
             var nonCashRow = []
             
-            data.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).forEach(function(item, index) {
+            data.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).forEach(function(item, index) {
                 var transaction = item.value - (item.exchange+item.credit_mutation)
                 var credit_mutation = item.credit_mutation
                 var credit_mutation_return = item.credit_mutation_return
@@ -1283,7 +1283,7 @@ class PDF extends React.Component{
     			                    Pembayaran Non Cash
     			                </div>
     			                <div className="col-6 text-right">
-    			                    {formatter.format(data.non_cash_payment.filter(item => !['Deposit','Cash'].includes(item.type)).reduce((total, p) => total += p.value, 0) || 0)}
+    			                    {formatter.format(data.non_cash_payment.filter(item => !['Deposit Customer','Deposit Supplier','Cash'].includes(item.type)).reduce((total, p) => total += p.value, 0) || 0)}
     			                </div>
     			            </div>
     			        </div>

@@ -657,7 +657,7 @@ def add_payment_multiple(data):
 				if paid_search[0]['paid'] != None:
 					paid = paid_search[0]['paid']
 				remaining = item.total - paid
-				if data_json.get('payment_method') == 'Deposit':
+				if 'Deposit' in data_json.get('payment_method'):
 					invoice_jumlah = jumlah if remaining >= jumlah else remaining
 				else:
 					invoice_jumlah = jumlah if remaining >= jumlah or len(invoices)-1 == index else remaining
@@ -1507,7 +1507,7 @@ def add_payment_from_deposit(data):
 			pay = frappe.new_doc("VetCustomerInvoicePay")
 			pay.jumlah = data_json.get('jumlah')
 			pay.tanggal = tanggal
-			pay.metode_pembayaran = 'Deposit'
+			pay.metode_pembayaran = 'Deposit Customer'
 			pay.update(line_data)
 			pay.insert()
 			
@@ -1557,7 +1557,7 @@ def add_payment_from_deposit(data):
 				'invoice': invoice.name,
 				'type': 'Payment',
 				'nominal': data_json.get('jumlah'),
-				'metode_pembayaran': 'Deposit'
+				'metode_pembayaran': 'Deposit Customer'
 			})
 			owner_credit.insert()
 			frappe.db.commit()
