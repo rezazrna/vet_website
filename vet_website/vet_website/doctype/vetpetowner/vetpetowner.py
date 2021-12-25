@@ -684,9 +684,12 @@ def set_owner_credit_total(name, supplier=False):
 		if o['type'] == 'Payment' or o['type'] == 'Refund' or o['type'] == 'Cancel':
 			if o['nominal'] < 0 or owner_credit.is_deposit:
 				# Pengambilan atau Penyimpanan Deposit
-				# print("Pengambilan atau Penyimpanan Deposit")
+				print("Pengambilan atau Penyimpanan Deposit")
 				owner_credit.credit = 0
 				credit += o['nominal']
+				print(credit)
+				print(o['nominal'])
+				print(debt)
 				owner_credit.credit = credit
 				owner_credit.credit_mutation = o['nominal']
 				
@@ -694,29 +697,35 @@ def set_owner_credit_total(name, supplier=False):
 				
 			elif 'Deposit' in owner_credit.metode_pembayaran:
 				# Pembayaran dari Deposit
-				# print("Pembayaran dari Deposit")
+				print("Pembayaran dari Deposit")
 				purchase_search = frappe.get_list('VetPurchase', filters={'name': owner_credit.purchase}, fields=['name'])
 				if len(purchase_search) > 0:
 					# print("Ada Purchase")
 					purchase = frappe.get_doc('VetPurchase', owner_credit.purchase)
 					purchase_debt = get_purchase_debit_credit(owner_credit.name)
 					purchase_debt = -purchase_debt if purchase_debt < 0 else 0
-					excess = o['nominal'] - purchase_debt
+					print(purchase_debt)
+					excess = 0
+					if purchase_debt > 0:
+						excess = o['nominal'] - purchase_debt
 					excess = excess if excess > 0 else 0
+					print(excess)
 					debt_mutation = o['nominal'] - excess
+					print(debt_mutation)
 					
 					# print(excess)
 					# print(debt_mutation)
 
-					if excess >= 0:
-						owner_credit.credit = 0
-						credit += excess
-						owner_credit.credit = credit
-						owner_credit.credit_mutation = excess
+					# if excess >= 0:
+					# 	owner_credit.credit = 0
+					# 	credit += excess
+					# 	owner_credit.credit = credit
+					# 	owner_credit.credit_mutation = excess
 					
 					owner_credit.credit = 0
 					credit -= debt_mutation
 					owner_credit.credit = credit
+					print(credit)
 					owner_credit.credit_mutation = -debt_mutation
 						
 					owner_credit.debt = 0
@@ -744,18 +753,20 @@ def set_owner_credit_total(name, supplier=False):
 					purchase = frappe.get_doc('VetPurchase', owner_credit.purchase)
 					purchase_debt = get_purchase_debit_credit(owner_credit.name)
 					purchase_debt = -purchase_debt if purchase_debt < 0 else 0
-					excess = o['nominal'] - purchase_debt
+					excess = 0
+					if purchase_debt > 0:
+						excess = o['nominal'] - purchase_debt
 					excess = excess if excess > 0 else 0
 					debt_mutation = o['nominal'] - excess
 					
 					# print(excess)
 					# print(debt_mutation)
 
-					if excess >= 0:
-						owner_credit.credit = 0
-						credit += excess
-						owner_credit.credit = credit
-						owner_credit.credit_mutation = excess
+					# if excess >= 0:
+					# 	owner_credit.credit = 0
+					# 	credit += excess
+					# 	owner_credit.credit = credit
+					# 	owner_credit.credit_mutation = excess
 						
 					owner_credit.debt = 0
 					debt -= debt_mutation
@@ -784,16 +795,18 @@ def set_owner_credit_total(name, supplier=False):
 					purchase = frappe.get_doc('VetPurchase', owner_credit.purchase)
 					purchase_debt = get_purchase_debit_credit(owner_credit.name)
 					purchase_debt = -purchase_debt if purchase_debt < 0 else 0
-					excess = o['nominal'] - purchase_debt
+					excess = 0
+					if purchase_debt > 0:
+						excess = o['nominal'] - purchase_debt
 					excess = excess if excess > 0 else 0
 					debt_mutation = o['nominal'] - excess
 					owner_credit.credit = credit
 
-					if excess >= 0:
-						owner_credit.credit = 0
-						credit += excess
-						owner_credit.credit = credit
-						owner_credit.credit_mutation = excess
+					# if excess >= 0:
+					# 	owner_credit.credit = 0
+					# 	credit += excess
+					# 	owner_credit.credit = credit
+					# 	owner_credit.credit_mutation = excess
 						
 					owner_credit.debt = 0
 					debt -= debt_mutation
@@ -880,20 +893,20 @@ def get_supplier_true_credit(supplier_name):
 	if last_credit:
 		credit = last_credit[0]['credit']
 		
-	purchase_orders = frappe.get_list("VetPurchase", fields=["name", "potongan"], filters={'supplier': supplier_name, 'status': ['in', ['Purchase Order', 'Receive', 'Paid']]}, order_by="creation desc")
-	for po in purchase_orders:
-		purchase_order_payments = frappe.get_list('VetPurchasePay', filters={'parent': po.name}, fields=['*'])
-		purchase_order_products = frappe.get_list('VetPurchaseProducts', filters={'parent': po.name}, fields=['*'])
+	# purchase_orders = frappe.get_list("VetPurchase", fields=["name", "potongan"], filters={'supplier': supplier_name, 'status': ['in', ['Purchase Order', 'Receive', 'Paid']]}, order_by="creation desc")
+	# for po in purchase_orders:
+	# 	purchase_order_payments = frappe.get_list('VetPurchasePay', filters={'parent': po.name}, fields=['*'])
+	# 	purchase_order_products = frappe.get_list('VetPurchaseProducts', filters={'parent': po.name}, fields=['*'])
 		
-		paid = sum(p.jumlah for p in purchase_order_payments)
+	# 	paid = sum(p.jumlah for p in purchase_order_payments)
 		
-		received_total = sum(discount_value(p.quantity_receive * p.price, p.discount) for p in purchase_order_products)
-		subtotal = sum(discount_value(p.quantity * p.price, p.discount) for p in purchase_order_products)
-		total = subtotal - po.potongan
+	# 	received_total = sum(discount_value(p.quantity_receive * p.price, p.discount) for p in purchase_order_products)
+	# 	subtotal = sum(discount_value(p.quantity * p.price, p.discount) for p in purchase_order_products)
+	# 	total = subtotal - po.potongan
 		
-		reduced_credit = (paid if paid <= total else total) - received_total
-		reduced_credit = reduced_credit if reduced_credit > 0 else 0
-		total_reduced_credit += reduced_credit
+	# 	reduced_credit = (paid if paid <= total else total) - received_total
+	# 	reduced_credit = reduced_credit if reduced_credit > 0 else 0
+	# 	total_reduced_credit += reduced_credit
 		
 	print(credit)
 	print(total_reduced_credit)

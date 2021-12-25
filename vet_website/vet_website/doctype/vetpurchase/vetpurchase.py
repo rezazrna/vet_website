@@ -1064,20 +1064,20 @@ def get_supplier_true_credit(supplier_name):
 	if last_credit:
 		credit = last_credit[0]['credit']
 		
-	purchase_orders = frappe.get_list("VetPurchase", fields=["name", "potongan"], filters={'supplier': supplier_name, 'status': ['in', ['Purchase Order', 'Receive', 'Paid']]}, order_by="creation desc")
-	for po in purchase_orders:
-		purchase_order_payments = frappe.get_list('VetPurchasePay', filters={'parent': po.name}, fields=['*'])
-		purchase_order_products = frappe.get_list('VetPurchaseProducts', filters={'parent': po.name}, fields=['*'])
+	# purchase_orders = frappe.get_list("VetPurchase", fields=["name", "potongan"], filters={'supplier': supplier_name, 'status': ['in', ['Purchase Order', 'Receive', 'Paid']]}, order_by="creation desc")
+	# for po in purchase_orders:
+	# 	purchase_order_payments = frappe.get_list('VetPurchasePay', filters={'parent': po.name}, fields=['*'])
+	# 	purchase_order_products = frappe.get_list('VetPurchaseProducts', filters={'parent': po.name}, fields=['*'])
 		
-		paid = sum(p.jumlah for p in purchase_order_payments)
+	# 	paid = sum(p.jumlah for p in purchase_order_payments)
 		
-		received_total = sum(discount_value(p.quantity_receive * p.price, p.discount) for p in purchase_order_products)
-		subtotal = sum(discount_value(p.quantity * p.price, p.discount) for p in purchase_order_products)
-		total = subtotal - po.potongan
+	# 	received_total = sum(discount_value(p.quantity_receive * p.price, p.discount) for p in purchase_order_products)
+	# 	subtotal = sum(discount_value(p.quantity * p.price, p.discount) for p in purchase_order_products)
+	# 	total = subtotal - po.potongan
 		
-		reduced_credit = (paid if paid <= total else total) - received_total
-		reduced_credit = reduced_credit if reduced_credit > 0 else 0
-		total_reduced_credit += reduced_credit
+	# 	reduced_credit = (paid if paid <= total else total) - received_total
+	# 	reduced_credit = reduced_credit if reduced_credit > 0 else 0
+	# 	total_reduced_credit += reduced_credit
 		
 	print(credit)
 	print(total_reduced_credit)
