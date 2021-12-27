@@ -29,6 +29,9 @@ class ProductTags extends React.Component {
                 }
             }
         });
+
+
+        this.productTagsSearch({}, false)
     }
     
     productTagsSearch(filters, search=false) {

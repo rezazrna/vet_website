@@ -13,6 +13,7 @@ class Journals extends React.Component {
         this.inputBlur = this.inputBlur.bind(this)
         this.formSubmit = this.formSubmit.bind(this)
         this.editJournal = this.editJournal.bind(this)
+        this.resetJournal = this.resetJournal.bind(this)
         this.deleteJournal = this.deleteJournal.bind(this)
     }
     
@@ -59,6 +60,10 @@ class Journals extends React.Component {
         var journal = this.state.data.find(j => j.name == name)
         var new_journal = Object.assign({}, journal)
         this.setState({new_journal: new_journal})
+    }
+
+    resetJournal(){
+        this.setState({new_journal: {}})
     }
     
     deleteJournal(name){
@@ -150,7 +155,7 @@ class Journals extends React.Component {
                         <Filter sorts={sorts} searchAction={this.journalSearch} field_list={field_list}/>
                     </div>
                 </div>
-                <JournalsList write={write} accounts={this.state.accounts} new_journal={this.state.new_journal} data={this.state.data} inputChange={this.inputChange} formSubmit={this.formSubmit} deleteJournal={this.deleteJournal} editJournal={this.editJournal} inputBlur={this.inputBlur}/>
+                <JournalsList write={write} accounts={this.state.accounts} resetJournal={this.resetJournal} new_journal={this.state.new_journal} data={this.state.data} inputChange={this.inputChange} formSubmit={this.formSubmit} deleteJournal={this.deleteJournal} editJournal={this.editJournal} inputBlur={this.inputBlur}/>
             </div>
         )
     }
@@ -208,6 +213,9 @@ function JournalsList(props){
                     </div>
                     <div className="col d-flex">
                         <button type="submit" className="btn btn-block btn-danger fs12 fwbold mt-auto">{props.new_journal.name?'Simpan':(<span><i className="fa fa-plus mr-2"/>Tambah</span>)}</button>
+                    </div>
+                    <div className="col d-flex">
+                        <button className="btn btn-block btn-danger fs12 fwbold mt-auto" onClick={() => props.resetJournal()}>Batal</button>
                     </div>
                 </form>
                 {rows}

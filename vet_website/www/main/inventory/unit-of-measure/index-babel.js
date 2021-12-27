@@ -284,7 +284,7 @@ class UnitOfMeasureList extends React.Component {
                 		<div className="col row-header">
                 			<div className="row mx-0 fs12 fw600">
                 				<div className="col-9 d-flex">
-                					<span className="my-auto">Unit of Measure</span>
+                					<span className="my-auto">Unit of Measurement</span>
                 				</div>
                 				<div className="col-3 d-flex">
                 					<span className="my-auto">Unit Master</span>
@@ -455,7 +455,7 @@ class UnitOfMeasurePopupForm extends React.Component {
                 <div className="container my-auto" style={container_style} onClick={event => event.stopPropagation()}>
                 	<form onSubmit={e => this.formSubmit(e)} className="p-5 bg-white" style={panel_style}>
                 	    <div className="form-group">
-                	        <label htmlFor="uom_name" className="fs18 fw600">Unit Of Measure</label>
+                	        <label htmlFor="uom_name" className="fs18 fw600">Unit Of Measurement</label>
                 	        <input readOnly={readOnly} className="form-control fs18 border-0" style={input_style} type="text" name="uom_name" id="uom_name" required autoComplete="off" defaultValue={this.state.data.uom_name||''} onChange={e => this.changeInput(e)} placeholder="Masukkan bila ada"/>
                 	    </div>
                 	    {unit_master_input}

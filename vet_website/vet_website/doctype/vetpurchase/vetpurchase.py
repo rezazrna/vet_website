@@ -755,7 +755,7 @@ def edit_receive_purchase(name, products, receive_date):
 				move_search = frappe.get_list('VetOperationMove', filters={'parent': operation.name, 'product': product_purchase.product}, fields=['name'])
 				move = frappe.get_doc('VetOperationMove', move_search[0]['name'])
 				move.update({
-					'quantity': p.get('quantity_receive'),
+					'quantity': p.get('quantity_receive') + p.get('quantity_stocked'),
 				})
 				move.save()
 			else:

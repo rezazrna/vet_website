@@ -1320,7 +1320,7 @@ class PurchaseOrderProducts extends React.Component {
         					<span className="my-auto">Qty</span>
         				</div>
         				<div className="col text-center">
-        					<span className="my-auto">Product Unit Of Measure</span>
+        					<span className="my-auto">Product Unit Of Measurement</span>
         				</div>
         				{quantity_receive_header}
         				<div className="col text-center">
