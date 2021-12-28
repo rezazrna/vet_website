@@ -92,7 +92,7 @@ class Warehouse extends React.Component {
             args: {filters: filters},
             callback: function(r){
                 if (r.message) {
-                    po.setState({'data': r.message.reception, 'datalength': r.message.datalength, 'loaded': true});
+                    po.setState({'data': r.message.gudang, 'datalength': r.message.datalength, 'loaded': true});
                 }
             }
         });

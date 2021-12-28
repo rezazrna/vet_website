@@ -292,7 +292,7 @@ class Operation extends React.Component {
         var rowMinHeight = {minHeight: '60px'}
         var buttonMode = []
         var color = {color: '#056EAD', cursor: 'pointer'}
-        var backButton = <span className="fs16 fw600 mr-auto my-auto" style={color} onClick={() => this.props.usage?window.location.href='/main/accounting/usage':window.location.href='/main/inventory/operation'}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
+        var backButton = <span className="fs16 fw600 mr-auto my-auto" style={color} onClick={() => history.back()}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
         var statuses = ['Draft', 'Delivery', 'Done']
         if(this.props.usage){statuses = ['Draft', 'Done']}
         var status_row

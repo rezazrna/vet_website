@@ -29,6 +29,8 @@ class Inventory extends React.Component {
             valuation = true
         }
 
+        args['filters'] = []
+
         sessionStorage.setItem(window.location.pathname, JSON.stringify(args))
 
         frappe.call({
@@ -123,8 +125,8 @@ class Inventory extends React.Component {
             callback: function(r){
                 if (r.message) {
                     console.log(r.message);
-                    if(r.message.length != 0){
-                        new_data[i].quantity_group = r.message
+                    if(r.message.product_quantity.length != 0){
+                        new_data[i].quantity_group = r.message.product_quantity
                     }
                     td.setState({'data': new_data});
                 }
@@ -259,18 +261,18 @@ class InventoryList extends React.Component {
         var items = this.props.items
         
         if (items.length != 0 ){
-            // var list = this
+            var list = this
             // const indexOfLastTodo = this.props.currentpage * 30;
             // const indexOfFirstTodo = indexOfLastTodo - 30;
             // const currentItems = this.props.items.slice(indexOfFirstTodo, indexOfLastTodo)
             
-            // items.forEach(function(item, index){
-                if (currentItems.includes(item)){
+            items.forEach(function(item, index){
+                // if (currentItems.includes(item)){
                     rows.push(
                         <InventoryListRow valuation={list.props.valuation} key={index.toString()} item={item} toggleShowQuantityGroup={() => list.props.toggleShowQuantityGroup(index.toString())}/>
                     )
-                }
-            // })
+                // }
+            })
             
             return(
                 <div style={panel_style}>

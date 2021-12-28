@@ -249,8 +249,8 @@ def create_session():
 @frappe.whitelist()
 def update_data(data):
 	json_data = json.loads(data)
-	if json_data['status'] == 'Closed & Posted':
-		json_data['closing_session'] = datetime.today()
+	# if json_data['status'] == 'Closed & Posted':
+	# 	json_data['closing_session'] = datetime.today()
 		
 	session = frappe.get_doc('VetPosSessions', json_data['name'])
 	

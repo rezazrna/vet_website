@@ -15,7 +15,7 @@ class VetJournalItem(Document):
 	
 @frappe.whitelist()
 def get_journal_item_list(filters=None):
-	default_sort = "date desc"
+	default_sort = "date desc, reference desc"
 	je_filters = []
 	filter_json = False
 	ji_account = False

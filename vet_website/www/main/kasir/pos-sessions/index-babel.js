@@ -1080,6 +1080,7 @@ class CloseConfirmation extends React.Component {
         super(props)
         this.state = {
             'journal': '',
+            'closing_session': moment().format('YYYY-MM-DD'),
         }
     }
     
@@ -1089,7 +1090,8 @@ class CloseConfirmation extends React.Component {
         new_data['status'] = 'Closed & Posted'
         new_data['close_journal'] = this.state.journal
         new_data['setor'] = this.props.setor
-        // console.log(new_data)
+        new_data['closing_session'] = this.state.closing_session + ' 23:59:59'
+        console.log(new_data)
         this.props.updateStatus(new_data)
     }
     
@@ -1128,6 +1130,13 @@ class CloseConfirmation extends React.Component {
                         	        <select className="form-control fs18 border-0" style={input_style} name="journal" id="journal" required autoComplete="off" value={this.state.journal} onChange={e => this.changeInput(e)}>
                         	            {journalOptions}
                         	        </select>
+                        	    </div>
+                	        </div>
+                	    </div>
+                        <div className="row mt-5">
+                	        <div className="col-12">
+                	            <div className="form-group text-center mt-auto">
+                                <input required type="date" id="closing_session" name='closing_session' className="form-control border-0 fs22 fw600 mb-4" onChange={e => this.changeInput(e)} defaultValue={this.state.closing_session || ''} style={input_style}/>
                         	    </div>
                 	        </div>
                 	    </div>

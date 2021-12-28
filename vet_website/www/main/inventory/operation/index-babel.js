@@ -24,7 +24,9 @@ class Operation extends React.Component {
             filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
         }
 
-        filters.filters.push(['is_usage', '=', this.props.is_usage?'1':'0'])
+        if (!filters.filters.find(element => element[0] == 'is_usage')) {
+            filters.filters.push(['is_usage', '=', this.props.is_usage?'1':'0'])
+        }
 
         if (document.location.href.includes('?')) {
          var url = document.location.href,
@@ -67,6 +69,8 @@ class Operation extends React.Component {
         });
 
         filters['currentpage'] = this.state.currentpage
+
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
         // if (number * 30 > this.state.data.length) {
             frappe.call({
