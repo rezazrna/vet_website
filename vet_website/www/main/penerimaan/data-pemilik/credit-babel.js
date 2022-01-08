@@ -76,7 +76,7 @@ class Credit extends React.Component {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetpetowner.vetpetowner.get_credit_list",
-                args: {name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, filters: filters, only_deposit: this.props.mode && this.props.mode == 'credit', only_piutang_hutang: this.props.mode && this.props.mode == 'debt'},
+                args: {name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, filters: filters, only_deposit: this.props.mode && this.props.mode == 'credit', only_piutang_hutang: this.props.mode && this.props.mode == 'debt', only_payment: this.props.mode && this.props.mode == 'payment'},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message);
@@ -110,7 +110,7 @@ class Credit extends React.Component {
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetpetowner.vetpetowner.get_credit_list",
-            args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false, only_deposit: this.props.mode && this.props.mode == 'credit', only_piutang_hutang: this.props.mode && this.props.mode == 'debt'},
+            args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false, only_deposit: this.props.mode && this.props.mode == 'credit', only_piutang_hutang: this.props.mode && this.props.mode == 'debt', only_payment: this.props.mode && this.props.mode == 'payment'},
             callback: function(r){
                 if (r.message) {
                     po.setState({'data': r.message.owner_credit_list, 'owner_list': r.message.owner_list, 'payment_method_list': r.message.payment_method_list, 'loaded': true, 'datalength': r.message.datalength});
@@ -136,7 +136,7 @@ class Credit extends React.Component {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetpetowner.vetpetowner.get_credit_list",
-                args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false, only_deposit: this.props.mode && this.props.mode == 'credit', only_piutang_hutang: this.props.mode && this.props.mode == 'debt'},
+                args: {filters: filters, name: id || false, no_filter: this.props.mode&&id?false:this.props.no_filter || false, supplier: this.props.supplier || false, session: this.props.session || false, only_deposit: this.props.mode && this.props.mode == 'credit', only_piutang_hutang: this.props.mode && this.props.mode == 'debt', only_payment: this.props.mode && this.props.mode == 'payment'},
                 callback: function(r){
                     if (r.message) {
                         po.setState({'data': r.message.owner_credit_list, 'owner_list': r.message.owner_list, 'payment_method_list': r.message.payment_method_list, 'loaded': true, 'datalength': r.message.datalength});
@@ -930,6 +930,7 @@ class CreditListRow extends React.Component {
         
         if (item.invoice || item.pet_owner) {
             var balanceRow, statusRow, debtRow, depositRow, debitRow, creditRow, nominalRow, methodRow
+            var payment_method = item.metode_pembayaran
             
             // if (!document.location.href.includes('?session')) {
             //     statusRow = <div className="col-1 px-0 text-right">
@@ -997,7 +998,7 @@ class CreditListRow extends React.Component {
                 credit_link =  <img onClick={e => this.clickRowCredit(e)} src="/static/img/main/menu/tautan.png" className="ml-2" style={link_icon}/>
             }
             
-            var payment_method = item.metode_pembayaran
+            
             var pm_find = this.props.payment_method_list.find(p => p.name == item.metode_pembayaran)
             pm_find?payment_method = pm_find.method_name:false
             
@@ -1042,6 +1043,7 @@ class CreditListRow extends React.Component {
             )
         } else {
             var balanceRow, statusRow, debtRow, depositRow, debitRow, creditRow, nominalRow, methodRow
+            var payment_method = item.metode_pembayaran
             
             if (!document.location.href.includes('?session')) {
                 // balanceRow = <div className="col d-flex">
@@ -1108,7 +1110,7 @@ class CreditListRow extends React.Component {
                 
             }
             
-            var payment_method = item.metode_pembayaran
+            
             var pm_find = this.props.payment_method_list.find(p => p.name == item.metode_pembayaran)
             pm_find?payment_method = pm_find.method_name:false
             

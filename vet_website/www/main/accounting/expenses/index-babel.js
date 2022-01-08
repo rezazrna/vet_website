@@ -187,7 +187,7 @@ class Expenses extends React.Component {
             callback: function(r){
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({'data': r.message, 'loaded': true});
+                    po.setState({'data': r.message.expenses, 'loaded': true});
                 }
             }
         });
@@ -209,8 +209,8 @@ class Expenses extends React.Component {
 		                {'label': 'Expense Date', 'field': 'expense_date', 'type': 'char'},
 		                {'label': 'Product Name', 'field': 'product_name', 'type': 'char'},
 		                {'label': 'Period', 'field': 'period', 'type': 'char'},
-		                {'label': 'Quantity', 'field': 'quantity', 'type': 'char'},
-		                {'label': 'Unit Price', 'field': 'unit_price', 'type': 'char'},
+		                // {'label': 'Quantity', 'field': 'quantity', 'type': 'char'},
+		                {'label': 'Amount', 'field': 'unit_price', 'type': 'char'},
 		                {'label': 'Description', 'field': 'description', 'type': 'date'},
 		                {'label': 'Status', 'field': 'status', 'type': 'char'},
 		                {'label': 'Responsible Name', 'field': 'responsible_name', 'type': 'char'},
@@ -430,6 +430,9 @@ class PopupAdd extends React.Component {
 	            new_data['expense_account_name'] = account.account_name
 	        }
 	    }
+        if (name == 'expense_date') {
+            new_data['period'] = moment(value).format('MM/YYYY')
+        }
 	    
     	this.setState({data: new_data})
     }
@@ -554,6 +557,8 @@ class PopupAdd extends React.Component {
         	} else {
         	    list_status = ['Refuse']
         	}
+
+            var cursor = {cursor: 'pointer'}
         	
     		content = <form onSubmit={this.formSubmit}>
         	            	<StatusRow statuses={list_status} current_status={data.status || 'Draft'}/>
@@ -571,6 +576,7 @@ class PopupAdd extends React.Component {
         
         return <div className="menu-popup">
                     <div className="container" style={maxwidth}>
+                        <i className="fa fa-times-circle text-danger fs20 float-right p-3" style={cursor} onClick={this.props.toggle}/>
                         <div className="bg-white p-5">
                             {content}
                         </div>
@@ -593,7 +599,7 @@ class ExpenseMainForm extends React.Component {
         var data = this.props.data
         var content
         var product_options = []
-        var period_options = []
+        // var period_options = []
         var responsible_options = []
         var cash_account_options = []
         var expense_account_options = []
@@ -607,7 +613,7 @@ class ExpenseMainForm extends React.Component {
         var expenseAccounts = this.props.expenseAccounts
         
         if (data.status == 'Draft' || (this.props.name == undefined && data.name == undefined) || this.props.edit_mode) {
-            var period_list = Array.apply(0, Array(12)).map((a,i) => moment().month(i).format('MM/YYYY'))
+            // var period_list = Array.apply(0, Array(12)).map((a,i) => moment().month(i).format('MM/YYYY'))
             
             this.props.productAll.forEach(function(item, index) {
                 product_options.push(<option value={item.product_name} key={index.toString()} />)
@@ -619,7 +625,7 @@ class ExpenseMainForm extends React.Component {
             
             this.props.warehouseAll.forEach((item, index) => warehouse_options.push(<option value={item.gudang_name} key={index.toString()} />))
             
-            period_list.forEach((i, index) => period_options.push(<option value={i} key={i}>{i}</option>))
+            // period_list.forEach((i, index) => period_options.push(<option value={i} key={i}>{i}</option>))
             
             var readOnly = false
             var account_readOnly = false
@@ -679,16 +685,16 @@ class ExpenseMainForm extends React.Component {
                 				    </div>*/}
                 				    {warehouse_input}
                 				</div>
-                				<div className="form-row mx-3">
-                				    <div className="col-6 px-2">
+                				<div className="form-group mx-3">
+                				    {/* <div className="col-6 px-2">
                     				    <div className="form-group">
                         					<label htmlFor="quantity" className="fw600">Quantity</label>
                         					<input required style={input_style} type="text" id="quantity" name='quantity' className="form-control border-0 " onChange={this.props.handleInputChange} value={data.quantity || ''}/>
                         				</div>
-                				    </div>
-                				    <div className="col-6 px-2">
+                				    </div> */}
+                				    <div className="col px-2">
                 				        <div className="form-group">
-                        					<label htmlFor="price" className="fw600">Unit Price</label>
+                        					<label htmlFor="price" className="fw600">Amount</label>
                         					<input readOnly={readOnly} required style={input_style} type="text" id="price" name='price' className="form-control border-0 " onChange={this.props.handleInputChange} value={data.price || ''}/>
                         				</div>
                 				    </div>
@@ -703,10 +709,10 @@ class ExpenseMainForm extends React.Component {
                                     <div className="col-6 px-2">
                                         <div className="form-group">
                         					<label htmlFor="period" className="fw600">Period</label>
-                        					<select required style={input_style2} id="period" name='period' className="form-control border-0 " onChange={this.props.handleInputChange} value={data.period || ''}>
-                                			    <option/>
-                                			    {period_options}
-                            			    </select>
+                        					<input readOnly={true} required style={input_style2} id="period" name='period' className="form-control border-0 " value={data.period || ''} />
+                                			    {/* <option/>
+                                			    {period_options} */}
+                            			    {/* </select> */}
                         				</div>
                                     </div>
                                     <div className="col-6 px-2">
@@ -761,12 +767,12 @@ class ExpenseMainForm extends React.Component {
                                     <div className="col-6 fs16 fw600">Product</div>
                                     <div className="col-6"><span className="fs16 px-0">{data.product_name}</span></div>
                                 </div>*/}
-                                <div className="row mb-3 mx-4">
+                                {/* <div className="row mb-3 mx-4">
                                     <div className="col-6 fs16 fw600">Quantity</div>
                                     <div className="col-6"><span className="fs16 px-0">{data.quantity}</span></div>
-                                </div>
+                                </div> */}
                                 <div className="row mb-3 mx-4">
-                                    <div className="col-6 fs16 fw600">Unit Price</div>
+                                    <div className="col-6 fs16 fw600">Amount</div>
                                     <div className="col-6"><span className="fs16 px-0">{data.price}</span></div>
                                 </div>
                                 <div className="row mb-3 mx-4" style={color2}>
@@ -837,6 +843,7 @@ class ExpensesList extends React.Component {
         var panel_style = {'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '40px 32px 40px 12px'}
         var bgStyle = {background: '#CEEDFF', color: '#1B577B'}
         var total_expenses = 0
+        
         
         if (this.props.data.length != 0 || !this.props.filter){
             var pol = this

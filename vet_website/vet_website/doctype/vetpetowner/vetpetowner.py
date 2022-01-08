@@ -378,7 +378,7 @@ def delete_pet_owner(data):
 	return {'success': True}
 	
 @frappe.whitelist()
-def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, only_deposit=False, only_piutang_hutang=False):
+def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, only_deposit=False, only_piutang_hutang=False, only_payment=False):
 	
 	def process_odd_filter(fj):
 		f = fj
@@ -412,6 +412,8 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 	# print('only_deposit')
 	# print(only_deposit)
 	credit_filters = []
+	if only_payment == 'true':
+		credit_filters = [['type', '=', 'Payment']]
 	if only_deposit == 'true':
 		credit_filters = [['credit_mutation', '!=', 0]]
 	if only_piutang_hutang == 'true':
