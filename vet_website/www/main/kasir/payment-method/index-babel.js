@@ -206,8 +206,10 @@ class PaymentMethod extends React.Component {
             method:"vet_website.vet_website.doctype.vetpaymentmethod.vetpaymentmethod.edit_payment_method",
             args: {data: data},
             callback: function(r){
+                console.log(r.message)
                 if (r.message) {
                     var new_data = uom.state.data.slice()
+                    r.message.account_name = uom.state.account_list.find(a => a.name == data.account).account_name
                     new_data[index] = r.message
                     uom.setState({data: new_data, show_form: false});
                 }
@@ -304,6 +306,8 @@ class PaymentMethodList extends React.Component {
         var rows = []
         var panel_style = {'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '40px 32px 40px 12px'}
         var items = this.props.items
+
+        console.log(this.props)
         
         if (items.length != 0 ){
             var list = this
@@ -463,7 +467,7 @@ class PaymentMethodPopupForm extends React.Component {
     }
     
     render(){
-        console.log(this.props.uom_list)
+        console.log(this.props)
         var container_style = {marginTop: '50px', maxWidth: '915px'}
         var panel_style = {borderRadius: '8px'}
         var input_style = {background: '#CEEDFF'}
