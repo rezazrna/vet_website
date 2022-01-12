@@ -153,23 +153,23 @@ def get_sessions_list(filters=None):
 			s['cash_payment'] = cash_payment
 			s['sales_debt'] = sales_credit_list
 		
-		# journal = frappe.get_list("VetCoa", filters={'account_parent': '1-11000'}, fields=["*"])
-		journal = frappe.get_list("VetCoa", filters={'account_parent': 'VC-102'}, fields=["*"])
-		if len(journal) == 0:
-			journal = frappe.get_list("VetCoa", filters={'account_parent': '1-11000'}, fields=["*"])
+		journal = frappe.get_list("VetCoa", fields=["*"])
+		# journal = frappe.get_list("VetCoa", filters={'account_parent': 'VC-102'}, fields=["*"])
+		# if len(journal) == 0:
+		# 	journal = frappe.get_list("VetCoa", filters={'account_parent': '1-11000'}, fields=["*"])
 		
-		journal_out_names = []
-		hpp_journal = frappe.get_list("VetCoa", filters={'account_code': ['like', '5-%'], 'is_parent': '0'}, fields=["name"])
-		journal_out_names += list(j.name for j in hpp_journal)
-		biaya_journal = frappe.get_list("VetCoa", filters={'account_code': ['like', '6-%'], 'is_parent': '0'}, fields=["name"])
-		journal_out_names += list(j.name for j in biaya_journal)
-		karyawan_journal = frappe.get_list("VetCoa", filters={'account_parent': ['in', ['VC-124', '1-14300']], 'is_parent': '0'}, fields=["name"])
-		journal_out_names += list(j.name for j in karyawan_journal)
-		journal_out = frappe.get_list("VetCoa", filters={'name': ['in', journal_out_names]}, fields=["*"])
+		# journal_out_names = []
+		# hpp_journal = frappe.get_list("VetCoa", filters={'account_code': ['like', '5-%'], 'is_parent': '0'}, fields=["name"])
+		# journal_out_names += list(j.name for j in hpp_journal)
+		# biaya_journal = frappe.get_list("VetCoa", filters={'account_code': ['like', '6-%'], 'is_parent': '0'}, fields=["name"])
+		# journal_out_names += list(j.name for j in biaya_journal)
+		# karyawan_journal = frappe.get_list("VetCoa", filters={'account_parent': ['in', ['VC-124', '1-14300']], 'is_parent': '0'}, fields=["name"])
+		# journal_out_names += list(j.name for j in karyawan_journal)
+		# journal_out = frappe.get_list("VetCoa", filters={'name': ['in', journal_out_names]}, fields=["*"])
 		# if len(journal_out) == 0:
 		# 	journal_out = frappe.get_list("VetCoa", filters={'account_parent': '6-0000'}, fields=["*"])
 		
-		return {'session': session, 'journal': journal, 'journal_out': journal_out, 'datalength': datalength}
+		return {'session': session, 'journal': journal, 'journal_out': journal, 'datalength': datalength}
 		
 	except PermissionError as e:
 		return {'error': e}

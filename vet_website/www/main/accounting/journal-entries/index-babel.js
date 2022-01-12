@@ -391,8 +391,11 @@ class JournalEntriesListRow extends React.Component {
     				<div className="col-2 d-flex fs18md my-auto px-1">
     					<span className="mx-auto">{formatter2.format(item.amount)}</span>
     				</div>
-    				<div className="col-2 d-flex fs18md mr-auto my-auto px-1">
+    				<div className="col-1 d-flex fs18md mr-auto my-auto px-1">
     					<span className="ml-auto">{item.reference}</span>{item.reference.match(/(POSORDER-\d)|(PO\d)|(VCI-\d)|(VOC-\d)|(VE-\d)/g)?link_reference:false}
+    				</div>
+                    <div className="col-2 d-flex fs18md mr-auto my-auto px-1">
+    					<span className="ml-auto">{item.keterangan}</span>
     				</div>
     				<div className="col-2 d-flex flex-column px-1">
     				    <span title={item.status} className={style + " fs12 rounded text-center text-white px-3 ml-auto d-block text-truncate"}>

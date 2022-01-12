@@ -187,6 +187,7 @@ class Operation extends React.Component {
     }
     
     statusDone(){
+        console.log('masuk statusDone')
         var new_data = Object.assign({}, this.state.data)
         new_data.is_done = true
         if(id == undefined){
@@ -208,9 +209,9 @@ class Operation extends React.Component {
                         method:"vet_website.vet_website.doctype.vetoperation.vetoperation.usage_operation_submit",
                         args: {name: new_data.name},
                         callback: function(r){
-                            if (r.message) {
-                                window.location.reload()
-                            }
+                            console.log(r.message)
+                            window.location.reload()
+                            
                         }
                     })
                 } else {
@@ -246,6 +247,8 @@ class Operation extends React.Component {
                 })
             }
         } else if(id == undefined){
+            console.log('masuk')
+            console.log(new_data)
             new_data.from = this.state.gudang_list.find(i => i.gudang_name == new_data['from']).name
             if(this.props.usage){new_data.expense_account = this.state.accounts.find(i => i.account_name == new_data['expense_account']).name}
             if(new_data.to == 'USAGE'){
@@ -308,13 +311,13 @@ class Operation extends React.Component {
             				<button type="submit" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">{this.props.usage?"Simpan":"Tambah"}</button>
             			</div>
                     )
-                if(this.props.usage){
-                    buttonMode.push(
-                        <div className="col-auto d-flex my-auto" key="simpan">
-            				<button type="submit" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4" onClick={() => this.statusDone()}>Tambah</button>
-            			</div>
-                    )
-                }
+                // if(this.props.usage){
+                //     buttonMode.push(
+                //         <div className="col-auto d-flex my-auto" key="simpan">
+            	// 			<button type="submit" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4" onClick={() => this.statusDone()}>Tambah</button>
+            	// 		</div>
+                //     )
+                // }
             }
             else {
                 status_row = <StatusRow statuses={statuses} current_status={this.state.data.status}/>
@@ -347,13 +350,14 @@ class Operation extends React.Component {
                     				<button type="button" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4" onClick={e => this.toggleEditMode(e)}>Edit</button>
                     			</div>
                             )
+
+                            buttonMode.push(
+                                <div className="col-auto d-flex my-auto" key="simpan">
+                                    <button type="submit" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4" onClick={() => this.statusDone()}>Proses</button>
+                                </div>
+                            )
                         }
                     }
-                    buttonMode.push(
-                        <div className="col-auto d-flex my-auto" key="simpan">
-            				<button type="submit" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4" onClick={() => this.statusDone()}>Tambah</button>
-            			</div>
-                    )
                 }
             }
             else if (this.state.data.status == 'Delivery' && this.state.data.from){
@@ -568,7 +572,8 @@ class FormOperation extends React.Component {
         
         var expense_account_options = []
         if(accounts.length != 0){
-            accounts.filter(a => a.is_parent == 0 && a.account_type == 'Expense' && (a.account_code.match(/^8-.*$/) || a.account_code.match(/^6-.*$/))).forEach((l, index) => expense_account_options.push(<option value={l.account_name} key={l.name} />))
+            // accounts.filter(a => a.is_parent == 0 && a.account_type == 'Expense' && (a.account_code.match(/^8-.*$/) || a.account_code.match(/^6-.*$/))).forEach((l, index) => expense_account_options.push(<option value={l.account_name} key={l.name} />))
+            accounts.filter(a => a.is_parent == 0 && a.account_type == 'Expense' && a.account_code.match(/^5-.*$/)).forEach((l, index) => expense_account_options.push(<option value={l.account_name} key={l.name} />))
         }
         var expense_account_datalist = (
             <datalist id="expense_account_list">

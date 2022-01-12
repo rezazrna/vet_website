@@ -302,9 +302,10 @@ class JournalEntryMainForm extends React.Component {
         var moment_date = moment()
         var period_list = Array.apply(0, Array(12)).map((a,i) => moment().month(i).format('MM/YYYY'))
         var bgstyle2 = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
+        var inputStyle = {height:'35px'}
         var cursor = {cursor: 'pointer'}
         var data = this.props.data
-        var journal, period, date, reference
+        var journal, period, date, reference, keterangan
         var journal_options = []
         var period_options = []
         
@@ -326,6 +327,7 @@ class JournalEntryMainForm extends React.Component {
 			
 			date = <input required type="date" id="date" name='date' className="form-control border-0 lightbg" onChange={this.props.handleInputChange} value={data.date || ''}/>
 			reference = <input required type="text" id="reference" name='reference' className="form-control border-0 lightbg" onChange={this.props.handleInputChange} value={data.reference || ''}/>
+            keterangan = <textarea id="keterangan" name='keterangan' rows='4' className="form-control border-0 lightbg" onChange={this.props.handleInputChange} value={data.keterangan || ''}></textarea>
         } else {
             var link_reference = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={e => this.referenceClick(e)} style={cursor}/>
             
@@ -333,6 +335,7 @@ class JournalEntryMainForm extends React.Component {
             period = <span className="fs16 px-0 d-block">{data.period}</span>
             date = <span className="fs16 px-0 d-block">{moment(data.date).format("DD-MM-YYYY")}</span>
             reference = <span className="fs16 px-0 d-block">{data.reference}{data.reference.match(/(POSORDER-\d)|(PO\d)|(VCI-\d)|(VOC-\d)|(VE-\d)/g)?link_reference:false}</span>
+            keterangan = <span className="fs16 px-0 d-block">{data.keterangan}</span>
         }
         
         return <div>
@@ -342,31 +345,45 @@ class JournalEntryMainForm extends React.Component {
 							{journal_options}
 						</datalist>
 		        		<div className="form-row">
-            	            <div className="col-3">
-            	                <div className="form-group">
-                					<label htmlFor="journal" className="fw600">Journal</label>
-                					{journal}
-                				</div>
-        	                </div>
-        	                <div className="col-3">
-        	                    <div className="form-group">
-                					<label htmlFor="period" className="fw600">Period</label>
-                					{period}
-                				</div>
-        	                </div>
-        	                <div className="col-3">
-            	                <div className="form-group">
-                					<label htmlFor="date" className="fw600">Date</label>
-                					{date}
-                				</div>
-        	                </div>
-        	                <div className="col-3">
-            	                <div className="form-group">
-                					<label htmlFor="reference" className="fw600">Reference</label>
-                					{reference}
-                				</div>
-        	                </div>
-	            		</div>
+                            <div className="col-8">
+                                <div className="form-row">
+                                    <div className="col">
+                                        <div className="form-group">
+                                            <label htmlFor="journal" className="fw600">Journal</label>
+                                            {journal}
+                                        </div>
+                                    </div>
+                                    <div className="col">
+                                        <div className="form-group">
+                                            <label htmlFor="period" className="fw600">Period</label>
+                                            {period}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <div className="col">
+                                        <div className="form-group">
+                                            <label htmlFor="date" className="fw600">Date</label>
+                                            {date}
+                                        </div>
+                                    </div>
+                                    <div className="col">
+                                        <div className="form-group">
+                                            <label htmlFor="reference" className="fw600">Reference</label>
+                                            {reference}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-4">
+                                <div className="form-group">
+                                    <label htmlFor="keterangan" className="fw600">Keterangan</label>
+                                    <div className="row mx-0">
+                                        {keterangan}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 		        	</div>
         		</div>
     }

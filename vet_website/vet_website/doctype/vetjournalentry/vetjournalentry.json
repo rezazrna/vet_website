@@ -11,7 +11,8 @@
   "reference",
   "journal_items",
   "status",
-  "journal_name"
+  "journal_name",
+  "keterangan"
  ],
  "fields": [
   {
@@ -58,9 +59,14 @@
    "fieldname": "journal_name",
    "fieldtype": "Data",
    "label": "Journal Name"
+  },
+  {
+   "fieldname": "keterangan",
+   "fieldtype": "Data",
+   "label": "Keterangan"
   }
  ],
- "modified": "2021-08-13 08:34:50.405686",
+ "modified": "2022-01-13 05:55:54.451060",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetJournalEntry",

@@ -25,7 +25,7 @@ class Operation extends React.Component {
         }
 
         if (!filters.filters.find(element => element[0] == 'is_usage')) {
-            filters.filters.push(['is_usage', '=', this.props.is_usage?'1':'0'])
+            filters.filters.push(['is_usage', '=', this.props.usage?'1':'0'])
         }
 
         if (document.location.href.includes('?')) {
@@ -407,5 +407,5 @@ var usage_list = document.getElementById('usage_list')
 if(operation_list){
     ReactDOM.render(<Operation />, operation_list)
 } else if(usage_list){
-    ReactDOM.render(<Operation is_usage={true}/>, usage_list)
+    ReactDOM.render(<Operation usage={true}/>, usage_list)
 }
