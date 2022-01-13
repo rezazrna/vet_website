@@ -697,8 +697,32 @@ class BalanceSheetAnnualRow extends React.Component {
 }
 
 class PDF extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+    
+    componentDidMount() {
+        var ci = this
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                }
+            }
+        });
+    }
+
     render(){
         var data = this.props.data
+        var profile = this.state.profile
         console.log(data)
         var page_dimension = {width: 559, minHeight: 794, top:0, right: 0, background: '#FFF', color: '#000', zIndex: -1}
         var borderStyle = {border: '1px solid #000', margin: '15px 0'}
@@ -770,77 +794,96 @@ class PDF extends React.Component{
                 <td className="py-1">{formatter.format(data.filter(i => i.account_type == 'Equity').reduce((a,b) => a+b.total, 0))}</td>
             </tr>
         )
-        
-        return(
-            <div className="position-absolute d-none" style={page_dimension}>
-                <div id="pdf" className="px-4" style={page_dimension}>
-    			    <div className="row">
-    			        <div className="col-2 px-0">
-    			            <img className="mt-3" src="/static/img/main/menu/naturevet_logo_2x.png"/>
-    			        </div>
-    			        <div className="col-6">
-    			            <p className="my-3 fwbold text-uppercase" style={fs13}>Nature Vet Tebet</p>
-    			            <p className="my-0" style={fs9}>Jl. Tebet Raya No.14, Tebet Bar.,<br/>Kec. Tebet,  Jakarta Selatan</p>
-    			            <p className="my-0" style={fs9}>Telp. : (021) 83792692 </p>
-    			        </div>
-    			        <div className="col-4 px-0">
-    			            <p className="fwbold text-right text-uppercase fs28" style={invoice}>Balance Sheet</p>
-    			            <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.month+"/"+this.props.year}</p>
-    			        </div>
-    			        <div className="col-12" style={borderStyle}/>
-    			    </div>
-    			    <div className="row">
-    			        <div className="col-12 text-uppercase text-center fw700 py-2">
-    			            Asset
-    			        </div>
-    			    </div>
-    			    <table className="fs12" style={row2}>
-    			        <thead className="text-uppercase">
-        			        <tr className="text-center" style={thead}>
-        			            <th className="fw700 py-2" width="419px" >Account</th>
-        			            <th className="fw700 py-2" width="140px" >Nominal</th>
-        			        </tr>
-        			    </thead>
-        			    <tbody>
-        			        {asset_rows}
-        			    </tbody>
-    			    </table>
-    			    <div className="row mt-3">
-    			        <div className="col-12 text-uppercase text-center fw700 py-2">
-    			            Liability & Equity
-    			        </div>
-    			    </div>
-    			    <table className="fs12" style={row2}>
-    			        <thead className="text-uppercase">
-        			        <tr className="text-center" style={thead}>
-        			            <th className="fw700 py-2" width="419px" >Account</th>
-        			            <th className="fw700 py-2" width="140px" >Nominal</th>
-        			        </tr>
-        			    </thead>
-        			    <tbody>
-        			        <tr>
-        			            <th className="fw700 py-2">Liability</th>
-        			        </tr>
-        			        {liability_rows}
-        			    </tbody>
-    			    </table>
-    			    <table className="fs12 mt-3" style={row2}>
-    			        <thead className="text-uppercase">
-        			        <tr className="text-center" style={thead}>
-        			            <th className="fw700 py-2" width="419px" >Account</th>
-        			            <th className="fw700 py-2" width="140px" >Nominal</th>
-        			        </tr>
-        			    </thead>
-        			    <tbody>
-        			        <tr>
-        			            <th className="fw700 py-2">Equity</th>
-        			        </tr>
-        			        {equity_rows}
-        			    </tbody>
-    			    </table>
-    			</div>
-			</div>
-        )
+
+        if (this.state.loaded) {
+            var image
+            if (profile.image != undefined){
+                var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
+                image = <img src={profile.temp_image || profile.image} style={image_style}/>
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            return(
+                <div className="position-absolute d-none" style={page_dimension}>
+                    <div id="pdf" className="px-4" style={page_dimension}>
+                        <div className="row">
+                            <div className="col-2 px-0">
+                                {image}
+                                {/* <img className="mt-3" src="/static/img/main/menu/naturevet_logo_2x.png"/> */}
+                            </div>
+                            <div className="col-6">
+                                <p className="my-3 fwbold text-uppercase" style={fs13}>{profile.clinic_name}</p>
+                                <p className="my-0" style={fs9}>{profile.address}</p>
+                                <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
+                            </div>
+                            <div className="col-4 px-0">
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Balance Sheet</p>
+                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.month+"/"+this.props.year}</p>
+                            </div>
+                            <div className="col-12" style={borderStyle}/>
+                        </div>
+                        <div className="row">
+                            <div className="col-12 text-uppercase text-center fw700 py-2">
+                                Asset
+                            </div>
+                        </div>
+                        <table className="fs12" style={row2}>
+                            <thead className="text-uppercase">
+                                <tr className="text-center" style={thead}>
+                                    <th className="fw700 py-2" width="419px" >Account</th>
+                                    <th className="fw700 py-2" width="140px" >Nominal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {asset_rows}
+                            </tbody>
+                        </table>
+                        <div className="row mt-3">
+                            <div className="col-12 text-uppercase text-center fw700 py-2">
+                                Liability & Equity
+                            </div>
+                        </div>
+                        <table className="fs12" style={row2}>
+                            <thead className="text-uppercase">
+                                <tr className="text-center" style={thead}>
+                                    <th className="fw700 py-2" width="419px" >Account</th>
+                                    <th className="fw700 py-2" width="140px" >Nominal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th className="fw700 py-2">Liability</th>
+                                </tr>
+                                {liability_rows}
+                            </tbody>
+                        </table>
+                        <table className="fs12 mt-3" style={row2}>
+                            <thead className="text-uppercase">
+                                <tr className="text-center" style={thead}>
+                                    <th className="fw700 py-2" width="419px" >Account</th>
+                                    <th className="fw700 py-2" width="140px" >Nominal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th className="fw700 py-2">Equity</th>
+                                </tr>
+                                {equity_rows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                        </p>
+                    </div>
+                </div>
+        }
     }
 }
 

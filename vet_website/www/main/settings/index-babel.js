@@ -160,7 +160,7 @@ class SettingUsers extends React.Component {
             args: {},
             callback: function(r){
                 if(r.message){
-                    th.setState({roles: r.message})
+                    th.setState({roles: r.message.roles})
                 }
             }
         })

@@ -1518,8 +1518,32 @@ class ProductsListRow extends React.Component {
 }
 
 class PDF extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+    
+    componentDidMount() {
+        var ci = this
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                }
+            }
+        });
+    }
+    
     render(){
         var data = this.props.data
+        var profile = this.state.profile
         var payment_method_list = this.props.payment_method_list
         var page_dimension = {width: 559, minHeight: 794, top:0, right: 0, background: '#FFF', color: '#000', zIndex: -1}
         var borderStyle = {border: '1px solid #000', margin: '15px 0'}
@@ -1575,105 +1599,124 @@ class PDF extends React.Component{
                 </div>
             </div>
         )
-        
-        return(
-            <div className="position-absolute d-none" style={page_dimension}>
-                <div id="pdf" className="px-4" style={page_dimension}>
-    			    <div className="row">
-    			        <div className="col-2 px-0">
-    			            <img className="mt-3" src="/static/img/main/menu/naturevet_logo_2x.png"/>
-    			        </div>
-    			        <div className="col-5">
-    			            <p className="my-3 fwbold text-uppercase" style={fs13}>Nature Vet Tebet</p>
-    			            <p className="my-0" style={fs9}>Jl. Tebet Raya No.14, Tebet Bar.,<br/>Kec. Tebet,  Jakarta Selatan</p>
-    			            <p className="my-0" style={fs9}>Telp. : (021) 83792692 </p>
-    			        </div>
-    			        <div className="col-5 px-0">
-    			            <p className="fwbold text-right text-uppercase fs28" style={invoice}>Purchase Order</p>
-    			            <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{data.name}</p>
-    			        </div>
-    			        <div className="col-12" style={borderStyle}/>
-    			    </div>
-    			    <div className="row mx-0" style={row1}>
-    			        <div className="col-6 px-0">
-    			            <p className="mb-0 fs10">{data.supplier_name}<i className="fa fa-arrow-right mx-2"/>{data.is_refund?data.deliver_from_name:data.deliver_to_name}</p>
-    			        </div>
-    			        <div className="col-6 px-0">
-			                <p className="mb-0 fs10 text-right">
-			                    {moment(data.is_refund?data.refund_date:data.order_date).format('DD-MM-YYYY')}
-			                </p>
-			                <p className="mb-0 fs10 text-right">
-			                    {data.user_name}
-			                </p>
-    			        </div>
-    			    </div>
-    			    <table className="fs12" style={row2}>
-    			        <thead className="text-uppercase" style={thead}>
-        			        <tr className="text-center">
-        			            <th className="fw700 py-2" width="183px">Product</th>
-        			            <th className="fw700 py-2" width="52px">Qty</th>
-        			            <th className="fw700 py-2" width="68px">UOM</th>
-        			            <th className="fw700 py-2" width="52px">Qty Received</th>
-        			            <th className="fw700 py-2" width="68px">Disc</th>
-        			            <th className="fw700 py-2" width="68px">Harga</th>
-        			            <th className="fw700 py-2" width="68px">Jumlah</th>
-        			        </tr>
-        			    </thead>
-        			    <tbody>
-        			        {table_rows}
-        			    </tbody>
-    			    </table>
-    			    <div className="row justify-content-end mb-2">
-    			        <div className="col-12" style={borderStyle}/>
-    			        {data.is_refund?refund:false}
-    			        <div className="col-7 px-0">
-    			            <div className="row" style={fs11}>
-    			                <div className="col-6 text-right fw600">
-    			                    Sub Total
-    			                </div>
-    			                <div className="col-6 text-right">
-    			                    {formatter.format(this.props.subtotal)}
-    			                </div>
-    			            </div>
-    			            <div className="row" style={fs11}>
-    			                <div className="col-6 text-right fw600">
-    			                    Diskon
-    			                </div>
-    			                <div className="col-6 text-right">
-    			                    {formatter.format(data.potongan)}
-    			                </div>
-    			            </div>
-    			        </div>
-    			    </div>
-    			    <div className="row justify-content-end">
-    			        <div className="col-6 px-0">
-    			            <div style={total_border}/>
-    			        </div>
-    			    </div>
-    			    <div className="row justify-content-end mb-2">
-    			        <div className="col-7 px-0">
-    			            <div className="row" style={fs11}>
-    			                <div className="col-6 text-right fw600 fs16">
-    			                    Total
-    			                </div>
-    			                <div className="col-6 text-right">
-    			                    {formatter.format(this.props.subtotal-data.potongan)}
-    			                </div>
-    			            </div>
-    			            {payment_rows}
-    			            <div className="row" style={fs11}>
-    			                <div className="col-6 text-right fw600">
-    			                    {remaining<0?"Deposit":"Remaining"}
-    			                </div>
-    			                <div className="col-6 text-right">
-    			                    {remaining<0?formatter.format(-remaining):formatter.format(remaining)}
-    			                </div>
-    			            </div>
-    			        </div>
-    			    </div>
-    			</div>
-			</div>
-        )
+
+        if (this.state.loaded) {
+            var image
+            if (profile.image != undefined){
+                var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
+                image = <img src={profile.temp_image || profile.image} style={image_style}/>
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            return(
+                <div className="position-absolute d-none" style={page_dimension}>
+                    <div id="pdf" className="px-4" style={page_dimension}>
+                        <div className="row">
+                            <div className="col-2 px-0">
+                                {image}
+                                {/* <img className="mt-3" src="/static/img/main/menu/naturevet_logo_2x.png"/> */}
+                            </div>
+                            <div className="col-5">
+                                <p className="my-3 fwbold text-uppercase" style={fs13}>{profile.clinic_name}</p>
+                                <p className="my-0" style={fs9}>{profile.address}</p>
+                                <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
+                            </div>
+                            <div className="col-5 px-0">
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Purchase Order</p>
+                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{data.name}</p>
+                            </div>
+                            <div className="col-12" style={borderStyle}/>
+                        </div>
+                        <div className="row mx-0" style={row1}>
+                            <div className="col-6 px-0">
+                                <p className="mb-0 fs10">{data.supplier_name}<i className="fa fa-arrow-right mx-2"/>{data.is_refund?data.deliver_from_name:data.deliver_to_name}</p>
+                            </div>
+                            <div className="col-6 px-0">
+                                <p className="mb-0 fs10 text-right">
+                                    {moment(data.is_refund?data.refund_date:data.order_date).format('DD-MM-YYYY')}
+                                </p>
+                                <p className="mb-0 fs10 text-right">
+                                    {data.user_name}
+                                </p>
+                            </div>
+                        </div>
+                        <table className="fs12" style={row2}>
+                            <thead className="text-uppercase" style={thead}>
+                                <tr className="text-center">
+                                    <th className="fw700 py-2" width="183px">Product</th>
+                                    <th className="fw700 py-2" width="52px">Qty</th>
+                                    <th className="fw700 py-2" width="68px">UOM</th>
+                                    <th className="fw700 py-2" width="52px">Qty Received</th>
+                                    <th className="fw700 py-2" width="68px">Disc</th>
+                                    <th className="fw700 py-2" width="68px">Harga</th>
+                                    <th className="fw700 py-2" width="68px">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {table_rows}
+                            </tbody>
+                        </table>
+                        <div className="row justify-content-end mb-2">
+                            <div className="col-12" style={borderStyle}/>
+                            {data.is_refund?refund:false}
+                            <div className="col-7 px-0">
+                                <div className="row" style={fs11}>
+                                    <div className="col-6 text-right fw600">
+                                        Sub Total
+                                    </div>
+                                    <div className="col-6 text-right">
+                                        {formatter.format(this.props.subtotal)}
+                                    </div>
+                                </div>
+                                <div className="row" style={fs11}>
+                                    <div className="col-6 text-right fw600">
+                                        Diskon
+                                    </div>
+                                    <div className="col-6 text-right">
+                                        {formatter.format(data.potongan)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="row justify-content-end">
+                            <div className="col-6 px-0">
+                                <div style={total_border}/>
+                            </div>
+                        </div>
+                        <div className="row justify-content-end mb-2">
+                            <div className="col-7 px-0">
+                                <div className="row" style={fs11}>
+                                    <div className="col-6 text-right fw600 fs16">
+                                        Total
+                                    </div>
+                                    <div className="col-6 text-right">
+                                        {formatter.format(this.props.subtotal-data.potongan)}
+                                    </div>
+                                </div>
+                                {payment_rows}
+                                <div className="row" style={fs11}>
+                                    <div className="col-6 text-right fw600">
+                                        {remaining<0?"Deposit":"Remaining"}
+                                    </div>
+                                    <div className="col-6 text-right">
+                                        {remaining<0?formatter.format(-remaining):formatter.format(remaining)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                        </p>
+                    </div>
+                </div>
+        }
     }
 }
 

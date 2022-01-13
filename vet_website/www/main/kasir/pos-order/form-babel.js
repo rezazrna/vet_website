@@ -352,8 +352,32 @@ class ProdukListRow extends React.Component {
 }
 
 class PDF extends React.Component{
+	constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+    
+    componentDidMount() {
+        var ci = this
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                }
+            }
+        });
+    }
+
     render(){
         var data = this.props.data
+		var profile = this.state.profile
         var page_dimension = {width: 700, minHeight: 948, top:0, left: 0, background: '#FFF', color: '#1B577B', zIndex: -1, letterSpacing: '2px'}
         var borderStyle = {border: '1px solid #1B577B', margin: '15px 0'}
         var row1 = {marginBottom: 32}
@@ -378,66 +402,76 @@ class PDF extends React.Component{
                 )
             })
         }
-        
-        return(
-            <div className="position-absolute d-none" style={page_dimension}>
-                <div id="pdf" className="px-4 py-3" style={page_dimension}>
-    			    <div className="row">
-    			        <div className="col-12 text-center">
-    			            <p className="my-3 fs22 fwbold text-uppercase">Nature Vet Tebet</p>
-    			            <p className="my-0 fs12">Jl. Tebet Raya No.14, Tebet Bar., Kec. Tebet,  Jakarta Selatan</p>
-    			            <p className="my-0 fs12">Telp. : (021) 83792692 </p>
-    			            <div style={borderStyle}/>
-    			        </div>
-    			    </div>
-    			    <div className="row mx-0" style={row1}>
-    			        <div className="col-6 px-1">
-    			            <PDFRow label="Tanggal Invoice" value={moment(data.order_date).format('DD-MM-YYYY')}/>
-    			            <PDFRow label="Nama Pasien" value={data.pet_name || '-'}/>
-    			            <PDFRow label="Nama Pemilik" value={data.owner_name || '-'}/>
-    			        </div>
-    			        <div className="col-6 px-1">
-    			            <PDFRow label="Nama Pasien" value={data.pet_name || '-'}/>
-    			            <PDFRow label="Nomor Invoice" value={data.name}/>
-    			            <PDFRow label="Responsible" value={data.responsible_name}/>
-    			        </div>
-    			    </div>
-    			    <table className="fs12" style={row2}>
-    			        <thead>
-        			        <tr className="text-center">
-        			            <th className="fw700 py-2" width="290px" style={th}>Name</th>
-        			            <th className="fw700 py-2" width="30px" style={th}>Qty</th>
-        			            <th className="fw700 py-2" width="50px" style={th}>UOM</th>
-        			            <th className="fw700 py-2" width="90px" style={th}>Unit Price</th>
-        			            <th className="fw700 py-2" width="90px" style={th}>Disc</th>
-        			            <th className="fw700 py-2" width="90px" style={th}>Total</th>
-        			        </tr>
-        			    </thead>
-        			    <tbody>
-        			        {table_rows}
-        			    </tbody>
-    			    </table>
-    			    <div className="row justify-content-end" style={row1}>
-    			        <div className="col-4">
-    			            <div className="row fw700" style={fontSize}>
-    			                <div className="col-auto">
-    			                    Amount
-    			                </div>
-    			                <div className="col text-right">
-    			                    {formatter.format(data.total)}
-    			                </div>
-    			            </div>
-    			        </div>
-    			    </div>
-    			    <div className="row justify-content-end">
-    			        <div className="col-auto text-center" style={fontSize2}>
-    			            <p className="mb-5">Responsible</p>
-    			            <p className="mb-0">{data.responsible_name}</p>
-    			        </div>
-    			    </div>
-    			</div>
-			</div>
-        )
+
+		if (this.state.loaded) {
+			var image
+            if (profile.image != undefined){
+                var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
+                image = <img src={profile.temp_image || profile.image} style={image_style}/>
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+			return(
+				<div className="position-absolute d-none" style={page_dimension}>
+					<div id="pdf" className="px-4 py-3" style={page_dimension}>
+						<div className="row">
+							<div className="col-12 text-center">
+								<p className="my-3 fs22 fwbold text-uppercase">{profile.clinic_name}</p>
+								<p className="my-0 fs12">{profile.address}</p>
+								<p className="my-0 fs12">Telp. : {profile.phone}</p>
+								<div style={borderStyle}/>
+							</div>
+						</div>
+						<div className="row mx-0" style={row1}>
+							<div className="col-6 px-1">
+								<PDFRow label="Tanggal Invoice" value={moment(data.order_date).format('DD-MM-YYYY')}/>
+								<PDFRow label="Nama Pasien" value={data.pet_name || '-'}/>
+								<PDFRow label="Nama Pemilik" value={data.owner_name || '-'}/>
+							</div>
+							<div className="col-6 px-1">
+								<PDFRow label="Nama Pasien" value={data.pet_name || '-'}/>
+								<PDFRow label="Nomor Invoice" value={data.name}/>
+								<PDFRow label="Responsible" value={data.responsible_name}/>
+							</div>
+						</div>
+						<table className="fs12" style={row2}>
+							<thead>
+								<tr className="text-center">
+									<th className="fw700 py-2" width="290px" style={th}>Name</th>
+									<th className="fw700 py-2" width="30px" style={th}>Qty</th>
+									<th className="fw700 py-2" width="50px" style={th}>UOM</th>
+									<th className="fw700 py-2" width="90px" style={th}>Unit Price</th>
+									<th className="fw700 py-2" width="90px" style={th}>Disc</th>
+									<th className="fw700 py-2" width="90px" style={th}>Total</th>
+								</tr>
+							</thead>
+							<tbody>
+								{table_rows}
+							</tbody>
+						</table>
+						<div className="row justify-content-end" style={row1}>
+							<div className="col-4">
+								<div className="row fw700" style={fontSize}>
+									<div className="col-auto">
+										Amount
+									</div>
+									<div className="col text-right">
+										{formatter.format(data.total)}
+									</div>
+								</div>
+							</div>
+						</div>
+						<div className="row justify-content-end">
+							<div className="col-auto text-center" style={fontSize2}>
+								<p className="mb-5">Responsible</p>
+								<p className="mb-0">{data.responsible_name}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			)
+		}
     }
 }
 
@@ -464,8 +498,32 @@ class PDFRow extends React.Component{
 
 
 class PDFMini extends React.Component{
+	constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+    
+    componentDidMount() {
+        var ci = this
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                }
+            }
+        });
+    }
+
     render(){
         var data = this.props.data
+		var profile = this.state.profile
         console.log(data)
         var page_dimension = {width: 302, minHeight: 525, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
         var page_scale = {transform: 'scale(78%)', transformOrigin: 'top left'}
@@ -490,100 +548,119 @@ class PDFMini extends React.Component{
                 )
             })
         }
-        
-        return(
-            <div className="position-absolute d-none" style={page_dimension}>
-                <div id="pdfmini" className="px-2 py-3" style={Object.assign({}, page_dimension, page_scale)}>
-    			    <div className="row">
-    			        <div className="col-auto pr-0">
-    			            <img src="/static/img/main/menu/naturevet_logo.png" style={logo}/>
-    			        </div>
-    			        <div className="col-8">
-    			            <p className="my-0 fs12 fwbold text-uppercase">Nature Vet Tebet</p>
-    			            <p className="my-0" style={fontSize2}>Jl. Tebet Raya No.14, Tebet Bar.,<br/>Kec. Tebet,  Jakarta Selatan</p>
-    			            <p className="my-0" style={fontSize2}>Telp. : (021) 83792692 </p>
-    			        </div>
-    			        <div className="col-12">
-    			            <div style={borderStyle}/>
-    			        </div>
-    			    </div>
-    			    <div className="row mx-0" style={row1}>
-    			        <div className="col-6 px-1">
-    			            <PDFMiniRow label="Pet Name" value={data.pet_name}/>
-    			            <PDFMiniRow label="Owner Name" value={data.owner_name}/>
-    			        </div>
-    			        <div className="col-6 px-1">
-    			            <PDFMiniRow label="Tanggal Invoice" value={moment(data.invoice_date).format('DD-MM-YYYY HH:mm')} text_align='right'/>
-    			            <PDFMiniRow label="No. Invoice" value={data.name} text_align='right'/>
-    			            <PDFMiniRow label="Responsible" value={data.responsible_name} text_align='right'/>
-    			        </div>
-    			    </div>
-    			    <table style={Object.assign({}, row2, fontSize2)}>
-        			    <tbody>
-        			        {table_rows}
-        			    </tbody>
-    			    </table>
-    			    <div className="row justify-content-end">
-    			        <div className="col-6">
-    			            <div style={total_border}/>
-    			        </div>
-    			    </div>
-    			    <div className="row justify-content-end mb-2">
-    			        <div className="col-8">
-    			            <div className="row" style={fontSize2}>
-    			                <div className="col-6 text-right fw600">
-    			                    Sub Total
-    			                </div>
-    			                <div className="col-6 text-right">
-    			                    {formatter.format(data.subtotal)}
-    			                </div>
-    			            </div>
-    			            <div className="row" style={fontSize2}>
-    			                <div className="col-6 text-right fw600">
-    			                    Diskon
-    			                </div>
-    			                <div className="col-6 text-right">
-    			                    {formatter.format(data.potongan || 0)}
-    			                </div>
-    			            </div>
-    			        </div>
-    			    </div>
-    			    <div className="row justify-content-end">
-    			        <div className="col-6">
-    			            <div style={total_border}/>
-    			        </div>
-    			    </div>
-    			    <div className="row justify-content-end mb-2">
-    			        <div className="col-8">
-    			            <div className="row" style={fontSize2}>
-    			                <div className="col-6 text-right fw600">
-    			                    Total
-    			                </div>
-    			                <div className="col-6 text-right">
-    			                    {formatter.format(data.total)}
-    			                </div>
-    			            </div>
-    			            <div className="row" style={fontSize2}>
-    			                <div className="col-6 text-right fw600">
-    			                    Cash
-    			                </div>
-    			                <div className="col-6 text-right">
-    			                    {formatter.format(data.payment.reduce((total, a) => total += a.value, 0))}
-    			                </div>
-    			            </div>
-    			            <div className="row" style={fontSize2}>
-    			                <div className="col-6 text-right fw600">
-    			                    Change
-    			                </div>
-    			                <div className="col-6 text-right">
-    			                    {formatter.format(data.payment.reduce((total, a) => total += a.exchange, 0))}
-    			                </div>
-    			            </div>
-    			        </div>
-    			    </div>
-    			</div>
-			</div>
-        )
+
+		if (this.state.loaded) {
+			var image
+            if (profile.image != undefined){
+                var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
+                image = <img src={profile.temp_image || profile.image} style={image_style}/>
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+			
+			return(
+				<div className="position-absolute d-none" style={page_dimension}>
+					<div id="pdfmini" className="px-2 py-3" style={Object.assign({}, page_dimension, page_scale)}>
+						<div className="row">
+							<div className="col-auto pr-0">
+								{image}
+								{/* <img src="/static/img/main/menu/naturevet_logo.png" style={logo}/> */}
+							</div>
+							<div className="col-8">
+								<p className="my-0 fs12 fwbold text-uppercase">{profile.clinic_name}</p>
+								<p className="my-0" style={fontSize2}>{profile.address}</p>
+								<p className="my-0" style={fontSize2}>Telp. : {profile.phone}</p>
+							</div>
+							<div className="col-12">
+								<div style={borderStyle}/>
+							</div>
+						</div>
+						<div className="row mx-0" style={row1}>
+							<div className="col-6 px-1">
+								<PDFMiniRow label="Pet Name" value={data.pet_name}/>
+								<PDFMiniRow label="Owner Name" value={data.owner_name}/>
+							</div>
+							<div className="col-6 px-1">
+								<PDFMiniRow label="Tanggal Invoice" value={moment(data.invoice_date).format('DD-MM-YYYY HH:mm')} text_align='right'/>
+								<PDFMiniRow label="No. Invoice" value={data.name} text_align='right'/>
+								<PDFMiniRow label="Responsible" value={data.responsible_name} text_align='right'/>
+							</div>
+						</div>
+						<table style={Object.assign({}, row2, fontSize2)}>
+							<tbody>
+								{table_rows}
+							</tbody>
+						</table>
+						<div className="row justify-content-end">
+							<div className="col-6">
+								<div style={total_border}/>
+							</div>
+						</div>
+						<div className="row justify-content-end mb-2">
+							<div className="col-8">
+								<div className="row" style={fontSize2}>
+									<div className="col-6 text-right fw600">
+										Sub Total
+									</div>
+									<div className="col-6 text-right">
+										{formatter.format(data.subtotal)}
+									</div>
+								</div>
+								<div className="row" style={fontSize2}>
+									<div className="col-6 text-right fw600">
+										Diskon
+									</div>
+									<div className="col-6 text-right">
+										{formatter.format(data.potongan || 0)}
+									</div>
+								</div>
+							</div>
+						</div>
+						<div className="row justify-content-end">
+							<div className="col-6">
+								<div style={total_border}/>
+							</div>
+						</div>
+						<div className="row justify-content-end mb-2">
+							<div className="col-8">
+								<div className="row" style={fontSize2}>
+									<div className="col-6 text-right fw600">
+										Total
+									</div>
+									<div className="col-6 text-right">
+										{formatter.format(data.total)}
+									</div>
+								</div>
+								<div className="row" style={fontSize2}>
+									<div className="col-6 text-right fw600">
+										Cash
+									</div>
+									<div className="col-6 text-right">
+										{formatter.format(data.payment.reduce((total, a) => total += a.value, 0))}
+									</div>
+								</div>
+								<div className="row" style={fontSize2}>
+									<div className="col-6 text-right fw600">
+										Change
+									</div>
+									<div className="col-6 text-right">
+										{formatter.format(data.payment.reduce((total, a) => total += a.exchange, 0))}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			)
+		} else {
+			return <div className="row justify-content-center" key='0'>
+                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                        </p>
+                    </div>
+                </div>
+		}
     }
 }
 
