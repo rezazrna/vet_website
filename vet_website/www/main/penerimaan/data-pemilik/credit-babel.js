@@ -1195,7 +1195,7 @@ class PDF extends React.Component{
         }
         
         var data = this.props.data
-        var profile = this.props.profile
+        var profile = this.state.profile
         var supplier = this.props.supplier
         var mode = this.props.mode
         var payment_method_list = this.props.payment_method_list
@@ -1503,6 +1503,14 @@ class PDFDeposit extends React.Component {
                     </div>
                 </div>
             )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                        </p>
+                    </div>
+                </div>
         }
     }
 }
