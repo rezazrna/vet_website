@@ -45,7 +45,7 @@
 	padding: 57px 0;
 	text-align: center;
 	position: relative;
-	max-height: 291px;
+	/* max-height: 291px; */
 }
 
 .sidebar-panel .sidebar-footer {

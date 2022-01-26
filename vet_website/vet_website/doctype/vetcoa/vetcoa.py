@@ -13,9 +13,10 @@ class VetCoa(Document):
 	pass
 	
 @frappe.whitelist()
-def get_coa_list(filters=None, all_children=False):
+def get_coa_list(filters=None, all_children=False, mode_profit_loss=False):
 	default_sort = "creation desc"
 	td_filters = {}
+	or_filters = {}
 	je_filters = {}
 	filter_json = False
 	limit_date = False
@@ -23,6 +24,9 @@ def get_coa_list(filters=None, all_children=False):
 	max_trans_date = False
 	search_mode = False
 	dc_mode = False
+
+	if mode_profit_loss != False:
+		or_filters.update({'account_code': ['not in', ['1-0000', '2-0000', '3-0000']]})
 	
 	if filters:
 		try:
@@ -59,14 +63,17 @@ def get_coa_list(filters=None, all_children=False):
 		if not search_mode:
 			td_filters.update({'account_parent': ''})
 		print('mulai get_list')
-		coa_list = frappe.get_list("VetCoa", filters=td_filters, fields=["*"], order_by='account_code asc')
+		coa_list = frappe.get_list("VetCoa", or_filters=or_filters, filters=td_filters, fields=["*"], order_by='account_code asc')
 		print('selesai get_list')
 		if not dc_mode:
 			print('mulai get_coa_last_total')
 			for c in coa_list:
 				print('get_coa_last_total')
 				print(c.name)
-				c['total'] = get_coa_last_total(c.name, max_date=limit_date)
+				if mode_profit_loss != False:
+					c['children'] =  get_coa_children(c.name, max_date=limit_date, all_children=True, mode_profit_loss=mode_profit_loss)
+				else:
+					c['total'] = get_coa_last_total(c.name, max_date=limit_date)
 				print('dapat')
 				print(c.name)
 			print('selesai get_coa_last_total')
@@ -118,13 +125,13 @@ def get_parent_list():
 		return {'error': "Gagal menghapus Chart of Account"}
 		
 @frappe.whitelist()
-def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_children=False):
+def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_children=False, mode_profit_loss=False):
 	try:
 		filters={'account_parent': name}
 		children = frappe.get_list('VetCoa', filters=filters, fields="*", order_by="account_code asc")
 		if not dc_mode:
 			for c in children:
-				c['total'] = get_coa_last_total(c.name, max_date=max_date)
+				c['total'] = get_coa_last_total(c.name, max_date=max_date, mode_profit_loss=mode_profit_loss)
 		else:
 			for c in children:
 				tdc = get_coa_total_debit_credit(c.name, max_date=max_date, no_min_date=True)
@@ -133,7 +140,7 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 		
 		if all_children:
 			for c in children:
-				c['children'] = get_coa_children(c.name, max_date, min_date, dc_mode, all_children)
+				c['children'] = get_coa_children(c.name, max_date, min_date, dc_mode, all_children, mode_profit_loss=mode_profit_loss)
 		return children
 	except:
 		return {'error': "Gagal mendapatkan children"}
@@ -248,7 +255,7 @@ def update_childs_account_type(name):
 		
 # 	return total
 
-def get_coa_last_total(coa_name, max_date=False, no_min_date=False):
+def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode_profit_loss=False):
 	
 	total = 0
 	coa = frappe.get_doc('VetCoa', coa_name)
@@ -261,10 +268,16 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False):
 		if no_min_date:
 			je_filters.update({'date': ['<', max_date]})
 		else:
-			if max_date_dt.day != 1:
-				min_date = max_date_dt.strftime('%Y-%m-01')
-			else:
-				min_date = (max_date_dt-rd(months=1)).strftime('%Y-%m-01')
+			if mode_profit_loss != False:
+				if mode_profit_loss == 'monthly':
+					min_date = (max_date_dt-rd(months=1)).strftime('%Y-%m-01')
+				elif mode_profit_loss == 'annual':
+					min_date = max_date_dt.strftime('%Y-01-01')
+			else :
+				if max_date_dt.day != 1:
+					min_date = max_date_dt.strftime('%Y-%m-01')
+				else:
+					min_date = (max_date_dt-rd(months=1)).strftime('%Y-%m-01')
 			je_filters.update({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 			
 	if je_filters:

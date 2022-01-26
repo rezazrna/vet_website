@@ -2,10 +2,27 @@ class VersionLogo extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
-            show_detail_popup: false
+            show_detail_popup: false,
+            profile: {},
+            loaded: false,
         };
         
         this.toggleDetailPopup = this.toggleDetailPopup.bind(this)
+    }
+
+    componentDidMount() {
+        var ci = this
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                }
+            }
+        });
     }
     
     toggleDetailPopup(){
@@ -16,27 +33,41 @@ class VersionLogo extends React.Component{
         var logo="/static/img/main/menu/default-logo-development.png"
         var style = {cursor: 'pointer'}
         var onclick
-        
-        if(['alpha','beta','development'].includes(this.props.version)){
-            logo="/static/img/main/menu/default-logo-"+this.props.version+".png"
-            onclick = () => this.toggleDetailPopup()
+        var profile = this.state.profile
+
+        if (this.state.loaded) {
+            if (profile.image != undefined) {
+                logo = profile.image
+            } else
+             if(['alpha','beta','development'].includes(this.props.version)){
+                logo="/static/img/main/menu/default-logo-"+this.props.version+".png"
+                onclick = () => this.toggleDetailPopup()
+            }
+            else if(this.props.version == 'release'){
+                logo="/static/img/main/menu/default-logo.png"
+                var style = {}
+            }
+            
+            var popup
+            if(this.state.show_detail_popup){
+                popup = <VersionDetailPopup togglePopup={() => this.toggleDetailPopup()}/>
+            }
+            
+            return(
+                <div>
+                    <img src={logo} style={style} onClick={onclick}/>
+                    {popup}
+                </div>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                    {/* <div className="col-10 col-md-8 text-center border rounded-lg py-4"> */}
+                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                        </p>
+                    {/* </div> */}
+                </div>
         }
-        else if(this.props.version == 'release'){
-            logo="/static/img/main/menu/default-logo.png"
-            var style = {}
-        }
-        
-        var popup
-        if(this.state.show_detail_popup){
-            popup = <VersionDetailPopup togglePopup={() => this.toggleDetailPopup()}/>
-        }
-        
-        return(
-            <div>
-                <img src={logo} style={style} onClick={onclick}/>
-                {popup}
-            </div>
-        )
     }
 }
 

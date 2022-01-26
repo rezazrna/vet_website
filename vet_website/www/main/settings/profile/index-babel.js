@@ -167,14 +167,14 @@ class ProfileForm extends React.Component {
             } else {
                 div_image_style = {position: 'relative', width: '100px', paddingTop: '100%', background: '#F1F1F1', filter: 'drop-shadow(0px 2px 15px rgba(0, 0, 0, 0.15))', backgroundImage: "url('/static/img/main/menu/product-no-image.png')", backgroundPosition: 'center', backgroundRepeat: 'no-repeat', cursor: 'pointer'}
             }
-    	    inputName = <input required id="clinic_name" name="clinic_name" className="form-control border-0 lightbg fs20 fwbold text-uppercase mb-4 d-block" defaultValue={ data.clinic_name } style={color} onChange={this.props.handleInputChange} placeholder="Nama Klinik"/>
+    	    inputName = <input required id="clinic_name" name="clinic_name" className="form-control border-0 lightbg fs20 fwbold mb-4 d-block" defaultValue={ data.clinic_name } style={color} onChange={this.props.handleInputChange} placeholder="Nama Klinik"/>
     	    inputPhone = <input required  id="phone" name='phone' className="form-control border-0 lightbg" defaultValue={ data.phone } onChange={this.props.handleInputChange}/>
             inputAddress = <textarea required id="address" name='address' className="form-control border-0 lightbg" rows="3" defaultValue={ data.address } onChange={this.props.handleInputChange} ></textarea>
             inputFile = <input type="file" className="d-none" accept="image/*" name="image" onChange={this.props.handleInputChange} ref={(ref) => this.$file = ref}/>
         } else {
         	inputPhone =  <span className="d-block fw600">{data.phone}</span>
         	inputAddress = <span className="d-block fw600">{data.address}</span>
-        	inputName = <span className="fs20 fwbold text-uppercase mb-4 d-block" style={color}>{data.clinic_name}</span>
+        	inputName = <span className="fs20 fwbold mb-4 d-block" style={color}>{data.clinic_name}</span>
         }
         
         return(
