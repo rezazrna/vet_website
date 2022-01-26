@@ -70,10 +70,11 @@ def get_coa_list(filters=None, all_children=False, mode_profit_loss=False):
 			for c in coa_list:
 				print('get_coa_last_total')
 				print(c.name)
-				if mode_profit_loss != False:
-					c['children'] =  get_coa_children(c.name, max_date=limit_date, all_children=True, mode_profit_loss=mode_profit_loss)
-				else:
-					c['total'] = get_coa_last_total(c.name, max_date=limit_date)
+				# if mode_profit_loss != False:
+				# 	c['children'] =  get_coa_children(c.name, max_date=limit_date, all_children=True, mode_profit_loss=mode_profit_loss)
+				# else:
+					
+				c['total'] = get_coa_last_total(c.name, max_date=limit_date)
 				print('dapat')
 				print(c.name)
 			print('selesai get_coa_last_total')

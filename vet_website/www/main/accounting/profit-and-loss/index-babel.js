@@ -13,8 +13,8 @@ class ProfitAndLoss extends React.Component {
         }
     }
     
-    componentDidMount() {
-        var td = this
+    // componentDidMount() {
+    //     var td = this
         // frappe.call({
         //     type: "GET",
         //     method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
@@ -26,32 +26,34 @@ class ProfitAndLoss extends React.Component {
         //         }
         //     }
         // });
-    }
+    // }
     
     filterChange(e){
         // this.setState({loaded: false})
         var th = this
         var name = e.target.name
         var value = e.target.value
-        var filters = {}
+        var accounting_date
         if(name == 'month'){
             this.setState({month: value})
             if (this.state.mode == 'monthly') {
-                filters.accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+                accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             } else {
-                filters.accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').format('YYYY-MM-DD')
+                accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').format('YYYY-MM-DD')
             }
         }
         else if(name == 'year'){
             this.setState({year: value})
             if (this.state.mode == 'monthly') {
-                filters.accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+                accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             } else if (this.state.mode == 'annual') {
-                filters.accounting_date = moment(value+'-12-31', 'YYYY-MM-DD')
+                accounting_date = moment(value+'-12-31', 'YYYY-MM-DD')
             } else {
-                filters.accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').format('YYYY-MM-DD')
+                accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').format('YYYY-MM-DD')
             }
         }
+
+        th.setState({accounting_date: accounting_date})
         // if(this.state.mode == 'monthly'){
         //     frappe.call({
         //         type: "GET",
@@ -117,6 +119,7 @@ class ProfitAndLoss extends React.Component {
         console.log(this.state.mode)
         console.log(this.state.month)
         console.log(this.state.year)
+        console.log(this.state.accounting_date)
         if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
             td.setState({'loaded': false})
             frappe.call({
@@ -203,12 +206,12 @@ class ProfitAndLoss extends React.Component {
         if (this.state.loaded){
             console.log(this.state)
             var content, pdf, print_button, month_select, sd_period
+            content = <ProfitAndLossList items={this.state.data} accounting_date={this.state.accounting_date} mode_profit_loss={this.state.mode}/>
+            pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year}/>
+            print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
+
+
             if(this.state.mode == 'monthly' || this.state.mode == 'period'){
-                if (this.state.mode == 'monthly') {
-                    content = <ProfitAndLossList items={this.state.data} month={this.state.month} year={this.state.year}/>
-                    pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year}/>
-                    print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
-                }
 
                 if (this.state.mode == 'period') {
                     sd_period = <div className="my-auto mx-auto">
@@ -221,9 +224,10 @@ class ProfitAndLoss extends React.Component {
                                     {month_options}
                                 </select>
                             </div>
-            } else if (this.state.mode == 'annual' && this.state.annual_data != undefined){
-                content = <ProfitAndLossAnnual items={this.state.annual_data}/>
-            }
+            } 
+            // else if (this.state.mode == 'annual' && this.state.annual_data != undefined){
+            //     content = <ProfitAndLossAnnual items={this.state.annual_data}/>
+            // }
             return(
                 <div>
                     <div className="row mx-0" style={row_style2}>
@@ -272,38 +276,38 @@ class ProfitAndLossList extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            'show_revenue': false,
-            'show_cogs': false,
-            'show_operating_expense': false,
-            'show_net_profit': false,
-            'show_other_income': false,
-            'show_other_expense': false,
+            // 'show_revenue': false,
+            // 'show_cogs': false,
+            // 'show_operating_expense': false,
+            // 'show_net_profit': false,
+            // 'show_other_income': false,
+            // 'show_other_expense': false,
         }
     }
     
-    toggleShowRevenue(){
-        this.setState({'show_revenue': !this.state.show_revenue})
-    }
+    // toggleShowRevenue(){
+    //     this.setState({'show_revenue': !this.state.show_revenue})
+    // }
     
-    toggleShowCogs(){
-        this.setState({'show_cogs': !this.state.show_cogs})
-    }
+    // toggleShowCogs(){
+    //     this.setState({'show_cogs': !this.state.show_cogs})
+    // }
     
-    toggleShowOperatingExpense(){
-        this.setState({'show_operating_expense': !this.state.show_operating_expense})
-    }
+    // toggleShowOperatingExpense(){
+    //     this.setState({'show_operating_expense': !this.state.show_operating_expense})
+    // }
     
-    toggleShowNetProfit(){
-        this.setState({'show_net_profit': !this.state.show_net_profit})
-    }
+    // toggleShowNetProfit(){
+    //     this.setState({'show_net_profit': !this.state.show_net_profit})
+    // }
     
-    toggleShowOtherIncome(){
-        this.setState({'show_other_income': !this.state.show_other_income})
-    }
+    // toggleShowOtherIncome(){
+    //     this.setState({'show_other_income': !this.state.show_other_income})
+    // }
     
-    toggleShowOtherExpense(){
-        this.setState({'show_other_expense': !this.state.show_other_expense})
-    }
+    // toggleShowOtherExpense(){
+    //     this.setState({'show_other_expense': !this.state.show_other_expense})
+    // }
     
     render() {
         var rows = []
@@ -314,48 +318,51 @@ class ProfitAndLossList extends React.Component {
         var row_style3 = {color: '#1B577B', background: '#B6DBF8'}
         var row_style4 = {background: '#D6DCDF'}
         var items = this.props.items
-        var revenue_row = []
-        var revenue_list
-        var revenue_chevron_class = "fa fa-chevron-down my-auto"
+        // var revenue_row = []
+        // var revenue_list
+        // var revenue_chevron_class = "fa fa-chevron-down my-auto"
         
-        var cogs_row = []
-        var cogs_list
-        var cogs_chevron_class = "fa fa-chevron-down my-auto"
+        // var cogs_row = []
+        // var cogs_list
+        // var cogs_chevron_class = "fa fa-chevron-down my-auto"
         
-        var operating_expense_row = []
-        var operating_expense_list
-        var operating_expense_chevron_class = "fa fa-chevron-down my-auto"
+        // var operating_expense_row = []
+        // var operating_expense_list
+        // var operating_expense_chevron_class = "fa fa-chevron-down my-auto"
         
-        var net_profit_row = []
-        var net_profit_list
-        var net_profit_chevron_class = "fa fa-chevron-down my-auto"
+        // var net_profit_row = []
+        // var net_profit_list
+        // var net_profit_chevron_class = "fa fa-chevron-down my-auto"
         
-        var other_income_row = []
-        var other_income_list
-        var other_income_chevron_class = "fa fa-chevron-down my-auto"
+        // var other_income_row = []
+        // var other_income_list
+        // var other_income_chevron_class = "fa fa-chevron-down my-auto"
         
-        var other_expense_row = []
-        var other_expense_list
-        var other_expense_chevron_class = "fa fa-chevron-down my-auto"
+        // var other_expense_row = []
+        // var other_expense_list
+        // var other_expense_chevron_class = "fa fa-chevron-down my-auto"
         
         if (items.length != 0 ){
             
             items.forEach((i, index) => {
-                if(i.account_code.match(/^4-.*$/)){
-                    revenue_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
-                }
-                else if(i.account_code.match(/^5-.*$/)){
-                    cogs_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
-                }
-                else if(i.account_code.match(/^6-.*$/)){
-                    operating_expense_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
-                }
-                else if(i.account_code.match(/^7-.*$/)){
-                    other_income_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
-                }
-                else if(i.account_code.match(/^8-.*$/)){
-                    other_expense_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
-                }
+                rows.push(<div className="mb-2">
+                            <ProfitAndLossListRow key={i.account_name} item={i} accounting_date={this.props.accounting_date} mode_profit_loss={this.props.mode_profit_loss}/>
+                            </div>)
+                // if(i.account_code.match(/^4-.*$/)){
+                //     revenue_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
+                // }
+                // else if(i.account_code.match(/^5-.*$/)){
+                //     cogs_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
+                // }
+                // else if(i.account_code.match(/^6-.*$/)){
+                //     operating_expense_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
+                // }
+                // else if(i.account_code.match(/^7-.*$/)){
+                //     other_income_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
+                // }
+                // else if(i.account_code.match(/^8-.*$/)){
+                //     other_expense_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
+                // }
             })
             
             var revenue_total = items.filter(i => i.account_code.match(/^4-.*$/)).reduce((a,b) => a+b.total, 0)
@@ -366,39 +373,40 @@ class ProfitAndLossList extends React.Component {
             var other_income_total = items.filter(i => i.account_code.match(/^7-.*$/)).reduce((a,b) => a+b.total, 0)
             var other_expense_total = items.filter(i => i.account_code.match(/^8-.*$/)).reduce((a,b) => a+b.total, 0)
             
-            if(this.state.show_revenue){
-                revenue_list = <div className="pl-2">{revenue_row}</div>
-                revenue_chevron_class = "fa fa-chevron-up my-auto"
-            }
+            // if(this.state.show_revenue){
+            //     revenue_list = <div className="pl-2">{revenue_row}</div>
+            //     revenue_chevron_class = "fa fa-chevron-up my-auto"
+            // }
             
-            if(this.state.show_cogs){
-                cogs_list = <div className="pl-2">{cogs_row}</div>
-                cogs_chevron_class = "fa fa-chevron-up my-auto"
-            }
+            // if(this.state.show_cogs){
+            //     cogs_list = <div className="pl-2">{cogs_row}</div>
+            //     cogs_chevron_class = "fa fa-chevron-up my-auto"
+            // }
             
-            if(this.state.show_operating_expense){
-                operating_expense_list = <div className="pl-2">{operating_expense_row}</div>
-                operating_expense_chevron_class = "fa fa-chevron-up my-auto"
-            }
+            // if(this.state.show_operating_expense){
+            //     operating_expense_list = <div className="pl-2">{operating_expense_row}</div>
+            //     operating_expense_chevron_class = "fa fa-chevron-up my-auto"
+            // }
             
-            if(this.state.show_net_profit){
-                net_profit_list = <div className="pl-2">{net_profit_row}</div>
-                net_profit_chevron_class = "fa fa-chevron-up my-auto"
-            }
+            // if(this.state.show_net_profit){
+            //     net_profit_list = <div className="pl-2">{net_profit_row}</div>
+            //     net_profit_chevron_class = "fa fa-chevron-up my-auto"
+            // }
             
-            if(this.state.show_other_income){
-                other_income_list = <div className="pl-2">{other_income_row}</div>
-                other_income_chevron_class = "fa fa-chevron-up my-auto"
-            }
+            // if(this.state.show_other_income){
+            //     other_income_list = <div className="pl-2">{other_income_row}</div>
+            //     other_income_chevron_class = "fa fa-chevron-up my-auto"
+            // }
             
-            if(this.state.show_other_expense){
-                other_expense_list = <div className="pl-2">{other_expense_row}</div>
-                other_expense_chevron_class = "fa fa-chevron-up my-auto"
-            }
+            // if(this.state.show_other_expense){
+            //     other_expense_list = <div className="pl-2">{other_expense_row}</div>
+            //     other_expense_chevron_class = "fa fa-chevron-up my-auto"
+            // }
             
             return(
                 <div style={panel_style}>
-                	<div className="mb-4">
+                    {rows}
+                	{/* <div className="mb-4">
             			<div className="row mx-0 fs14 fw600 py-2" style={row_style}>
             				<div className="col-auto">
             					<span>Revenue</span>
@@ -518,7 +526,7 @@ class ProfitAndLossList extends React.Component {
             				    {formatter2.format(net_operating_income + other_income_total - other_expense_total)}
             				</div>
             			</div>
-        			</div>
+        			</div> */}
                 </div>
             )
         }
@@ -552,13 +560,15 @@ class ProfitAndLossListRow extends React.Component {
     toggleShow(e) {
         e.stopPropagation();
         this.setState({show: !this.state.show})
+        console.log(this.props.accounting_date)
+        console.log(this.props.mode_profit_loss)
         if (!this.state.loaded) {
             var td = this
-            var accounting_date = moment(this.props.year+'-'+this.props.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            // var accounting_date = moment(this.props.year+'-'+this.props.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_children",
-                args: {name: this.props.item.name, max_date: accounting_date},
+                args: {name: this.props.item.name, max_date: td.props.accounting_date, mode_profit_loss: td.props.mode_profit_loss},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message)
@@ -584,7 +594,7 @@ class ProfitAndLossListRow extends React.Component {
                 this.state.children.forEach(function(value, index){
                     if (value.total > 0){
                         children_row.push(
-                            <ProfitAndLossListRow key={value.account_name} item={value} month={cl.props.month} year={cl.props.year}/>
+                            <ProfitAndLossListRow key={value.account_name} item={value} accounting_date={cl.props.accounting_date} mode_profit_loss={cl.props.mode_profit_loss}/>
                         )
                     }
                 })
@@ -601,7 +611,7 @@ class ProfitAndLossListRow extends React.Component {
         					<span>{item.account_name}</span>
         				</div>
         				<div className="col-auto d-flex ml-auto">
-        					<span>{formatter2.format(item.total)}</span>
+        					<span>{formatter3.format(item.total)}</span>
         				</div>
         				<div className="col-auto d-flex">
         				    <i className={chevron_class} style={cursor} onClick={e => this.toggleShow(e)}/>
@@ -619,7 +629,7 @@ class ProfitAndLossListRow extends React.Component {
                         <span>{item.account_name}</span>
                     </div>
                     <div className="col text-right">
-                        <span>{formatter2.format(item.total)}</span>
+                        <span>{formatter3.format(item.total)}</span>
                     </div>
                     <div className="col-auto d-flex">
     				    <i className="fa fa-chevron-up" style={transparent}/>

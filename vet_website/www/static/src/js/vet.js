@@ -40,6 +40,11 @@ var formatter2 = new Intl.NumberFormat('id-ID', {
   maximumFractionDigits: 5,
 });
 
+var formatter3 = new Intl.NumberFormat('id-ID', {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+  });
+
 function userGetRolePermission(user){
 	var roles = []
 	var permissions = []
