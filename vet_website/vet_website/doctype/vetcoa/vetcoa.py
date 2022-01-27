@@ -27,6 +27,7 @@ def get_coa_list(filters=None, all_children=False, mode_profit_loss=False):
 
 	if mode_profit_loss != False:
 		or_filters.update({'account_code': ['not in', ['1-0000', '2-0000', '3-0000']]})
+		# or_filters.update({'account_code': ['in', ['4-0000']]})
 	
 	if filters:
 		try:
@@ -74,7 +75,7 @@ def get_coa_list(filters=None, all_children=False, mode_profit_loss=False):
 				# 	c['children'] =  get_coa_children(c.name, max_date=limit_date, all_children=True, mode_profit_loss=mode_profit_loss)
 				# else:
 					
-				c['total'] = get_coa_last_total(c.name, max_date=limit_date)
+				c['total'] = get_coa_last_total(c.name, max_date=limit_date, mode_profit_loss=mode_profit_loss)
 				print('dapat')
 				print(c.name)
 			print('selesai get_coa_last_total')
@@ -94,8 +95,12 @@ def get_coa_list(filters=None, all_children=False, mode_profit_loss=False):
 		
 		print(all_children)
 		if all_children:
-			for c in coa_list:
-				c['children'] = get_coa_children(c.name, max_trans_date, min_trans_date, dc_mode, True)
+			if max_trans_date:
+				for c in coa_list:
+					c['children'] = get_coa_children(c.name, max_trans_date, min_trans_date, dc_mode, True, mode_profit_loss)
+			else:
+				for c in coa_list:
+					c['children'] = get_coa_children(c.name, limit_date, min_trans_date, dc_mode, True, mode_profit_loss)
 		
 		return coa_list
 		
@@ -271,23 +276,32 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode_profit_
 		else:
 			if mode_profit_loss != False:
 				if mode_profit_loss == 'monthly':
-					min_date = (max_date_dt-rd(months=1)).strftime('%Y-%m-01')
-				elif mode_profit_loss == 'annual':
+					min_date = (max_date_dt).strftime('%Y-%m-01')
+				else:
 					min_date = max_date_dt.strftime('%Y-01-01')
 			else :
 				if max_date_dt.day != 1:
 					min_date = max_date_dt.strftime('%Y-%m-01')
 				else:
 					min_date = (max_date_dt-rd(months=1)).strftime('%Y-%m-01')
+			print('min date')
+			print(min_date)
+			print('max date')
+			print(max_date_dt.strftime('%Y-%m-%d'))
+			print(mode_profit_loss)
 			je_filters.update({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 			
 	if je_filters:
 		journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc')
+		print('je length')
+		print(len(journal_entry_search))
 		if len(journal_entry_search):
 			journal_entry_names = list(j.name for j in journal_entry_search)
 			filters.update({'parent': ['in', journal_entry_names]})
-			
-	ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by="creation desc")
+
+	ji_list = []
+	if 'parent' in filters:			
+		ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by="creation desc")
 	for ji in ji_list:
 		ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 		
@@ -303,7 +317,7 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode_profit_
 		
 	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields="name", order_by="account_code asc")
 	if len(children) != 0:
-		total = total + sum(get_coa_last_total(c.name, max_date=max_date, no_min_date=no_min_date) for c in children)
+		total = total + sum(get_coa_last_total(c.name, max_date=max_date, no_min_date=no_min_date, mode_profit_loss=mode_profit_loss) for c in children)
 		
 	return total
 	

@@ -36,21 +36,19 @@ class ProfitAndLoss extends React.Component {
         var accounting_date
         if(name == 'month'){
             this.setState({month: value})
-            if (this.state.mode == 'monthly') {
+            // if (this.state.mode == 'monthly') {
                 accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
-            } else {
-                accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').format('YYYY-MM-DD')
-            }
+            // } else {
+            //     accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').format('YYYY-MM-DD')
+            // }
         }
         else if(name == 'year'){
             this.setState({year: value})
-            if (this.state.mode == 'monthly') {
-                accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
-            } else if (this.state.mode == 'annual') {
+            if (this.state.mode == 'annual') {
                 accounting_date = moment(value+'-12-31', 'YYYY-MM-DD')
             } else {
-                accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').format('YYYY-MM-DD')
-            }
+                accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            } 
         }
 
         th.setState({accounting_date: accounting_date})
@@ -139,24 +137,31 @@ class ProfitAndLoss extends React.Component {
     }
     
     getPrintData(){
-        var th = this
-        var filters = {
-            accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
-        }
-        if(!this.state.print_loading){
-            this.setState({print_loading: true})
-            frappe.call({
-                type: "GET",
-                method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                args: {filters: filters, all_children: true},
-                callback: function(r){
-                    if (r.message) {
-                        console.log(r.message)
-                        th.setState({data: r.message, loaded: true});
-                        th.printPDF()
+        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
+            var th = this
+            var filters = {
+                accounting_date: this.state.accounting_date
+                // moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            }
+            if(!this.state.print_loading){
+                this.setState({print_loading: true})
+                console.log(filters)
+                console.log(this.state.mode)
+                frappe.call({
+                    type: "GET",
+                    method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
+                    args: {filters: filters, mode_profit_loss: this.state.mode, all_children: true},
+                    callback: function(r){
+                        if (r.message) {
+                            console.log(r.message)
+                            th.setState({data: r.message, loaded: true});
+                            th.printPDF()
+                        }
                     }
-                }
-            });
+                });
+            }
+        } else {
+            frappe.msgprint(('Month or Year must be selected'));
         }
     }
     
@@ -214,7 +219,7 @@ class ProfitAndLoss extends React.Component {
             if(this.state.mode == 'monthly' || this.state.mode == 'period'){
 
                 if (this.state.mode == 'period') {
-                    sd_period = <div className="my-auto mx-auto">
+                    sd_period = <div className="col-auto my-auto mx-auto">
                                     s/d
                                 </div> 
                 }
@@ -311,6 +316,7 @@ class ProfitAndLossList extends React.Component {
     
     render() {
         var rows = []
+        var rows2 = []
         var panel_style = {'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '40px 32px'}
         var title_color = {color: '#1B577B'}
         var cursor = {cursor: 'pointer'}
@@ -318,6 +324,10 @@ class ProfitAndLossList extends React.Component {
         var row_style3 = {color: '#1B577B', background: '#B6DBF8'}
         var row_style4 = {background: '#D6DCDF'}
         var items = this.props.items
+        var space_width = {width: '56px'}
+        var label_width = {width: '90.4px'}
+        var total_style = {color: '#056EAD', background: '#84D1FF', 'boxShadow': '0px 6px 23px rgba(0, 0, 0, 0.1)', borderRadius: '5px'}
+        var chevron_class = "fa fa-chevron-down my-auto"
         // var revenue_row = []
         // var revenue_list
         // var revenue_chevron_class = "fa fa-chevron-down my-auto"
@@ -345,12 +355,15 @@ class ProfitAndLossList extends React.Component {
         if (items.length != 0 ){
             
             items.forEach((i, index) => {
-                rows.push(<div className="mb-2">
+                if(i.account_code.match(/^4-.*$/) || i.account_code.match(/^5-.*$/)){
+                    rows.push(<div className="mb-2">
                             <ProfitAndLossListRow key={i.account_name} item={i} accounting_date={this.props.accounting_date} mode_profit_loss={this.props.mode_profit_loss}/>
                             </div>)
-                // if(i.account_code.match(/^4-.*$/)){
-                //     revenue_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
-                // }
+                } else {
+                    rows2.push(<div className="mb-2">
+                            <ProfitAndLossListRow key={i.account_name} item={i} accounting_date={this.props.accounting_date} mode_profit_loss={this.props.mode_profit_loss}/>
+                            </div>)
+                }
                 // else if(i.account_code.match(/^5-.*$/)){
                 //     cogs_row.push(<ProfitAndLossListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
                 // }
@@ -406,6 +419,29 @@ class ProfitAndLossList extends React.Component {
             return(
                 <div style={panel_style}>
                     {rows}
+                    <div className="mb-4">
+            			<div className="row mx-0 fs14 fw600 py-2" style={row_style4}>
+            				<div className="col-auto">
+            					<span>Gross Profit</span>
+            				</div>
+            				<div className="col-auto d-flex ml-auto">
+            				    {formatter2.format(gross_profit)}
+            				</div>
+                            <div className="col-1"></div>
+            			</div>
+            		</div>
+                    {rows2}
+                    <div className="mb-4">
+            			<div className="row mx-0 fs14 fw600 py-2" style={row_style4}>
+            				<div className="col-auto">
+            					<span>Profit / Loss</span>
+            				</div>
+            				<div className="col-auto d-flex ml-auto">
+            				    {formatter2.format(net_operating_income + other_income_total - other_expense_total)}
+            				</div>
+                            <div className="col-1"></div>
+            			</div>
+        			</div>
                 	{/* <div className="mb-4">
             			<div className="row mx-0 fs14 fw600 py-2" style={row_style}>
             				<div className="col-auto">
@@ -583,7 +619,7 @@ class ProfitAndLossListRow extends React.Component {
         var item = this.props.item
         var row_style = {color: '#056EAD', background: '#CEEDFF', borderBottom: '1px solid #C4C4C4'}
         var cursor = {cursor: 'pointer'}
-        var chevron_class = "fa fa-chevron-down my-auto"
+        var chevron_class = "fa fa-chevron-down my-auto ml-auto"
         var children_row = []
         var color = {color: '#056EAD', background: '#F5FBFF', borderBottom: '1px solid #C4C4C4'}
         var transparent = {opacity: 0}
@@ -600,7 +636,7 @@ class ProfitAndLossListRow extends React.Component {
                 })
             }
             
-            chevron_class = "fa fa-chevron-up my-auto"
+            chevron_class = "fa fa-chevron-up my-auto ml-auto"
         }
         
         if (item.is_parent) {
@@ -613,7 +649,7 @@ class ProfitAndLossListRow extends React.Component {
         				<div className="col-auto d-flex ml-auto">
         					<span>{formatter3.format(item.total)}</span>
         				</div>
-        				<div className="col-auto d-flex">
+        				<div className="col-1 d-flex">
         				    <i className={chevron_class} style={cursor} onClick={e => this.toggleShow(e)}/>
         				</div>
         			</div>
@@ -631,7 +667,7 @@ class ProfitAndLossListRow extends React.Component {
                     <div className="col text-right">
                         <span>{formatter3.format(item.total)}</span>
                     </div>
-                    <div className="col-auto d-flex">
+                    <div className="col-1 d-flex">
     				    <i className="fa fa-chevron-up" style={transparent}/>
     				</div>
                 </div>
