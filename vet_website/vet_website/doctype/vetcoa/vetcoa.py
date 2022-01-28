@@ -300,7 +300,7 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode_profit_
 			filters.update({'parent': ['in', journal_entry_names]})
 
 	ji_list = []
-	if 'parent' in filters:			
+	if mode_profit_loss == False or 'parent' in filters:			
 		ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by="creation desc")
 	for ji in ji_list:
 		ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
