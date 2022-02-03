@@ -123,7 +123,7 @@ class ProfitAndLoss extends React.Component {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                args: {filters: {accounting_date: td.state.accounting_date}, mode_profit_loss: td.state.mode},
+                args: {filters: {accounting_date: td.state.accounting_date}, mode: td.state.mode, is_profit_loss: 1},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message)
@@ -150,7 +150,7 @@ class ProfitAndLoss extends React.Component {
                 frappe.call({
                     type: "GET",
                     method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                    args: {filters: filters, mode_profit_loss: this.state.mode, all_children: true},
+                    args: {filters: filters, mode: this.state.mode, all_children: true, is_profit_loss: 1},
                     callback: function(r){
                         if (r.message) {
                             console.log(r.message)
@@ -211,7 +211,7 @@ class ProfitAndLoss extends React.Component {
         if (this.state.loaded){
             console.log(this.state)
             var content, pdf, print_button, month_select, sd_period
-            content = <ProfitAndLossList items={this.state.data} accounting_date={this.state.accounting_date} mode_profit_loss={this.state.mode}/>
+            content = <ProfitAndLossList items={this.state.data} accounting_date={this.state.accounting_date} mode={this.state.mode}/>
             pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year}/>
             print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
 
@@ -357,11 +357,11 @@ class ProfitAndLossList extends React.Component {
             items.forEach((i, index) => {
                 if(i.account_code.match(/^4-.*$/) || i.account_code.match(/^5-.*$/)){
                     rows.push(<div className="mb-2">
-                            <ProfitAndLossListRow key={i.account_name} item={i} accounting_date={this.props.accounting_date} mode_profit_loss={this.props.mode_profit_loss}/>
+                            <ProfitAndLossListRow key={i.account_name} item={i} accounting_date={this.props.accounting_date} mode={this.props.mode}/>
                             </div>)
                 } else {
                     rows2.push(<div className="mb-2">
-                            <ProfitAndLossListRow key={i.account_name} item={i} accounting_date={this.props.accounting_date} mode_profit_loss={this.props.mode_profit_loss}/>
+                            <ProfitAndLossListRow key={i.account_name} item={i} accounting_date={this.props.accounting_date} mode={this.props.mode}/>
                             </div>)
                 }
                 // else if(i.account_code.match(/^5-.*$/)){
@@ -597,14 +597,14 @@ class ProfitAndLossListRow extends React.Component {
         e.stopPropagation();
         this.setState({show: !this.state.show})
         console.log(this.props.accounting_date)
-        console.log(this.props.mode_profit_loss)
+        console.log(this.props.mode)
         if (!this.state.loaded) {
             var td = this
             // var accounting_date = moment(this.props.year+'-'+this.props.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_children",
-                args: {name: this.props.item.name, max_date: td.props.accounting_date, mode_profit_loss: td.props.mode_profit_loss},
+                args: {name: this.props.item.name, max_date: td.props.accounting_date, mode: td.props.mode},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message)
@@ -630,7 +630,7 @@ class ProfitAndLossListRow extends React.Component {
                 this.state.children.forEach(function(value, index){
                     if (value.total > 0){
                         children_row.push(
-                            <ProfitAndLossListRow key={value.account_name} item={value} accounting_date={cl.props.accounting_date} mode_profit_loss={cl.props.mode_profit_loss}/>
+                            <ProfitAndLossListRow key={value.account_name} item={value} accounting_date={cl.props.accounting_date} mode={cl.props.mode}/>
                         )
                     }
                 })
@@ -676,318 +676,318 @@ class ProfitAndLossListRow extends React.Component {
     }
 }
 
-class ProfitAndLossAnnual extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            'show_revenue': false,
-            'show_cogs': false,
-            'show_operating_expense': false,
-            'show_net_profit': false,
-            'show_other_income': false,
-            'show_other_expense': false,
-        }
-    }
+// class ProfitAndLossAnnual extends React.Component {
+//     constructor(props) {
+//         super(props)
+//         this.state = {
+//             'show_revenue': false,
+//             'show_cogs': false,
+//             'show_operating_expense': false,
+//             'show_net_profit': false,
+//             'show_other_income': false,
+//             'show_other_expense': false,
+//         }
+//     }
     
-    toggleShowRevenue(){
-        this.setState({'show_revenue': !this.state.show_revenue})
-    }
+//     toggleShowRevenue(){
+//         this.setState({'show_revenue': !this.state.show_revenue})
+//     }
     
-    toggleShowCogs(){
-        this.setState({'show_cogs': !this.state.show_cogs})
-    }
+//     toggleShowCogs(){
+//         this.setState({'show_cogs': !this.state.show_cogs})
+//     }
     
-    toggleShowOperatingExpense(){
-        this.setState({'show_operating_expense': !this.state.show_operating_expense})
-    }
+//     toggleShowOperatingExpense(){
+//         this.setState({'show_operating_expense': !this.state.show_operating_expense})
+//     }
     
-    toggleShowNetProfit(){
-        this.setState({'show_net_profit': !this.state.show_net_profit})
-    }
+//     toggleShowNetProfit(){
+//         this.setState({'show_net_profit': !this.state.show_net_profit})
+//     }
     
-    toggleShowOtherIncome(){
-        this.setState({'show_other_income': !this.state.show_other_income})
-    }
+//     toggleShowOtherIncome(){
+//         this.setState({'show_other_income': !this.state.show_other_income})
+//     }
     
-    toggleShowOtherExpense(){
-        this.setState({'show_other_expense': !this.state.show_other_expense})
-    }
+//     toggleShowOtherExpense(){
+//         this.setState({'show_other_expense': !this.state.show_other_expense})
+//     }
     
-    render() {
-        var revenue_rows = []
-        var cogs_rows = []
-        var operating_expense_rows = []
-        var other_income_rows = []
-        var other_expense_rows = []
+//     render() {
+//         var revenue_rows = []
+//         var cogs_rows = []
+//         var operating_expense_rows = []
+//         var other_income_rows = []
+//         var other_expense_rows = []
         
-        var revenue_cols = []
-        var cogs_cols = []
-        var gross_profit_cols = []
-        var operating_expense_cols = []
-        var net_operating_income_cols = []
-        var other_income_cols = []
-        var other_expense_cols = []
-        var net_profit_cols = []
-        var month_cols = []
+//         var revenue_cols = []
+//         var cogs_cols = []
+//         var gross_profit_cols = []
+//         var operating_expense_cols = []
+//         var net_operating_income_cols = []
+//         var other_income_cols = []
+//         var other_expense_cols = []
+//         var net_profit_cols = []
+//         var month_cols = []
         
-        var panel_style = {'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '40px 32px'}
-        var headerBorder = {borderBottom: '2px solid #1B577B', color: '#1B577B', background: '#84D1FF', position: 'sticky', zIndex: 1, top: 0}
-        var row_style3 = {color: '#1B577B', background: '#B6DBF8', cursor: 'pointer'}
-        var row_style4 = {background: '#D6DCDF'}
-        var items = this.props.items
-        var divStyle = {minHeight: 552, position: 'relative', overflow: 'auto'}
-        var colWidth = {width: '6.5%'}
-        var colWidth2 = {width: '15.5%', position: 'sticky', left: 0, background: "inherit", boxShadow: "1px 0px 1px #0003"}
-        var contentStyle = {position: 'absolute', top: 0, left: 0, minWidth: 2100, width: '100%'}
+//         var panel_style = {'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '40px 32px'}
+//         var headerBorder = {borderBottom: '2px solid #1B577B', color: '#1B577B', background: '#84D1FF', position: 'sticky', zIndex: 1, top: 0}
+//         var row_style3 = {color: '#1B577B', background: '#B6DBF8', cursor: 'pointer'}
+//         var row_style4 = {background: '#D6DCDF'}
+//         var items = this.props.items
+//         var divStyle = {minHeight: 552, position: 'relative', overflow: 'auto'}
+//         var colWidth = {width: '6.5%'}
+//         var colWidth2 = {width: '15.5%', position: 'sticky', left: 0, background: "inherit", boxShadow: "1px 0px 1px #0003"}
+//         var contentStyle = {position: 'absolute', top: 0, left: 0, minWidth: 2100, width: '100%'}
         
-        if (items.length != 0 ){
+//         if (items.length != 0 ){
             
-            items.forEach((i, index) => {
-                if(i.account_code.match(/^4-.*$/)){
-                    revenue_rows.push(<ProfitAndLossAnnualRow key={i.account_name} item={i}/>)
-                }
-                else if(i.account_code.match(/^5-.*$/)){
-                    cogs_rows.push(<ProfitAndLossAnnualRow key={i.account_name} item={i}/>)
-                }
-                else if(i.account_code.match(/^6-.*$/)){
-                    operating_expense_rows.push(<ProfitAndLossAnnualRow key={i.account_name} item={i}/>)
-                }
-                else if(i.account_code.match(/^7-.*$/)){
-                    other_income_rows.push(<ProfitAndLossAnnualRow key={i.account_name} item={i}/>)
-                }
-                else if(i.account_code.match(/^8-.*$/)){
-                    other_expense_rows.push(<ProfitAndLossAnnualRow key={i.account_name} item={i}/>)
-                }
-            })
+//             items.forEach((i, index) => {
+//                 if(i.account_code.match(/^4-.*$/)){
+//                     revenue_rows.push(<ProfitAndLossAnnualRow key={i.account_name} item={i}/>)
+//                 }
+//                 else if(i.account_code.match(/^5-.*$/)){
+//                     cogs_rows.push(<ProfitAndLossAnnualRow key={i.account_name} item={i}/>)
+//                 }
+//                 else if(i.account_code.match(/^6-.*$/)){
+//                     operating_expense_rows.push(<ProfitAndLossAnnualRow key={i.account_name} item={i}/>)
+//                 }
+//                 else if(i.account_code.match(/^7-.*$/)){
+//                     other_income_rows.push(<ProfitAndLossAnnualRow key={i.account_name} item={i}/>)
+//                 }
+//                 else if(i.account_code.match(/^8-.*$/)){
+//                     other_expense_rows.push(<ProfitAndLossAnnualRow key={i.account_name} item={i}/>)
+//                 }
+//             })
             
-            for(var i = 0;i<=12;i++){
-                month_cols.push(<div className="fwbold px-1 py-2 text-right" key={i} style={colWidth}>{i<=11?moment(i+1, 'M').format('MMMM YYYY'):'Total'}</div>)
+//             for(var i = 0;i<=12;i++){
+//                 month_cols.push(<div className="fwbold px-1 py-2 text-right" key={i} style={colWidth}>{i<=11?moment(i+1, 'M').format('MMMM YYYY'):'Total'}</div>)
                 
-                var revenue_total = items.filter(i => i.account_code.match(/^4-.*$/)).reduce((a,b) => a+b.total[i].total, 0)
-                revenue_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(revenue_total)}</div>)
+//                 var revenue_total = items.filter(i => i.account_code.match(/^4-.*$/)).reduce((a,b) => a+b.total[i].total, 0)
+//                 revenue_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(revenue_total)}</div>)
                 
-                var cogs_total = items.filter(i => i.account_code.match(/^5-.*$/)).reduce((a,b) => a+b.total[i].total, 0)
-                cogs_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(cogs_total)}</div>)
+//                 var cogs_total = items.filter(i => i.account_code.match(/^5-.*$/)).reduce((a,b) => a+b.total[i].total, 0)
+//                 cogs_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(cogs_total)}</div>)
                 
-                var operating_expense_total = items.filter(i => i.account_code.match(/^6-.*$/)).reduce((a,b) => a+b.total[i].total, 0)
-                operating_expense_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(operating_expense_total)}</div>)
+//                 var operating_expense_total = items.filter(i => i.account_code.match(/^6-.*$/)).reduce((a,b) => a+b.total[i].total, 0)
+//                 operating_expense_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(operating_expense_total)}</div>)
                 
-                var gross_profit = revenue_total - cogs_total
-                gross_profit_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(gross_profit)}</div>)
+//                 var gross_profit = revenue_total - cogs_total
+//                 gross_profit_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(gross_profit)}</div>)
                 
-                var net_operating_income = gross_profit - operating_expense_total
-                net_operating_income_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(net_operating_income)}</div>)
+//                 var net_operating_income = gross_profit - operating_expense_total
+//                 net_operating_income_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(net_operating_income)}</div>)
                 
-                var other_income_total = items.filter(i => i.account_code.match(/^7-.*$/)).reduce((a,b) => a+b.total[i].total, 0)
-                other_income_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(other_income_total)}</div>)
+//                 var other_income_total = items.filter(i => i.account_code.match(/^7-.*$/)).reduce((a,b) => a+b.total[i].total, 0)
+//                 other_income_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(other_income_total)}</div>)
                 
-                var other_expense_total = items.filter(i => i.account_code.match(/^8-.*$/)).reduce((a,b) => a+b.total[i].total, 0)
-                other_expense_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(other_expense_total)}</div>)
+//                 var other_expense_total = items.filter(i => i.account_code.match(/^8-.*$/)).reduce((a,b) => a+b.total[i].total, 0)
+//                 other_expense_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(other_expense_total)}</div>)
                 
-                var net_profit = net_operating_income + other_income_total - other_expense_total
-                net_profit_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(net_profit)}</div>)
-            }
+//                 var net_profit = net_operating_income + other_income_total - other_expense_total
+//                 net_profit_cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(net_profit)}</div>)
+//             }
             
-            var revenue_list, cogs_list, operating_expense_list, other_income_list, other_expense_list
+//             var revenue_list, cogs_list, operating_expense_list, other_income_list, other_expense_list
             
-            if(this.state.show_revenue){
-                revenue_list = <div>{revenue_rows}</div>
-            }
+//             if(this.state.show_revenue){
+//                 revenue_list = <div>{revenue_rows}</div>
+//             }
             
-            if(this.state.show_cogs){
-                cogs_list = <div>{cogs_rows}</div>
-            }
+//             if(this.state.show_cogs){
+//                 cogs_list = <div>{cogs_rows}</div>
+//             }
             
-            if(this.state.show_operating_expense){
-                operating_expense_list = <div>{operating_expense_rows}</div>
-            }
+//             if(this.state.show_operating_expense){
+//                 operating_expense_list = <div>{operating_expense_rows}</div>
+//             }
             
-            if(this.state.show_other_income){
-                other_income_list = <div>{other_income_rows}</div>
-            }
+//             if(this.state.show_other_income){
+//                 other_income_list = <div>{other_income_rows}</div>
+//             }
             
-            if(this.state.show_other_expense){
-                other_expense_list = <div>{other_expense_rows}</div>
-            }
+//             if(this.state.show_other_expense){
+//                 other_expense_list = <div>{other_expense_rows}</div>
+//             }
             
-            return(
-                <div style={panel_style}>
-                	<div style={divStyle}>
-                	    <div style={contentStyle}>
-                	        <div className="row mx-0" style={headerBorder}>
-                	            <div className="fwbold px-3 py-2" style={colWidth2}>
-                	                Description
-                	            </div>
-                	            {month_cols}
-                	        </div>
-                	        <div className="row mx-0 border-bottom border-white" style={row_style3} onClick={() => this.toggleShowRevenue()}>
-                	            <div className="fwbold px-3 py-2" style={colWidth2}>
-                	                Revenue
-                	            </div>
-                	            {revenue_cols}
-                	        </div>
-                	        {revenue_list}
-                	        <div className="row mx-0 border-bottom border-white" style={row_style3} onClick={() => this.toggleShowCogs()}>
-                	            <div className="fwbold px-3 py-2" style={colWidth2}>
-                	                Cost of Goods Sold
-                	            </div>
-                	            {cogs_cols}
-                	        </div>
-                	        {cogs_list}
-                	        <div className="row mx-0 my-2 border-bottom border-white" style={row_style4}>
-                	            <div className="fwbold px-3 py-2" style={colWidth2}>
-                	                Gross Profit
-                	            </div>
-                	            {gross_profit_cols}
-                	        </div>
-                	        <div className="row mx-0 border-bottom border-white" style={row_style3} onClick={() => this.toggleShowOperatingExpense()}>
-                	            <div className="fwbold px-3 py-2" style={colWidth2}>
-                	                Operating Expense
-                	            </div>
-                	            {operating_expense_cols}
-                	        </div>
-                	        {operating_expense_list}
-                	        <div className="row mx-0 my-2 border-bottom border-white" style={row_style4}>
-                	            <div className="fwbold px-3 py-2" style={colWidth2}>
-                	                Net Operating Income
-                	            </div>
-                	            {net_operating_income_cols}
-                	        </div>
-                	        <div className="row mx-0 border-bottom border-white" style={row_style3} onClick={() => this.toggleShowOtherIncome()}>
-                	            <div className="fwbold px-3 py-2" style={colWidth2}>
-                	                Other Income
-                	            </div>
-                	            {other_income_cols}
-                	        </div>
-                	        {other_income_list}
-                	        <div className="row mx-0 border-bottom border-white" style={row_style3} onClick={() => this.toggleShowOtherExpense()}>
-                	            <div className="fwbold px-3 py-2" style={colWidth2}>
-                	                Other Expense
-                	            </div>
-                	            {other_expense_cols}
-                	        </div>
-                	        {other_expense_list}
-                	        <div className="row mx-0 my-2 border-bottom border-white" style={row_style4}>
-                	            <div className="fwbold px-3 py-2" style={colWidth2}>
-                	                Net Profit (Loss)
-                	            </div>
-                	            {net_profit_cols}
-                	        </div>
-                	    </div>
-                	</div>
-                </div>
-            )
-        }
-        else {
-            return(
-                <div style={panel_style}>
-                    <div className="row justify-content-center" key='0'>
-                        <div className="col-10 col-md-8 text-center border rounded-lg py-4">
-                            <p className="mb-0 fs24md fs16 fw600 text-muted">
-                                <span>Item tidak ditemukan</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )
-        }
-    }
-}
+//             return(
+//                 <div style={panel_style}>
+//                 	<div style={divStyle}>
+//                 	    <div style={contentStyle}>
+//                 	        <div className="row mx-0" style={headerBorder}>
+//                 	            <div className="fwbold px-3 py-2" style={colWidth2}>
+//                 	                Description
+//                 	            </div>
+//                 	            {month_cols}
+//                 	        </div>
+//                 	        <div className="row mx-0 border-bottom border-white" style={row_style3} onClick={() => this.toggleShowRevenue()}>
+//                 	            <div className="fwbold px-3 py-2" style={colWidth2}>
+//                 	                Revenue
+//                 	            </div>
+//                 	            {revenue_cols}
+//                 	        </div>
+//                 	        {revenue_list}
+//                 	        <div className="row mx-0 border-bottom border-white" style={row_style3} onClick={() => this.toggleShowCogs()}>
+//                 	            <div className="fwbold px-3 py-2" style={colWidth2}>
+//                 	                Cost of Goods Sold
+//                 	            </div>
+//                 	            {cogs_cols}
+//                 	        </div>
+//                 	        {cogs_list}
+//                 	        <div className="row mx-0 my-2 border-bottom border-white" style={row_style4}>
+//                 	            <div className="fwbold px-3 py-2" style={colWidth2}>
+//                 	                Gross Profit
+//                 	            </div>
+//                 	            {gross_profit_cols}
+//                 	        </div>
+//                 	        <div className="row mx-0 border-bottom border-white" style={row_style3} onClick={() => this.toggleShowOperatingExpense()}>
+//                 	            <div className="fwbold px-3 py-2" style={colWidth2}>
+//                 	                Operating Expense
+//                 	            </div>
+//                 	            {operating_expense_cols}
+//                 	        </div>
+//                 	        {operating_expense_list}
+//                 	        <div className="row mx-0 my-2 border-bottom border-white" style={row_style4}>
+//                 	            <div className="fwbold px-3 py-2" style={colWidth2}>
+//                 	                Net Operating Income
+//                 	            </div>
+//                 	            {net_operating_income_cols}
+//                 	        </div>
+//                 	        <div className="row mx-0 border-bottom border-white" style={row_style3} onClick={() => this.toggleShowOtherIncome()}>
+//                 	            <div className="fwbold px-3 py-2" style={colWidth2}>
+//                 	                Other Income
+//                 	            </div>
+//                 	            {other_income_cols}
+//                 	        </div>
+//                 	        {other_income_list}
+//                 	        <div className="row mx-0 border-bottom border-white" style={row_style3} onClick={() => this.toggleShowOtherExpense()}>
+//                 	            <div className="fwbold px-3 py-2" style={colWidth2}>
+//                 	                Other Expense
+//                 	            </div>
+//                 	            {other_expense_cols}
+//                 	        </div>
+//                 	        {other_expense_list}
+//                 	        <div className="row mx-0 my-2 border-bottom border-white" style={row_style4}>
+//                 	            <div className="fwbold px-3 py-2" style={colWidth2}>
+//                 	                Net Profit (Loss)
+//                 	            </div>
+//                 	            {net_profit_cols}
+//                 	        </div>
+//                 	    </div>
+//                 	</div>
+//                 </div>
+//             )
+//         }
+//         else {
+//             return(
+//                 <div style={panel_style}>
+//                     <div className="row justify-content-center" key='0'>
+//                         <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+//                             <p className="mb-0 fs24md fs16 fw600 text-muted">
+//                                 <span>Item tidak ditemukan</span>
+//                             </p>
+//                         </div>
+//                     </div>
+//                 </div>
+//             )
+//         }
+//     }
+// }
 
-class ProfitAndLossAnnualRow extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            'show': false,
-            'loaded': false
-        }
+// class ProfitAndLossAnnualRow extends React.Component {
+//     constructor(props) {
+//         super(props)
+//         this.state = {
+//             'show': false,
+//             'loaded': false
+//         }
         
-        this.toggleShow = this.toggleShow.bind(this)
-    }
+//         this.toggleShow = this.toggleShow.bind(this)
+//     }
     
-    toggleShow(e) {
-        console.log('Halo')
-        e.stopPropagation();
-        this.setState({show: !this.state.show})
-        if (!this.state.loaded) {
-            var td = this
-            frappe.call({
-                type: "GET",
-                method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_annual_balance_sheet",
-                args: {name: this.props.item.name, get_all: 1},
-                callback: function(r){
-                    if (r.message) {
-                        td.setState({children: r.message, loaded: true})
-                    }
-                }
-            });
-        }
-    }
+//     toggleShow(e) {
+//         console.log('Halo')
+//         e.stopPropagation();
+//         this.setState({show: !this.state.show})
+//         if (!this.state.loaded) {
+//             var td = this
+//             frappe.call({
+//                 type: "GET",
+//                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_annual_balance_sheet",
+//                 args: {name: this.props.item.name, get_all: 1},
+//                 callback: function(r){
+//                     if (r.message) {
+//                         td.setState({children: r.message, loaded: true})
+//                     }
+//                 }
+//             });
+//         }
+//     }
     
-    render() {
-        var item = this.props.item
-        var cols = []
-        var row_style3 = {color: '#1B577B', background: '#B6DBF8', cursor: 'pointer'}
-        var children_row = []
-        var colWidth = {width: '6.5%'}
-        var colWidth2 = {width: '15.5%', position: 'sticky', left: 0, background: "inherit", boxShadow: "1px 0px 1px #0003"}
+//     render() {
+//         var item = this.props.item
+//         var cols = []
+//         var row_style3 = {color: '#1B577B', background: '#B6DBF8', cursor: 'pointer'}
+//         var children_row = []
+//         var colWidth = {width: '6.5%'}
+//         var colWidth2 = {width: '15.5%', position: 'sticky', left: 0, background: "inherit", boxShadow: "1px 0px 1px #0003"}
         
-        if (this.state.loaded) {
-            if (this.state.children.length != 0) {
-                var cl = this
-                this.state.children.forEach(function(value, index){
-                    children_row.push(
-                        <ProfitAndLossAnnualRow key={value.account_name} item={value}/>
-                    )
-                })
-            }
-        } else if (!this.state.loaded){
-            children_row.push(
-                <div className="row mx-0 py-2" key="loading">
-                    <div className="col-auto">
-                        <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
-                    </div>
-                </div>
-            )
-        }
+//         if (this.state.loaded) {
+//             if (this.state.children.length != 0) {
+//                 var cl = this
+//                 this.state.children.forEach(function(value, index){
+//                     children_row.push(
+//                         <ProfitAndLossAnnualRow key={value.account_name} item={value}/>
+//                     )
+//                 })
+//             }
+//         } else if (!this.state.loaded){
+//             children_row.push(
+//                 <div className="row mx-0 py-2" key="loading">
+//                     <div className="col-auto">
+//                         <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+//                     </div>
+//                 </div>
+//             )
+//         }
         
-        if (item.is_parent) {
+//         if (item.is_parent) {
             
-            for(var i = 0;i<=11;i++){
-                cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(item.total[i].total)}</div>)
-            }
+//             for(var i = 0;i<=11;i++){
+//                 cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(item.total[i].total)}</div>)
+//             }
             
-            return(
-                <div>
-        			<div className="row mx-0 border-bottom border-white" style={row_style3} onClick={e => this.toggleShow(e)}>
-        	            <div className="fwbold py-2 px-3" style={colWidth2}>
-        	                {item.account_code+" "+item.account_name}
-        	            </div>
-        	            {cols}
-        	        </div>
-        			<div className={!this.state.show?'d-none':''}>
-        			    {children_row}
-        			</div>
-    			</div>
-            )
-        } else {
-            for(var i = 0;i<=11;i++){
-                cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(item.total[i].total)}</div>)
-            }
+//             return(
+//                 <div>
+//         			<div className="row mx-0 border-bottom border-white" style={row_style3} onClick={e => this.toggleShow(e)}>
+//         	            <div className="fwbold py-2 px-3" style={colWidth2}>
+//         	                {item.account_code+" "+item.account_name}
+//         	            </div>
+//         	            {cols}
+//         	        </div>
+//         			<div className={!this.state.show?'d-none':''}>
+//         			    {children_row}
+//         			</div>
+//     			</div>
+//             )
+//         } else {
+//             for(var i = 0;i<=11;i++){
+//                 cols.push(<div className="px-1 py-2 text-right" key={i} style={colWidth}>{formatter2.format(item.total[i].total)}</div>)
+//             }
             
-            return(
-                <div>
-        			<div className="row mx-0 border-bottom bg-white">
-        	            <div className="fwbold py-2 px-3" style={colWidth2}>
-        	                {item.account_name}
-        	            </div>
-        	            {cols}
-        	        </div>
-    			</div>
-            )
-        }
-    }
-}
+//             return(
+//                 <div>
+//         			<div className="row mx-0 border-bottom bg-white">
+//         	            <div className="fwbold py-2 px-3" style={colWidth2}>
+//         	                {item.account_name}
+//         	            </div>
+//         	            {cols}
+//         	        </div>
+//     			</div>
+//             )
+//         }
+//     }
+// }
 
 class PDF extends React.Component{
     constructor(props) {

@@ -13,10 +13,10 @@ class VetCoa(Document):
 	pass
 	
 @frappe.whitelist()
-def get_coa_list(filters=None, all_children=False, mode_profit_loss=False):
+def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=False, is_balance_sheet=False):
 	default_sort = "creation desc"
 	td_filters = {}
-	or_filters = {}
+	# or_filters = {}
 	je_filters = {}
 	filter_json = False
 	limit_date = False
@@ -25,9 +25,12 @@ def get_coa_list(filters=None, all_children=False, mode_profit_loss=False):
 	search_mode = False
 	dc_mode = False
 
-	if mode_profit_loss != False:
-		or_filters.update({'account_code': ['not in', ['1-0000', '2-0000', '3-0000']]})
+	if is_profit_loss:
+		td_filters.update({'account_code': ['in', ['4-0000', '5-0000', '6-0000', '7-0000', '8-0000']]})
 		# or_filters.update({'account_code': ['in', ['4-0000']]})
+
+	if is_balance_sheet:
+		td_filters.update({'account_code': ['in', ['1-0000', '2-0000', '3-0000']]})
 	
 	if filters:
 		try:
@@ -64,18 +67,18 @@ def get_coa_list(filters=None, all_children=False, mode_profit_loss=False):
 		if not search_mode:
 			td_filters.update({'account_parent': ''})
 		print('mulai get_list')
-		coa_list = frappe.get_list("VetCoa", or_filters=or_filters, filters=td_filters, fields=["*"], order_by='account_code asc')
+		coa_list = frappe.get_list("VetCoa", filters=td_filters, fields=["*"], order_by='account_code asc')
 		print('selesai get_list')
 		if not dc_mode:
 			print('mulai get_coa_last_total')
 			for c in coa_list:
 				print('get_coa_last_total')
 				print(c.name)
-				# if mode_profit_loss != False:
-				# 	c['children'] =  get_coa_children(c.name, max_date=limit_date, all_children=True, mode_profit_loss=mode_profit_loss)
+				# if mode != False:
+				# 	c['children'] =  get_coa_children(c.name, max_date=limit_date, all_children=True, mode=mode)
 				# else:
 					
-				c['total'] = get_coa_last_total(c.name, max_date=limit_date, mode_profit_loss=mode_profit_loss)
+				c['total'] = get_coa_last_total(c.name, max_date=limit_date, mode=mode)
 				print('dapat')
 				print(c.name)
 			print('selesai get_coa_last_total')
@@ -97,10 +100,10 @@ def get_coa_list(filters=None, all_children=False, mode_profit_loss=False):
 		if all_children:
 			if max_trans_date:
 				for c in coa_list:
-					c['children'] = get_coa_children(c.name, max_trans_date, min_trans_date, dc_mode, True, mode_profit_loss)
+					c['children'] = get_coa_children(c.name, max_trans_date, min_trans_date, dc_mode, True, mode)
 			else:
 				for c in coa_list:
-					c['children'] = get_coa_children(c.name, limit_date, min_trans_date, dc_mode, True, mode_profit_loss)
+					c['children'] = get_coa_children(c.name, limit_date, min_trans_date, dc_mode, True, mode)
 		
 		return coa_list
 		
@@ -131,13 +134,13 @@ def get_parent_list():
 		return {'error': "Gagal menghapus Chart of Account"}
 		
 @frappe.whitelist()
-def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_children=False, mode_profit_loss=False):
+def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_children=False, mode=False):
 	try:
 		filters={'account_parent': name}
 		children = frappe.get_list('VetCoa', filters=filters, fields="*", order_by="account_code asc")
 		if not dc_mode:
 			for c in children:
-				c['total'] = get_coa_last_total(c.name, max_date=max_date, mode_profit_loss=mode_profit_loss)
+				c['total'] = get_coa_last_total(c.name, max_date=max_date, mode=mode)
 		else:
 			for c in children:
 				tdc = get_coa_total_debit_credit(c.name, max_date=max_date, no_min_date=True)
@@ -146,7 +149,7 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 		
 		if all_children:
 			for c in children:
-				c['children'] = get_coa_children(c.name, max_date, min_date, dc_mode, all_children, mode_profit_loss=mode_profit_loss)
+				c['children'] = get_coa_children(c.name, max_date, min_date, dc_mode, all_children, mode=mode)
 		return children
 	except:
 		return {'error': "Gagal mendapatkan children"}
@@ -261,7 +264,7 @@ def update_childs_account_type(name):
 		
 # 	return total
 
-def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode_profit_loss=False):
+def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode=False):
 	
 	total = 0
 	coa = frappe.get_doc('VetCoa', coa_name)
@@ -274,8 +277,8 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode_profit_
 		if no_min_date:
 			je_filters.update({'date': ['<', max_date]})
 		else:
-			if mode_profit_loss != False:
-				if mode_profit_loss == 'monthly':
+			if mode != False:
+				if mode == 'monthly':
 					min_date = (max_date_dt).strftime('%Y-%m-01')
 				else:
 					min_date = max_date_dt.strftime('%Y-01-01')
@@ -288,7 +291,7 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode_profit_
 			print(min_date)
 			print('max date')
 			print(max_date_dt.strftime('%Y-%m-%d'))
-			print(mode_profit_loss)
+			print(mode)
 			je_filters.update({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 			
 	if je_filters:
@@ -300,7 +303,7 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode_profit_
 			filters.update({'parent': ['in', journal_entry_names]})
 
 	ji_list = []
-	if mode_profit_loss == False or 'parent' in filters:			
+	if mode == False or 'parent' in filters:			
 		ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by="creation desc")
 	for ji in ji_list:
 		ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
@@ -317,7 +320,7 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode_profit_
 		
 	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields="name", order_by="account_code asc")
 	if len(children) != 0:
-		total = total + sum(get_coa_last_total(c.name, max_date=max_date, no_min_date=no_min_date, mode_profit_loss=mode_profit_loss) for c in children)
+		total = total + sum(get_coa_last_total(c.name, max_date=max_date, no_min_date=no_min_date, mode=mode) for c in children)
 		
 	return total
 	

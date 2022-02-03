@@ -3,121 +3,160 @@ class BalanceSheet extends React.Component {
         super(props)
         this.state = {
             'data': [],
-            'loaded': false,
-            'mode': 'monthly',
-            'month': moment().format('MM'),
-            'year': moment().format('YYYY'),
+            'loaded': true,
+            // 'mode': 'monthly',
+            // 'month': moment().format('MM'),
+            // 'year': moment().format('YYYY'),
+            'month': '',
+            'year': '',
             'print_loading': false,
         }
     }
     
-    componentDidMount() {
-        var td = this
-        frappe.call({
-            type: "GET",
-            method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-            args: {filters: {accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')}},
-            callback: function(r){
-                if (r.message) {
-                    console.log(r.message)
-                    td.setState({'data': r.message, 'loaded': true});
-                }
-            }
-        });
-    }
+    // componentDidMount() {
+    //     var td = this
+    //     frappe.call({
+    //         type: "GET",
+    //         method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
+    //         args: {filters: {accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')}},
+    //         callback: function(r){
+    //             if (r.message) {
+    //                 console.log(r.message)
+    //                 td.setState({'data': r.message, 'loaded': true});
+    //             }
+    //         }
+    //     });
+    // }
     
     filterChange(e){
-        this.setState({loaded: false})
+        // this.setState({loaded: false})
         var th = this
         var name = e.target.name
         var value = e.target.value
-        var filters = {}
+        // var filters = {}
+        var accounting_date
         if(name == 'month'){
             this.setState({month: value})
-            filters.accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            // filters.accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
         }
         else if(name == 'year'){
             this.setState({year: value})
-            filters.accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            // filters.accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            if (this.state.mode == 'annual') {
+                accounting_date = moment(value+'-12-31', 'YYYY-MM-DD')
+            } else {
+                accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            }
         }
-        if(this.state.mode == 'monthly'){
-            frappe.call({
-                type: "GET",
-                method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                args: {filters: filters},
-                callback: function(r){
-                    if (r.message) {
-                        console.log(r.message)
-                        th.setState({'data': r.message, 'loaded': true});
-                    }
-                }
-            });
-        } else if(this.state.mode == 'annual') {
-            frappe.call({
-                type: "GET",
-                method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_annual_balance_sheet",
-                args: {year: value},
-                callback: function(r){
-                    if (r.message) {
-                        th.setState({'annual_data': r.message, loaded: true});
-                    }
-                }
-            });
-        }
+        th.setState({accounting_date: accounting_date})
+        // if(this.state.mode == 'monthly'){
+        //     frappe.call({
+        //         type: "GET",
+        //         method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
+        //         args: {filters: filters},
+        //         callback: function(r){
+        //             if (r.message) {
+        //                 console.log(r.message)
+        //                 th.setState({'data': r.message, 'loaded': true});
+        //             }
+        //         }
+        //     });
+        // } else if(this.state.mode == 'annual') {
+        //     frappe.call({
+        //         type: "GET",
+        //         method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_annual_balance_sheet",
+        //         args: {year: value},
+        //         callback: function(r){
+        //             if (r.message) {
+        //                 th.setState({'annual_data': r.message, loaded: true});
+        //             }
+        //         }
+        //     });
+        // }
     }
     
     setMode(e){
         var th = this
         var mode = e.target.value
-        if(['monthly','annual'].includes(mode)){
-            if(mode == 'annual' && this.state.annual_data == undefined){
-                this.setState({loaded: false})
-                console.log('Fetching...')
-                frappe.call({
-                    type: "GET",
-                    method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_annual_balance_sheet",
-                    args: {year: this.state.year},
-                    callback: function(r){
-                        if (r.message) {
-                            th.setState({'annual_data': r.message, mode: mode, loaded: true});
-                        }
+        th.setState({'mode': mode, 'month': '', 'year': ''})
+        // if(['monthly','annual'].includes(mode)){
+        //     if(mode == 'annual' && this.state.annual_data == undefined){
+        //         this.setState({loaded: false})
+        //         console.log('Fetching...')
+        //         frappe.call({
+        //             type: "GET",
+        //             method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_annual_balance_sheet",
+        //             args: {year: this.state.year},
+        //             callback: function(r){
+        //                 if (r.message) {
+        //                     th.setState({'annual_data': r.message, mode: mode, loaded: true});
+        //                 }
+        //             }
+        //         });
+        //     } else {
+        //         frappe.call({
+        //             type: "GET",
+        //             method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
+        //             args: {filters: {accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')}},
+        //             callback: function(r){
+        //                 if (r.message) {
+        //                     console.log(r.message)
+        //                     th.setState({'data': r.message, 'mode': mode, 'loaded': true});
+        //                 }
+        //             }
+        //         });
+        //     }
+        // }
+    }
+
+    setFilter(){
+        var td = this
+        console.log(this.state.mode)
+        console.log(this.state.month)
+        console.log(this.state.year)
+        console.log(this.state.accounting_date)
+        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
+            td.setState({'loaded': false})
+            frappe.call({
+                type: "GET",
+                method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
+                args: {filters: {accounting_date: td.state.accounting_date}, mode: td.state.mode, is_balance_sheet: 1},
+                callback: function(r){
+                    if (r.message) {
+                        console.log(r.message)
+                        td.setState({'data': r.message, 'loaded': true});
                     }
-                });
-            } else {
-                frappe.call({
-                    type: "GET",
-                    method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                    args: {filters: {accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')}},
-                    callback: function(r){
-                        if (r.message) {
-                            console.log(r.message)
-                            th.setState({'data': r.message, 'mode': mode, 'loaded': true});
-                        }
-                    }
-                });
-            }
+                }
+            });
+        } else {
+            frappe.msgprint(('Month or Year must be selected'));
         }
     }
     
     getPrintData(){
-        var th = this
-        var filters = {
-            accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
-        }
-        if(!this.state.print_loading){
-            this.setState({print_loading: true})
-            frappe.call({
-                type: "GET",
-                method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                args: {filters: filters, all_children: true},
-                callback: function(r){
-                    if (r.message) {
-                        console.log(r.message)
-                        th.setState({data: r.message, loaded: true});
-                        th.printPDF()
+        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
+            var th = this
+            var filters = {
+                accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            }
+            if(!this.state.print_loading){
+                this.setState({print_loading: true})
+                frappe.call({
+                    type: "GET",
+                    method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
+                    args: {filters: filters, all_children: true, is_balance_sheet: 1},
+                    callback: function(r){
+                        if (r.message) {
+                            console.log(r.message)
+                            th.setState({data: r.message, loaded: true});
+                            th.printPDF()
+                        }
                     }
-                }
-            });
+                });
+            }
+        } else {
+            frappe.msgprint(('Month or Year must be selected'));
         }
     }
     
@@ -154,8 +193,8 @@ class BalanceSheet extends React.Component {
     
     render() {
 		var row_style2 = {'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '2px', 'marginBottom': '18px', 'height': '72px'}
-		var month_options = []
-		var year_options = []
+		var month_options = [<option className="d-none" key="99999"></option>]
+		var year_options = [<option className="d-none" key="99999"></option>]
 		var i
 		for(i = 0; i <= 11; i++){
 		    var moment_month = moment(i+1, 'M')
@@ -166,14 +205,27 @@ class BalanceSheet extends React.Component {
         
         if (this.state.loaded){
             console.log(this.state)
-            var content, pdf, print_button
-            if(this.state.mode == 'monthly'){
-                content = <BalanceSheetList items={this.state.data} month={this.state.month} year={this.state.year}/>
-                pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year}/>
-                print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
-            } else if (this.state.mode == 'annual'){
-                content = <BalanceSheetAnnual items={this.state.annual_data}/>
-            }
+            var content, pdf, print_button, month_select, sd_period
+            content = <BalanceSheetList items={this.state.data} month={this.state.month} year={this.state.year}/>
+            pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year}/>
+            print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
+            
+            if(this.state.mode == 'monthly' || this.state.mode == 'period'){
+                if (this.state.mode == 'period') {
+                    sd_period = <div className="col-auto my-auto mx-auto">
+                                    s/d
+                                </div> 
+                }
+                
+                month_select = <div className="col-2 my-auto">
+                                <select name="month" className="form-control" value={this.state.month} onChange={e => this.filterChange(e)}>
+                                    {month_options}
+                                </select>
+                            </div>
+            } 
+            // else if (this.state.mode == 'annual'){
+            //     content = <BalanceSheetAnnual items={this.state.annual_data}/>
+            // }
             return(
                 <div>
                     <div className="row mx-0" style={row_style2}>
@@ -182,19 +234,26 @@ class BalanceSheet extends React.Component {
                         </div>
                         <div className="col-2 my-auto ml-auto">
                             <select name="mode" className="form-control" value={this.state.mode} onChange={e => this.setMode(e)}>
+                                <option className="d-none" key="99999"></option>
                                 <option value="monthly">Monthly</option>
                                 <option value="annual">Annual</option>
+                                <option value="period">Period</option>
                             </select>
                         </div>
-                        <div className="col-2 my-auto">
+                        {sd_period}
+                        {month_select}
+                        {/* <div className="col-2 my-auto">
                             <select name="month" className="form-control" value={this.state.month} onChange={e => this.filterChange(e)}>
                                 {month_options}
                             </select>
-                        </div>
+                        </div> */}
                         <div className="col-2 my-auto">
                             <select name="year" className="form-control" value={this.state.year} onChange={e => this.filterChange(e)}>
                                 {year_options}
                             </select>
+                        </div>
+                        <div className="col-2 my-auto">
+                            <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
                         </div>
                     </div>
                     {pdf}
