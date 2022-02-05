@@ -1048,8 +1048,13 @@ class PDF extends React.Component{
                                     <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
                                     <td className="py-1 text-center" >{f.quantity}</td>
                                     <td className="py-1 text-center" >{f.discount||'-'}</td>
-                                    <td className="py-1 text-center" >{k=='farmasi'&&racikan.includes(f.apotik_obat_id)?formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0)):formatter.format(f.unit_price)}</td>
-                                    <td className="py-1 text-center" >{k=='farmasi'&&racikan.includes(f.apotik_obat_id)?formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0)):formatter.format(f.total)}</td>
+                                    <td className="py-1 text-center" >{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
+                                    ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
+                                    : formatter.format(f.unit_price)}
+                                    </td>
+                                    <td className="py-1 text-center" >{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
+                                    ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
+                                    : formatter.format(f.total)}</td>
                                 </tr>
                             )
                         })
@@ -1412,8 +1417,11 @@ class PDFMini extends React.Component{
                             table_rows.push(
                                 <tr key={k+""+data.name+""+index.toString()}>
                                     <td className="px-2 py-1">{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                    <td className="py-1">{f.quantity+" x "+(k=='farmasi'&&racikan.includes(f.apotik_obat_id)?formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0)):formatter.format(f.unit_price))}</td>
-                                    <td className="py-1 text-right">{k=='farmasi'&&racikan.includes(f.apotik_obat_id)?formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0)):formatter.format(f.total)}</td>
+                                    <td className="py-1">{f.quantity+" x "+(k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
+                                    ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
+                                    : formatter.format(f.unit_price))}</td>
+                                    <td className="py-1 text-right">{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)?formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
+                                    : formatter.format(f.total)}</td>
                                 </tr>
                             )
                         })
