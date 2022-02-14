@@ -37,6 +37,10 @@ class Pet extends React.Component {
         if (filters.hasOwnProperty("currentpage")) {
             this.setState({'currentpage': filters['currentpage']})
         }
+
+        if (filters.hasOwnProperty("search")) {
+            this.setState({'search': filters['search']})
+        }
         
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
         
@@ -102,6 +106,7 @@ class Pet extends React.Component {
         });
         
         filters['currentpage'] = 1
+        filters['search'] = this.state.search
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
         frappe.call({
             type: "GET",
@@ -257,7 +262,7 @@ class Pet extends React.Component {
 		                {'label': 'NIP', 'field': 'name', 'type': 'char'},
 		                {'label': 'Nama Pasien', 'field': 'pet_name', 'type': 'char'},
 		                {'label': 'Jenis Hewan', 'field': 'jenis_name', 'type': 'select', 'options': pet_types},
-		                {'label': 'Nama Pemilik', 'field': 'pet_owner', 'type': 'char'},
+		                {'label': 'Nama Pemilik', 'field': 'owner_name', 'type': 'char'},
 		              //  {'label': 'Status', 'field': 'status', 'type': 'char'},
 		              //  {'label': 'Tanggal Lahir', 'field': 'birth_date', 'type': 'date'},
 		                {'label': 'Keterangan', 'field': 'pet_description', 'type': 'char'},
@@ -284,13 +289,13 @@ class Pet extends React.Component {
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => this.printPDF()}>Print</button>
                         </div>
                         <div className="col">
-                            <input className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({search: e.target.value})}/>
+                            <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({search: e.target.value})} onKeyDown={(e) => e.key === 'Enter' ? this.petSearch(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null}/>
                         </div>
                         <div className="col-7">
                             <Filter sorts={sorts} searchAction={this.petSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))}/>
                         </div>
                     </div>
-                    <PetList pets={this.state.data} search={this.state.search} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>
+                    <PetList pets={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength}/>
                     {popup}
                     <PDF data={this.state.data} search={this.state.search} currentpage={this.state.currentpage}/>
                 </div>
@@ -313,14 +318,14 @@ class Pet extends React.Component {
 
 class PetList extends React.Component {
     render() {
-        var search = this.props.search
-        function filterPet(pet){
-            function filterField(field){
-                return field?field.toString().includes(search):false
-            }
-            var fields = [pet.register_date, pet.name, pet.pet_name, pet.pet_owner.owner_name, pet.pet_type.type_name, pet.pet_description]
-            return ![false,''].includes(search)?fields.some(filterField):true
-        }
+        // var search = this.props.search
+        // function filterPet(pet){
+        //     function filterField(field){
+        //         return field?field.toString().includes(search):false
+        //     }
+        //     var fields = [pet.register_date, pet.name, pet.pet_name, pet.pet_owner.owner_name, pet.pet_type.type_name, pet.pet_description]
+        //     return ![false,''].includes(search)?fields.some(filterField):true
+        // }
         var pet_rows = []
         var panel_style = {'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '40px 32px 40px 12px'}
         var pets = this.props.pets
@@ -494,15 +499,15 @@ class PDF extends React.Component{
     }
 
     render(){
-        var search = this.props.search
+        // var search = this.props.search
         var profile = this.state.profile
-        function filterPet(pet){
-            function filterField(field){
-                return field?field.toString().includes(search):false
-            }
-            var fields = [pet.register_date, pet.name, pet.pet_name, pet.pet_owner.owner_name, pet.pet_type.type_name, pet.pet_description]
-            return ![false,''].includes(search)?fields.some(filterField):true
-        }
+        // function filterPet(pet){
+        //     function filterField(field){
+        //         return field?field.toString().includes(search):false
+        //     }
+        //     var fields = [pet.register_date, pet.name, pet.pet_name, pet.pet_owner.owner_name, pet.pet_type.type_name, pet.pet_description]
+        //     return ![false,''].includes(search)?fields.some(filterField):true
+        // }
         
         var data = this.props.data
         console.log(data)
