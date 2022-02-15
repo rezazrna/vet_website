@@ -32,6 +32,7 @@ def get_operation_list(filters=None):
 		receipts = filter_json.get('receipts', False)
 		delivery_orders = filter_json.get('delivery_orders', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -41,6 +42,9 @@ def get_operation_list(filters=None):
 				td_filters.append(fj)
 		if sort:
 			default_sort = sort
+
+		if search:
+			td_filters.append({'reference': ['like', '%'+search+'%']})
 			
 		if receipts:
 			td_filters.append(('to', '=', unquote(receipts)))
@@ -367,6 +371,7 @@ def get_stock_move_list(filters=None):
 		product = filter_json.get('product', False)
 		filters_json = filter_json.get('filters', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -374,6 +379,9 @@ def get_stock_move_list(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				td_filters.append(fj)
+
+		if search:
+			td_filters.append({'product_name': ['like', '%'+search+'%']})
 		
 		if sort:
 			default_sort = sort

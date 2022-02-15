@@ -27,6 +27,7 @@ def get_payment_method_list(filters=None):
 		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -34,6 +35,8 @@ def get_payment_method_list(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				td_filters.append(fj)
+		if search:
+			td_filters.append({'method_name': ['like', '%'+search+'%']})
 		if sort:
 			default_sort = sort
 			

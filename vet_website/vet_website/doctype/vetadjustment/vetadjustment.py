@@ -31,6 +31,7 @@ def get_adjustment_list(filters=None):
 		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -38,6 +39,9 @@ def get_adjustment_list(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				po_filters.append(fj)
+
+		if search:
+			po_filters.append({'warehouse_name': ['like', '%'+search+'%']})
 				
 		if sort:
 			default_sort = sort

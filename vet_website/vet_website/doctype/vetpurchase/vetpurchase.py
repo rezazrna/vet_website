@@ -46,6 +46,7 @@ def get_purchase_order_list(filters=None):
 		unpaid = filter_json.get('unpaid', 0)
 		filters_json = filter_json.get('filters', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -56,6 +57,9 @@ def get_purchase_order_list(filters=None):
 					po_filters.append(fj)
 				else:
 					odd_filters.append(fj)
+
+		if search:
+			po_filters.append({'supplier_name': ['like', '%'+search+'%']})
 		
 		if supplier:
 			po_filters.append({'supplier': supplier})

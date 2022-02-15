@@ -36,6 +36,7 @@ def get_rawat_inap_list(filters=None):
 		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -59,6 +60,8 @@ def get_rawat_inap_list(filters=None):
 						fj[2] = fj[2].replace('%',"'").lower()
 						fj.reverse()
 						result_filter = lambda a: eval(" ".join(fj))
+		if search:
+			ri_filters.append({'pet_name': ['like', '%'+search+'%']})
 		if sort:
 			sorts = sort.split(',')
 			for i,s in enumerate(sorts):

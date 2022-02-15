@@ -304,6 +304,7 @@ def get_reception_list(filters=None):
 		pet_search = filter_json.get('pet', False)
 		filters_json = filter_json.get('filters', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -314,6 +315,9 @@ def get_reception_list(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				reception_filters.append(fj)
+
+		if search:
+			reception_filters.append({'pet_name': ['like', '%'+search+'%']})
 			
 		if petOwner:
 			owner = frappe.get_doc("VetPetOwner", petOwner)

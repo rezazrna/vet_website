@@ -33,6 +33,7 @@ def get_instalasi_medis_list(filters=None):
 		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -43,6 +44,8 @@ def get_instalasi_medis_list(filters=None):
 					td_filters.append(fj)
 				else:
 					odd_filters.append(fj)
+		if search:
+			td_filters.append({'pet_name': ['like', '%'+search+'%']})
 		if sort:
 			default_sort = sort
 	

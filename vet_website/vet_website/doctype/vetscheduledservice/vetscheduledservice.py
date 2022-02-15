@@ -29,6 +29,7 @@ def get_scheduled_service_list(filters=None):
 		filters_json = filter_json.get('filters', False)
 		pet = filter_json.get('pet', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -36,6 +37,8 @@ def get_scheduled_service_list(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				scheduled_filters.append(fj)
+		if search:
+			scheduled_filters.append({'pet_name': ['like', '%'+search+'%']})
 		if sort:
 			default_sort = sort
 			

@@ -38,6 +38,7 @@ def get_sessions_list(filters=None):
 		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -50,6 +51,8 @@ def get_sessions_list(filters=None):
 					session_filters.append(['opening_session', 'between', [fj[2] + ' 00:00:00', fj[2] + ' 23:59:59']])
 				else:
 					session_filters.append(fj)
+		if search:
+			session_filters.append({'responsible_name': ['like', '%'+search+'%']})
 		if sort:
 			default_sort = sort
 	

@@ -441,6 +441,7 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 		session = filter_json.get('session', False)
 		sort = filter_json.get('sort', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -458,6 +459,11 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 				else:
 					credit_filters.append(fj)
 					odd_filters.append(fj)
+		if search:
+			if supplier == 'true':
+				credit_filters.append({'supplier_name': ['like', '%'+search+'%']})
+			else:
+				credit_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
 			
 	try:
 		pos_order_payment_list = []

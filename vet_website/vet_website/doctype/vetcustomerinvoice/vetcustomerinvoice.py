@@ -340,6 +340,7 @@ def get_invoice_list(filters=None):
 		petOwner = filter_json.get('petOwner', False)
 		session = filter_json.get('session', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -355,6 +356,9 @@ def get_invoice_list(filters=None):
 					invoice_filters.append(fj)
 				else:
 					odd_filters.append(fj)
+
+		if search:
+			invoice_filters.append({'pet_name': ['like', '%'+search+'%']})
 		
 		if not register_number_search:
 			invoice_filters.append(('parent_customer_invoice', '=', ''))

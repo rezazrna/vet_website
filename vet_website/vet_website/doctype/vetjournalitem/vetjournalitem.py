@@ -31,6 +31,7 @@ def get_journal_item_list(filters=None):
 		filters_json = filter_json.get('filters', False)
 		account = filter_json.get('account', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -38,6 +39,10 @@ def get_journal_item_list(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				je_filters.append(fj)
+
+		if search:
+			je_filters.append({'reference': ['like', '%'+search+'%']})
+
 		if account:
 			ji_account =  account
 	
