@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "VA-.#",
  "creation": "2020-07-23 09:00:15.683788",
  "doctype": "DocType",
@@ -15,7 +14,9 @@
   "reception",
   "pet_name",
   "owner_name",
-  "pet"
+  "pet",
+  "dokter",
+  "dokter_full_name"
  ],
  "fields": [
   {
@@ -79,10 +80,22 @@
    "fieldtype": "Link",
    "label": "NIP",
    "options": "VetPet"
+  },
+  {
+   "fetch_from": "reception.owner",
+   "fieldname": "dokter",
+   "fieldtype": "Link",
+   "label": "dokter",
+   "options": "User"
+  },
+  {
+   "fetch_from": "dokter.full_name",
+   "fieldname": "dokter_full_name",
+   "fieldtype": "Data",
+   "label": "Dokter Full Name"
   }
  ],
- "links": [],
- "modified": "2021-02-15 17:07:36.997626",
+ "modified": "2022-02-17 06:30:29.725405",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetApotik",

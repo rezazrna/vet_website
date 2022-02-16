@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "field:cage_name",
  "creation": "2020-08-14 08:48:28.913818",
  "doctype": "DocType",
@@ -10,7 +9,10 @@
   "cage_size",
   "register_number",
   "status",
-  "cage_location"
+  "cage_location",
+  "reception",
+  "pet_name",
+  "owner_name"
  ],
  "fields": [
   {
@@ -46,10 +48,28 @@
    "fieldname": "cage_location",
    "fieldtype": "Data",
    "label": "Lokasi Kandang"
+  },
+  {
+   "fetch_from": "register_number.reception",
+   "fieldname": "reception",
+   "fieldtype": "Link",
+   "label": "Reception",
+   "options": "VetReception"
+  },
+  {
+   "fetch_from": "reception.pet",
+   "fieldname": "pet_name",
+   "fieldtype": "Data",
+   "label": "Nama Pasien"
+  },
+  {
+   "fetch_from": "reception.pet_owner_name",
+   "fieldname": "owner_name",
+   "fieldtype": "Data",
+   "label": "Nama Pemilik"
   }
  ],
- "links": [],
- "modified": "2020-11-05 16:16:10.246534",
+ "modified": "2022-02-17 06:16:03.581982",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetKandang",

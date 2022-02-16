@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "VRI-.#",
  "creation": "2020-08-18 12:41:33.396180",
  "doctype": "DocType",
@@ -14,7 +13,9 @@
   "cage_name",
   "reception",
   "pet_name",
-  "owner_name"
+  "owner_name",
+  "dokter",
+  "dokter_reference"
  ],
  "fields": [
   {
@@ -74,10 +75,22 @@
    "fieldname": "owner_name",
    "fieldtype": "Data",
    "label": "Nama Pemilik"
+  },
+  {
+   "fetch_from": "reception.owner",
+   "fieldname": "dokter",
+   "fieldtype": "Link",
+   "label": "Dokter",
+   "options": "User"
+  },
+  {
+   "fetch_from": "dokter.full_name",
+   "fieldname": "dokter_reference",
+   "fieldtype": "Data",
+   "label": "Dokter Reference"
   }
  ],
- "links": [],
- "modified": "2021-02-15 17:07:38.137647",
+ "modified": "2022-02-17 06:28:31.445372",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetRawatInap",
