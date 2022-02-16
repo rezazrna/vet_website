@@ -17,6 +17,7 @@ def get_rekam_medis_list(filters=None):
 	default_sort = "creation desc"
 
 	rekam_medis_filters = []
+	rekam_medis_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -40,7 +41,11 @@ def get_rekam_medis_list(filters=None):
 			for fj in filters_json:
 				rekam_medis_filters.append(fj)
 		if search:
-			rekam_medis_filters.append({'pet_name': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'name': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'service': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'nama_dokter': ['like', '%'+search+'%']})
 		if sort:
 			default_sort = sort
 				
@@ -48,8 +53,8 @@ def get_rekam_medis_list(filters=None):
 			rekam_medis_filters.append({'pet': pet})
 	
 	try:
-		rekam_medis = frappe.get_list("VetRekamMedis", filters=rekam_medis_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetRekamMedis", filters=rekam_medis_filters, as_list=True))
+		rekam_medis = frappe.get_list("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, as_list=True))
 		for r in rekam_medis:
 			r['diagnose_name'] = r['diagnosa_utama']
 		return {'rekam_medis': rekam_medis, 'datalength': datalength}

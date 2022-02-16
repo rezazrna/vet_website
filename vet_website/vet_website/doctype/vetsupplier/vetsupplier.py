@@ -30,6 +30,7 @@ def get_supplier_list(filters=None):
 	default_sort = "creation desc"
 
 	supplier_filters = []
+	supplier_or_filters = []
 	filter_json = False
 	result_filter = lambda a: a
 	odd_filters = []
@@ -59,7 +60,8 @@ def get_supplier_list(filters=None):
 					odd_filters.append(fj)
 
 		if search:
-			supplier_filters.append({'supplier_name': ['like', '%'+search+'%']})
+			supplier_or_filters.append({'supplier_name': ['like', '%'+search+'%']})
+			supplier_or_filters.append({'address': ['like', '%'+search+'%']})
 				
 		if sort:
 			sorts = sort.split(',')
@@ -70,8 +72,8 @@ def get_supplier_list(filters=None):
 			default_sort = ','.join(sorts)
 			
 	try:
-		supplier_list = frappe.get_list("VetSupplier", filters=supplier_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetSupplier", filters=supplier_filters, as_list=True))
+		supplier_list = frappe.get_list("VetSupplier", or_filters=supplier_or_filters, filters=supplier_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetSupplier", or_filters=supplier_or_filters, filters=supplier_filters, as_list=True))
 		for sl in supplier_list:
 			unpaid_purchase = []
 			credit = 0

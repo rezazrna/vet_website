@@ -23,6 +23,7 @@ def get_pet_owner(filters=None):
 	default_sort = "creation desc"
 	default_limit = 0
 	owner_filters = [{'code': ['!=', 'SCANID']}]
+	owner_or_filters = []
 	filter_json = False
 	result_filter = lambda a: a
 	sort_filter = False
@@ -61,7 +62,11 @@ def get_pet_owner(filters=None):
 		if phone:
 			owner_filters.append({'phone': ['like', '%'+phone+'%']})
 		if search:
-			owner_filters.append({'owner_name': ['like', '%'+search+'%']})
+			owner_or_filters.append({'nik': ['like', '%'+search+'%']})
+			owner_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			owner_or_filters.append({'address': ['like', '%'+search+'%']})
+			owner_or_filters.append({'phone': ['like', '%'+search+'%']})
+			owner_or_filters.append({'email': ['like', '%'+search+'%']})
 		if sort:
 			sorts = sort.split(',')
 			for i,s in enumerate(sorts):
@@ -76,8 +81,8 @@ def get_pet_owner(filters=None):
 			default_limit = limit
 	
 	try:
-		owner = frappe.get_list("VetPetOwner", filters=owner_filters, fields=['name', 'nik', 'owner_name', 'phone', 'email', 'address', 'creation'], order_by=default_sort, limit=default_limit, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetPetOwner", filters=owner_filters, as_list=True))
+		owner = frappe.get_list("VetPetOwner", or_filters=owner_or_filters, filters=owner_filters, fields=['name', 'nik', 'owner_name', 'phone', 'email', 'address', 'creation'], order_by=default_sort, limit=default_limit, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetPetOwner", or_filters=owner_or_filters, filters=owner_filters, as_list=True))
 		
 		for o in owner:
 			last_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': o.name}, fields=['credit', 'debt'], order_by="creation desc")

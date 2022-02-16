@@ -17,6 +17,7 @@ class VetPurchase(Document):
 def get_purchase_order_list(filters=None):
 	default_sort = "creation desc"
 	po_filters = []
+	po_or_filters = []
 	filter_json = False
 	unpaid_mode = False
 	product_detail_name = False
@@ -59,7 +60,9 @@ def get_purchase_order_list(filters=None):
 					odd_filters.append(fj)
 
 		if search:
-			po_filters.append({'supplier_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'name': ['like', '%'+search+'%']})
+			po_or_filters.append({'supplier_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'status': ['like', '%'+search+'%']})
 		
 		if supplier:
 			po_filters.append({'supplier': supplier})
@@ -85,9 +88,9 @@ def get_purchase_order_list(filters=None):
 			unpaid_mode = True
 	
 	try:
-		purchase_search = frappe.get_list("VetPurchase", filters=po_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		purchase_search = frappe.get_list("VetPurchase", or_filters=po_or_filters, filters=po_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		purchase = []
-		datalength = len(frappe.get_all("VetPurchase", filters=po_filters, as_list=True))
+		datalength = len(frappe.get_all("VetPurchase", or_filters=po_or_filters, filters=po_filters, as_list=True))
 		
 		for i,p in enumerate(purchase_search):
 			untaxed = 0

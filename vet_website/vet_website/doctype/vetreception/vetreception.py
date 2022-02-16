@@ -317,7 +317,11 @@ def get_reception_list(filters=None):
 				reception_filters.append(fj)
 
 		if search:
-			reception_filters.append({'pet_name': ['like', '%'+search+'%']})
+			reception_or_filters.append({'register_number': ['like', '%'+search+'%']})
+			reception_or_filters.append({'service': ['like', '%'+search+'%']})
+			reception_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			reception_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
+			reception_or_filters.append({'description': ['like', '%'+search+'%']})
 			
 		if petOwner:
 			owner = frappe.get_doc("VetPetOwner", petOwner)
@@ -331,7 +335,7 @@ def get_reception_list(filters=None):
 	print(reception_or_filters)
 	try:
 		reception = frappe.get_list("VetReception", filters=reception_filters, or_filters=reception_or_filters, fields=["reception_date", "description", "name", "pet", "owner", "service", "queue", "register_number"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetReception", filters=reception_filters, as_list=True))
+		datalength = len(frappe.get_all("VetReception", filters=reception_filters, or_filters=reception_or_filters, as_list=True))
 		for r in range(len(reception)):
 			pet = frappe.get_list("VetPet", filters={'name': reception[r]['pet']}, fields=["pet_name", "parent", "name"])
 			pet_owner = frappe.get_list("VetPetOwner", filters={'name': pet[0]['parent']}, fields=["owner_name"])
