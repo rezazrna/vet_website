@@ -17,6 +17,7 @@ class VetAsset(Document):
 def get_asset_list(filters=None):
 	default_sort = "creation desc"
 	asset_filters = []
+	asset_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -40,14 +41,21 @@ def get_asset_list(filters=None):
 				asset_filters.append(fj)
 		
 		if search:
-			asset_filters.append({'asset_name': ['like', '%'+search+'%']})
+			asset_or_filters.append({'asset_name': ['like', '%'+search+'%']})
+			asset_or_filters.append({'period': ['like', '%'+search+'%']})
+			asset_or_filters.append({'method': ['like', '%'+search+'%']})
+			asset_or_filters.append({'book_value': ['like', '%'+search+'%']})
+			asset_or_filters.append({'original_value': ['like', '%'+search+'%']})
+			asset_or_filters.append({'residual_value': ['like', '%'+search+'%']})
+			asset_or_filters.append({'duration': ['like', '%'+search+'%']})
+			asset_or_filters.append({'status': ['like', '%'+search+'%']})
 		
 		if sort:
 			default_sort = sort
 	
 	try:
-		asset = frappe.get_list("VetAsset", filters=asset_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetAsset", filters=asset_filters, as_list=True))
+		asset = frappe.get_list("VetAsset", or_filters=asset_or_filters, filters=asset_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetAsset", or_filters=asset_or_filters, filters=asset_filters, as_list=True))
 		for a in asset:
 			a['first_depreciation_date'] = frappe.get_value('VetDepreciationList', {'parent': a['name']}, 'depreciation_date')
 		

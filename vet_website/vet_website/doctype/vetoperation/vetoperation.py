@@ -17,6 +17,7 @@ class VetOperation(Document):
 def get_operation_list(filters=None):
 	default_sort = "creation desc"
 	td_filters = []
+	td_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -44,7 +45,11 @@ def get_operation_list(filters=None):
 			default_sort = sort
 
 		if search:
-			td_filters.append({'reference': ['like', '%'+search+'%']})
+			td_or_filters.append({'name': ['like', '%'+search+'%']})
+			td_or_filters.append({'reference': ['like', '%'+search+'%']})
+			td_or_filters.append({'from_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'to_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'status': ['like', '%'+search+'%']})
 			
 		if receipts:
 			td_filters.append(('to', '=', unquote(receipts)))
@@ -56,8 +61,8 @@ def get_operation_list(filters=None):
 	
 	try:
 		print(td_filters)
-		operations = frappe.get_list("VetOperation", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetOperation", filters=td_filters, as_list=True))
+		operations = frappe.get_list("VetOperation", or_filters=td_or_filters, filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetOperation", or_filters=td_or_filters, filters=td_filters, as_list=True))
 		print(operations)
 			
 		return {'operation': operations,'datalength': datalength}
@@ -357,6 +362,7 @@ def check_paid_purchase(name):
 def get_stock_move_list(filters=None):
 	default_sort = "creation desc"
 	td_filters = []
+	td_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -381,7 +387,8 @@ def get_stock_move_list(filters=None):
 				td_filters.append(fj)
 
 		if search:
-			td_filters.append({'product_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'product_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'quantity': ['like', '%'+search+'%']})
 		
 		if sort:
 			default_sort = sort
@@ -389,8 +396,8 @@ def get_stock_move_list(filters=None):
 			td_filters.append({'product': product})
 	
 	try:
-		stock_move = frappe.get_list("VetOperationMove", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetOperationMove", filters=td_filters, as_list=True))
+		stock_move = frappe.get_list("VetOperationMove", or_filters=td_or_filters, filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetOperationMove", or_filters=td_or_filters, filters=td_filters, as_list=True))
 		
 		for s in stock_move:
 			operation = frappe.get_doc("VetOperation", s.parent)

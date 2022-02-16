@@ -180,7 +180,7 @@ class Asset extends React.Component {
             { 'label': 'Method', 'field': 'method', 'type': 'char' },
             { 'label': 'Book Value', 'field': 'book_value', 'type': 'char' },
             { 'label': 'Acquistion_date', 'field': 'acquistion_date', 'type': 'date' },
-            { 'label': 'Original Value', 'field': 'register_number', 'type': 'char' },
+            { 'label': 'Original Value', 'field': 'original_value', 'type': 'char' },
             { 'label': 'Asset Date', 'field': 'asset_date', 'type': 'date' },
             { 'label': 'Residual Value', 'field': 'residual_value', 'type': 'char' },
             { 'label': 'Duration', 'field': 'duration', 'type': 'char' },

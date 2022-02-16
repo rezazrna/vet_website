@@ -15,6 +15,7 @@ class VetPosOrder(Document):
 def get_order_list(filters=None):
 	default_sort = "creation desc"
 	order_filters = []
+	order_or_filters = []
 	filter_json = False
 	result_filter = lambda a: a
 	odd_filters = []
@@ -44,7 +45,12 @@ def get_order_list(filters=None):
 					odd_filters.append(fj)
 
 		if search:
-			order_filters.append({'pet_name': ['like', '%'+search+'%']})
+			order_or_filters.append({'name': ['like', '%'+search+'%']})
+			order_or_filters.append({'session': ['like', '%'+search+'%']})
+			order_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			order_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			order_or_filters.append({'responsible_name': ['like', '%'+search+'%']})
+			order_or_filters.append({'total': ['like', '%'+search+'%']})
 		if sort:
 			default_sort = sort
 			
@@ -52,8 +58,8 @@ def get_order_list(filters=None):
 			order_filters.append({'session': session})
 	
 	try:
-		order = frappe.get_list("VetPosOrder", filters=order_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetPosOrder", filters=order_filters, as_list=True))
+		order = frappe.get_list("VetPosOrder", or_filters=order_or_filters, filters=order_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetPosOrder", or_filters=order_or_filters, filters=order_filters, as_list=True))
 
 		for o in order:
 			payment = frappe.get_list("VetPosOrderPayment", filters={'parent': o['name']}, fields=["*"])

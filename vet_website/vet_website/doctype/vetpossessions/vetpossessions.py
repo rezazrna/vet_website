@@ -25,6 +25,7 @@ class VetPosSessions(Document):
 def get_sessions_list(filters=None):
 	default_sort = "opening_session desc"
 	session_filters = []
+	session_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -52,13 +53,16 @@ def get_sessions_list(filters=None):
 				else:
 					session_filters.append(fj)
 		if search:
-			session_filters.append({'responsible_name': ['like', '%'+search+'%']})
+			session_or_filters.append({'name': ['like', '%'+search+'%']})
+			session_or_filters.append({'responsible_name': ['like', '%'+search+'%']})
+			session_or_filters.append({'transaction': ['like', '%'+search+'%']})
+			session_or_filters.append({'status': ['like', '%'+search+'%']})
 		if sort:
 			default_sort = sort
 	
 	try:
-		session = frappe.get_list("VetPosSessions", filters=session_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetPosSessions", filters=session_filters, as_list=True))
+		session = frappe.get_list("VetPosSessions", or_filters=session_or_filters, filters=session_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetPosSessions", or_filters=session_or_filters, filters=session_filters, as_list=True))
 		for s in session:
 			kas_masuk = frappe.get_list("VetPosSessionsKasMasuk", filters={'parent': s['name']}, fields=["*"], order_by="kas_date desc")
 			kas_keluar = frappe.get_list("VetPosSessionsKasKeluar", filters={'parent': s['name']}, fields=["*"], order_by="kas_date desc")

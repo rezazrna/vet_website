@@ -19,6 +19,7 @@ class VetInstalasiMedis(Document):
 def get_instalasi_medis_list(filters=None):
 	default_sort = "creation desc"
 	td_filters = []
+	td_or_filters = []
 	filter_json = False
 	odd_filters = []
 	page = 1
@@ -45,13 +46,19 @@ def get_instalasi_medis_list(filters=None):
 				else:
 					odd_filters.append(fj)
 		if search:
-			td_filters.append({'pet_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'name': ['like', '%'+search+'%']})
+			td_or_filters.append({'jasa': ['like', '%'+search+'%']})
+			td_or_filters.append({'register_number': ['like', '%'+search+'%']})
+			td_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'nama_dokter': ['like', '%'+search+'%']})
+			td_or_filters.append({'status': ['like', '%'+search+'%']})
 		if sort:
 			default_sort = sort
 	
 	try:
-		data = frappe.get_list("VetInstalasiMedis", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetInstalasiMedis", filters=td_filters, as_list=True))
+		data = frappe.get_list("VetInstalasiMedis", or_filters=td_or_filters, filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetInstalasiMedis", or_filters=td_or_filters, filters=td_filters, as_list=True))
 		for d in data:
 		    jasa = frappe.get_list("VetInstalasiMedisJasa", filters={'parent': d.name}, fields=["product_name"])
 		    d.update({'jasa': ', '.join(tl.product_name for tl in jasa)})

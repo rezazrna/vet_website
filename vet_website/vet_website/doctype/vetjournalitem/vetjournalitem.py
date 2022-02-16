@@ -17,6 +17,7 @@ class VetJournalItem(Document):
 def get_journal_item_list(filters=None):
 	default_sort = "date desc, reference desc"
 	je_filters = []
+	je_or_filters = []
 	filter_json = False
 	ji_account = False
 	page = 1
@@ -41,7 +42,8 @@ def get_journal_item_list(filters=None):
 				je_filters.append(fj)
 
 		if search:
-			je_filters.append({'reference': ['like', '%'+search+'%']})
+			je_or_filters.append({'reference': ['like', '%'+search+'%']})
+			je_or_filters.append({'period': ['like', '%'+search+'%']})
 
 		if account:
 			ji_account =  account
@@ -49,8 +51,8 @@ def get_journal_item_list(filters=None):
 	try:
 		journals = frappe.get_list("VetJournal", fields=["name","journal_name"])
 		journal_items = []
-		journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = frappe.db.count("VetJournalItem")
+		journal_entry_search = frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, fields=["name"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, as_list=True))
 		if len(journal_entry_search):
 			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
 			journal_items_filters = {'parent': ['in', journal_entry_names]}

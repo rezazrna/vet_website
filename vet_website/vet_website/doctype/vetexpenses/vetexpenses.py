@@ -17,6 +17,7 @@ class VetExpenses(Document):
 def get_expenses_list(filters=None):
 	default_sort = "creation desc"
 	po_filters = []
+	po_or_filters = []
 	filter_json = False
 	page = 1
 
@@ -41,7 +42,14 @@ def get_expenses_list(filters=None):
 				po_filters.append(fj)
 		
 		if search:
-			po_filters.append({'expense_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'expense_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'product_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'period': ['like', '%'+search+'%']})
+			po_or_filters.append({'price': ['like', '%'+search+'%']})
+			po_or_filters.append({'description': ['like', '%'+search+'%']})
+			po_or_filters.append({'status': ['like', '%'+search+'%']})
+			po_or_filters.append({'responsible_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'warehouse_name': ['like', '%'+search+'%']})
 		
 		if n:
 			po_filters.append({'name': n})
@@ -50,8 +58,8 @@ def get_expenses_list(filters=None):
 			default_sort = sort
 	
 	try:
-		expenses = frappe.get_list("VetExpenses", filters=po_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetExpenses", filters=po_filters, as_list=True))
+		expenses = frappe.get_list("VetExpenses", or_filters=po_or_filters, filters=po_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetExpenses", or_filters=po_or_filters, filters=po_filters, as_list=True))
 		for e in expenses:
 			e['responsible'] = frappe.get_value('User', e['responsible'], 'full_name')
 			journal_entry = frappe.get_list('VetJournalEntry', filters={'reference': e.name}, fields=['name'])

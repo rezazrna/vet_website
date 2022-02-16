@@ -71,6 +71,7 @@ def get_product_form(name=False):
 def get_product_list(filters=None):
 	default_sort = "creation desc"
 	td_filters = []
+	td_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -90,7 +91,9 @@ def get_product_list(filters=None):
 			page = currentpage
 
 		if search:
-			td_filters.append({'product_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'product_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'category_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'price': ['like', '%'+search+'%']})
 		
 		if filters_json:
 			for fj in filters_json:
@@ -100,8 +103,8 @@ def get_product_list(filters=None):
 			default_sort = sort
 			
 	try:
-		product_list = frappe.get_list("VetProduct", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetProduct", filters=td_filters, as_list=True))
+		product_list = frappe.get_list("VetProduct", or_filters=td_or_filters, filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetProduct", or_filters=td_or_filters, filters=td_filters, as_list=True))
 		for p in product_list:
 			uom_name = frappe.db.get_value('VetUOM', p.product_uom, 'uom_name')
 			tags = frappe.get_list("VetProductTags", filters={'parent': p.name}, fields=["*"], order_by='creation desc')

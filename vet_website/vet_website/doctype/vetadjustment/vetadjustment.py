@@ -18,6 +18,7 @@ class VetAdjustment(Document):
 def get_adjustment_list(filters=None):
 	default_sort = "creation desc"
 	po_filters = []
+	po_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -41,14 +42,16 @@ def get_adjustment_list(filters=None):
 				po_filters.append(fj)
 
 		if search:
-			po_filters.append({'warehouse_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'user_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'warehouse_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'status': ['like', '%'+search+'%']})
 				
 		if sort:
 			default_sort = sort
 		
 	try:
-		adjustment = frappe.get_list("VetAdjustment", filters=po_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetAdjustment", filters=po_filters, as_list=True))
+		adjustment = frappe.get_list("VetAdjustment", or_filters=po_or_filters, filters=po_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetAdjustment", or_filters=po_or_filters, filters=po_filters, as_list=True))
 		for a in adjustment:
 			inventory_details = frappe.get_list('VetAdjustmentInventoryDetails', filters={'parent': a['name']}, fields=['adjustment_value'])
 			a['adjustment_value'] = sum(i.adjustment_value for i in inventory_details)

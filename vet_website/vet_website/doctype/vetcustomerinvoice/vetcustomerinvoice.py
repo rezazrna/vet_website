@@ -322,6 +322,7 @@ def join_invoice(name_list, datetime):
 def get_invoice_list(filters=None):
 	default_sort = "creation desc"
 	invoice_filters = []
+	invoice_or_filters = []
 	odd_filters = []
 	filter_json = False
 	page = 1
@@ -358,7 +359,13 @@ def get_invoice_list(filters=None):
 					odd_filters.append(fj)
 
 		if search:
-			invoice_filters.append({'pet_name': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'name': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'user_name': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'total': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'remaining': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'status': ['like', '%'+search+'%']})
 		
 		if not register_number_search:
 			invoice_filters.append(('parent_customer_invoice', '=', ''))
@@ -389,8 +396,8 @@ def get_invoice_list(filters=None):
 	print(invoice_filters)
 	
 	try:
-		invoice = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetCustomerInvoice", filters=invoice_filters, as_list=True))
+		invoice = frappe.get_list("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, as_list=True))
 		print(frappe.get_all("VetCustomerInvoice", filters=invoice_filters, as_list=True))
 		for i in range(len(invoice)):
 			pet_owner = frappe.get_list("VetPetOwner", filters={'name': invoice[i]['owner']}, fields=["owner_name"])

@@ -21,6 +21,7 @@ class VetTindakanDokter(Document):
 def get_tindakan_dokter_list(filters=None):
 	default_sort = "creation desc"
 	td_filters = []
+	td_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -43,13 +44,17 @@ def get_tindakan_dokter_list(filters=None):
 			for fj in filters_json:
 				td_filters.append(fj)
 		if search:
-			td_filters.append({'pet_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'pet': ['like', '%'+search+'%']})
+			td_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'description': ['like', '%'+search+'%']})
+			td_or_filters.append({'status': ['like', '%'+search+'%']})
 		if sort:
 			default_sort = sort
 		
 	try:
-		tindakan_dokter = frappe.get_list("VetTindakanDokter", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetTindakanDokter", filters=td_filters, as_list=True))
+		tindakan_dokter = frappe.get_list("VetTindakanDokter", or_filters=td_or_filters,  filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetTindakanDokter", or_filters=td_or_filters, filters=td_filters, as_list=True))
 		for td in tindakan_dokter:
 			td.queue = frappe.db.get_value('VetReception', td.reception, 'queue')
 		return {'tindakan_dokter': tindakan_dokter, 'datalength': datalength}

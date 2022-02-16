@@ -210,7 +210,7 @@ class Expenses extends React.Component {
             { 'label': 'Product Name', 'field': 'product_name', 'type': 'char' },
             { 'label': 'Period', 'field': 'period', 'type': 'char' },
             // {'label': 'Quantity', 'field': 'quantity', 'type': 'char'},
-            { 'label': 'Amount', 'field': 'unit_price', 'type': 'char' },
+            { 'label': 'Amount', 'field': 'price', 'type': 'char' },
             { 'label': 'Description', 'field': 'description', 'type': 'date' },
             { 'label': 'Status', 'field': 'status', 'type': 'char' },
             { 'label': 'Responsible Name', 'field': 'responsible_name', 'type': 'char' },

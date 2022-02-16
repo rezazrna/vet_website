@@ -14,6 +14,7 @@ class VetPaymentMethod(Document):
 def get_payment_method_list(filters=None):
 	default_sort = "creation desc"
 	td_filters = []
+	td_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -36,13 +37,14 @@ def get_payment_method_list(filters=None):
 			for fj in filters_json:
 				td_filters.append(fj)
 		if search:
-			td_filters.append({'method_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'method_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'method_type': ['like', '%'+search+'%']})
 		if sort:
 			default_sort = sort
 			
 	try:
-		pm_list = frappe.get_list("VetPaymentMethod", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetPaymentMethod", filters=td_filters, as_list=True))
+		pm_list = frappe.get_list("VetPaymentMethod", or_filters=td_or_filters, filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetPaymentMethod", or_filters=td_or_filters, filters=td_filters, as_list=True))
 		
 		for pm in pm_list:
 			account_name = frappe.db.get_value('VetCoa', pm.account, 'account_name')

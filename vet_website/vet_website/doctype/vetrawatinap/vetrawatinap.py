@@ -20,6 +20,7 @@ class VetRawatInap(Document):
 def get_rawat_inap_list(filters=None):
 	default_sort = "creation desc"
 	ri_filters = []
+	ri_or_filters = []
 	filter_json = False
 	result_filter = lambda a: a
 	sort_filter = False
@@ -61,7 +62,12 @@ def get_rawat_inap_list(filters=None):
 						fj.reverse()
 						result_filter = lambda a: eval(" ".join(fj))
 		if search:
-			ri_filters.append({'pet_name': ['like', '%'+search+'%']})
+			ri_or_filters.append({'name': ['like', '%'+search+'%']})
+			ri_or_filters.append({'register_number': ['like', '%'+search+'%']})
+			ri_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			ri_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			ri_or_filters.append({'dokter_reference': ['like', '%'+search+'%']})
+			ri_or_filters.append({'status': ['like', '%'+search+'%']})
 		if sort:
 			sorts = sort.split(',')
 			for i,s in enumerate(sorts):
@@ -74,8 +80,8 @@ def get_rawat_inap_list(filters=None):
 			default_sort = ','.join(sorts)
 		
 	try:
-		rawat_inap = frappe.get_list("VetRawatInap", filters=ri_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetRawatInap", filters=ri_filters, as_list=True))
+		rawat_inap = frappe.get_list("VetRawatInap", or_filters=ri_or_filters, filters=ri_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetRawatInap", or_filters=ri_or_filters, filters=ri_filters, as_list=True))
 		for ri in rawat_inap:
 			tindakan_dokter = frappe.get_list("VetTindakanDokter", filters={'register_number': ri.register_number}, fields=["*"])
 			if(len(tindakan_dokter) == 0):

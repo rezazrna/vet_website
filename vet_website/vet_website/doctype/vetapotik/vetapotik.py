@@ -18,6 +18,7 @@ class VetApotik(Document):
 def get_apotik_list(filters=None):
 	default_sort = "creation desc"
 	apotik_filters = []
+	apotik_or_filters = []
 	filter_json = False
 	result_filter = lambda a: a
 	sort_filter = False
@@ -59,7 +60,13 @@ def get_apotik_list(filters=None):
 						result_filter = lambda a: eval(" ".join(fj))
 		
 		if search:
-			apotik_filters.append({'pet_name': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'name': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'register_number': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'pet': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'dokter': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'status': ['like', '%'+search+'%']})
 				
 		if sort:
 			sorts = sort.split(',')
@@ -73,8 +80,8 @@ def get_apotik_list(filters=None):
 			default_sort = ','.join(sorts)
 	
 	try:
-		apotik = frappe.get_list("VetApotik", filters=apotik_filters, fields=["register_number", "name", "status", "owner", "pet"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetApotik", filters=apotik_filters, as_list=True))
+		apotik = frappe.get_list("VetApotik", or_filters=apotik_or_filters, filters=apotik_filters, fields=["register_number", "name", "status", "owner", "pet"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetApotik", or_filters=apotik_or_filters, filters=apotik_filters, as_list=True))
 		for a in range(len(apotik)):
 			if apotik[a]['register_number']:
 			    reception = frappe.get_list('VetReception', filters={'register_number': apotik[a]['register_number']}, fields=['reception_date', 'pet'])

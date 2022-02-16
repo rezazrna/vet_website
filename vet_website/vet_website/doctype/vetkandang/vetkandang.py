@@ -15,6 +15,7 @@ class VetKandang(Document):
 def get_kandang_list(filters=None):
 	default_sort = "creation desc"
 	kandang_filters = []
+	kandang_or_filters = []
 	odd_filters = []
 	filter_json = False
 	result_filter = lambda a: a
@@ -44,7 +45,12 @@ def get_kandang_list(filters=None):
 				else:
 					odd_filters.append(fj)
 		if search:
-			kandang_filters.append({'cage_name': ['like', '%'+search+'%']})
+			kandang_or_filters.append({'cage_name': ['like', '%'+search+'%']})
+			kandang_or_filters.append({'status': ['like', '%'+search+'%']})
+			kandang_or_filters.append({'cage_size': ['like', '%'+search+'%']})
+			kandang_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			kandang_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			kandang_or_filters.append({'cage_location': ['like', '%'+search+'%']})
 		if sort:
 			sorts = sort.split(',')
 			for i,s in enumerate(sorts):
@@ -57,8 +63,8 @@ def get_kandang_list(filters=None):
 			default_sort = ','.join(sorts)
 	
 	try:
-		kandang = frappe.get_list("VetKandang", filters=kandang_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetKandang", filters=kandang_filters, as_list=True))
+		kandang = frappe.get_list("VetKandang", or_filters=kandang_or_filters, filters=kandang_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetKandang", or_filters=kandang_or_filters, filters=kandang_filters, as_list=True))
 		for k in kandang:
 			if k.register_number:
 				reception = frappe.get_list('VetReception', filters={'register_number' : k.register_number}, fields=['pet'])

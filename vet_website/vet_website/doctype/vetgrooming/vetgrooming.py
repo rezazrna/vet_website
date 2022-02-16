@@ -333,6 +333,7 @@ def add_invoice(invoice_data, grooming_id):
 def get_grooming_list(filters=None):
 	default_sort = "creation desc"
 	grooming_filters = []
+	grooming_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -356,14 +357,18 @@ def get_grooming_list(filters=None):
 				grooming_filters.append(fj)
 
 		if search:
-			grooming_filters.append({'pet_name': ['like', '%'+search+'%']})
+			grooming_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			grooming_or_filters.append({'pet': ['like', '%'+search+'%']})
+			grooming_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			grooming_or_filters.append({'description': ['like', '%'+search+'%']})
+			grooming_or_filters.append({'status': ['like', '%'+search+'%']})
 
 		if sort:
 			default_sort = sort
 	
 	try:
-		grooming = frappe.get_list("VetGrooming", filters=grooming_filters, fields=["reception", "reception_date", "pet", "pet_name", "description", "status", "name"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetGrooming", filters=grooming_filters, as_list=True))
+		grooming = frappe.get_list("VetGrooming", or_filters=grooming_or_filters, filters=grooming_filters, fields=["reception", "reception_date", "pet", "pet_name", "description", "status", "name"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetGrooming", or_filters=grooming_or_filters, filters=grooming_filters, as_list=True))
 		for g in range(len(grooming)):
 			pet = frappe.get_list("VetPet", filters={'name': grooming[g]['pet']}, fields=["parent"])
 			pet_owner = frappe.get_list("VetPetOwner", filters={'name': pet[0]['parent']}, fields=["owner_name"])
