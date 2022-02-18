@@ -17,8 +17,8 @@ def get_order_list(filters=None):
 	order_filters = []
 	order_or_filters = []
 	filter_json = False
-	result_filter = lambda a: a
-	odd_filters = []
+	# result_filter = lambda a: a
+	# odd_filters = []
 	page = 1
 	
 	if filters:
@@ -42,7 +42,13 @@ def get_order_list(filters=None):
 				if fj[0] != 'metode_pembayaran':
 					order_filters.append(fj)
 				else:
-					odd_filters.append(fj)
+					# odd_filters.append(fj)
+					fj[0] = 'type'
+					payment_filters = []
+					payment_filters.append(fj)
+					payment = frappe.get_list("VetPosOrderPayment", filters=payment_filters, fields=["parent"])
+					order_filters.append({'name': ['in', list(map(lambda item: item['parent'], payment))]})
+
 
 		if search:
 			order_or_filters.append({'name': ['like', '%'+search+'%']})
@@ -65,13 +71,13 @@ def get_order_list(filters=None):
 			payment = frappe.get_list("VetPosOrderPayment", filters={'parent': o['name']}, fields=["*"])
 			o['metode_pembayaran'] = ', '.join(frappe.db.get_value('VetPaymentMethod', tl.type, 'method_name') or '' for tl in payment if tl.value - tl.exchange != 0)
 		
-		for fj in odd_filters:
-			fj[0] = 'a.metode_pembayaran.lower()'
-			fj[1] = 'in'
-			fj[2] = "'%s'.lower()"%fj[2]
-			fj.reverse()
-			result_filter = lambda a: eval(" ".join(fj))
-			order = filter(result_filter, order)
+		# for fj in odd_filters:
+		# 	fj[0] = 'a.metode_pembayaran.lower()'
+		# 	fj[1] = 'in'
+		# 	fj[2] = "'%s'.lower()"%fj[2]
+		# 	fj.reverse()
+		# 	result_filter = lambda a: eval(" ".join(fj))
+		# 	order = filter(result_filter, order)
 		return {'order': order, 'datalength': datalength}
 		
 	except PermissionError as e:
@@ -82,8 +88,8 @@ def get_name_list(filters=None):
 	order_filters = []
 	order_or_filters = []
 	filter_json = False
-	result_filter = lambda a: a
-	odd_filters = []
+	# result_filter = lambda a: a
+	# odd_filters = []
 	
 	if filters:
 		try:
@@ -101,7 +107,12 @@ def get_name_list(filters=None):
 				if fj[0] != 'metode_pembayaran':
 					order_filters.append(fj)
 				else:
-					odd_filters.append(fj)
+					# odd_filters.append(fj)
+					fj[0] = 'type'
+					payment_filters = []
+					payment_filters.append(fj)
+					payment = frappe.get_list("VetPosOrderPayment", filters=payment_filters, fields=["parent"])
+					order_filters.append({'name': ['in', list(map(lambda item: item['parent'], payment))]})
 			
 		if session:
 			order_filters.append({'session': session})

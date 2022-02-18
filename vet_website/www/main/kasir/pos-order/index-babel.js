@@ -212,12 +212,12 @@ class PosOrder extends React.Component {
     }
 
     render() {
-        var metode_options = []
-        this.state.data.forEach(d => {
-            d.metode_pembayaran.split(', ').forEach(o => {
-                !metode_options.map(j => j.value).includes(o) && o != '' ? metode_options.push({ label: o, value: o }) : false
-            })
-        })
+        // var metode_options = []
+        // this.state.data.forEach(d => {
+        //     d.metode_pembayaran.split(', ').forEach(o => {
+        //         !metode_options.map(j => j.value).includes(o) && o != '' ? metode_options.push({ label: o, value: o }) : false
+        //     })
+        // })
 
         var sorts = [
             { 'label': 'Tanggal DESC', 'value': 'order_date desc' },
@@ -241,7 +241,7 @@ class PosOrder extends React.Component {
             { 'label': 'Nama Pemilik', 'field': 'owner_name', 'type': 'char' },
             { 'label': 'Nama Hewan', 'field': 'pet_name', 'type': 'char' },
             { 'label': 'Responsible', 'field': 'responsible_name', 'type': 'char' },
-            { 'label': 'Metode Pembayaran', 'field': 'metode_pembayaran', 'type': 'select', 'options': metode_options },
+            { 'label': 'Metode Pembayaran', 'field': 'metode_pembayaran', 'type': 'char'},
             { 'label': 'Total', 'field': 'total', 'type': 'int' },
         ]
 

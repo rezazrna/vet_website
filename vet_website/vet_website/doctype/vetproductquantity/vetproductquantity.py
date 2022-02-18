@@ -55,22 +55,22 @@ def get_quantity_list(filters=None, valuation=False):
 		product_quantity = list(pqs for pqs in product_quantity_search if pqs.product in list(sp.name for sp in stockable_product))
 		datalength = len(frappe.get_all("VetProductQuantity", filters=td_filters, as_list=True))
 		for pq in product_quantity:
-		    product = frappe.get_doc('VetProduct', pq.product)
-		    if(group_by == 'product'):
-		    	filters2 = {'product': pq.product}
-		    	if gudang:
-		    		filters2.update({'gudang': gudang})
-		    	quantity_list = frappe.get_list("VetProductQuantity", filters=filters2, fields=["sum(quantity) as total_quantity"], order_by="creation desc")
-		    	pq.update({'quantity': quantity_list[0].total_quantity, 'total_value': quantity_list[0].total_quantity*product.price})
-		    elif(group_by == 'gudang'):
-		    	quantity_list = frappe.get_list("VetProductQuantity", filters={'product': pq.product, 'gudang': pq.gudang}, fields=["sum(quantity) as total_quantity"], order_by="creation desc")
-		    	pq.update({'quantity': quantity_list[0].total_quantity, 'total_value': quantity_list[0].total_quantity*product.price})
-		    if valuation and product:
-		    	purchase_list_search = frappe.get_list("VetPurchaseProducts", filters={'product': pq.product}, fields=["*"], order_by="creation desc")
-		    	purchase_list = (pl for pl in purchase_list_search if pl.quantity_stocked)
-		    	pq.update({'product': product, 'purchase_list': purchase_list})
-		    	
-		    pq.update({'product': product})
+			product = frappe.get_doc('VetProduct', pq.product)
+			if(group_by == 'product'):
+				filters2 = {'product': pq.product}
+				if gudang:
+					filters2.update({'gudang': gudang})
+				quantity_list = frappe.get_list("VetProductQuantity", filters=filters2, fields=["sum(quantity) as total_quantity"], order_by="creation desc")
+				pq.update({'quantity': quantity_list[0].total_quantity, 'total_value': quantity_list[0].total_quantity*product.price})
+			elif(group_by == 'gudang'):
+				quantity_list = frappe.get_list("VetProductQuantity", filters={'product': pq.product, 'gudang': pq.gudang}, fields=["sum(quantity) as total_quantity"], order_by="creation desc")
+				pq.update({'quantity': quantity_list[0].total_quantity, 'total_value': quantity_list[0].total_quantity*product.price})
+			if valuation and product:
+				purchase_list_search = frappe.get_list("VetPurchaseProducts", filters={'product': pq.product}, fields=["*"], order_by="creation desc")
+				purchase_list = (pl for pl in purchase_list_search if pl.quantity_stocked)
+				pq.update({'product': product, 'purchase_list': purchase_list})
+				
+			pq.update({'product': product})
 			
 		return {'product_quantity': product_quantity, 'datalength': datalength}
 		

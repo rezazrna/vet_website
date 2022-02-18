@@ -53,6 +53,14 @@ def get_pet_owner(filters=None):
 				if fj[0] != 'piutang':
 					owner_filters.append(fj)
 				else:
+					# last_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': ['not in', ['',None,False]]}, fields=['credit', 'debt', 'pet_owner'], group_by="pet_owner")
+					# fj[0] = 'a.debt'
+					# if fj[1] == "=":
+					# 	fj[1] = "=="
+					# last_credit = filter(lambda a: eval(" ".join(fj)), last_credit)
+					# # print(list(last_credit))
+					# owner_filters.append({'name': ['in', list(map(lambda item: item['pet_owner'], list(last_credit)))]})
+					# print(owner_filters)
 					fj[0] = "a.debt"
 					if fj[1] == "=":
 						fj[1] = "=="

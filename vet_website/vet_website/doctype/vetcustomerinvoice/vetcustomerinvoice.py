@@ -357,6 +357,22 @@ def get_invoice_list(filters=None):
 					invoice_filters.append(fj)
 				else:
 					odd_filters.append(fj)
+					# paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'sum(jumlah) as paid': ['>', 100000]}, fields=['sum(jumlah) as paid', 'parent'], group_by='parent')
+
+					# if fj[1] == 'Equal':
+					# 	fj[1] = '=='
+					# elif fj[1] == 'Not Equal':
+					# 	fj[1] = '!='
+
+					# paid_search = frappe.db.sql("""
+					# 					SELECT
+					# 						SUM(jumlah) AS paid, parent, parent.total
+					# 					FROM `tabVetCustomerInvoicePay`
+					# 					GROUP BY parent
+					# 					HAVING SUM(jumlah) {} {}
+					# 				""".format(fj[1], fj[2]), as_dict=1)
+					# print('paid_search')
+					# print(paid_search)
 
 		if search:
 			invoice_or_filters.append({'name': ['like', '%'+search+'%']})
@@ -393,12 +409,12 @@ def get_invoice_list(filters=None):
 			# invoice_filters.append(['creation', 'between', [session_open, session_close]])
 			invoice_filters.append(('pos_session', '=', session))
 			
-	print(invoice_filters)
+	# print(invoice_filters)
 	
 	try:
 		invoice = frappe.get_list("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, as_list=True))
-		print(frappe.get_all("VetCustomerInvoice", filters=invoice_filters, as_list=True))
+		# print(frappe.get_all("VetCustomerInvoice", filters=invoice_filters, as_list=True))
 		for i in range(len(invoice)):
 			pet_owner = frappe.get_list("VetPetOwner", filters={'name': invoice[i]['owner']}, fields=["owner_name"])
 			pet = frappe.get_list('VetPet', filters={'name': invoice[i]['pet']}, fields=['pet_name'])

@@ -22,7 +22,7 @@ def get_rawat_inap_list(filters=None):
 	ri_filters = []
 	ri_or_filters = []
 	filter_json = False
-	result_filter = lambda a: a
+	# result_filter = lambda a: a
 	sort_filter = False
 	sort_filter_reverse = False
 	page = 1
@@ -44,23 +44,23 @@ def get_rawat_inap_list(filters=None):
 		
 		if filters_json:
 			for fj in filters_json:
-				if fj[0] != 'dokter_reference':
+				# if fj[0] != 'dokter_reference':
 					ri_filters.append(fj)
-				else:
-					fj[0] = "a.dokter_reference.lower()"
-					if fj[1] == "=":
-						fj[1] = "=="
-					elif fj[1] == 'like':
-						fj[1] = 'in'
-					elif fj[1] == 'not like':
-						fj[1] = 'not in'
-					if fj[1] not in ['in', 'not in']:
-						fj[2] = "'%s'"%fj[2].lower()
-						result_filter = lambda a: eval(" ".join(fj))
-					else:
-						fj[2] = fj[2].replace('%',"'").lower()
-						fj.reverse()
-						result_filter = lambda a: eval(" ".join(fj))
+				# else:
+				# 	fj[0] = "a.dokter_reference.lower()"
+				# 	if fj[1] == "=":
+				# 		fj[1] = "=="
+				# 	elif fj[1] == 'like':
+				# 		fj[1] = 'in'
+				# 	elif fj[1] == 'not like':
+				# 		fj[1] = 'not in'
+				# 	if fj[1] not in ['in', 'not in']:
+				# 		fj[2] = "'%s'"%fj[2].lower()
+				# 		result_filter = lambda a: eval(" ".join(fj))
+				# 	else:
+				# 		fj[2] = fj[2].replace('%',"'").lower()
+				# 		fj.reverse()
+				# 		result_filter = lambda a: eval(" ".join(fj))
 		if search:
 			ri_or_filters.append({'name': ['like', '%'+search+'%']})
 			ri_or_filters.append({'register_number': ['like', '%'+search+'%']})
@@ -101,7 +101,7 @@ def get_rawat_inap_list(filters=None):
 		
 		if sort_filter != False:
 			rawat_inap.sort(key=sort_filter, reverse=sort_filter_reverse)
-		rawat_inap = filter(result_filter, rawat_inap)
+		# rawat_inap = filter(result_filter, rawat_inap)
 		
 		return {'rawat_inap': rawat_inap, 'datalength': datalength}
 		

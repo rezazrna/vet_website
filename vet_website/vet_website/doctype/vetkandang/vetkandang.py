@@ -16,7 +16,7 @@ def get_kandang_list(filters=None):
 	default_sort = "creation desc"
 	kandang_filters = []
 	kandang_or_filters = []
-	odd_filters = []
+	# odd_filters = []
 	filter_json = False
 	result_filter = lambda a: a
 	sort_filter = False
@@ -40,10 +40,21 @@ def get_kandang_list(filters=None):
 		
 		if filters_json:
 			for fj in filters_json:
-				if fj[0] not in ['masuk_kandang_date','pet_name','owner_name', 'status']:
-					kandang_filters.append(fj)
+				if fj[0] == 'status':
+					if fj[2] == 'Available':
+						kandang_filters.append({'register_number': ['in', ['',None,False]]})
+					else:
+						kandang_filters.append({'register_number': ['not in', ['',None,False]]})
+				elif fj[0] == 'masuk_kandang_date':
+					kandang = frappe.get_list("VetKandang", filters={'register_number': ['not in', ['',None,False]]}, fields=["register_number"])
+					rawat_inap_filters = []
+					rawat_inap_filters.append({'register_number' : ['in', list(map(lambda item: item['register_number'], kandang))]})
+					fj[0] = 'creation'
+					rawat_inap_filters.append(fj)
+					rawat_inap = frappe.get_list('VetRawatInap', filters=rawat_inap_filters, fields=['register_number'])
+					kandang_filters.append({'register_number': ['in', list(map(lambda item: item['register_number'], rawat_inap))]})
 				else:
-					odd_filters.append(fj)
+					kandang_filters.append(fj)
 		if search:
 			kandang_or_filters.append({'cage_name': ['like', '%'+search+'%']})
 			kandang_or_filters.append({'status': ['like', '%'+search+'%']})
@@ -84,14 +95,14 @@ def get_kandang_list(filters=None):
 		
 		if sort_filter != False:
 			kandang.sort(key=sort_filter, reverse=sort_filter_reverse)
-		for fj in odd_filters:
-			if fj[0] != 'status':
-				result_filter = process_odd_filter(fj)
-				kandang = filter(result_filter, kandang)
-			else:
-				empty = ['',None,False]
-				result_filter = lambda a: a.register_number in empty if fj[2] == 'Available' else a.register_number not in empty
-				kandang = filter(result_filter, kandang)
+		# for fj in odd_filters:
+		# 	if fj[0] != 'status':
+		# 		result_filter = process_odd_filter(fj)
+		# 		kandang = filter(result_filter, kandang)
+		# 	else:
+		# 		empty = ['',None,False]
+		# 		result_filter = lambda a: a.register_number in empty if fj[2] == 'Available' else a.register_number not in empty
+		# 		kandang = filter(result_filter, kandang)
 		return {'kandang': kandang, 'datalength': datalength}
 		
 	except PermissionError as e:

@@ -20,8 +20,9 @@ def get_instalasi_medis_list(filters=None):
 	default_sort = "creation desc"
 	td_filters = []
 	td_or_filters = []
+	jasa_filters = []
 	filter_json = False
-	odd_filters = []
+	# odd_filters = []
 	page = 1
 	
 	if filters:
@@ -44,7 +45,8 @@ def get_instalasi_medis_list(filters=None):
 				if fj[0] != 'jasa':
 					td_filters.append(fj)
 				else:
-					odd_filters.append(fj)
+					# odd_filters.append(fj)
+					jasa_filters.append(fj)
 		if search:
 			td_or_filters.append({'pet_name': ['like', '%'+search+'%']})
 			td_or_filters.append({'name': ['like', '%'+search+'%']})
@@ -57,20 +59,23 @@ def get_instalasi_medis_list(filters=None):
 			default_sort = sort
 	
 	try:
+		if jasa_filters:
+			jasa = frappe.get_list("VetInstalasiMedisJasa", filters=jasa_filters, fields=["parent"])
+			td_filters.append({'name': ['in', list(map(lambda item: item['parent'], jasa))]})
 		data = frappe.get_list("VetInstalasiMedis", or_filters=td_or_filters, filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetInstalasiMedis", or_filters=td_or_filters, filters=td_filters, as_list=True))
 		for d in data:
-		    jasa = frappe.get_list("VetInstalasiMedisJasa", filters={'parent': d.name}, fields=["product_name"])
-		    d.update({'jasa': ', '.join(tl.product_name for tl in jasa)})
+			jasa = frappe.get_list("VetInstalasiMedisJasa", filters={'parent': d.name}, fields=["product_name"])
+			d.update({'jasa': ', '.join(tl.product_name for tl in jasa)})
 		    
 		    
-		for fj in odd_filters:
-			fj[0] = 'a.jasa.lower()'
-			fj[1] = 'in'
-			fj[2] = "'%s'.lower()"%fj[2]
-			fj.reverse()
-			result_filter = lambda a: eval(" ".join(fj))
-			data = filter(result_filter, data)
+		# for fj in odd_filters:
+		# 	fj[0] = 'a.jasa.lower()'
+		# 	fj[1] = 'in'
+		# 	fj[2] = "'%s'.lower()"%fj[2]
+		# 	fj.reverse()
+		# 	result_filter = lambda a: eval(" ".join(fj))
+		# 	data = filter(result_filter, data)
 		
 		return {'data': data, 'datalength': datalength}
 		
@@ -83,8 +88,9 @@ def get_instalasi_medis_list(filters=None):
 def get_name_list(filters=None):
 	td_filters = []
 	td_or_filters = []
+	jasa_filters = []
 	filter_json = False
-	odd_filters = []
+	# odd_filters = []
 	
 	if filters:
 		try:
@@ -101,7 +107,7 @@ def get_name_list(filters=None):
 				if fj[0] != 'jasa':
 					td_filters.append(fj)
 				else:
-					odd_filters.append(fj)
+					jasa_filters.append(fj)
 		if search:
 			td_or_filters.append({'pet_name': ['like', '%'+search+'%']})
 			td_or_filters.append({'name': ['like', '%'+search+'%']})
@@ -112,6 +118,9 @@ def get_name_list(filters=None):
 			td_or_filters.append({'status': ['like', '%'+search+'%']})
 	
 	try:
+		if jasa_filters:
+			jasa = frappe.get_list("VetInstalasiMedisJasa", filters=jasa_filters, fields=["parent"])
+			td_filters.append({'name': ['in', list(map(lambda item: item['parent'], jasa))]})
 		namelist = frappe.get_all("VetInstalasiMedis", or_filters=td_or_filters, filters=td_filters, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))

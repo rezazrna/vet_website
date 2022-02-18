@@ -91,6 +91,8 @@ class Kandang extends React.Component {
 
         filters['currentpage'] = 1;
         filters['search'] = this.state.search
+
+        console.log(filters)
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetkandang.vetkandang.get_kandang_list",

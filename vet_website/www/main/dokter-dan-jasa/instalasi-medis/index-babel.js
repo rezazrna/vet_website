@@ -179,12 +179,12 @@ class InstalasiMedis extends React.Component {
             { label: 'Cancel', value: 'Cancel' },
         ]
 
-        var jasa_options = []
-        this.state.data.forEach(d => {
-            d.jasa.split(', ').forEach(o => {
-                !jasa_options.map(j => j.value).includes(o) && o != '' ? jasa_options.push({ label: o, value: o }) : false
-            })
-        })
+        // var jasa_options = []
+        // this.state.data.forEach(d => {
+        //     d.jasa.split(', ').forEach(o => {
+        //         !jasa_options.map(j => j.value).includes(o) && o != '' ? jasa_options.push({ label: o, value: o }) : false
+        //     })
+        // })
 
         var sorts = [
             { 'label': 'Tanggal DESC', 'value': 'date desc' },
@@ -204,7 +204,8 @@ class InstalasiMedis extends React.Component {
         var field_list = [
             { 'label': 'Tanggal', 'field': 'date', 'type': 'date' },
             { 'label': 'ID', 'field': 'name', 'type': 'char' },
-            { 'label': 'Tindakan', 'field': 'jasa', 'type': 'select', 'options': jasa_options },
+            // { 'label': 'Tindakan', 'field': 'jasa', 'type': 'select', 'options': jasa_options },
+            { 'label': 'Tindakan', 'field': 'product_name', 'type': 'char'},
             { 'label': 'No Pendaftaran', 'field': 'register_number', 'type': 'char' },
             //  {'label': 'No. Antrian', 'field': 'reception', 'type': 'char'},
             { 'label': 'Nama Pasien', 'field': 'pet_name', 'type': 'char' },
