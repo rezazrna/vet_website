@@ -20,7 +20,7 @@ def get_apotik_list(filters=None):
 	apotik_filters = []
 	apotik_or_filters = []
 	filter_json = False
-	result_filter = lambda a: a
+	# result_filter = lambda a: a
 	sort_filter = False
 	sort_filter_reverse = False
 	page = 1
@@ -42,22 +42,22 @@ def get_apotik_list(filters=None):
 		
 		if filters_json:
 			for fj in filters_json:
-				if fj[0] != 'dokter':
+				# if fj[0] != 'dokter':
 					apotik_filters.append(fj)
-				else:
-					fj[0] = "a.dokter.lower()"
-					if fj[1] == "=":
-						fj[1] = "=="
-					elif fj[1] == 'like':
-						fj[1] = 'in'
-					elif fj[1] == 'not like':
-						fj[1] = 'not in'
-					if fj[1] not in ['in', 'not in']:
-						result_filter = lambda a: eval(" ".join(fj))
-					else:
-						fj[2] = fj[2].replace('%',"'").lower()
-						fj.reverse()
-						result_filter = lambda a: eval(" ".join(fj))
+				# else:
+				# 	fj[0] = "a.dokter.lower()"
+				# 	if fj[1] == "=":
+				# 		fj[1] = "=="
+				# 	elif fj[1] == 'like':
+				# 		fj[1] = 'in'
+				# 	elif fj[1] == 'not like':
+				# 		fj[1] = 'not in'
+				# 	if fj[1] not in ['in', 'not in']:
+				# 		result_filter = lambda a: eval(" ".join(fj))
+				# 	else:
+				# 		fj[2] = fj[2].replace('%',"'").lower()
+				# 		fj.reverse()
+				# 		result_filter = lambda a: eval(" ".join(fj))
 		
 		if search:
 			apotik_or_filters.append({'name': ['like', '%'+search+'%']})
@@ -101,7 +101,7 @@ def get_apotik_list(filters=None):
 			
 		if sort_filter != False:
 			apotik.sort(key=sort_filter, reverse=sort_filter_reverse)
-		apotik = filter(result_filter, apotik)
+		# apotik = filter(result_filter, apotik)
 			
 		return {'apotik': apotik, 'datalength': datalength}
 		
@@ -126,16 +126,16 @@ def get_name_list(filters=None):
 		
 		if filters_json:
 			for fj in filters_json:
-				if fj[0] != 'dokter':
+				# if fj[0] != 'dokter':
 					apotik_filters.append(fj)
-				else:
-					fj[0] = "a.dokter.lower()"
-					if fj[1] == "=":
-						fj[1] = "=="
-					elif fj[1] == 'like':
-						fj[1] = 'in'
-					elif fj[1] == 'not like':
-						fj[1] = 'not in'
+				# else:
+				# 	fj[0] = "a.dokter.lower()"
+				# 	if fj[1] == "=":
+				# 		fj[1] = "=="
+				# 	elif fj[1] == 'like':
+				# 		fj[1] = 'in'
+				# 	elif fj[1] == 'not like':
+				# 		fj[1] = 'not in'
 					# if fj[1] not in ['in', 'not in']:
 					# else:
 					# 	fj[2] = fj[2].replace('%',"'").lower()
