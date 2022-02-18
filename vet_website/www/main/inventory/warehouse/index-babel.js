@@ -34,6 +34,8 @@ class Warehouse extends React.Component {
                 }
             }
         });
+
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetgudang.vetgudang.get_gudang_list",
@@ -82,7 +84,7 @@ class Warehouse extends React.Component {
             loaded: false,
         });
 
-        filters['currentpage'] = 1;
+        filters['currentpage'] = 1
         filters['search'] = this.state.search
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 

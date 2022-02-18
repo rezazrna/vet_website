@@ -45,7 +45,7 @@ def get_scheduled_service_list(filters=None):
 			scheduled_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
 			scheduled_or_filters.append({'pet_owner_phone': ['like', '%'+search+'%']})
 			scheduled_or_filters.append({'type_name': ['like', '%'+search+'%']})
-			scheduled_or_filters.append({'service': ['like', '%'+search+'%']})
+			# scheduled_or_filters.append({'service': ['like', '%'+search+'%']})
 			scheduled_or_filters.append({'status': ['like', '%'+search+'%']})
 		if sort:
 			default_sort = sort

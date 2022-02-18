@@ -318,7 +318,7 @@ def get_reception_list(filters=None):
 
 		if search:
 			reception_or_filters.append({'register_number': ['like', '%'+search+'%']})
-			reception_or_filters.append({'service': ['like', '%'+search+'%']})
+			# reception_or_filters.append({'service': ['like', '%'+search+'%']})
 			reception_or_filters.append({'pet_name': ['like', '%'+search+'%']})
 			reception_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
 			reception_or_filters.append({'description': ['like', '%'+search+'%']})

@@ -364,7 +364,7 @@ def get_invoice_list(filters=None):
 			invoice_or_filters.append({'pet_name': ['like', '%'+search+'%']})
 			invoice_or_filters.append({'user_name': ['like', '%'+search+'%']})
 			invoice_or_filters.append({'total': ['like', '%'+search+'%']})
-			invoice_or_filters.append({'remaining': ['like', '%'+search+'%']})
+			# invoice_or_filters.append({'remaining': ['like', '%'+search+'%']})
 			invoice_or_filters.append({'status': ['like', '%'+search+'%']})
 		
 		if not register_number_search:

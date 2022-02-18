@@ -34,6 +34,8 @@ class ProductCategories extends React.Component {
                 }
             }
         });
+
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetproductcategory.vetproductcategory.get_category_list",

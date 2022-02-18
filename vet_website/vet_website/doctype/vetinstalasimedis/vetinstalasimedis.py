@@ -48,7 +48,7 @@ def get_instalasi_medis_list(filters=None):
 		if search:
 			td_or_filters.append({'pet_name': ['like', '%'+search+'%']})
 			td_or_filters.append({'name': ['like', '%'+search+'%']})
-			td_or_filters.append({'jasa': ['like', '%'+search+'%']})
+			# td_or_filters.append({'jasa': ['like', '%'+search+'%']})
 			td_or_filters.append({'register_number': ['like', '%'+search+'%']})
 			td_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
 			td_or_filters.append({'nama_dokter': ['like', '%'+search+'%']})
