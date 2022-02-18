@@ -859,7 +859,7 @@ def get_roles(filters=None):
 	
 	try:
 		roles = frappe.get_list("VetRole", or_filters=td_or_filters, filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_list("VetRole", or_filters=td_or_filters, filters=td_filters, as_list=true))
+		datalength = len(frappe.get_list("VetRole", or_filters=td_or_filters, filters=td_filters, as_list=True))
 		for r in roles:
 			r['permissions'] = frappe.get_list('VetRolePermission', filters=[['parent', '=', r.name]], fields=['*'], order_by="doctype_table asc")
 			
