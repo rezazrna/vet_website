@@ -65,6 +65,7 @@ def get_tindakan_dokter_list(filters=None):
 @frappe.whitelist()
 def get_name_list(filters=None):
 	td_filters = []
+	td_or_filters = []
 	filter_json = False
 	
 	if filters:
@@ -75,13 +76,21 @@ def get_name_list(filters=None):
 		
 	if filter_json:
 		filters_json = filter_json.get('filters', False)
+		search = filter_json.get('search', False)
 		
 		if filters_json:
 			for fj in filters_json:
 				td_filters.append(fj)
+
+		if search:
+			td_or_filters.append({'pet': ['like', '%'+search+'%']})
+			td_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'description': ['like', '%'+search+'%']})
+			td_or_filters.append({'status': ['like', '%'+search+'%']})
 		
 	try:
-		namelist = frappe.get_all("VetTindakanDokter", filters=td_filters, as_list=True)
+		namelist = frappe.get_all("VetTindakanDokter", or_filters=td_or_filters, filters=td_filters, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

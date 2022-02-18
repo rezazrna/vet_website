@@ -107,6 +107,7 @@ def get_pet_owner(filters=None):
 @frappe.whitelist()
 def get_name_list(filters=None):
 	owner_filters = [{'code': ['!=', 'SCANID']}]
+	owner_or_filters = []
 	filter_json = False
 	
 	if filters:
@@ -134,10 +135,14 @@ def get_name_list(filters=None):
 		if phone:
 			owner_filters.append({'phone': ['like', '%'+phone+'%']})
 		if search:
-			owner_filters.append({'owner_name': ['like', '%'+search+'%']})
+			owner_or_filters.append({'nik': ['like', '%'+search+'%']})
+			owner_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			owner_or_filters.append({'address': ['like', '%'+search+'%']})
+			owner_or_filters.append({'phone': ['like', '%'+search+'%']})
+			owner_or_filters.append({'email': ['like', '%'+search+'%']})
 	
 	try:
-		namelist = frappe.get_all("VetPetOwner", filters=owner_filters, as_list=True)
+		namelist = frappe.get_all("VetPetOwner", or_filters=owner_or_filters, filters=owner_filters, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

@@ -383,6 +383,7 @@ def get_grooming_list(filters=None):
 @frappe.whitelist()
 def get_name_list(filters=None):
 	grooming_filters = []
+	grooming_or_filters = []
 	filter_json = False
 	
 	if filters:
@@ -393,13 +394,21 @@ def get_name_list(filters=None):
 		
 	if filter_json:
 		filters_json = filter_json.get('filters', False)
+		search = filter_json.get('search', False)
 		
 		if filters_json:
 			for fj in filters_json:
 				grooming_filters.append(fj)
+
+		if search:
+			grooming_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			grooming_or_filters.append({'pet': ['like', '%'+search+'%']})
+			grooming_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			grooming_or_filters.append({'description': ['like', '%'+search+'%']})
+			grooming_or_filters.append({'status': ['like', '%'+search+'%']})
 	
 	try:
-		namelist = frappe.get_all("VetGrooming", filters=grooming_filters, as_list=True)
+		namelist = frappe.get_all("VetGrooming", or_filters=grooming_or_filters, filters=grooming_filters, as_list=True)
 			
 		return list(map(lambda item: item[0], namelist))
 		

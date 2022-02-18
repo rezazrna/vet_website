@@ -66,6 +66,7 @@ def get_rekam_medis_list(filters=None):
 def get_name_list(filters=None):
 
 	rekam_medis_filters = []
+	rekam_medis_or_filters = []
 	filter_json = False
 	
 	if filters:
@@ -77,6 +78,7 @@ def get_name_list(filters=None):
 	if filter_json:
 		pet = filter_json.get('pet', False)
 		filters_json = filter_json.get('filters', False)
+		search = filter_json.get('search', False)
 
 		if filters_json:
 			for fj in filters_json:
@@ -84,9 +86,16 @@ def get_name_list(filters=None):
 				
 		if pet:
 			rekam_medis_filters.append({'pet': pet})
+
+		if search:
+			rekam_medis_or_filters.append({'name': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'service': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'nama_dokter': ['like', '%'+search+'%']})
 	
 	try:
-		namelist = frappe.get_list("VetRekamMedis", filters=rekam_medis_filters, fields=["*"], as_list=True)
+		namelist = frappe.get_list("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, fields=["*"], as_list=True)
 
 		return list(map(lambda item: item[0], namelist))
 		

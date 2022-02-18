@@ -18,7 +18,7 @@ def get_pet(filters=None):
 	pet_or_filters = []
 	pet_owner_filters = []
 	filter_json = False
-	result_filter = lambda a: a
+	# result_filter = lambda a: a
 	sort_filter = False
 	sort_filter_reverse = False
 	page = 1
@@ -97,7 +97,7 @@ def get_pet(filters=None):
 		
 		if sort_filter != False:
 			pet.sort(key=sort_filter, reverse=sort_filter_reverse)
-		pet = filter(result_filter, pet)
+		# pet = filter(result_filter, pet)
 		
 		return {'pet': pet, 'datalength': datalength}
 		
@@ -107,6 +107,8 @@ def get_pet(filters=None):
 @frappe.whitelist()
 def get_name_list(filters=None):
 	pet_filters = []
+	pet_or_filters = []
+	pet_owner_filters = []
 	filter_json = False
 	
 	if filters:
@@ -140,10 +142,20 @@ def get_name_list(filters=None):
 						result_filter = lambda a: eval(" ".join(fj))
 				
 		if search:
-			pet_filters.append({'pet_name': ['like', '%'+search+'%']})
+			pet_owner_filters.append({'owner_name': ['like', '%'+search+'%']})
+			pet_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			pet_or_filters.append({'name': ['like', '%'+search+'%']})
+			pet_or_filters.append({'hewan_jenis_name': ['like', '%'+search+'%']})
+			pet_or_filters.append({'pet_description': ['like', '%'+search+'%']})
 	
 	try:
-		namelist = frappe.get_all("VetPet", filters=pet_filters, as_list=True)
+		if pet_owner_filters:
+			pet_owner_names = frappe.get_list("VetPetOwner", filters=pet_owner_filters)
+			if search:
+				pet_or_filters.append({'parent': ['in', list(map(lambda item: item['name'], pet_owner_names))]})
+			else:
+				pet_filters.append({'parent': ['in', list(map(lambda item: item['name'], pet_owner_names))]})
+		namelist = frappe.get_all("VetPet", or_filters=pet_or_filters, filters=pet_filters, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

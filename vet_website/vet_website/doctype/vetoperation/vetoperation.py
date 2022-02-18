@@ -73,6 +73,7 @@ def get_operation_list(filters=None):
 @frappe.whitelist()
 def get_name_list(filters=None):
 	td_filters = []
+	td_or_filters = []
 	filter_json = False
 	
 	if filters:
@@ -85,6 +86,7 @@ def get_name_list(filters=None):
 		filters_json = filter_json.get('filters', False)
 		receipts = filter_json.get('receipts', False)
 		delivery_orders = filter_json.get('delivery_orders', False)
+		search = filter_json.get('search', False)
 		
 		if filters_json:
 			for fj in filters_json:
@@ -97,10 +99,17 @@ def get_name_list(filters=None):
 		if delivery_orders:
 			td_filters.append(('from', '=', unquote(delivery_orders)))
 			td_filters.append(('status', '!=', 'Done'))
+
+		if search:
+			td_or_filters.append({'name': ['like', '%'+search+'%']})
+			td_or_filters.append({'reference': ['like', '%'+search+'%']})
+			td_or_filters.append({'from_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'to_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'status': ['like', '%'+search+'%']})
 	
 	try:
 		print(td_filters)
-		namelist = frappe.get_all("VetOperation", filters=td_filters, as_list=True)
+		namelist = frappe.get_all("VetOperation", or_filters=td_or_filters, filters=td_filters, as_list=True)
 			
 		return list(map(lambda item: item[0], namelist))
 		

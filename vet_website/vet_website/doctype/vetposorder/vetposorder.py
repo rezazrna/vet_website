@@ -80,6 +80,7 @@ def get_order_list(filters=None):
 @frappe.whitelist()
 def get_name_list(filters=None):
 	order_filters = []
+	order_or_filters = []
 	filter_json = False
 	result_filter = lambda a: a
 	odd_filters = []
@@ -93,6 +94,7 @@ def get_name_list(filters=None):
 	if filter_json:
 		filters_json = filter_json.get('filters', False)
 		session = filter_json.get('session', False)
+		search = filter_json.get('search', False)
 		
 		if filters_json:
 			for fj in filters_json:
@@ -103,9 +105,17 @@ def get_name_list(filters=None):
 			
 		if session:
 			order_filters.append({'session': session})
+		
+		if search:
+			order_or_filters.append({'name': ['like', '%'+search+'%']})
+			order_or_filters.append({'session': ['like', '%'+search+'%']})
+			order_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			order_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			order_or_filters.append({'responsible_name': ['like', '%'+search+'%']})
+			order_or_filters.append({'total': ['like', '%'+search+'%']})
 	
 	try:
-		namelist = frappe.get_all("VetPosOrder", filters=order_filters, as_list=True)
+		namelist = frappe.get_all("VetPosOrder", or_filters=order_or_filters, filters=order_filters, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

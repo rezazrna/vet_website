@@ -65,6 +65,7 @@ def get_adjustment_list(filters=None):
 def get_name_list(filters=None):
 	default_sort = "creation desc"
 	po_filters = []
+	po_or_filters = []
 	filter_json = False
 	
 	if filters:
@@ -75,13 +76,19 @@ def get_name_list(filters=None):
 		
 	if filter_json:
 		filters_json = filter_json.get('filters', False)
+		search = filter_json.get('search', False)
 		
 		if filters_json:
 			for fj in filters_json:
 				po_filters.append(fj)
+
+		if search:
+			po_or_filters.append({'user_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'warehouse_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'status': ['like', '%'+search+'%']})
 		
 	try:
-		namelist = frappe.get_all("VetAdjustment", filters=po_filters, as_list=True)
+		namelist = frappe.get_all("VetAdjustment", or_filters=po_or_filters, filters=po_filters, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

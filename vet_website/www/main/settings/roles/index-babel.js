@@ -21,14 +21,18 @@ class Roles extends React.Component {
 
     componentDidMount() {
         var td = this
+        var new_filters = { filters: [], sorts: [] }
+
+
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
         frappe.call({
             type: "GET",
             method: 'vet_website.methods.get_roles',
-            args: { filters: { 'currentpage': this.state.currentpage } },
+            args: { filters: new_filters },
             callback: function (r) {
                 console.log(r.message)
                 if (r.message) {
-                    td.setState({ 'data': td.state.data.concat(r.message.roles), 'loaded': true, 'datalength': r.message.datalength });
+                    td.setState({ 'data': r.message.roles, 'loaded': true, 'datalength': r.message.datalength });
                 }
             }
         });
@@ -37,40 +41,48 @@ class Roles extends React.Component {
     paginationClick(number) {
         console.log('Halo')
         var po = this
-        var filters = {}
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         this.setState({
             currentpage: Number(number),
-            loaded: number * 30 <= this.state.data.length,
+            loaded: false,
         });
 
         filters['currentpage'] = this.state.currentpage
 
-        if (number * 30 > this.state.data.length) {
-            frappe.call({
-                type: "GET",
-                method: 'vet_website.methods.get_roles',
-                args: { filters: filters },
-                callback: function (r) {
-                    console.log(r.message)
-                    if (r.message) {
-                        po.setState({ 'data': po.state.data.concat(r.message.roles), 'loaded': true, 'datalength': r.message.datalength });
-                    }
+        // if (number * 30 > this.state.data.length) {
+        frappe.call({
+            type: "GET",
+            method: 'vet_website.methods.get_roles',
+            args: { filters: filters },
+            callback: function (r) {
+                console.log(r.message)
+                if (r.message) {
+                    po.setState({ 'data': r.message.roles, 'loaded': true, 'datalength': r.message.datalength });
                 }
-            });
-        }
+            }
+        });
+        // }
     }
 
     roleSearch(filters) {
         var po = this
-        filters['currentpage'] = this.state.currentpage
+        this.setState({
+            currentpage: 1,
+            loaded: false,
+        });
+
+        filters['currentpage'] = 1
+        filters['search'] = this.state.search
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+
         frappe.call({
             type: "GET",
             method: 'vet_website.methods.get_roles',
             args: { filters: filters },
             callback: function (r) {
                 if (r.message) {
-                    po.setState({ 'data': po.state.data.concat(r.message.roles), 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.roles, 'datalength': r.message.datalength, 'loaded': true });
                 }
             }
         });
@@ -238,13 +250,13 @@ class Roles extends React.Component {
                             </div>
                         </div>
                         <div className="col">
-                            <input className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} />
+                            <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.roleSearch(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
                         </div>
                         <div className="col-7">
-                            <Filter sorts={sorts} searchAction={this.roleSearch} field_list={field_list} />
+                            <Filter sorts={sorts} searchAction={this.roleSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))} />
                         </div>
                     </div>
-                    <RolesList items={this.state.data} search={this.state.search} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} toggleShowForm={this.toggleShowForm} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
+                    <RolesList items={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} toggleShowForm={this.toggleShowForm} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
                     {popup_form}
                 </div>
             )
@@ -265,33 +277,33 @@ class Roles extends React.Component {
 
 class RolesList extends React.Component {
     render() {
-        var search = this.props.search
-        function filterRow(row) {
-            function filterField(field) {
-                return field ? field.toString().includes(search) : false
-            }
-            var fields = [row.category_name]
-            return ![false, ''].includes(search) ? fields.some(filterField) : true
-        }
+        // var search = this.props.search
+        // function filterRow(row) {
+        //     function filterField(field) {
+        //         return field ? field.toString().includes(search) : false
+        //     }
+        //     var fields = [row.category_name]
+        //     return ![false, ''].includes(search) ? fields.some(filterField) : true
+        // }
         var rows = []
         var panel_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '40px 32px 40px 12px' }
         var items = this.props.items
 
         if (items.length != 0) {
             var list = this
-            const indexOfLastTodo = this.props.currentpage * 30;
-            const indexOfFirstTodo = indexOfLastTodo - 30;
-            var currentItems
-            ![false, ''].includes(search) ?
-                currentItems = items.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo) :
-                currentItems = items.slice(indexOfFirstTodo, indexOfLastTodo)
+            // const indexOfLastTodo = this.props.currentpage * 30;
+            // const indexOfFirstTodo = indexOfLastTodo - 30;
+            // var currentItems
+            // ![false, ''].includes(search) ?
+            //     currentItems = items.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo) :
+            //     currentItems = items.slice(indexOfFirstTodo, indexOfLastTodo)
 
             items.forEach(function (item, index) {
-                if (currentItems.includes(item)) {
-                    rows.push(
-                        <RolesListRow key={index.toString()} item={item} checkRow={() => list.props.checkRow(index)} toggleShowForm={() => list.props.toggleShowForm(index.toString())} />
-                    )
-                }
+                // if (currentItems.includes(item)) {
+                rows.push(
+                    <RolesListRow key={index.toString()} item={item} checkRow={() => list.props.checkRow(index)} toggleShowForm={() => list.props.toggleShowForm(index.toString())} />
+                )
+                // }
             })
 
             return (
@@ -309,7 +321,7 @@ class RolesList extends React.Component {
                         </div>
                     </div>
                     {rows}
-                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30' />
+                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10' />
                 </div>
             )
         }

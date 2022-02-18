@@ -143,7 +143,7 @@ class Kandang extends React.Component {
             args: { data: this.state.new_kandang },
             callback: function (r) {
                 if (r.message) {
-                    td.setState({ 'data': r.message, 'loaded': true, 'show_add': false, 'new_kandang': {} });
+                    td.setState({ 'data': r.message.kandang, 'loaded': true, 'show_add': false, 'new_kandang': {} });
                 }
             }
         });

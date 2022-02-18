@@ -127,6 +127,7 @@ def get_name_list(filters=None):
 		return lambda a: eval(string)
 
 	supplier_filters = []
+	supplier_or_filters = []
 	filter_json = False
 	result_filter = lambda a: a
 	odd_filters = []
@@ -140,6 +141,7 @@ def get_name_list(filters=None):
 			
 	if filter_json:
 		filters_json = filter_json.get('filters', False)
+		search = filter_json.get('search', False)
 		
 		if filters_json:
 			for fj in filters_json:
@@ -147,9 +149,13 @@ def get_name_list(filters=None):
 					supplier_filters.append(fj)
 				else:
 					odd_filters.append(fj)
+
+		if search:
+			supplier_or_filters.append({'supplier_name': ['like', '%'+search+'%']})
+			supplier_or_filters.append({'address': ['like', '%'+search+'%']})
 			
 	try:
-		namelist = frappe.get_all("VetSupplier", filters=supplier_filters, as_list=True)
+		namelist = frappe.get_all("VetSupplier", or_filters=supplier_or_filters, filters=supplier_filters, as_list=True)
 			
 		return list(map(lambda item: item[0], namelist))
 		

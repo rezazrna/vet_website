@@ -827,6 +827,7 @@ def get_current_session_user():
 def get_roles(filters=None):
 	default_sort = "name asc"
 	td_filters = []
+	td_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -840,6 +841,7 @@ def get_roles(filters=None):
 		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
 
 		if currentpage:
 			page = currentpage
@@ -847,13 +849,17 @@ def get_roles(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				td_filters.append(fj)
+
+		if search:
+			td_or_filters.append({'role_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'description': ['like', '%'+search+'%']})
 		
 		if sort:
 			default_sort = sort
 	
 	try:
-		roles = frappe.get_list("VetRole", filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
-		datalength = frappe.db.count("VetRole", td_filters)
+		roles = frappe.get_list("VetRole", or_filters=td_or_filters, filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_list("VetRole", or_filters=td_or_filters, filters=td_filters, as_list=true))
 		for r in roles:
 			r['permissions'] = frappe.get_list('VetRolePermission', filters=[['parent', '=', r.name]], fields=['*'], order_by="doctype_table asc")
 			

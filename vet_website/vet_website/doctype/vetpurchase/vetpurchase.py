@@ -140,6 +140,7 @@ def get_purchase_order_list(filters=None):
 @frappe.whitelist()
 def get_name_list(filters=None):
 	po_filters = []
+	po_or_filters = []
 	filter_json = False
 	unpaid_mode = False
 	product_detail_name = False
@@ -166,6 +167,7 @@ def get_name_list(filters=None):
 		supplier = filter_json.get('supplier', False)
 		unpaid = filter_json.get('unpaid', 0)
 		filters_json = filter_json.get('filters', False)
+		search = filter_json.get('search', False)
 		
 		if filters_json:
 			for fj in filters_json:
@@ -182,12 +184,17 @@ def get_name_list(filters=None):
 			purchase_name_map = map(lambda x: x.parent, purchaseproduct)
 			po_filters.append({'name': ['in', list(purchase_name_map)]})
 			product_detail_name = product
+
+		if search:
+			po_or_filters.append({'name': ['like', '%'+search+'%']})
+			po_or_filters.append({'supplier_name': ['like', '%'+search+'%']})
+			po_or_filters.append({'status': ['like', '%'+search+'%']})
 			
 		if unpaid == 1:
 			unpaid_mode = True
 	
 	try:
-		namelist = frappe.get_all("VetPurchase", filters=po_filters, as_list=True)
+		namelist = frappe.get_all("VetPurchase", or_filters=po_or_filters, filters=po_filters, as_list=True)
 			
 		return list(map(lambda item: item[0], namelist))
 		

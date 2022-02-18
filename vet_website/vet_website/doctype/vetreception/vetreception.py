@@ -365,6 +365,7 @@ def get_name_list(filters=None):
 		petOwner = filter_json.get('petOwner', False)
 		pet_search = filter_json.get('pet', False)
 		filters_json = filter_json.get('filters', False)
+		search = filter_json.get('search', False)
 
 		if filters_json:
 			for fj in filters_json:
@@ -377,9 +378,16 @@ def get_name_list(filters=None):
 				
 		if pet_search:
 			reception_filters.append(('pet', '=', pet_search))
+
+		if search:
+			reception_or_filters.append({'register_number': ['like', '%'+search+'%']})
+			# reception_or_filters.append({'service': ['like', '%'+search+'%']})
+			reception_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			reception_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
+			reception_or_filters.append({'description': ['like', '%'+search+'%']})
 	
 	try:
-		namelist = frappe.get_all("VetReception", filters=reception_filters, as_list=True)
+		namelist = frappe.get_all("VetReception", or_filters=reception_or_filters, filters=reception_filters, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

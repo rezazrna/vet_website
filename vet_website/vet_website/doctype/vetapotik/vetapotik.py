@@ -111,6 +111,7 @@ def get_apotik_list(filters=None):
 @frappe.whitelist()
 def get_name_list(filters=None):
 	apotik_filters = []
+	apotik_or_filters = []
 	filter_json = False
 	
 	if filters:
@@ -121,6 +122,7 @@ def get_name_list(filters=None):
 		
 	if filter_json:
 		filters_json = filter_json.get('filters', False)
+		search = filter_json.get('search', False)
 		
 		if filters_json:
 			for fj in filters_json:
@@ -138,9 +140,18 @@ def get_name_list(filters=None):
 					# else:
 					# 	fj[2] = fj[2].replace('%',"'").lower()
 					# 	fj.reverse()
+
+		if search:
+			apotik_or_filters.append({'name': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'register_number': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'pet': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'dokter': ['like', '%'+search+'%']})
+			apotik_or_filters.append({'status': ['like', '%'+search+'%']})
 	
 	try:
-		namelist = frappe.get_all("VetApotik", filters=apotik_filters, as_list=True)
+		namelist = frappe.get_all("VetApotik", or_filters=apotik_or_filters, filters=apotik_filters, as_list=True)
 			
 		return list(map(lambda item: item[0], namelist))
 		

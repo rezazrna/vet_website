@@ -456,6 +456,7 @@ def get_invoice_list(filters=None):
 @frappe.whitelist()
 def get_name_list(filters=None):
 	invoice_filters = []
+	invoice_or_filters = []
 	odd_filters = []
 	filter_json = False
 	
@@ -471,6 +472,7 @@ def get_name_list(filters=None):
 		pet = filter_json.get('pet', False)
 		petOwner = filter_json.get('petOwner', False)
 		session = filter_json.get('session', False)
+		search = filter_json.get('search', False)
 		
 		if filters_json:
 			for fj in filters_json:
@@ -502,11 +504,20 @@ def get_name_list(filters=None):
 			# 	session_close = dt.now().strftime('%Y-%m-%d %H:%M:%S')
 			# invoice_filters.append(['creation', 'between', [session_open, session_close]])
 			invoice_filters.append(('pos_session', '=', session))
+
+		if search:
+			invoice_or_filters.append({'name': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'owner_name': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'pet_name': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'user_name': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'total': ['like', '%'+search+'%']})
+			# invoice_or_filters.append({'remaining': ['like', '%'+search+'%']})
+			invoice_or_filters.append({'status': ['like', '%'+search+'%']})
 			
 	print(invoice_filters)
 	
 	try:
-		namelist = frappe.get_all("VetCustomerInvoice", filters=invoice_filters, as_list=True)
+		namelist = frappe.get_all("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

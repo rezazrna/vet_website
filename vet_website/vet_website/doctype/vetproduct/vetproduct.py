@@ -125,6 +125,7 @@ def get_product_list(filters=None):
 @frappe.whitelist()
 def get_name_list(filters=None):
 	td_filters = []
+	td_or_filters = []
 	filter_json = False
 	
 	if filters:
@@ -138,14 +139,16 @@ def get_name_list(filters=None):
 		search = filter_json.get('search', False)
 
 		if search:
-			td_filters.append({'product_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'product_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'category_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'price': ['like', '%'+search+'%']})
 		
 		if filters_json:
 			for fj in filters_json:
 				td_filters.append(fj)
 			
 	try:
-		namelist = frappe.get_all("VetProduct", filters=td_filters, as_list=True)
+		namelist = frappe.get_all("VetProduct", or_filters=td_or_filters, filters=td_filters, as_list=True)
 			
 		return list(map(lambda item: item[0], namelist))
 		
