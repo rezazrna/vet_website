@@ -16,9 +16,10 @@ def get_kandang_list(filters=None):
 	default_sort = "creation desc"
 	kandang_filters = []
 	kandang_or_filters = []
+	rawat_inap_filters = []
 	# odd_filters = []
 	filter_json = False
-	result_filter = lambda a: a
+	# result_filter = lambda a: a
 	sort_filter = False
 	sort_filter_reverse = False
 	page = 1
@@ -46,13 +47,8 @@ def get_kandang_list(filters=None):
 					else:
 						kandang_filters.append({'register_number': ['not in', ['',None,False]]})
 				elif fj[0] == 'masuk_kandang_date':
-					kandang = frappe.get_list("VetKandang", filters={'register_number': ['not in', ['',None,False]]}, fields=["register_number"])
-					rawat_inap_filters = []
-					rawat_inap_filters.append({'register_number' : ['in', list(map(lambda item: item['register_number'], kandang))]})
 					fj[0] = 'creation'
 					rawat_inap_filters.append(fj)
-					rawat_inap = frappe.get_list('VetRawatInap', filters=rawat_inap_filters, fields=['register_number'])
-					kandang_filters.append({'register_number': ['in', list(map(lambda item: item['register_number'], rawat_inap))]})
 				else:
 					kandang_filters.append(fj)
 		if search:
@@ -74,6 +70,11 @@ def get_kandang_list(filters=None):
 			default_sort = ','.join(sorts)
 	
 	try:
+		if rawat_inap_filters:
+			kandang = frappe.get_list("VetKandang", filters={'register_number': ['not in', ['',None,False]]}, fields=["register_number"])
+			rawat_inap_filters.append({'register_number' : ['in', list(map(lambda item: item['register_number'], kandang))]})
+			rawat_inap = frappe.get_list('VetRawatInap', filters=rawat_inap_filters, fields=['register_number'])
+			kandang_filters.append({'register_number': ['in', list(map(lambda item: item['register_number'], rawat_inap))]})
 		kandang = frappe.get_list("VetKandang", or_filters=kandang_or_filters, filters=kandang_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetKandang", or_filters=kandang_or_filters, filters=kandang_filters, as_list=True))
 		for k in kandang:

@@ -16,6 +16,7 @@ def get_order_list(filters=None):
 	default_sort = "creation desc"
 	order_filters = []
 	order_or_filters = []
+	payment_filters = []
 	filter_json = False
 	# result_filter = lambda a: a
 	# odd_filters = []
@@ -44,11 +45,7 @@ def get_order_list(filters=None):
 				else:
 					# odd_filters.append(fj)
 					fj[0] = 'type'
-					payment_filters = []
 					payment_filters.append(fj)
-					payment = frappe.get_list("VetPosOrderPayment", filters=payment_filters, fields=["parent"])
-					order_filters.append({'name': ['in', list(map(lambda item: item['parent'], payment))]})
-
 
 		if search:
 			order_or_filters.append({'name': ['like', '%'+search+'%']})
@@ -64,6 +61,9 @@ def get_order_list(filters=None):
 			order_filters.append({'session': session})
 	
 	try:
+		if payment_filters:
+			payment = frappe.get_list("VetPosOrderPayment", filters=payment_filters, fields=["parent"])
+			order_filters.append({'name': ['in', list(map(lambda item: item['parent'], payment))]})
 		order = frappe.get_list("VetPosOrder", or_filters=order_or_filters, filters=order_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetPosOrder", or_filters=order_or_filters, filters=order_filters, as_list=True))
 
@@ -87,6 +87,7 @@ def get_order_list(filters=None):
 def get_name_list(filters=None):
 	order_filters = []
 	order_or_filters = []
+	payment_filters = []
 	filter_json = False
 	# result_filter = lambda a: a
 	# odd_filters = []
@@ -109,10 +110,7 @@ def get_name_list(filters=None):
 				else:
 					# odd_filters.append(fj)
 					fj[0] = 'type'
-					payment_filters = []
 					payment_filters.append(fj)
-					payment = frappe.get_list("VetPosOrderPayment", filters=payment_filters, fields=["parent"])
-					order_filters.append({'name': ['in', list(map(lambda item: item['parent'], payment))]})
 			
 		if session:
 			order_filters.append({'session': session})
@@ -126,6 +124,9 @@ def get_name_list(filters=None):
 			order_or_filters.append({'total': ['like', '%'+search+'%']})
 	
 	try:
+		if payment_filters:
+			payment = frappe.get_list("VetPosOrderPayment", filters=payment_filters, fields=["parent"])
+			order_filters.append({'name': ['in', list(map(lambda item: item['parent'], payment))]})
 		namelist = frappe.get_all("VetPosOrder", or_filters=order_or_filters, filters=order_filters, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))

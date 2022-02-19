@@ -43,7 +43,7 @@ def get_apotik_list(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				# if fj[0] != 'dokter':
-					apotik_filters.append(fj)
+				apotik_filters.append(fj)
 				# else:
 				# 	fj[0] = "a.dokter.lower()"
 				# 	if fj[1] == "=":
@@ -84,14 +84,14 @@ def get_apotik_list(filters=None):
 		datalength = len(frappe.get_all("VetApotik", or_filters=apotik_or_filters, filters=apotik_filters, as_list=True))
 		for a in range(len(apotik)):
 			if apotik[a]['register_number']:
-			    reception = frappe.get_list('VetReception', filters={'register_number': apotik[a]['register_number']}, fields=['reception_date', 'pet'])
-			    pet = frappe.get_list('VetPet', filters={'name': reception[0]['pet']}, fields=['parent', 'name', 'pet_name'])
-			    pet_owner = frappe.get_list('VetPetOwner', filters={'name': pet[0]['parent']}, fields=['owner_name'])
-			    
-			    apotik[a]['reception'] = reception[0]
-			    apotik[a]['pet'] = pet[0]
-			    apotik[a]['pet_owner'] = pet_owner[0]
-			    apotik[a]['dokter'] = frappe.db.get_value('User', apotik[a].owner, 'full_name')
+				reception = frappe.get_list('VetReception', filters={'register_number': apotik[a]['register_number']}, fields=['reception_date', 'pet'])
+				pet = frappe.get_list('VetPet', filters={'name': reception[0]['pet']}, fields=['parent', 'name', 'pet_name'])
+				pet_owner = frappe.get_list('VetPetOwner', filters={'name': pet[0]['parent']}, fields=['owner_name'])
+				
+				apotik[a]['reception'] = reception[0]
+				apotik[a]['pet'] = pet[0]
+				apotik[a]['pet_owner'] = pet_owner[0]
+				apotik[a]['dokter'] = frappe.db.get_value('User', apotik[a].owner, 'full_name')
 			elif apotik[a]['pet']:
 				pet = frappe.get_list('VetPet', filters={'name': apotik[a]['pet']}, fields=['parent', 'name', 'pet_name'])
 				pet_owner = frappe.get_list('VetPetOwner', filters={'name': pet[0]['parent']}, fields=['owner_name'])
@@ -127,7 +127,7 @@ def get_name_list(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				# if fj[0] != 'dokter':
-					apotik_filters.append(fj)
+				apotik_filters.append(fj)
 				# else:
 				# 	fj[0] = "a.dokter.lower()"
 				# 	if fj[1] == "=":

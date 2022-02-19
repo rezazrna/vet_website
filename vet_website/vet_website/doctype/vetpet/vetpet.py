@@ -126,20 +126,21 @@ def get_name_list(filters=None):
 				if fj[0] != 'pet_owner':
 					pet_filters.append(fj)
 				else:
-					fj[0] = "a.pet_owner.owner_name.lower()"
-					if fj[1] == "=":
-						fj[1] = "=="
-					elif fj[1] == 'like':
-						fj[1] = 'in'
-					elif fj[1] == 'not like':
-						fj[1] = 'not in'
-					if fj[1] not in ['in', 'not in']:
-						fj[2] = "'%s'"%fj[2].lower()
-						result_filter = lambda a: eval(" ".join(fj))
-					else:
-						fj[2] = fj[2].replace('%',"'").lower()
-						fj.reverse()
-						result_filter = lambda a: eval(" ".join(fj))
+					pet_owner_filters.append(fj)
+					# fj[0] = "a.pet_owner.owner_name.lower()"
+					# if fj[1] == "=":
+					# 	fj[1] = "=="
+					# elif fj[1] == 'like':
+					# 	fj[1] = 'in'
+					# elif fj[1] == 'not like':
+					# 	fj[1] = 'not in'
+					# if fj[1] not in ['in', 'not in']:
+					# 	fj[2] = "'%s'"%fj[2].lower()
+					# 	result_filter = lambda a: eval(" ".join(fj))
+					# else:
+					# 	fj[2] = fj[2].replace('%',"'").lower()
+					# 	fj.reverse()
+					# 	result_filter = lambda a: eval(" ".join(fj))
 				
 		if search:
 			pet_owner_filters.append({'owner_name': ['like', '%'+search+'%']})

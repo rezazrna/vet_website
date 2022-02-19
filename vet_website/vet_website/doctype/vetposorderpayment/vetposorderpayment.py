@@ -46,10 +46,11 @@ def get_order_payment_list(filters=None):
 	
 	default_sort = "creation desc"
 	payment_filters = []
+	order_filters = []
 	filter_json = False
 	sort_filter = False
 	sort_filter_reverse = False
-	odd_filters = []
+	# odd_filters = []
 	page = 1
 	
 	if filters:
@@ -71,7 +72,8 @@ def get_order_payment_list(filters=None):
 				if fj[0] not in ['order_date', 'owner_name', 'session']:
 					payment_filters.append(fj)
 				else:
-					odd_filters.append(fj)
+					order_filters.append(fj)
+					# odd_filters.append(fj)
 
 		if sort:
 			sorts = sort.split(',')
@@ -85,6 +87,9 @@ def get_order_payment_list(filters=None):
 			default_sort = ','.join(sorts)
 			
 	try:
+		if order_filters:
+			pos_order = frappe.get_list('VetPosOrder', filters=order_filters)
+			payment_filters.append({'parent': ['in', list(map(lambda item: item['name'], pos_order))]})
 		order_payment = frappe.get_list("VetPosOrderPayment", filters=payment_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetPosOrderPayment", filters=payment_filters, as_list=True))
 		for op in order_payment:
@@ -95,9 +100,9 @@ def get_order_payment_list(filters=None):
 		if sort_filter != False:
 			order_payment.sort(key=sort_filter, reverse=sort_filter_reverse)
 			
-		for fj in odd_filters:
-			result_filter = process_odd_filter(fj)
-			order_payment = filter(result_filter, order_payment)
+		# for fj in odd_filters:
+		# 	result_filter = process_odd_filter(fj)
+		# 	order_payment = filter(result_filter, order_payment)
 			
 		return {'data': order_payment, 'datalength': datalength}
 			

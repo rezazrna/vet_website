@@ -45,7 +45,7 @@ def get_rawat_inap_list(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				# if fj[0] != 'dokter_reference':
-					ri_filters.append(fj)
+				ri_filters.append(fj)
 				# else:
 				# 	fj[0] = "a.dokter_reference.lower()"
 				# 	if fj[1] == "=":
@@ -126,21 +126,21 @@ def get_name_list(filters=None):
 		
 		if filters_json:
 			for fj in filters_json:
-				if fj[0] != 'dokter_reference':
-					ri_filters.append(fj)
-				else:
-					fj[0] = "a.dokter_reference.lower()"
-					if fj[1] == "=":
-						fj[1] = "=="
-					elif fj[1] == 'like':
-						fj[1] = 'in'
-					elif fj[1] == 'not like':
-						fj[1] = 'not in'
-					if fj[1] not in ['in', 'not in']:
-						fj[2] = "'%s'"%fj[2].lower()
-					else:
-						fj[2] = fj[2].replace('%',"'").lower()
-						fj.reverse()
+				# if fj[0] != 'dokter_reference':
+				ri_filters.append(fj)
+				# else:
+				# 	fj[0] = "a.dokter_reference.lower()"
+				# 	if fj[1] == "=":
+				# 		fj[1] = "=="
+				# 	elif fj[1] == 'like':
+				# 		fj[1] = 'in'
+				# 	elif fj[1] == 'not like':
+				# 		fj[1] = 'not in'
+				# 	if fj[1] not in ['in', 'not in']:
+				# 		fj[2] = "'%s'"%fj[2].lower()
+				# 	else:
+				# 		fj[2] = fj[2].replace('%',"'").lower()
+				# 		fj.reverse()
 
 		if search:
 			ri_or_filters.append({'name': ['like', '%'+search+'%']})
