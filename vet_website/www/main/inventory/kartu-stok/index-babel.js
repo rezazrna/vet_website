@@ -10,8 +10,8 @@ class KartuStok extends React.Component {
             // 'datalength': 0,
             'month': '',
             'year': '',
-            'product': '',
-            'gudang': '',
+            'product': {},
+            'gudang': {},
             'product_list': [],
             'gudang_list': [],
             'print_loading': false,
@@ -71,20 +71,20 @@ class KartuStok extends React.Component {
         var name = e.target.name
         var value = e.target.value
         if (name == 'month') {
-            var stok_date
+            var stock_date
             this.setState({ month: value })
-            stok_date = moment(this.state.year + '-' + value, 'YYYY-MM').add(1, 'month').format('YYYY-MM-DD')
-            th.setState({ stok_date: stok_date })
+            stock_date = moment(this.state.year + '-' + value, 'YYYY-MM').add(1, 'month').format('YYYY-MM-DD')
+            th.setState({ stock_date: stock_date })
         } else if (name == 'year') {
-            var stok_date
+            var stock_date
             this.setState({ year: value })
             if (this.state.mode == 'annual') {
-                stok_date = moment(value + '-12-31', 'YYYY-MM-DD')
+                stock_date = moment(value + '-12-31', 'YYYY-MM-DD').format('YYYY-MM-DD')
             } else {
-                stok_date = moment(value + '-' + this.state.month, 'YYYY-MM').add(1, 'month').format('YYYY-MM-DD')
+                stock_date = moment(value + '-' + this.state.month, 'YYYY-MM').add(1, 'month').format('YYYY-MM-DD')
             }
 
-            th.setState({ stok_date: stok_date })
+            th.setState({ stock_date: stock_date })
         } else if (name == 'product') {
             frappe.call({
                 type: "GET",
@@ -92,7 +92,7 @@ class KartuStok extends React.Component {
                 args: { product_name: value },
                 callback: function (r) {
                     if (r.message) {
-                        td.setState({ 'product_list': r.message });
+                        th.setState({ 'product_list': r.message });
                     }
                 }
             });
@@ -103,7 +103,8 @@ class KartuStok extends React.Component {
                 args: { gudang_name: value },
                 callback: function (r) {
                     if (r.message) {
-                        td.setState({ 'gudang_list': r.message });
+                        console.log(r.message)
+                        th.setState({ 'gudang_list': r.message });
                     }
                 }
             });
@@ -120,13 +121,15 @@ class KartuStok extends React.Component {
         const value = e.target.value
         var selected = false
 
+        console.log('blur')
+
         if (e.target.name == 'product') {
             if (this.state.product_list.length != 0) {
-                selected = this.state.data.product_list[0]['name']
+                selected = this.state.product_list[0]
             }
         } else if (e.target.name == 'gudang') {
             if (this.state.gudang_list.length != 0) {
-                selected = this.state.data.gudang_list[0]['name']
+                selected = this.state.gudang_list[0]
             }
         }
 
@@ -181,16 +184,18 @@ class KartuStok extends React.Component {
         console.log(this.state.month)
         console.log(this.state.year)
         console.log(this.state.stock_date)
+        console.log(this.state.product)
+        console.log(this.state.gudang)
         if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
             td.setState({ 'loaded': false })
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_kartu_stok_list",
-                args: { filters: { stock_date: td.state.stock_date }, mode: td.state.mode, product: td.state.product, gudang: td.state.gudang },
+                args: { filters: { stock_date: td.state.stock_date, product: td.state.product['name'], gudang: td.state.gudang['name'] }, mode: td.state.mode, },
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message)
-                        td.setState({ 'data': r.message, 'loaded': true });
+                        td.setState({ 'data': r.message.kartu_stok, 'saldo_awal': r.message.saldo_awal, 'loaded': true });
                     }
                 }
             });
@@ -286,24 +291,24 @@ class KartuStok extends React.Component {
                 </div>
             }
 
-            this.state.product_list.forEach((item, index) => product_options.push(<option value={item.name} key={index.toString()} >item.product_name</option>))
-            this.state.gudang_list.forEach((item, index) => gudang_options.push(<option value={item.name} key={index.toString()} >item.gudang_name</option>))
+            this.state.product_list.forEach((item, index) => product_options.push(<option value={item.product_name} key={index.toString()} />))
+            this.state.gudang_list.forEach((item, index) => gudang_options.push(<option value={item.gudang_name} key={index.toString()} />))
 
             return (
                 <div>
                     <div className="row mx-0" style={row_style2}>
-                        {/* <div className="col-auto my-auto">
-                            {print_button}
-                        </div> */}
+                        <div className="col-auto my-auto">
+                            <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => this.printPDF()}>Print</button>
+                        </div>
                         <div className="col-2 my-auto">
-                            <input name="product" list="products" className="form-control" onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
+                            <input name="product" list="products" className="form-control" defaultValue={this.state.product ? this.state.product.product_name : ''} onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
                             <datalist id="products">
                                 {product_options}
                             </datalist>
                         </div>
                         <div className="col-2 my-auto">
-                            <input name="gudang" list="gudang_list" className="form-control" onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
-                            <datalist>
+                            <input name="gudang" list="gudang_list" className="form-control" defaultValue={this.state.gudang ? this.state.gudang.gudang_name : ''} onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
+                            <datalist id="gudang_list">
                                 {gudang_options}
                             </datalist>
                         </div>
@@ -326,9 +331,8 @@ class KartuStok extends React.Component {
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
                         </div>
                     </div>
-                    <KartuStokList items={this.state.data} />
-                    <PDF data={this.state.data} />
-                    {content}
+                    <KartuStokList items={this.state.data} saldo_awal={this.state.saldo_awal} />
+                    <PDF data={this.state.data} saldo_awal={this.state.saldo_awal}/>
                 </div>
             )
 
@@ -387,6 +391,41 @@ class KartuStokList extends React.Component {
             // ![false,''].includes(search)?
             // currentItems = items.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
             // currentItems = items.slice(indexOfFirstTodo, indexOfLastTodo)
+            rows.push(
+                <div className="row mx-0">
+                    <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                        <div className="row mx-0 fs12 fw600">
+                            {/* <div className="col-3 text-center">
+                                <span>{item.product_name.replace(/&lt;/g, "<").replace(/&gt;/g, ">")}</span>
+                            </div> */}
+                            <div className="col text-center">
+                                <span></span>
+                            </div>
+                            <div className="col text-center">
+                                <span></span>
+                            </div>
+                            <div className="col text-center">
+                                <span></span>
+                            </div>
+                            <div className="col text-center">
+                                <span></span>
+                            </div>
+                            <div className="col-1 text-center">
+                                <span></span>
+                            </div>
+                            <div className="col-1 text-center">
+                                <span></span>
+                            </div>
+                            <div className="col-1 text-center">
+                                <span>{this.props.saldo_awal}</span>
+                            </div>
+                            <div className="col text-center">
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
             items.forEach(function (item, index) {
                 // if (currentItems.includes(item)){
                 rows.push(
@@ -400,14 +439,14 @@ class KartuStokList extends React.Component {
                     <div className="row mx-0">
                         <div className="col row-header">
                             <div className="row mx-0 fs12 fw600">
-                                <div className="col-3 text-center">
+                                {/* <div className="col-3 text-center">
                                     <span>Product</span>
-                                </div>
+                                </div> */}
                                 <div className="col text-center">
                                     <span>Operation ID</span>
                                 </div>
-                                <div className="col-1 text-center">
-                                    <span>Qty</span>
+                                <div className="col text-center">
+                                    <span>Date</span>
                                 </div>
                                 <div className="col text-center">
                                     <span>From</span>
@@ -415,8 +454,14 @@ class KartuStokList extends React.Component {
                                 <div className="col text-center">
                                     <span>To</span>
                                 </div>
-                                <div className="col text-center">
-                                    <span>Date</span>
+                                <div className="col-1 text-center">
+                                    <span>Masuk</span>
+                                </div>
+                                <div className="col-1 text-center">
+                                    <span>Keluar</span>
+                                </div>
+                                <div className="col-1 text-center">
+                                    <span>Saldo</span>
                                 </div>
                                 <div className="col text-center">
                                     <span>Status</span>
@@ -461,14 +506,14 @@ class KartuStokListRow extends React.Component {
             <div className="row mx-0">
                 <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
                     <div className="row mx-0 fs12 fw600">
-                        <div className="col-3 text-center">
+                        {/* <div className="col-3 text-center">
                             <span>{item.product_name.replace(/&lt;/g, "<").replace(/&gt;/g, ">")}</span>
-                        </div>
+                        </div> */}
                         <div className="col text-center">
                             <span>{item.parent}</span>
                         </div>
-                        <div className="col-1 text-center">
-                            <span>{item.quantity_done}</span>
+                        <div className="col text-center">
+                            <span>{moment_date.format('DD-MM-YYYY')}</span>
                         </div>
                         <div className="col text-center">
                             <span>{item.from_name || 'Supplier'}</span>
@@ -476,8 +521,14 @@ class KartuStokListRow extends React.Component {
                         <div className="col text-center">
                             <span>{item.to_name || 'Customer'}</span>
                         </div>
-                        <div className="col text-center">
-                            <span>{moment_date.format('DD-MM-YYYY')}</span>
+                        <div className="col-1 text-center">
+                            <span>{item.from != null ? '0' : item.quantity_done}</span>
+                        </div>
+                        <div className="col-1 text-center">
+                            <span>{item.to != null ? '0' : item.quantity_done}</span>
+                        </div>
+                        <div className="col-1 text-center">
+                            <span>{item.saldo}</span>
                         </div>
                         <div className="col text-center">
                             <span>{item.status}</span>
@@ -514,18 +565,17 @@ class PDF extends React.Component {
     }
 
     render() {
-        var search = this.props.search
-        function filterRow(row) {
-            function filterField(field) {
-                return field ? field.toString().replace(/&lt;/g, "<").replace(/&gt;/g, ">").includes(search) : false
-            }
-            var fields = [row.product_name, row.parent, row.quantity_done, row.from_name || 'Supplier', row.to_name || 'Customer', moment(row.date || row.creation).format('DD-MM-YYYY'), row.status]
-            return ![false, ''].includes(search) ? fields.some(filterField) : true
-        }
+        // var search = this.props.search
+        // function filterRow(row) {
+        //     function filterField(field) {
+        //         return field ? field.toString().replace(/&lt;/g, "<").replace(/&gt;/g, ">").includes(search) : false
+        //     }
+        //     var fields = [row.product_name, row.parent, row.quantity_done, row.from_name || 'Supplier', row.to_name || 'Customer', moment(row.date || row.creation).format('DD-MM-YYYY'), row.status]
+        //     return ![false, ''].includes(search) ? fields.some(filterField) : true
+        // }
 
         var data = this.props.data
         var profile = this.state.profile
-        console.log(data)
         var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
         var borderStyle = { border: '1px solid #000', margin: '15px 0' }
         var row2 = { margin: '0 -14px' }
@@ -545,15 +595,30 @@ class PDF extends React.Component {
         // currentItems = data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
         // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
         // currentItems = data.slice(0,30)
+        table_rows.push(
+            <tr key={'999999'} style={fs9} className="text-center">
+                {/* <td className="py-1">{d.product_name}</td> */}
+                <td className="py-1"></td>
+                <td className="py-1"></td>
+                <td className="py-1"></td>
+                <td className="py-1"></td>
+                <td className="py-1"></td>
+                <td className="py-1"></td>
+                <td className="py-1">{this.props.saldo_awal}</td>
+                <td className="py-1"></td>
+            </tr>
+        )
         data.forEach((d, index) => {
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">
-                    <td className="py-1">{d.product_name}</td>
-                    <td className="py-1">{d.name}</td>
-                    <td className="py-1">{d.quantity}</td>
+                    {/* <td className="py-1">{d.product_name}</td> */}
+                    <td className="py-1">{d.parent}</td>
+                    <td className="py-1">{moment(d.date || d.creation).format('DD-MM-YYYY')}</td>
                     <td className="py-1">{d.from_name || 'Supplier'}</td>
                     <td className="py-1">{d.to_name || 'Customer'}</td>
-                    <td className="py-1">{d.date}</td>
+                    <td className="py-1">{d.from != null ? '0' : d.quantity_done}</td>
+                    <td className="py-1">{d.to != null ? '0' : d.quantity_done}</td>
+                    <td className="py-1">{d.saldo}</td>
                     <td className="py-1">{d.status}</td>
                 </tr>
             )
@@ -590,12 +655,14 @@ class PDF extends React.Component {
                         <table className="fs12" style={row2}>
                             <thead className="text-uppercase" style={thead}>
                                 <tr className="text-center">
-                                    <th className="fw700 py-2" width="182px">Product</th>
+                                    {/* <th className="fw700 py-2" width="182px">Product</th> */}
                                     <th className="fw700 py-2" width="62px">Operation ID</th>
-                                    <th className="fw700 py-2" width="63px">Qty</th>
+                                    <th className="fw700 py-2" width="63px">Date</th>
                                     <th className="fw700 py-2" width="63px">From</th>
                                     <th className="fw700 py-2" width="63px">To</th>
-                                    <th className="fw700 py-2" width="63px">Date</th>
+                                    <th className="fw700 py-2" width="63px">Masuk</th>
+                                    <th className="fw700 py-2" width="63px">Keluar</th>
+                                    <th className="fw700 py-2" width="63px">Saldo</th>
                                     <th className="fw700 py-2" width="63px">Status</th>
                                 </tr>
                             </thead>

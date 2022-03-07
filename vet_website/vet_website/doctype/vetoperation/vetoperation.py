@@ -3,12 +3,14 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
+from shutil import move
 import frappe
 import json
 from datetime import datetime as dt
 from urllib.parse import unquote
 from frappe.model.document import Document
 from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry
+from dateutil.relativedelta import relativedelta as rd
 
 class VetOperation(Document):
 	pass
@@ -421,8 +423,10 @@ def get_stock_move_list(filters=None):
 		return {'error': e}
 
 @frappe.whitelist()
-def get_kartu_stok_list(filters=None):
+def get_kartu_stok_list(filters=None, mode=False,):
 	td_filters = []
+	moves_filters = []
+	gudang_or_filters = []
 	filter_json = False
 	
 	if filters:
@@ -443,9 +447,11 @@ def get_kartu_stok_list(filters=None):
 
 		if product:
 			td_filters.append({'product': product})
+			moves_filters.append({'product': product})
 
 		if gudang:
-			td_filters.append({'gudang': gudang})
+			gudang_or_filters.append({'from': gudang})
+			gudang_or_filters.append({'to': gudang})
 
 		if stock_date:
 			max_date_dt = dt.strptime(stock_date, '%Y-%m-%d') - rd(days=1)
@@ -459,21 +465,50 @@ def get_kartu_stok_list(filters=None):
 			print(max_date_dt.strftime('%Y-%m-%d'))
 			print(mode)
 			td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			moves_filters.append({'date': ['<', min_date]})
 	
 	try:
-		kartu_stok = frappe.get_list("VetOperationMove",  filters=td_filters, fields=["*"], order_by="date asc")
+		if gudang_or_filters:
+			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters)
+			td_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
+			moves_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
+		kartu_stok = frappe.get_list("VetOperationMove", filters=td_filters, fields=["*"], order_by="date asc")
+		saldo_awal = 0
+		moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="date asc")
+		if moves:
+			saldo_awal = count_saldo_awal(moves)
+
+		saldo = saldo_awal
 		
 		for k in kartu_stok:
 			operation = frappe.get_doc("VetOperation", k.parent)
 			k['reference'] = operation.reference
 			k['from_name'] = operation.from_name
 			k['to_name'] = operation.to_name
+			k['from'] = operation.get('from')
+			k['to'] = operation.to
+			if operation.get('from', False):
+				saldo -= k.quantity_done
+			elif operation.get('to', False):
+				saldo += k.quantity_done
+			k['saldo'] = saldo
 			k['status'] = operation.status
 			
-		return kartu_stok
+		return {'kartu_stok': kartu_stok, 'saldo_awal': saldo_awal}
 		
 	except PermissionError as e:
 		return {'error': e}
+
+def count_saldo_awal(moves):
+	saldo = 0
+	for m in moves:
+		operation = frappe.get_doc("VetOperation", m.parent)
+		if operation.get('from', False):
+			saldo -= m.quantity_done
+		elif operation.get('to', False):
+			saldo += m.quantity_done
+
+	return saldo
 
 @frappe.whitelist()
 def get_product_list(product_name):
