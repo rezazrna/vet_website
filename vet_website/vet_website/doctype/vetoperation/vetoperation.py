@@ -421,6 +421,61 @@ def get_stock_move_list(filters=None):
 		return {'error': e}
 
 @frappe.whitelist()
+def get_kartu_stok_list(filters=None):
+	td_filters = []
+	filter_json = False
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		product = filter_json.get('product', False)
+		gudang = filter_json.get('gudang', False)
+		filters_json = filter_json.get('filters', False)
+		stock_date = filter_json.get('stock_date', False)
+		
+		if filters_json:
+			for fj in filters_json:
+				td_filters.append(fj)
+
+		if product:
+			td_filters.append({'product': product})
+
+		if gudang:
+			td_filters.append({'gudang': gudang})
+
+		if stock_date:
+			max_date_dt = dt.strptime(stock_date, '%Y-%m-%d') - rd(days=1)
+			if mode == 'monthly':
+				min_date = (max_date_dt).strftime('%Y-%m-01')
+			else:
+				min_date = max_date_dt.strftime('%Y-01-01')
+			print('min date')
+			print(min_date)
+			print('max date')
+			print(max_date_dt.strftime('%Y-%m-%d'))
+			print(mode)
+			td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+	
+	try:
+		kartu_stok = frappe.get_list("VetOperationMove",  filters=td_filters, fields=["*"], order_by="date asc")
+		
+		for k in kartu_stok:
+			operation = frappe.get_doc("VetOperation", k.parent)
+			k['reference'] = operation.reference
+			k['from_name'] = operation.from_name
+			k['to_name'] = operation.to_name
+			k['status'] = operation.status
+			
+		return kartu_stok
+		
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
 def get_product_list(product_name):
 	try:
 		products = frappe.get_list("VetProduct", filters={'product_name': ['like', '%'+product_name+'%']}, fields=["name", 'product_name'])

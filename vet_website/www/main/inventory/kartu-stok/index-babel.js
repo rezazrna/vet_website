@@ -121,9 +121,13 @@ class KartuStok extends React.Component {
         var selected = false
 
         if (e.target.name == 'product') {
-            // selected = this.state.data.product_list.find(i => i.gudang_name == value)
+            if (this.state.product_list.length != 0) {
+                selected = this.state.data.product_list[0]['name']
+            }
         } else if (e.target.name == 'gudang') {
-            // selected = this.state.data.gudang_list.find(i => i.pet_name == value)
+            if (this.state.gudang_list.length != 0) {
+                selected = this.state.data.gudang_list[0]['name']
+            }
         }
 
         if (!selected) {
@@ -133,6 +137,12 @@ class KartuStok extends React.Component {
                 this.setState({ product: '' })
             } else if (e.target.name == 'gudang') {
                 this.setState({ gudang: '' })
+            }
+        } else {
+            if (e.target.name == 'product') {
+                this.setState({ product: selected })
+            } else if (e.target.name == 'gudang') {
+                this.setState({ gudang: selected })
             }
         }
     }
@@ -176,7 +186,7 @@ class KartuStok extends React.Component {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_kartu_stok_list",
-                args: { filters: { accounting_date: td.state.accounting_date }, mode: td.state.mode, is_profit_loss: 1 },
+                args: { filters: { stock_date: td.state.stock_date }, mode: td.state.mode, product: td.state.product, gudang: td.state.gudang },
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message)
