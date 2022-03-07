@@ -419,6 +419,26 @@ def get_stock_move_list(filters=None):
 		
 	except PermissionError as e:
 		return {'error': e}
+
+@frappe.whitelist()
+def get_product_list(product_name):
+	try:
+		products = frappe.get_list("VetProduct", filters={'product_name': ['like', '%'+product_name+'%']}, fields=["name", 'product_name'])
+			
+		return products
+		
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
+def get_gudang_list(gudang_name):
+	try:
+		gudang_list = frappe.get_list("VetGudang", filters={'gudang_name': ['like', '%'+gudang_name+'%']}, fields=["name", 'gudang_name'])
+			
+		return gudang_list
+		
+	except PermissionError as e:
+		return {'error': e}
 		
 		
 @frappe.whitelist()
