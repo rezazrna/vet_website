@@ -137,9 +137,9 @@ class KartuStok extends React.Component {
             e.target.value = ''
 
             if (e.target.name == 'product') {
-                this.setState({ product: '' })
+                this.setState({ product: {} })
             } else if (e.target.name == 'gudang') {
-                this.setState({ gudang: '' })
+                this.setState({ gudang: {} })
             }
         } else {
             if (e.target.name == 'product') {
@@ -186,7 +186,7 @@ class KartuStok extends React.Component {
         console.log(this.state.stock_date)
         console.log(this.state.product)
         console.log(this.state.gudang)
-        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
+        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '' && this.state.product && this.state.gudang) {
             td.setState({ 'loaded': false })
             frappe.call({
                 type: "GET",
@@ -285,7 +285,7 @@ class KartuStok extends React.Component {
                 }
 
                 month_select = <div className="col-2 my-auto">
-                    <select name="month" className="form-control" value={this.state.month} onChange={e => this.filterChange(e)}>
+                    <select name="month" placeholder="Month" className="form-control" value={this.state.month} onChange={e => this.filterChange(e)}>
                         {month_options}
                     </select>
                 </div>
@@ -301,19 +301,19 @@ class KartuStok extends React.Component {
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => this.printPDF()}>Print</button>
                         </div>
                         <div className="col-2 my-auto">
-                            <input name="product" list="products" className="form-control" defaultValue={this.state.product ? this.state.product.product_name : ''} onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
+                            <input name="product" placeholder="Product" list="products" className="form-control" defaultValue={this.state.product ? this.state.product.product_name : ''} onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
                             <datalist id="products">
                                 {product_options}
                             </datalist>
                         </div>
                         <div className="col-2 my-auto">
-                            <input name="gudang" list="gudang_list" className="form-control" defaultValue={this.state.gudang ? this.state.gudang.gudang_name : ''} onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
+                            <input name="gudang" placeholder="Gudang" list="gudang_list" className="form-control" defaultValue={this.state.gudang ? this.state.gudang.gudang_name : ''} onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
                             <datalist id="gudang_list">
                                 {gudang_options}
                             </datalist>
                         </div>
                         <div className="col-2 my-auto">
-                            <select name="mode" className="form-control" value={this.state.mode} onChange={e => this.setMode(e)}>
+                            <select name="mode" placeholder="Periode" className="form-control" value={this.state.mode} onChange={e => this.setMode(e)}>
                                 <option className="d-none" key="99999"></option>
                                 <option value="monthly">Monthly</option>
                                 <option value="annual">Annual</option>
@@ -323,7 +323,7 @@ class KartuStok extends React.Component {
                         {sd_period}
                         {month_select}
                         <div className="col-2 my-auto">
-                            <select name="year" className="form-control" value={this.state.year} onChange={e => this.filterChange(e)}>
+                            <select name="year" placeholder="Year" className="form-control" value={this.state.year} onChange={e => this.filterChange(e)}>
                                 {year_options}
                             </select>
                         </div>
@@ -332,7 +332,7 @@ class KartuStok extends React.Component {
                         </div>
                     </div>
                     <KartuStokList items={this.state.data} saldo_awal={this.state.saldo_awal} />
-                    <PDF data={this.state.data} saldo_awal={this.state.saldo_awal}/>
+                    <PDF data={this.state.data} saldo_awal={this.state.saldo_awal} />
                 </div>
             )
 
