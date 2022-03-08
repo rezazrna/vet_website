@@ -186,7 +186,7 @@ class KartuStok extends React.Component {
         console.log(this.state.stock_date)
         console.log(this.state.product)
         console.log(this.state.gudang)
-        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '' && this.state.product && this.state.gudang) {
+        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '' && this.state.product.name && this.state.gudang.name) {
             td.setState({ 'loaded': false })
             frappe.call({
                 type: "GET",
