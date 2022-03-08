@@ -200,7 +200,7 @@ class KartuStok extends React.Component {
                 }
             });
         } else {
-            frappe.msgprint(('Month or Year must be selected'));
+            frappe.msgprint(('Product, Gudang, Month or Year must be selected'));
         }
     }
 
