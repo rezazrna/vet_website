@@ -5,40 +5,40 @@ class MutasiPersediaan extends React.Component {
         this.state = {
             'data': [],
             'loaded': true,
-            // 'currentpage': 1,
+            'currentpage': 1,
             // 'search': false,
-            // 'datalength': 0,
+            'datalength': 0,
             'month': '',
             'year': '',
-            'product': {},
+            // 'product': {},
             'gudang': {},
-            'product_list': [],
+            // 'product_list': [],
             'gudang_list': [],
             'print_loading': false,
         }
 
         // this.kartuStokSearch = this.stockMoveSearch.bind(this);
-        // this.paginationClick = this.paginationClick.bind(this);
+        this.paginationClick = this.paginationClick.bind(this);
     }
 
     // componentDidMount() {
     //     var td = this
     //     var args = { filters: [] }
-    //     if (product) {
-    //         args.product = product
+    //     // if (product) {
+    //     //     args.product = product
 
-    //         frappe.call({
-    //             type: "GET",
-    //             method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_kartu_stok_list",
-    //             args: { filters: args },
-    //             callback: function (r) {
-    //                 if (r.message) {
-    //                     console.log(r.message)
-    //                     td.setState({ 'data': r.message.operation, 'loaded': true, 'datalength': r.message.datalength });
-    //                 }
-    //             }
-    //         });
-    //     }
+    //     //     frappe.call({
+    //     //         type: "GET",
+    //     //         method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_kartu_stok_list",
+    //     //         args: { filters: args },
+    //     //         callback: function (r) {
+    //     //             if (r.message) {
+    //     //                 console.log(r.message)
+    //     //                 td.setState({ 'data': r.message.operation, 'loaded': true, 'datalength': r.message.datalength });
+    //     //             }
+    //     //         }
+    //     //     });
+    //     // }
 
     //     sessionStorage.setItem(window.location.pathname, JSON.stringify(args))
     // }
@@ -85,18 +85,20 @@ class MutasiPersediaan extends React.Component {
             }
 
             th.setState({ stock_date: stock_date })
-        } else if (name == 'product') {
-            frappe.call({
-                type: "GET",
-                method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_product_list",
-                args: { product_name: value },
-                callback: function (r) {
-                    if (r.message) {
-                        th.setState({ 'product_list': r.message });
-                    }
-                }
-            });
-        } else if (name == 'gudang') {
+        }
+        // else if (name == 'product') {
+        //     frappe.call({
+        //         type: "GET",
+        //         method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_product_list",
+        //         args: { product_name: value },
+        //         callback: function (r) {
+        //             if (r.message) {
+        //                 th.setState({ 'product_list': r.message });
+        //             }
+        //         }
+        //     });
+        // } 
+        else if (name == 'gudang') {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_gudang_list",
@@ -123,11 +125,12 @@ class MutasiPersediaan extends React.Component {
 
         console.log('blur')
 
-        if (e.target.name == 'product') {
-            if (this.state.product_list.length != 0) {
-                selected = this.state.product_list[0]
-            }
-        } else if (e.target.name == 'gudang') {
+        // if (e.target.name == 'product') {
+        //     if (this.state.product_list.length != 0) {
+        //         selected = this.state.product_list[0]
+        //     }
+        // } else 
+        if (e.target.name == 'gudang') {
             if (this.state.gudang_list.length != 0) {
                 selected = this.state.gudang_list[0]
             }
@@ -136,47 +139,49 @@ class MutasiPersediaan extends React.Component {
         if (!selected) {
             e.target.value = ''
 
-            if (e.target.name == 'product') {
-                this.setState({ product: {} })
-            } else if (e.target.name == 'gudang') {
+            // if (e.target.name == 'product') {
+            //     this.setState({ product: {} })
+            // } else 
+            if (e.target.name == 'gudang') {
                 this.setState({ gudang: {} })
             }
         } else {
-            if (e.target.name == 'product') {
-                this.setState({ product: selected })
-            } else if (e.target.name == 'gudang') {
+            // if (e.target.name == 'product') {
+            //     this.setState({ product: selected })
+            // } else 
+            if (e.target.name == 'gudang') {
                 this.setState({ gudang: selected })
             }
         }
     }
 
-    // paginationClick(number) {
-    //     var po = this
-    //     var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+    paginationClick(number) {
+        var po = this
+        // var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
-    //     this.setState({
-    //         currentpage: Number(number),
-    //         loaded: false,
-    //     });
+        this.setState({
+            currentpage: Number(number),
+            loaded: false,
+        });
 
-    //     filters['currentpage'] = this.state.currentpage
+        // filters['currentpage'] = this.state.currentpage
 
-    //     sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+        // sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
-    //     // if (number * 30 > this.state.data.length) {
-    //     frappe.call({
-    //         type: "GET",
-    //         method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_kartuStok_list",
-    //         args: { filters: filters },
-    //         callback: function (r) {
-    //             if (r.message) {
-    //                 console.log(r.message)
-    //                 po.setState({ 'data': r.message.operation, 'loaded': true, 'datalength': r.message.datalength });
-    //             }
-    //         }
-    //     });
-    //     // }
-    // }
+        // if (number * 30 > this.state.data.length) {
+        frappe.call({
+            type: "GET",
+            method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_mutasi_persediaan_list",
+            args: { filters: { currentpage: td.state.currentpage, stock_date: td.state.stock_date, gudang: td.state.gudang['name'] }, mode: td.state.mode, },
+            callback: function (r) {
+                if (r.message) {
+                    console.log(r.message)
+                    po.setState({ 'data': r.message.mutasi_persediaan, 'loaded': true, 'datalength': r.message.datalength });
+                }
+            }
+        });
+        // }
+    }
 
     setFilter() {
         var td = this
@@ -191,16 +196,16 @@ class MutasiPersediaan extends React.Component {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_mutasi_persediaan_list",
-                args: { filters: { stock_date: td.state.stock_date, product: td.state.product['name'], gudang: td.state.gudang['name'] }, mode: td.state.mode, },
+                args: { filters: { currentpage: td.state.currentpage, stock_date: td.state.stock_date, gudang: td.state.gudang['name'] }, mode: td.state.mode, },
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message)
-                        td.setState({ 'data': r.message.mutasi_persediaan, 'loaded': true });
+                        td.setState({ 'data': r.message.mutasi_persediaan, 'loaded': true, 'datalength': r.message.datalength });
                     }
                 }
             });
         } else {
-            frappe.msgprint(('Product, Gudang, Month or Year must be selected'));
+            frappe.msgprint(('Gudang, Month or Year must be selected'));
         }
     }
 
@@ -254,8 +259,7 @@ class MutasiPersediaan extends React.Component {
         // ]
 
         var row_style2 = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px', 'height': '72px' }
-        var mode_options = [<option className="d-none" key="99999"></option>]
-        var product_options = [<option className="d-none" key="99999"></option>]
+        // var product_options = [<option className="d-none" key="99999"></option>]
         var gudang_options = [<option className="d-none" key="99999"></option>]
         var month_options = [<option className="d-none" key="99999"></option>]
         var year_options = [<option className="d-none" key="99999"></option>]
@@ -291,7 +295,7 @@ class MutasiPersediaan extends React.Component {
                 </div>
             }
 
-            this.state.product_list.forEach((item, index) => product_options.push(<option value={item.product_name} key={index.toString()} />))
+            // this.state.product_list.forEach((item, index) => product_options.push(<option value={item.product_name} key={index.toString()} />))
             this.state.gudang_list.forEach((item, index) => gudang_options.push(<option value={item.gudang_name} key={index.toString()} />))
 
             return (
@@ -300,12 +304,12 @@ class MutasiPersediaan extends React.Component {
                         <div className="col-auto my-auto">
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => this.printPDF()}>Print</button>
                         </div>
-                        <div className="col-2 my-auto">
+                        {/* <div className="col-2 my-auto">
                             <input name="product" placeholder="Product" list="products" className="form-control" defaultValue={this.state.product ? this.state.product.product_name : ''} onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
                             <datalist id="products">
                                 {product_options}
                             </datalist>
-                        </div>
+                        </div> */}
                         <div className="col-2 my-auto">
                             <input name="gudang" placeholder="Gudang" list="gudang_list" className="form-control" defaultValue={this.state.gudang ? this.state.gudang.gudang_name : ''} onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
                             <datalist id="gudang_list">
@@ -331,7 +335,7 @@ class MutasiPersediaan extends React.Component {
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
                         </div>
                     </div>
-                    <MutasiPersediaanList items={this.state.data} />
+                    <MutasiPersediaanList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
                     <PDF data={this.state.data} />
                 </div>
             )
@@ -384,7 +388,7 @@ class MutasiPersediaanList extends React.Component {
         var items = this.props.items
 
         if (items.length != 0) {
-            var list = this
+            // var list = this
             // const indexOfLastTodo = this.props.currentpage * 30;
             // const indexOfFirstTodo = indexOfLastTodo - 30;
             // var currentItems
@@ -408,16 +412,16 @@ class MutasiPersediaanList extends React.Component {
                                     <span>Product</span>
                                 </div> */}
                                 <div className="col text-center">
-                                    <span>Operation ID</span>
+                                    <span>Product Code</span>
                                 </div>
                                 <div className="col text-center">
-                                    <span>Date</span>
+                                    <span>Product Name</span>
                                 </div>
-                                <div className="col text-center">
-                                    <span>From</span>
+                                <div className="col-1 text-center">
+                                    <span>UOM</span>
                                 </div>
-                                <div className="col text-center">
-                                    <span>To</span>
+                                <div className="col-1 text-center">
+                                    <span>Awal</span>
                                 </div>
                                 <div className="col-1 text-center">
                                     <span>Masuk</span>
@@ -426,16 +430,13 @@ class MutasiPersediaanList extends React.Component {
                                     <span>Keluar</span>
                                 </div>
                                 <div className="col-1 text-center">
-                                    <span>Saldo</span>
-                                </div>
-                                <div className="col text-center">
-                                    <span>Status</span>
+                                    <span>Akhir</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     {rows}
-                    {/* <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10' /> */}
+                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10' />
                 </div>
             )
         }
@@ -456,47 +457,44 @@ class MutasiPersediaanList extends React.Component {
 }
 
 class MutasiPersediaanListRow extends React.Component {
-    clickRow() {
-        var pathname = "/main/inventory/operation/edit?n=" + this.props.item.parent
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/inventory/operation/edit?n=" + this.props.item.parent
+    //     window.location = pathname
+    // }
 
     render() {
 
         var item = this.props.item
-        var date = item.date || item.creation
-        var moment_date = moment(date)
+        // var date = item.date || item.creation
+        // var moment_date = moment(date)
 
         return (
             <div className="row mx-0">
-                <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                <div className="col row-list row-list-link">
                     <div className="row mx-0 fs12 fw600">
                         {/* <div className="col-3 text-center">
                             <span>{item.product_name.replace(/&lt;/g, "<").replace(/&gt;/g, ">")}</span>
                         </div> */}
                         <div className="col text-center">
-                            <span>{item.parent}</span>
+                            <span>{item.default_code}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{moment_date.format('DD-MM-YYYY')}</span>
-                        </div>
-                        <div className="col text-center">
-                            <span>{item.from_name || 'Supplier'}</span>
-                        </div>
-                        <div className="col text-center">
-                            <span>{item.to_name || 'Customer'}</span>
+                            <span>{item.product_name}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.from != null ? '0' : item.quantity_done}</span>
+                            <span>{item.uom_name}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.to != null ? '0' : item.quantity_done}</span>
+                            <span>{item.saldo_awal}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.saldo}</span>
+                            <span>{item.masuk}</span>
                         </div>
-                        <div className="col text-center">
-                            <span>{item.status}</span>
+                        <div className="col-1 text-center">
+                            <span>{item.keluar}</span>
+                        </div>
+                        <div className="col-1 text-center">
+                            <span>{item.saldo_akhir}</span>
                         </div>
                     </div>
                 </div>
@@ -564,14 +562,13 @@ class PDF extends React.Component {
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">
                     {/* <td className="py-1">{d.product_name}</td> */}
-                    <td className="py-1">{d.parent}</td>
-                    <td className="py-1">{moment(d.date || d.creation).format('DD-MM-YYYY')}</td>
-                    <td className="py-1">{d.from_name || 'Supplier'}</td>
-                    <td className="py-1">{d.to_name || 'Customer'}</td>
-                    <td className="py-1">{d.from != null ? '0' : d.quantity_done}</td>
-                    <td className="py-1">{d.to != null ? '0' : d.quantity_done}</td>
-                    <td className="py-1">{d.saldo}</td>
-                    <td className="py-1">{d.status}</td>
+                    <td className="py-1">{d.default_code}</td>
+                    <td className="py-1">{d.product_name}</td>
+                    <td className="py-1">{d.uom_name}</td>
+                    <td className="py-1">{d.saldo_awal}</td>
+                    <td className="py-1">{d.masuk}</td>
+                    <td className="py-1">{d.keluar}</td>
+                    <td className="py-1">{d.saldo_akhir}</td>
                 </tr>
             )
         })
@@ -608,14 +605,13 @@ class PDF extends React.Component {
                             <thead className="text-uppercase" style={thead}>
                                 <tr className="text-center">
                                     {/* <th className="fw700 py-2" width="182px">Product</th> */}
-                                    <th className="fw700 py-2" width="62px">Operation ID</th>
-                                    <th className="fw700 py-2" width="63px">Date</th>
-                                    <th className="fw700 py-2" width="63px">From</th>
-                                    <th className="fw700 py-2" width="63px">To</th>
+                                    <th className="fw700 py-2" width="62px">Product Code</th>
+                                    <th className="fw700 py-2" width="63px">Product Name</th>
+                                    <th className="fw700 py-2" width="63px">UOM</th>
+                                    <th className="fw700 py-2" width="63px">Awal</th>
                                     <th className="fw700 py-2" width="63px">Masuk</th>
                                     <th className="fw700 py-2" width="63px">Keluar</th>
-                                    <th className="fw700 py-2" width="63px">Saldo</th>
-                                    <th className="fw700 py-2" width="63px">Status</th>
+                                    <th className="fw700 py-2" width="63px">Akhir</th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -473,12 +473,12 @@ def get_kartu_stok_list(filters=None, mode=False):
 			td_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 			moves_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 		kartu_stok = frappe.get_list("VetOperationMove", filters=td_filters, fields=["*"], order_by="date asc")
-		saldo_awal = 0
+		saldo_awal = {'saldo': 0, 'masuk': 0, 'keluar': 0}
 		moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="date asc")
 		if moves:
-			saldo_awal = count_saldo_awal(moves)
+			saldo_awal = count_saldo_quantity(moves)
 
-		saldo = saldo_awal
+		saldo = saldo_awal['saldo']
 		
 		for k in kartu_stok:
 			operation = frappe.get_doc("VetOperation", k.parent)
@@ -495,21 +495,25 @@ def get_kartu_stok_list(filters=None, mode=False):
 			k['saldo'] = saldo
 			
 			
-		return {'kartu_stok': kartu_stok, 'saldo_awal': saldo_awal}
+		return {'kartu_stok': kartu_stok, 'saldo_awal': saldo_awal['saldo']}
 		
 	except PermissionError as e:
 		return {'error': e}
 
-def count_saldo_awal(moves):
+def count_saldo_quantity(moves):
 	saldo = 0
+	masuk = 0
+	keluar = 0
 	for m in moves:
 		operation = frappe.get_doc("VetOperation", m.parent)
 		if operation.get('from', False):
 			saldo -= m.quantity_done
+			keluar += m.quantity_done
 		elif operation.get('to', False):
 			saldo += m.quantity_done
+			masuk += m.quantity_done
 
-	return saldo
+	return {'saldo': saldo, 'masuk': masuk, 'keluar': keluar}
 
 @frappe.whitelist()
 def get_product_list(product_name):
@@ -582,7 +586,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False):
 			moves_filters.append({'date': ['<', min_date]})
 	
 	try:
-		products = frappe.get_list("VetProduct", start=(page - 1) * 10, page_length= 10)
+		products = frappe.get_list("VetProduct", fields['default_code', 'product_name', 'uom_name'], start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetProduct", as_list=True))
 		if gudang_or_filters:
 			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters)
@@ -592,22 +596,22 @@ def get_mutasi_persediaan_list(filters=None, mode=False):
 		for p in products:
 			td_filters.append({'product': p['name']})
 			moves_filters.append({'product': p['name']})
-			mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['*'])
-			saldo_awal = 0
-			moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="date asc")
+
+			saldo_awal = {'saldo': 0, 'masuk': 0, 'keluar': 0}
+			moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["quantity_done", "parent"], order_by="date asc")
 			if moves:
-				saldo_awal = count_saldo_awal(moves)
+				saldo_awal = count_saldo_quantity(moves)
 
-			saldo = saldo_awal
+			p['saldo_awal'] = saldo_awal['saldo']
 
-			for m in mutasi_persediaan:
-				operation = frappe.get_doc("VetOperation", k.parent)
-				m['reference'] = operation.reference
-				m['from_name'] = operation.from_name
-				m['to_name'] = operation.to_name
-				m['from'] = operation.get('from')
-				m['to'] = operation.to
-				m['status'] = operation.status
+			saldo_akhir = {'saldo': 0, 'masuk': 0, 'keluar': 0}
+			mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['quantity_done', 'parent'], order_by="date asc")
+			if mutasi_persediaan:
+				saldo_akhir = count_saldo_quantity(mutasi_persediaan)
+
+			p['saldo_akhir'] = saldo_akhir['saldo']
+			p['masuk'] = saldo_akhir['masuk']
+			p['keluar'] = saldo_akhir['keluar']			
 			
 		return {'mutasi_persediaan': mutasi_persediaan}
 		

@@ -491,10 +491,10 @@ class KartuStokList extends React.Component {
 }
 
 class KartuStokListRow extends React.Component {
-    clickRow() {
-        var pathname = "/main/inventory/operation/edit?n=" + this.props.item.parent
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/inventory/operation/edit?n=" + this.props.item.parent
+    //     window.location = pathname
+    // }
 
     render() {
 
@@ -504,7 +504,7 @@ class KartuStokListRow extends React.Component {
 
         return (
             <div className="row mx-0">
-                <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                <div className="col row-list row-list-link">
                     <div className="row mx-0 fs12 fw600">
                         {/* <div className="col-3 text-center">
                             <span>{item.product_name.replace(/&lt;/g, "<").replace(/&gt;/g, ">")}</span>
