@@ -9,6 +9,7 @@ import json
 from datetime import datetime as dt
 from urllib.parse import unquote
 from frappe.model.document import Document
+from numpy import product
 from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry
 from dateutil.relativedelta import relativedelta as rd
 
@@ -586,7 +587,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False):
 			moves_filters.append({'date': ['<', min_date]})
 	
 	try:
-		products = frappe.get_list("VetProduct", fields['default_code', 'product_name', 'uom_name'], start=(page - 1) * 10, page_length= 10)
+		products = frappe.get_list("VetProduct", fields=['default_code', 'product_name', 'uom_name', 'name'], start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetProduct", as_list=True))
 		if gudang_or_filters:
 			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters)
@@ -594,13 +595,16 @@ def get_mutasi_persediaan_list(filters=None, mode=False):
 			moves_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 
 		for p in products:
-			td_filters.append({'product': p['name']})
-			moves_filters.append({'product': p['name']})
+			td_filters.append({'product': p.name})
+			moves_filters.append({'product': p.name})
 
 			saldo_awal = {'saldo': 0, 'masuk': 0, 'keluar': 0}
+			nilai_awal = 0
+			nilai_akhir = 0
 			moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["quantity_done", "parent"], order_by="date asc")
 			if moves:
 				saldo_awal = count_saldo_quantity(moves)
+				nilai_awal = count_nilai_awal(moves)
 
 			p['saldo_awal'] = saldo_awal['saldo']
 
@@ -611,12 +615,39 @@ def get_mutasi_persediaan_list(filters=None, mode=False):
 
 			p['saldo_akhir'] = saldo_akhir['saldo']
 			p['masuk'] = saldo_akhir['masuk']
-			p['keluar'] = saldo_akhir['keluar']			
+			p['keluar'] = saldo_akhir['keluar']
+			p['nilai_awal'] = nilai_awal
+			p['nilai_akhir'] = nilai_akhir		
 			
-		return {'mutasi_persediaan': mutasi_persediaan}
+		return {'mutasi_persediaan': products, 'datalength': datalength}
 		
 	except PermissionError as e:
 		return {'error': e}
+
+def count_nilai_awal(moves):
+	pembelian = []
+	penjualan = 0
+	nilai = 0
+	for m in moves:
+		operation = frappe.get_doc("VetOperation", m.parent)
+		if operation.get('to', False) and 'PO' in operation.reference and 'POSORDER' not in operation.reference:
+			purchase = frappe.get_doc("VetPurchase", operation.reference)
+			products_purchase = frappe.get_list("VetPurchaseProducts", filters={'parent': purchase.name})
+			for pp in products_purchase:
+				pembelian.append({'quantity': pp.quantity_receive, 'price': pp.price})
+
+		if operation.get('from', False):
+			penjualan += m.quantity_done
+
+	for pe in pembelian:
+		if penjualan != 0:
+			penjualan -= (pe['quantity'] or 0)
+			if penjualan < 0:
+				nilai += penjualan * (pe['price'] or 0)
+			else:
+				nilai += (pe['quantity'] or 0) * (pe['price'] or 0)
+
+	return nilai
 		
 @frappe.whitelist()
 def decrease_product_valuation(product, quantity, uom=False, reverse=False):

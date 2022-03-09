@@ -189,9 +189,8 @@ class MutasiPersediaan extends React.Component {
         console.log(this.state.month)
         console.log(this.state.year)
         console.log(this.state.stock_date)
-        console.log(this.state.product)
         console.log(this.state.gudang)
-        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '' && this.state.product.name && this.state.gudang.name) {
+        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '' && this.state.gudang.name) {
             td.setState({ 'loaded': false })
             frappe.call({
                 type: "GET",
@@ -423,6 +422,9 @@ class MutasiPersediaanList extends React.Component {
                                 <div className="col-1 text-center">
                                     <span>Awal</span>
                                 </div>
+                                <div className="col text-center">
+                                    <span>Nilai Awal</span>
+                                </div>
                                 <div className="col-1 text-center">
                                     <span>Masuk</span>
                                 </div>
@@ -431,6 +433,9 @@ class MutasiPersediaanList extends React.Component {
                                 </div>
                                 <div className="col-1 text-center">
                                     <span>Akhir</span>
+                                </div>
+                                <div className="col text-center">
+                                    <span>Nilai Akhir</span>
                                 </div>
                             </div>
                         </div>
@@ -487,6 +492,9 @@ class MutasiPersediaanListRow extends React.Component {
                         <div className="col-1 text-center">
                             <span>{item.saldo_awal}</span>
                         </div>
+                        <div className="col text-center">
+                            <span>{item.nilai_awal}</span>
+                        </div>
                         <div className="col-1 text-center">
                             <span>{item.masuk}</span>
                         </div>
@@ -495,6 +503,9 @@ class MutasiPersediaanListRow extends React.Component {
                         </div>
                         <div className="col-1 text-center">
                             <span>{item.saldo_akhir}</span>
+                        </div>
+                        <div className="col text-center">
+                            <span>{item.nilai_akhir}</span>
                         </div>
                     </div>
                 </div>
