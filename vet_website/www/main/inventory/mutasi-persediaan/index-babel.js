@@ -1,5 +1,5 @@
 var product = getUrlParameter('product') || false
-class KartuStok extends React.Component {
+class MutasiPersediaan extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -190,12 +190,12 @@ class KartuStok extends React.Component {
             td.setState({ 'loaded': false })
             frappe.call({
                 type: "GET",
-                method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_kartu_stok_list",
+                method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_mutasi_persediaan_list",
                 args: { filters: { stock_date: td.state.stock_date, product: td.state.product['name'], gudang: td.state.gudang['name'] }, mode: td.state.mode, },
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message)
-                        td.setState({ 'data': r.message.kartu_stok, 'saldo_awal': r.message.saldo_awal, 'loaded': true });
+                        td.setState({ 'data': r.message.mutasi_persediaan, 'loaded': true });
                     }
                 }
             });
@@ -216,7 +216,7 @@ class KartuStok extends React.Component {
         var source = document.getElementById(pdfid)
         var opt = {
             margin: [10, 0, 10, 0],
-            filename: "KartuStok-" + moment().format('MM-YYYY') + ".pdf",
+            filename: "MutasiPersediaan-" + moment().format('MM-YYYY') + ".pdf",
             pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
             html2canvas: { scale: 3 },
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
@@ -331,8 +331,8 @@ class KartuStok extends React.Component {
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
                         </div>
                     </div>
-                    <KartuStokList items={this.state.data} saldo_awal={this.state.saldo_awal} />
-                    <PDF data={this.state.data} saldo_awal={this.state.saldo_awal} />
+                    <MutasiPersediaanList items={this.state.data} />
+                    <PDF data={this.state.data} />
                 </div>
             )
 
@@ -369,7 +369,7 @@ class KartuStok extends React.Component {
     }
 }
 
-class KartuStokList extends React.Component {
+class MutasiPersediaanList extends React.Component {
     render() {
         // var search = this.props.search
         // function filterRow(row){
@@ -391,45 +391,10 @@ class KartuStokList extends React.Component {
             // ![false,''].includes(search)?
             // currentItems = items.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
             // currentItems = items.slice(indexOfFirstTodo, indexOfLastTodo)
-            rows.push(
-                <div className="row mx-0">
-                    <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
-                        <div className="row mx-0 fs12 fw600">
-                            {/* <div className="col-3 text-center">
-                                <span>{item.product_name.replace(/&lt;/g, "<").replace(/&gt;/g, ">")}</span>
-                            </div> */}
-                            <div className="col text-center">
-                                <span></span>
-                            </div>
-                            <div className="col text-center">
-                                <span></span>
-                            </div>
-                            <div className="col text-center">
-                                <span></span>
-                            </div>
-                            <div className="col text-center">
-                                <span></span>
-                            </div>
-                            <div className="col-1 text-center">
-                                <span></span>
-                            </div>
-                            <div className="col-1 text-center">
-                                <span></span>
-                            </div>
-                            <div className="col-1 text-center">
-                                <span>{this.props.saldo_awal}</span>
-                            </div>
-                            <div className="col text-center">
-                                <span></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )
             items.forEach(function (item, index) {
                 // if (currentItems.includes(item)){
                 rows.push(
-                    <KartuStokListRow key={index.toString()} item={item} />
+                    <MutasiPersediaanListRow key={index.toString()} item={item} />
                 )
                 // }
             })
@@ -490,7 +455,7 @@ class KartuStokList extends React.Component {
     }
 }
 
-class KartuStokListRow extends React.Component {
+class MutasiPersediaanListRow extends React.Component {
     clickRow() {
         var pathname = "/main/inventory/operation/edit?n=" + this.props.item.parent
         window.location = pathname
@@ -595,19 +560,6 @@ class PDF extends React.Component {
         // currentItems = data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
         // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
         // currentItems = data.slice(0,30)
-        table_rows.push(
-            <tr key={'999999'} style={fs9} className="text-center">
-                {/* <td className="py-1">{d.product_name}</td> */}
-                <td className="py-1"></td>
-                <td className="py-1"></td>
-                <td className="py-1"></td>
-                <td className="py-1"></td>
-                <td className="py-1"></td>
-                <td className="py-1"></td>
-                <td className="py-1">{this.props.saldo_awal}</td>
-                <td className="py-1"></td>
-            </tr>
-        )
         data.forEach((d, index) => {
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">
@@ -647,7 +599,7 @@ class PDF extends React.Component {
                                 <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
                             </div>
                             <div className="col-4 px-0">
-                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Kartu Stok</p>
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Mutasi Persediaan</p>
                                 {/*<p className="fw600 text-right text-uppercase fs14" style={invoice2}>{moment().format("MM/YYYY")}</p>*/}
                             </div>
                             <div className="col-12" style={borderStyle} />
@@ -685,4 +637,4 @@ class PDF extends React.Component {
     }
 }
 
-ReactDOM.render(<KartuStok />, document.getElementById('kartu_stok_list'))
+ReactDOM.render(<MutasiPersediaan />, document.getElementById('mutasi_persediaan_list'))

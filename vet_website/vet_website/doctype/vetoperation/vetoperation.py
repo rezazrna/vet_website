@@ -423,7 +423,7 @@ def get_stock_move_list(filters=None):
 		return {'error': e}
 
 @frappe.whitelist()
-def get_kartu_stok_list(filters=None, mode=False,):
+def get_kartu_stok_list(filters=None, mode=False):
 	td_filters = []
 	moves_filters = []
 	gudang_or_filters = []
@@ -487,12 +487,13 @@ def get_kartu_stok_list(filters=None, mode=False,):
 			k['to_name'] = operation.to_name
 			k['from'] = operation.get('from')
 			k['to'] = operation.to
+			k['status'] = operation.status
 			if operation.get('from', False):
 				saldo -= k.quantity_done
 			elif operation.get('to', False):
 				saldo += k.quantity_done
 			k['saldo'] = saldo
-			k['status'] = operation.status
+			
 			
 		return {'kartu_stok': kartu_stok, 'saldo_awal': saldo_awal}
 		
@@ -530,6 +531,88 @@ def get_gudang_list(gudang_name):
 	except PermissionError as e:
 		return {'error': e}
 		
+@frappe.whitelist()
+def get_mutasi_persediaan_list(filters=None, mode=False):
+	td_filters = []
+	moves_filters = []
+	gudang_or_filters = []
+	filter_json = False
+	page = 1
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		# product = filter_json.get('product', False)
+		gudang = filter_json.get('gudang', False)
+		filters_json = filter_json.get('filters', False)
+		stock_date = filter_json.get('stock_date', False)
+		currentpage = filter_json.get('currentpage', False)
+		
+		if filters_json:
+			for fj in filters_json:
+				td_filters.append(fj)
+
+		# if product:
+		# 	td_filters.append({'product': product})
+		# 	moves_filters.append({'product': product})
+
+		if currentpage:
+			page = currentpage
+
+		if gudang:
+			gudang_or_filters.append({'from': gudang})
+			gudang_or_filters.append({'to': gudang})
+
+		if stock_date:
+			max_date_dt = dt.strptime(stock_date, '%Y-%m-%d') - rd(days=1)
+			if mode == 'monthly':
+				min_date = (max_date_dt).strftime('%Y-%m-01')
+			else:
+				min_date = max_date_dt.strftime('%Y-01-01')
+			print('min date')
+			print(min_date)
+			print('max date')
+			print(max_date_dt.strftime('%Y-%m-%d'))
+			print(mode)
+			td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			moves_filters.append({'date': ['<', min_date]})
+	
+	try:
+		products = frappe.get_list("VetProduct", start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetProduct", as_list=True))
+		if gudang_or_filters:
+			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters)
+			td_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
+			moves_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
+
+		for p in products:
+			td_filters.append({'product': p['name']})
+			moves_filters.append({'product': p['name']})
+			mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['*'])
+			saldo_awal = 0
+			moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="date asc")
+			if moves:
+				saldo_awal = count_saldo_awal(moves)
+
+			saldo = saldo_awal
+
+			for m in mutasi_persediaan:
+				operation = frappe.get_doc("VetOperation", k.parent)
+				m['reference'] = operation.reference
+				m['from_name'] = operation.from_name
+				m['to_name'] = operation.to_name
+				m['from'] = operation.get('from')
+				m['to'] = operation.to
+				m['status'] = operation.status
+			
+		return {'mutasi_persediaan': mutasi_persediaan}
+		
+	except PermissionError as e:
+		return {'error': e}
 		
 @frappe.whitelist()
 def decrease_product_valuation(product, quantity, uom=False, reverse=False):
