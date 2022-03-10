@@ -514,22 +514,22 @@ class MutasiPersediaanListRow extends React.Component {
                             <span>{item.uom_name}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.saldo_awal}</span>
+                            <span>{formatter2.format(item.saldo_awal)}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{item.nilai_awal}</span>
+                            <span>{formatter2.format(item.nilai_awal)}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.masuk}</span>
+                            <span>{formatter2.format(item.masuk)}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.keluar}</span>
+                            <span>{formatter2.format(item.keluar)}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.saldo_akhir}</span>
+                            <span>{formatter2.format(item.saldo_akhir)}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{item.nilai_akhir}</span>
+                            <span>{formatter2.format(item.nilai_akhir)}</span>
                         </div>
                     </div>
                 </div>
@@ -600,12 +600,12 @@ class PDF extends React.Component {
                     <td className="py-1">{d.default_code}</td>
                     <td className="py-1">{d.product_name}</td>
                     <td className="py-1">{d.uom_name}</td>
-                    <td className="py-1">{d.saldo_awal}</td>
-                    <td className="py-1">{d.nilai_awal}</td>
-                    <td className="py-1">{d.masuk}</td>
-                    <td className="py-1">{d.keluar}</td>
-                    <td className="py-1">{d.saldo_akhir}</td>
-                    <td className="py-1">{d.nilai_akhir}</td>
+                    <td className="py-1">{formatter2.format(d.saldo_awal)}</td>
+                    <td className="py-1">{formatter2.format(d.nilai_awal)}</td>
+                    <td className="py-1">{formatter2.format(d.masuk)}</td>
+                    <td className="py-1">{formatter2.format(d.keluar)}</td>
+                    <td className="py-1">{formatter2.format(d.saldo_akhir)}</td>
+                    <td className="py-1">{formatter2.format(d.nilai_akhir)}</td>
                 </tr>
             )
         })

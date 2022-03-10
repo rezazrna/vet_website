@@ -417,7 +417,7 @@ class KartuStokList extends React.Component {
                                 <span></span>
                             </div>
                             <div className="col-1 text-center">
-                                <span>{this.props.saldo_awal}</span>
+                                <span>{formatter2.format(this.props.saldo_awal)}</span>
                             </div>
                             <div className="col text-center">
                                 <span></span>
@@ -522,13 +522,13 @@ class KartuStokListRow extends React.Component {
                             <span>{item.to_name || 'Customer'}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.from != null ? '0' : item.quantity_done}</span>
+                            <span>{item.from != null ? '0' : formatter2.format(item.quantity_done)}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.to != null ? '0' : item.quantity_done}</span>
+                            <span>{item.to != null ? '0' : formatter2.format(item.quantity_done)}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.saldo}</span>
+                            <span>{formatter2.format(item.saldo)}</span>
                         </div>
                         <div className="col text-center">
                             <span>{item.status}</span>
@@ -604,7 +604,7 @@ class PDF extends React.Component {
                 <td className="py-1"></td>
                 <td className="py-1"></td>
                 <td className="py-1"></td>
-                <td className="py-1">{this.props.saldo_awal}</td>
+                <td className="py-1">{formatter2.format(this.props.saldo_awal)}</td>
                 <td className="py-1"></td>
             </tr>
         )
@@ -616,9 +616,9 @@ class PDF extends React.Component {
                     <td className="py-1">{moment(d.date || d.creation).format('DD-MM-YYYY')}</td>
                     <td className="py-1">{d.from_name || 'Supplier'}</td>
                     <td className="py-1">{d.to_name || 'Customer'}</td>
-                    <td className="py-1">{d.from != null ? '0' : d.quantity_done}</td>
-                    <td className="py-1">{d.to != null ? '0' : d.quantity_done}</td>
-                    <td className="py-1">{d.saldo}</td>
+                    <td className="py-1">{d.from != null ? '0' : formatter2.format(d.quantity_done)}</td>
+                    <td className="py-1">{d.to != null ? '0' : formatter2.format(d.quantity_done)}</td>
+                    <td className="py-1">{formatter2.format(d.saldo)}</td>
                     <td className="py-1">{d.status}</td>
                 </tr>
             )
