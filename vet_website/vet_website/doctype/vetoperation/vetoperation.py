@@ -646,13 +646,15 @@ def count_nilai_awal(moves):
 	print('penjualan')
 	print(penjualan)
 
+	nilai = sum(c['price'] for c in pembelian)
+
 	for pe in pembelian:
-		if penjualan != 0:
+		if penjualan > 0:
 			penjualan -= (pe['quantity'] or 0)
 			if penjualan < 0:
-				nilai += penjualan * (pe['price'] or 0)
+				nilai -= penjualan * (pe['price'] or 0)
 			else:
-				nilai += (pe['quantity'] or 0) * (pe['price'] or 0)
+				nilai -= (pe['quantity'] or 0) * (pe['price'] or 0)
 
 	return nilai
 		
