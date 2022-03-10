@@ -537,10 +537,11 @@ def get_gudang_list(gudang_name):
 		return {'error': e}
 		
 @frappe.whitelist()
-def get_mutasi_persediaan_list(filters=None, mode=False):
+def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 	td_filters = []
 	moves_filters = []
 	gudang_or_filters = []
+	nilai_akhir_filters = []
 	filter_json = False
 	page = 1
 	
@@ -585,18 +586,25 @@ def get_mutasi_persediaan_list(filters=None, mode=False):
 			print(mode)
 			td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 			moves_filters.append({'date': ['<', min_date]})
+			nilai_akhir_filters.append({'date': ['<', max_date_dt.strftime('%Y-%m-%d')]})
 	
 	try:
-		products = frappe.get_list("VetProduct", fields=['default_code', 'product_name', 'uom_name', 'name'], start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetProduct", as_list=True))
+		if all:
+			products = frappe.get_list("VetProduct", fields=['default_code', 'product_name', 'uom_name', 'name'])
+			datalength = len(frappe.get_all("VetProduct", as_list=True))
+		else: 
+			products = frappe.get_list("VetProduct", fields=['default_code', 'product_name', 'uom_name', 'name'], start=(page - 1) * 10, page_length= 10)
+			datalength = len(frappe.get_all("VetProduct", as_list=True))
 		if gudang_or_filters:
 			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters)
 			td_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 			moves_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
+			nilai_akhir_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 
 		for p in products:
 			td_filters.append({'product': p.name})
 			moves_filters.append({'product': p.name})
+			nilai_akhir_filters.append({'product': p.name})
 
 			saldo_awal = {'saldo': 0, 'masuk': 0, 'keluar': 0}
 			nilai_awal = 0
@@ -610,8 +618,10 @@ def get_mutasi_persediaan_list(filters=None, mode=False):
 
 			saldo_akhir = {'saldo': 0, 'masuk': 0, 'keluar': 0}
 			mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['*'], order_by="date asc")
+			nilai_akhir = frappe.get_list("VetOperationMove", filters=nilai_akhir_filters, fields=['*'], order_by="date asc")
 			if mutasi_persediaan:
 				saldo_akhir = count_saldo_quantity(mutasi_persediaan)
+				nilai_akhir = count_nilai_awal(nilai_akhir)
 
 			p['saldo_akhir'] = saldo_akhir['saldo'] + saldo_awal['saldo']
 			p['masuk'] = saldo_akhir['masuk']

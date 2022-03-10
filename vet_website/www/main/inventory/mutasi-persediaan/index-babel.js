@@ -156,7 +156,7 @@ class MutasiPersediaan extends React.Component {
     }
 
     paginationClick(number) {
-        var po = this
+        var td = this
         // var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         this.setState({
@@ -176,7 +176,7 @@ class MutasiPersediaan extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message)
-                    po.setState({ 'data': r.message.mutasi_persediaan, 'loaded': true, 'datalength': r.message.datalength });
+                    td.setState({ 'data': r.message.mutasi_persediaan, 'loaded': true, 'datalength': r.message.datalength });
                 }
             }
         });
@@ -208,6 +208,29 @@ class MutasiPersediaan extends React.Component {
         }
     }
 
+    getPrintData() {
+        var th = this
+
+        if (!this.state.print_loading) {
+            this.setState({ print_loading: true })
+            if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '' && this.state.gudang.name) {
+                frappe.call({
+                    type: "GET",
+                    method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_mutasi_persediaan_list",
+                    args: { filters: { currentpage: td.state.currentpage, stock_date: td.state.stock_date, gudang: td.state.gudang['name'] }, mode: td.state.mode, all: 1 },
+                    callback: function (r) {
+                        if (r.message) {
+                            console.log(r.message)
+                            td.setState({ 'data': r.message.mutasi_persediaan, 'loaded': true, 'datalength': r.message.datalength });
+                        }
+                    }
+                });
+            } else {
+                frappe.msgprint(('Gudang, Month or Year must be selected'));
+            }
+        }
+    }
+
     printPDF() {
         var pdfid = 'pdf'
         var format = [559, 794]
@@ -226,6 +249,7 @@ class MutasiPersediaan extends React.Component {
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
         }
         html2pdf().set(opt).from(source).save()
+        this.setState({ print_loading: false })
         // doc.html(source, {
         //   callback: function (doc) {
         //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
@@ -301,7 +325,7 @@ class MutasiPersediaan extends React.Component {
                 <div>
                     <div className="row mx-0" style={row_style2}>
                         <div className="col-auto my-auto">
-                            <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => this.printPDF()}>Print</button>
+                            <button type="button" className={this.state.print_loading ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2" : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3" />Loading...</span>) : "Print"}</button>
                         </div>
                         {/* <div className="col-2 my-auto">
                             <input name="product" placeholder="Product" list="products" className="form-control" defaultValue={this.state.product ? this.state.product.product_name : ''} onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
@@ -577,9 +601,11 @@ class PDF extends React.Component {
                     <td className="py-1">{d.product_name}</td>
                     <td className="py-1">{d.uom_name}</td>
                     <td className="py-1">{d.saldo_awal}</td>
+                    <td className="py-1">{d.nilai_awal}</td>
                     <td className="py-1">{d.masuk}</td>
                     <td className="py-1">{d.keluar}</td>
                     <td className="py-1">{d.saldo_akhir}</td>
+                    <td className="py-1">{d.nilai_akhir}</td>
                 </tr>
             )
         })
@@ -620,9 +646,11 @@ class PDF extends React.Component {
                                     <th className="fw700 py-2" width="63px">Product Name</th>
                                     <th className="fw700 py-2" width="63px">UOM</th>
                                     <th className="fw700 py-2" width="63px">Awal</th>
+                                    <th className="fw700 py-2" width="63px">Nilai Awal</th>
                                     <th className="fw700 py-2" width="63px">Masuk</th>
                                     <th className="fw700 py-2" width="63px">Keluar</th>
                                     <th className="fw700 py-2" width="63px">Akhir</th>
+                                    <th className="fw700 py-2" width="63px">Nilai Akhir</th>
                                 </tr>
                             </thead>
                             <tbody>
