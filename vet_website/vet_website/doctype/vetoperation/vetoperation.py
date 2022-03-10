@@ -618,10 +618,10 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 
 			saldo_akhir = {'saldo': 0, 'masuk': 0, 'keluar': 0}
 			mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['*'], order_by="date asc")
-			nilai_akhir = frappe.get_list("VetOperationMove", filters=nilai_akhir_filters, fields=['*'], order_by="date asc")
+			nilai_akhir_moves = frappe.get_list("VetOperationMove", filters=nilai_akhir_filters, fields=['*'], order_by="date asc")
 			if mutasi_persediaan:
 				saldo_akhir = count_saldo_quantity(mutasi_persediaan)
-				nilai_akhir = count_nilai_awal(nilai_akhir)
+				nilai_akhir = count_nilai_awal(nilai_akhir_moves)
 
 			p['saldo_akhir'] = saldo_akhir['saldo'] + saldo_awal['saldo']
 			p['masuk'] = saldo_akhir['masuk']
@@ -656,7 +656,10 @@ def count_nilai_awal(moves):
 	print('penjualan')
 	print(penjualan)
 
-	nilai = sum(c['price'] for c in pembelian)
+	nilai = sum(c['price'] * c['quantity'] for c in pembelian)
+
+	print('nilai')
+	print(nilai)
 
 	for pe in pembelian:
 		if penjualan > 0:

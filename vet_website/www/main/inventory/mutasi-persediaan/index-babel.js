@@ -191,11 +191,11 @@ class MutasiPersediaan extends React.Component {
         console.log(this.state.stock_date)
         console.log(this.state.gudang)
         if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '' && this.state.gudang.name) {
-            td.setState({ 'loaded': false })
+            td.setState({ 'loaded': false, 'currentpage': 1 })
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_mutasi_persediaan_list",
-                args: { filters: { currentpage: td.state.currentpage, stock_date: td.state.stock_date, gudang: td.state.gudang['name'] }, mode: td.state.mode, },
+                args: { filters: { currentpage: 1, stock_date: td.state.stock_date, gudang: td.state.gudang['name'] }, mode: td.state.mode, },
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message)
