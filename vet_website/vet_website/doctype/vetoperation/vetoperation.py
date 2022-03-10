@@ -601,7 +601,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False):
 			saldo_awal = {'saldo': 0, 'masuk': 0, 'keluar': 0}
 			nilai_awal = 0
 			nilai_akhir = 0
-			moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["quantity_done", "parent"], order_by="date asc")
+			moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="date asc")
 			if moves:
 				saldo_awal = count_saldo_quantity(moves)
 				nilai_awal = count_nilai_awal(moves)
@@ -609,11 +609,11 @@ def get_mutasi_persediaan_list(filters=None, mode=False):
 			p['saldo_awal'] = saldo_awal['saldo']
 
 			saldo_akhir = {'saldo': 0, 'masuk': 0, 'keluar': 0}
-			mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['quantity_done', 'parent'], order_by="date asc")
+			mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['*'], order_by="date asc")
 			if mutasi_persediaan:
 				saldo_akhir = count_saldo_quantity(mutasi_persediaan)
 
-			p['saldo_akhir'] = saldo_akhir['saldo']
+			p['saldo_akhir'] = saldo_akhir['saldo'] + saldo_awal['saldo']
 			p['masuk'] = saldo_akhir['masuk']
 			p['keluar'] = saldo_akhir['keluar']
 			p['nilai_awal'] = nilai_awal
@@ -625,6 +625,8 @@ def get_mutasi_persediaan_list(filters=None, mode=False):
 		return {'error': e}
 
 def count_nilai_awal(moves):
+	print('moves')
+	print(moves)
 	pembelian = []
 	penjualan = 0
 	nilai = 0
@@ -632,12 +634,17 @@ def count_nilai_awal(moves):
 		operation = frappe.get_doc("VetOperation", m.parent)
 		if operation.get('to', False) and 'PO' in operation.reference and 'POSORDER' not in operation.reference:
 			purchase = frappe.get_doc("VetPurchase", operation.reference)
-			products_purchase = frappe.get_list("VetPurchaseProducts", filters={'parent': purchase.name})
+			products_purchase = frappe.get_list("VetPurchaseProducts", filters={'parent': purchase.name, 'product': m.product}, fields=['quantity_receive', 'price'])
 			for pp in products_purchase:
-				pembelian.append({'quantity': pp.quantity_receive, 'price': pp.price})
+				pembelian.append({'purchase': purchase.name, 'quantity': pp.quantity_receive, 'price': pp.price})
 
 		if operation.get('from', False):
 			penjualan += m.quantity_done
+
+	print('pembelian')
+	print(pembelian)
+	print('penjualan')
+	print(penjualan)
 
 	for pe in pembelian:
 		if penjualan != 0:
