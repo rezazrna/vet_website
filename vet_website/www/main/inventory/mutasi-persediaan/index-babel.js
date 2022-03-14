@@ -6,7 +6,7 @@ class MutasiPersediaan extends React.Component {
             'data': [],
             'loaded': true,
             'currentpage': 1,
-            // 'search': false,
+            'search': false,
             'datalength': 0,
             'month': '',
             'year': '',
@@ -21,27 +21,27 @@ class MutasiPersediaan extends React.Component {
         this.paginationClick = this.paginationClick.bind(this);
     }
 
-    // componentDidMount() {
-    //     var td = this
-    //     var args = { filters: [] }
-    //     // if (product) {
-    //     //     args.product = product
+    componentDidMount() {
+        //     var td = this
+        //     var args = { filters: [] }
+        //     // if (product) {
+        //     //     args.product = product
 
-    //     //     frappe.call({
-    //     //         type: "GET",
-    //     //         method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_kartu_stok_list",
-    //     //         args: { filters: args },
-    //     //         callback: function (r) {
-    //     //             if (r.message) {
-    //     //                 console.log(r.message)
-    //     //                 td.setState({ 'data': r.message.operation, 'loaded': true, 'datalength': r.message.datalength });
-    //     //             }
-    //     //         }
-    //     //     });
-    //     // }
+        //     //     frappe.call({
+        //     //         type: "GET",
+        //     //         method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_kartu_stok_list",
+        //     //         args: { filters: args },
+        //     //         callback: function (r) {
+        //     //             if (r.message) {
+        //     //                 console.log(r.message)
+        //     //                 td.setState({ 'data': r.message.operation, 'loaded': true, 'datalength': r.message.datalength });
+        //     //             }
+        //     //         }
+        //     //     });
+        //     // }
 
-    //     sessionStorage.setItem(window.location.pathname, JSON.stringify(args))
-    // }
+        sessionStorage.setItem(window.location.pathname, JSON.stringify({ filters: [], sorts: [] }))
+    }
 
     // kartuStokSearch(filters) {
     //     var td = this
@@ -157,22 +157,22 @@ class MutasiPersediaan extends React.Component {
 
     paginationClick(number) {
         var td = this
-        // var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         this.setState({
             currentpage: Number(number),
             loaded: false,
         });
 
-        // filters['currentpage'] = this.state.currentpage
+        filters['currentpage'] = Number(number)
 
-        // sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
         // if (number * 30 > this.state.data.length) {
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_mutasi_persediaan_list",
-            args: { filters: { currentpage: td.state.currentpage, stock_date: td.state.stock_date, gudang: td.state.gudang['name'] }, mode: td.state.mode, },
+            args: { filters: filters, mode: td.state.mode, },
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message)
@@ -183,7 +183,7 @@ class MutasiPersediaan extends React.Component {
         // }
     }
 
-    setFilter() {
+    setFilter(filters = false) {
         var td = this
         console.log(this.state.mode)
         console.log(this.state.month)
@@ -192,10 +192,15 @@ class MutasiPersediaan extends React.Component {
         console.log(this.state.gudang)
         if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '' && this.state.gudang.name) {
             td.setState({ 'loaded': false, 'currentpage': 1 })
+            filters['currentpage'] = 1
+            filters['search'] = this.state.search
+            filters['stock_date'] = this.state.stock_date
+            filters['gudang'] = this.state.gudang['name']
+            sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_mutasi_persediaan_list",
-                args: { filters: { currentpage: 1, stock_date: td.state.stock_date, gudang: td.state.gudang['name'] }, mode: td.state.mode, },
+                args: { filters: filters, mode: td.state.mode, },
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message)
@@ -264,12 +269,12 @@ class MutasiPersediaan extends React.Component {
 
     render() {
 
-        // var sorts = [
-        //     { 'label': 'Date DESC', 'value': 'creation desc' },
-        //     { 'label': 'Date ASC', 'value': 'creation asc' },
-        //     { 'label': 'Reference DESC', 'value': 'reference desc' },
-        //     { 'label': 'Reference ASC', 'value': 'reference asc' },
-        // ]
+        var sorts = [
+            { 'label': 'Nama Product DESC', 'value': 'product_name desc' },
+            { 'label': 'Nama Product ASC', 'value': 'product_name asc' },
+            { 'label': 'Kode Product DESC', 'value': 'product_code desc' },
+            { 'label': 'Kode Product ASC', 'value': 'product_code asc' },
+        ]
 
         // var field_list = [
         //     { 'label': 'Product Name', 'field': 'product_name', 'type': 'char' },
@@ -333,6 +338,9 @@ class MutasiPersediaan extends React.Component {
                                 {product_options}
                             </datalist>
                         </div> */}
+                        <div className="col">
+                            <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.setFilter(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
+                        </div>
                         <div className="col-2 my-auto">
                             <input name="gudang" placeholder="Gudang" list="gudang_list" className="form-control" defaultValue={this.state.gudang ? this.state.gudang.gudang_name : ''} onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
                             <datalist id="gudang_list">
@@ -353,6 +361,9 @@ class MutasiPersediaan extends React.Component {
                             <select name="year" placeholder="Year" className="form-control" value={this.state.year} onChange={e => this.filterChange(e)}>
                                 {year_options}
                             </select>
+                        </div>
+                        <div className="col">
+                            <Filter sorts={sorts} searchAction={() => this.setFilter()} field_list={[]} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))} />
                         </div>
                         <div className="col-2 my-auto">
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>

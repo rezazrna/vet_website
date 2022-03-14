@@ -538,6 +538,7 @@ def get_gudang_list(gudang_name):
 		
 @frappe.whitelist()
 def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
+	default_sort = "creation desc"
 	td_filters = []
 	moves_filters = []
 	gudang_or_filters = []
@@ -553,6 +554,8 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 		
 	if filter_json:
 		# product = filter_json.get('product', False)
+		sort = filter_json.get('sort', False)
+		search = filter_json.get('search', False)
 		gudang = filter_json.get('gudang', False)
 		filters_json = filter_json.get('filters', False)
 		stock_date = filter_json.get('stock_date', False)
@@ -565,6 +568,12 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 		# if product:
 		# 	td_filters.append({'product': product})
 		# 	moves_filters.append({'product': product})
+
+		if search:
+			product_filters.append({'product_name': ['like', '%'+search+'%']})
+
+		if sort:
+			default_sort = sort
 
 		if currentpage:
 			page = currentpage
@@ -590,11 +599,10 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 	
 	try:
 		if all:
-			products = frappe.get_list("VetProduct", fields=['default_code', 'product_name', 'uom_name', 'name'])
-			datalength = len(frappe.get_all("VetProduct", as_list=True))
+			products = frappe.get_list("VetProduct", fields=['default_code', 'product_name', 'uom_name', 'name'], order_by=default_sort)
 		else: 
-			products = frappe.get_list("VetProduct", fields=['default_code', 'product_name', 'uom_name', 'name'], start=(page - 1) * 10, page_length= 10)
-			datalength = len(frappe.get_all("VetProduct", as_list=True))
+			products = frappe.get_list("VetProduct", fields=['default_code', 'product_name', 'uom_name', 'name'], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetProduct", as_list=True))
 		if gudang_or_filters:
 			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters)
 			td_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
