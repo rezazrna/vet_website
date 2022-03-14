@@ -185,6 +185,9 @@ class MutasiPersediaan extends React.Component {
 
     setFilter(filters = false) {
         var td = this
+        if (!filters) {
+            filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+        }
         console.log(this.state.mode)
         console.log(this.state.month)
         console.log(this.state.year)
