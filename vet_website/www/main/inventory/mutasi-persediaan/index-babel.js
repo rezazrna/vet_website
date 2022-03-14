@@ -15,6 +15,7 @@ class MutasiPersediaan extends React.Component {
             // 'product_list': [],
             'gudang_list': [],
             'print_loading': false,
+            'print_data': []
         }
 
         this.setFilter = this.setFilter.bind(this);
@@ -218,7 +219,7 @@ class MutasiPersediaan extends React.Component {
     }
 
     getPrintData() {
-        var th = this
+        var td = this
 
         if (!this.state.print_loading) {
             this.setState({ print_loading: true })
@@ -226,11 +227,12 @@ class MutasiPersediaan extends React.Component {
                 frappe.call({
                     type: "GET",
                     method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_mutasi_persediaan_list",
-                    args: { filters: { currentpage: td.state.currentpage, stock_date: td.state.stock_date, gudang: td.state.gudang['name'] }, mode: td.state.mode, all: 1 },
+                    args: { filters: JSON.parse(sessionStorage.getItem(window.location.pathname)), mode: td.state.mode, all: 1 },
                     callback: function (r) {
                         if (r.message) {
                             console.log(r.message)
-                            td.setState({ 'data': r.message.mutasi_persediaan, 'loaded': true, 'datalength': r.message.datalength });
+                            td.setState({ 'print_data': r.message.mutasi_persediaan, 'loaded': true, 'datalength': r.message.datalength });
+                            td.printPDF()
                         }
                     }
                 });
@@ -343,7 +345,7 @@ class MutasiPersediaan extends React.Component {
                                 {product_options}
                             </datalist>
                         </div> */}
-                        <div className="col">
+                        <div className="col my-auto">
                             <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.setFilter(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
                         </div>
                         <div className="col-2 my-auto">
@@ -367,7 +369,7 @@ class MutasiPersediaan extends React.Component {
                                 {year_options}
                             </select>
                         </div>
-                        <div className="col">
+                        <div className="col my-auto">
                             <Filter sorts={sorts} searchAction={this.setFilter} field_list={[]} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))} />
                         </div>
                         <div className="col-2 my-auto">
@@ -375,7 +377,7 @@ class MutasiPersediaan extends React.Component {
                         </div>
                     </div>
                     <MutasiPersediaanList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.data} />
+                    <PDF data={this.state.print_data} />
                 </div>
             )
 
