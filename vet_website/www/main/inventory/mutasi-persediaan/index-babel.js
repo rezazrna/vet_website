@@ -276,8 +276,8 @@ class MutasiPersediaan extends React.Component {
         var sorts = [
             { 'label': 'Nama Product DESC', 'value': 'product_name desc' },
             { 'label': 'Nama Product ASC', 'value': 'product_name asc' },
-            { 'label': 'Kode Product DESC', 'value': 'product_code desc' },
-            { 'label': 'Kode Product ASC', 'value': 'product_code asc' },
+            { 'label': 'Kode Product DESC', 'value': 'default_code desc' },
+            { 'label': 'Kode Product ASC', 'value': 'default_code asc' },
         ]
 
         // var field_list = [
