@@ -287,6 +287,7 @@ class MutasiPersediaan extends React.Component {
         // ]
 
         var row_style2 = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px', 'height': '72px' }
+        var formStyle = { border: '1px solid #397DA6', color: '#397DA6' }
         // var product_options = [<option className="d-none" key="99999"></option>]
         var gudang_options = [<option className="d-none" key="99999"></option>]
         var month_options = [<option className="d-none" key="99999"></option>]
