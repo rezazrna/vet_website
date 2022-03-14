@@ -603,7 +603,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			products = frappe.get_list("VetProduct", filters=product_filters, fields=['default_code', 'product_name', 'uom_name', 'name'], order_by=default_sort)
 		else: 
 			products = frappe.get_list("VetProduct", filters=product_filters, fields=['default_code', 'product_name', 'uom_name', 'name'], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetProduct", as_list=True))
+		datalength = len(frappe.get_all("VetProduct", filters=product_filters, as_list=True))
 		if gudang_or_filters:
 			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters)
 			td_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})

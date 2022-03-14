@@ -17,7 +17,7 @@ class MutasiPersediaan extends React.Component {
             'print_loading': false,
         }
 
-        // this.kartuStokSearch = this.stockMoveSearch.bind(this);
+        this.setFilter = this.setFilter.bind(this);
         this.paginationClick = this.paginationClick.bind(this);
     }
 
@@ -200,6 +200,7 @@ class MutasiPersediaan extends React.Component {
             filters['stock_date'] = this.state.stock_date
             filters['gudang'] = this.state.gudang['name']
             sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+            console.log(filters)
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_mutasi_persediaan_list",
@@ -367,7 +368,7 @@ class MutasiPersediaan extends React.Component {
                             </select>
                         </div>
                         <div className="col">
-                            <Filter sorts={sorts} searchAction={() => this.setFilter()} field_list={[]} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))} />
+                            <Filter sorts={sorts} searchAction={this.setFilter} field_list={[]} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))} />
                         </div>
                         <div className="col-2 my-auto">
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
