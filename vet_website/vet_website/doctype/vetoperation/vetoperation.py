@@ -547,7 +547,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 	moves_filters = []
 	gudang_or_filters = []
 	nilai_akhir_filters = []
-	product_filters = []
+	product_or_filters = []
 	filter_json = False
 	page = 1
 	
@@ -575,7 +575,8 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 		# 	moves_filters.append({'product': product})
 
 		if search:
-			product_filters.append({'product_name': ['like', '%'+search+'%']})
+			product_or_filters.append({'product_name': ['like', '%'+search+'%']})
+			product_or_filters.append({'default_code': ['like', '%'+search+'%']})
 
 		if sort:
 			default_sort = sort
@@ -609,10 +610,10 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 	
 	try:
 		if all:
-			products = frappe.get_list("VetProduct", filters=product_filters, fields=['default_code', 'product_name', 'uom_name', 'name'], order_by=default_sort)
+			products = frappe.get_list("VetProduct", or_filters=product_or_filters, fields=['default_code', 'product_name', 'uom_name', 'name'], order_by=default_sort)
 		else: 
-			products = frappe.get_list("VetProduct", filters=product_filters, fields=['default_code', 'product_name', 'uom_name', 'name'], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetProduct", filters=product_filters, as_list=True))
+			products = frappe.get_list("VetProduct", or_filters=product_or_filters, fields=['default_code', 'product_name', 'uom_name', 'name'], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_all("VetProduct", or_filters=product_or_filters, as_list=True))
 		if gudang_or_filters:
 			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters)
 			td_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
