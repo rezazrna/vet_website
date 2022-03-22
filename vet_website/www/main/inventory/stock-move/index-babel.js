@@ -122,6 +122,8 @@ class StockMove extends React.Component {
         var sorts = [
             { 'label': 'Date DESC', 'value': 'creation desc' },
             { 'label': 'Date ASC', 'value': 'creation asc' },
+            { 'label': 'Receive Date DESC', 'value': 'receive_date desc' },
+            { 'label': 'Receive Date ASC', 'value': 'receive_date asc' },
             { 'label': 'Reference DESC', 'value': 'reference desc' },
             { 'label': 'Reference ASC', 'value': 'reference asc' },
         ]
@@ -133,6 +135,7 @@ class StockMove extends React.Component {
             { 'label': 'Quantity', 'field': 'quantity', 'type': 'char' },
             //  {'label': 'Quantity Done', 'field': 'quantity_done', 'type': 'char'},
             //  {'label': 'Inventory Value', 'field': 'inventory_value', 'type': 'char'},
+            { 'label': 'Receive Date', 'field': 'receive_date', 'type': 'date' },
             { 'label': 'Date', 'field': 'date', 'type': 'date' }
         ]
 
@@ -232,6 +235,9 @@ class StockMoveList extends React.Component {
                                     <span>Date</span>
                                 </div>
                                 <div className="col text-center">
+                                    <span>Receive Date</span>
+                                </div>
+                                <div className="col text-center">
                                     <span>Status</span>
                                 </div>
                             </div>
@@ -291,6 +297,9 @@ class StockMoveListRow extends React.Component {
                         </div>
                         <div className="col text-center">
                             <span>{moment_date.format('DD-MM-YYYY')}</span>
+                        </div>
+                        <div className="col text-center">
+                            <span>{item.receive_date ?  moment(item.receive_date).format('DD-MM-YYYY') : '-'}</span>
                         </div>
                         <div className="col text-center">
                             <span>{item.status}</span>
@@ -366,7 +375,8 @@ class PDF extends React.Component {
                     <td className="py-1">{d.quantity}</td>
                     <td className="py-1">{d.from_name || 'Supplier'}</td>
                     <td className="py-1">{d.to_name || 'Customer'}</td>
-                    <td className="py-1">{d.date}</td>
+                    <td className="py-1">{moment(d.date).format('DD-MM-YYYY')}</td>
+                    <td className="py-1">{d.receive_date ? moment(d.receive_date).format('DD-MM-YYYY') : '-'}</td>
                     <td className="py-1">{d.status}</td>
                 </tr>
             )
@@ -409,6 +419,7 @@ class PDF extends React.Component {
                                     <th className="fw700 py-2" width="63px">From</th>
                                     <th className="fw700 py-2" width="63px">To</th>
                                     <th className="fw700 py-2" width="63px">Date</th>
+                                    <th className="fw700 py-2" width="63px">Receive Date</th>
                                     <th className="fw700 py-2" width="63px">Status</th>
                                 </tr>
                             </thead>
