@@ -465,17 +465,21 @@ def get_kartu_stok_list(filters=None, mode=False):
 			print('max date')
 			print(max_date_dt.strftime('%Y-%m-%d'))
 			print(mode)
-			td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
-			moves_filters.append({'date': ['<', min_date]})
-	
+			# td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			# moves_filters.append({'date': ['<', min_date]})
+			td_filters.append({'receive_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			moves_filters.append({'receive_date': ['<', min_date]})
+			moves_filters.append({'receive_date': ['not in', [None, '']]})
 	try:
 		if gudang_or_filters:
 			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters)
 			td_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 			moves_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
-		kartu_stok = frappe.get_list("VetOperationMove", filters=td_filters, fields=["*"], order_by="date asc")
+		# kartu_stok = frappe.get_list("VetOperationMove", filters=td_filters, fields=["*"], order_by="date asc")
+		kartu_stok = frappe.get_list("VetOperationMove", filters=td_filters, fields=["*"], order_by="receive_date asc")
 		saldo_awal = {'saldo': 0, 'masuk': 0, 'keluar': 0}
-		moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="date asc")
+		# moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="date asc")
+		moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="receive_date asc")
 		if moves:
 			saldo_awal = count_saldo_quantity(moves)
 
@@ -594,9 +598,14 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			print('max date')
 			print(max_date_dt.strftime('%Y-%m-%d'))
 			print(mode)
-			td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
-			moves_filters.append({'date': ['<', min_date]})
-			nilai_akhir_filters.append({'date': ['<', max_date_dt.strftime('%Y-%m-%d')]})
+			# td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			# moves_filters.append({'date': ['<', min_date]})
+			# nilai_akhir_filters.append({'date': ['<', max_date_dt.strftime('%Y-%m-%d')]})
+			td_filters.append({'receive_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			moves_filters.append({'receive_date': ['<', min_date]})
+			moves_filters.append({'receive_date': ['not in', [None, '']]})
+			nilai_akhir_filters.append({'receive_date': ['<', max_date_dt.strftime('%Y-%m-%d')]})
+			nilai_akhir_filters.append({'receive_date': ['not in', [None, '']]})
 	
 	try:
 		if all:
@@ -618,7 +627,8 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			saldo_awal = {'saldo': 0, 'masuk': 0, 'keluar': 0}
 			nilai_awal = 0
 			nilai_akhir = 0
-			moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="date asc")
+			# moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="date asc")
+			moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="receive_date asc")
 			if moves:
 				saldo_awal = count_saldo_quantity(moves)
 				nilai_awal = count_nilai_awal(moves)
@@ -626,8 +636,10 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			p['saldo_awal'] = saldo_awal['saldo']
 
 			saldo_akhir = {'saldo': 0, 'masuk': 0, 'keluar': 0}
-			mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['*'], order_by="date asc")
-			nilai_akhir_moves = frappe.get_list("VetOperationMove", filters=nilai_akhir_filters, fields=['*'], order_by="date asc")
+			# mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['*'], order_by="date asc")
+			# nilai_akhir_moves = frappe.get_list("VetOperationMove", filters=nilai_akhir_filters, fields=['*'], order_by="date asc")
+			mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['*'], order_by="receive_date asc")
+			nilai_akhir_moves = frappe.get_list("VetOperationMove", filters=nilai_akhir_filters, fields=['*'], order_by="receive_date asc")
 			if mutasi_persediaan:
 				saldo_akhir = count_saldo_quantity(mutasi_persediaan)
 				nilai_akhir = count_nilai_awal(nilai_akhir_moves)
