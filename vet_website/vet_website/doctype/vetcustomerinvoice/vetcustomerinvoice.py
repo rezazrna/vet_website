@@ -1263,6 +1263,9 @@ def create_sales_journal_entry(invoice_name, refund=False):
 			current_quantity = pp.quantity
 			purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.product}, fields=['*'], order_by="creation asc")
 			purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
+
+			# print('purchase with stock')
+			# print(purchase_with_stock)
 			
 			for pws in purchase_with_stock:
 				if current_quantity != 0:
@@ -1273,13 +1276,21 @@ def create_sales_journal_entry(invoice_name, refund=False):
 						target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
 						current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
 						current_uom = purchase_product.uom
+
+					# print('current qty')
+					# print(current_quantity)
 					
 					if current_quantity >= purchase_product.quantity_stocked:
+						# print('masuk current quantity lebih besar')
 						current_quantity = float(current_quantity) - purchase_product.quantity_stocked
 						amount += purchase_product.price * math.ceil(purchase_product.quantity_stocked)
 					else:
+						# print('mauk current quantity lebih kecil')
 						amount += purchase_product.price * math.ceil(current_quantity)
 						current_quantity = 0
+
+			# print('amount')
+			# print(amount)
 			
 			same_input_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_input_account), False)
 			same_output_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_output_account), False)

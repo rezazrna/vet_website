@@ -685,9 +685,10 @@ def count_nilai_awal(moves):
 
 	for pe in pembelian:
 		if penjualan > 0:
+			temp_penjualan = penjualan
 			penjualan -= (pe['quantity'] or 0)
 			if penjualan < 0:
-				nilai -= penjualan * (pe['price'] or 0)
+				nilai -= (temp_penjualan * (pe['price'] or 0))
 			else:
 				nilai -= (pe['quantity'] or 0) * (pe['price'] or 0)
 
