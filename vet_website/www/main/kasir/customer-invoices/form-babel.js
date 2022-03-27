@@ -2307,7 +2307,7 @@ class CustomerInvoiceLinesRow extends React.Component {
         var product = <span className="my-auto">{item.product_name?item.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):item.product}</span>
         var quantity = <span className="my-auto">{item.quantity}</span>
         var uom = <span className="my-auto">{item.uom_name||item.product_uom}</span>
-        var unit_price = <span className="my-auto">{this.props.racikan_total || item.unit_price}</span>
+        var unit_price = <span className="my-auto">{formatter2.format(this.props.racikan_total || item.unit_price)}</span>
         var total = <span className="my-auto">{formatter2.format(this.props.racikan_total || item.total || 0)}</span>
         var warehouse = <span className="my-auto">{item.warehouse_name||item.warehouse}</span>
         var deleteButton
