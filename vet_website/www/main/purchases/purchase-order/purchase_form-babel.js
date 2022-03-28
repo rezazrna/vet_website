@@ -18,8 +18,10 @@ class PurchaseOrder extends React.Component {
         this.formSubmit = this.formSubmit.bind(this)
         this.togglePopupPay = this.togglePopupPay.bind(this)
         this.togglePopupRefund = this.togglePopupRefund.bind(this)
+        this.togglePopupRetur = this.togglePopupRetur.bind(this)
         this.deleteRow = this.deleteRow.bind(this)
         this.refundPurchase = this.refundPurchase.bind(this)
+        this.returPurchase = this.returPurchase.bind(this)
         this.navigationAction = this.navigationAction.bind(this)
         this.toggleEditMode = this.toggleEditMode.bind(this)
     }
@@ -186,7 +188,7 @@ class PurchaseOrder extends React.Component {
 	    if (['quantity', 'price', 'discount'].includes(name)) {
 	        var empty = new_data.products.filter(p => Object.keys(p).length == 0)
 	        console.log(empty)
-	        if (empty.length < 1) {
+	        if (empty.length < 1 && !new_data.is_refund) {
                 new_data.products.push({})
             }
             
@@ -195,7 +197,7 @@ class PurchaseOrder extends React.Component {
 	    } else if (name == 'product') {
 	        var empty = new_data.products.filter(p => Object.keys(p).length == 0)
 	        console.log(empty)
-	        if (empty.length <= 1) {
+	        if (empty.length <= 1 && !new_data.is_refund) {
                 new_data.products.push({})
             }
             
@@ -247,7 +249,7 @@ class PurchaseOrder extends React.Component {
 	    } else if (name == 'uom') {
 	        var empty = new_data.products.filter(p => Object.keys(p).length == 0)
 	        console.log(empty)
-	        if (empty.length < 1) {
+	        if (empty.length < 1 && !new_data.is_refund) {
                 new_data.products.push({})
             }
             
@@ -304,9 +306,15 @@ class PurchaseOrder extends React.Component {
         e.preventDefault()
         this.setState({'show_popup_pay': !this.state.show_popup_pay})
     }
+
+    togglePopupRetur(e) {
+        e.preventDefault()
+        this.setState({'show_popup_retur': !this.state.show_popup_retur})
+    }
     
     togglePopupRefund(e) {
         e.preventDefault()
+        console.log(this.state.data.products)
         if (this.state.data.products.every(i => i.quantity_default >= i.quantity)) {
             this.setState({'show_popup_refund': !this.state.show_popup_refund})
         } else {
@@ -366,6 +374,23 @@ class PurchaseOrder extends React.Component {
     		}
     	});
     }
+
+    returPurchase(e) {
+        e.preventDefault()
+        frappe.call({
+    		type: "POST",
+    		method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.retur_purchase",
+    		args: {name: this.state.data.name},
+    		callback: function(r){
+    			if (r.message) {
+    				window.location.reload()
+    			}
+    			if (r.message.error) {
+    				frappe.msgprint(r.message.error);
+    			}
+    		}
+    	});
+    }
     
     printPDF() {
         var pdfid = 'pdf'
@@ -404,7 +429,7 @@ class PurchaseOrder extends React.Component {
         var rowMinHeight = {minHeight: '64px'}
         var color = {color: '#056EAD', cursor: 'pointer'}
         var data = this.state.data
-        var headerButton, popup_pay, popup_receive, popup_refund, pdf, print_button
+        var headerButton, popup_pay, popup_receive, popup_refund, pdf, print_button, retur_button, popup_retur
         var backButton = <span key="999" className="fs16 fw600 mr-auto my-auto" style={color} onClick={() => window.location.href='/main/purchases/purchase-order'}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
         var subtotal = 0, paid = 0
         var write = checkPermission('VetPurchase', this.state.currentUser, 'write')
@@ -421,7 +446,7 @@ class PurchaseOrder extends React.Component {
                     if (item.product && item.quantity && item.price) {
                         subtotal = subtotal + (item.price * item.quantity - ((item.discount || 0) / 100 * (item.price * item.quantity)))
                     }
-                })   
+                })
             }
             
             var cancelButton
@@ -430,7 +455,13 @@ class PurchaseOrder extends React.Component {
     	            cancelButton = <div className="col-auto my-auto">
     	                                <button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={(e) => this.cancelAction(e)}>Cancel</button>
     	                           </div>
-    	        }   
+    	        }
+                
+                if (!data.products.every(i => i.quantity_receive == 0) && !['Cancel', 'Refund', 'Done'].includes(data.status)) {
+                    retur_button = <div className="col-auto my-auto">
+                            <button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} onClick={this.togglePopupRetur}>Retur</button>
+                    </div>
+                }
             }
             
             if (!!data.pembayaran) {
@@ -525,6 +556,7 @@ class PurchaseOrder extends React.Component {
 			            			{receive_button}
 			            			{cancelButton}
 			            			{refundButton}
+                                    {retur_button}
 			            			{journal_entries}
 			            			{backButton}
 			            		</div>
@@ -532,6 +564,10 @@ class PurchaseOrder extends React.Component {
         	
         	if (this.state.show_popup_pay) {
         	    popup_pay = <PopupPay togglePopupPay={this.togglePopupPay} name={data.name} subtotal={subtotal} paid={paid} total_credit={data.total_true_credit} payment_method_list={this.state.payment_method_list} potongan={data.potongan}/>
+        	}
+
+            if (this.state.show_popup_retur) {
+        	    popup_retur = <PopupRetur toggleRetur={this.togglePopupRetur} name={data.name} products={data.products.filter(i => i.quantity_receive != 0)} paid={paid} total_credit={data.total_true_credit} payment_method_list={this.state.payment_method_list} potongan={data.potongan}/>
         	}
         	
         	if (this.state.show_popup_refund) {
@@ -574,6 +610,7 @@ class PurchaseOrder extends React.Component {
     	            	{popup_pay}
     	            	{popup_receive}
     	            	{popup_refund}
+                        {popup_retur}
     	            	{pdf}
     	            </form>
         } else {
@@ -1092,6 +1129,370 @@ class PopupReceive extends React.Component {
                 <div className="menu-popup-close" onClick={this.props.toggleReceive}></div>
             </div>
         )
+    }
+}
+
+class PopupRetur extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            'data': {
+                'name': this.props.name,
+                'products': this.props.products,
+            },
+            'show_popup_pay_retur': false
+        }
+        
+        this.handleInputChange = this.handleInputChange.bind(this)
+        this.confirmRetur = this.confirmRetur.bind(this)
+        this.togglePopupPayRetur = this.togglePopupPayRetur.bind(this)
+    }
+    
+    handleInputChange(e, i=false) {
+        var value = e.target.value
+        var name = e.target.name
+        var new_data = this.state.data
+        
+        // if (name == 'backOrder') {
+        //     if (this.state.backOrder) {
+        //         this.setState({backOrder: false})
+        //     } else {
+        //         this.setState({backOrder: true})
+        //     }
+        // } else if (name == 'receive_date') {
+        //     new_data.receive_date = value
+        //     this.setState({data: new_data})
+        // } else {
+        //     var showBackOrder = this.state.showBackOrder
+        //     if (new_data.products[i].quantity > value) {
+        //         showBackOrder = true
+        //     } else {
+        //         showBackOrder = false
+        //     }
+            new_data.products[i].quantity_retur_temp = value
+            this.setState({data: new_data})
+        // }
+    }
+
+    togglePopupPayRetur(e) {
+        e.preventDefault()
+        this.setState({show_popup_pay_retur: !this.state.show_popup_pay_retur})
+    }
+    
+    confirmRetur(e) {
+        e.preventDefault()
+        var th = this
+        var new_data = {}
+        new_data = this.state.data
+        
+        var valid = new_data.products.every((i) => {
+            if (i.quantity_retur_temp != undefined) {
+                return (parseInt(i.quantity_receive) - parseInt(i.quantity_retur_temp)) >= 0
+            }
+
+            return true
+        })
+        
+        console.log(new_data)
+        
+        if (valid) {
+
+            var products = []
+            var subtotal = 0
+        
+            new_data.products.forEach(function(item, index) {
+                if (item.quantity_receive > 0) {
+                    if (item.quantity_retur_temp == undefined) {
+                        item.quantity_receive = 0
+                    } else {
+                        item.quantity_receive = parseFloat(item.quantity_receive) - parseFloat(item.quantity_retur_temp)
+                    }
+                    
+                    products.push(item)
+                    subtotal += item.price * item.quantity_receive - ((item.discount || 0) / 100 * (item.price * item.quantity_receive))
+                }
+                
+                delete item.quantity_retur_temp
+            })
+
+            if (this.props.paid > (subtotal - this.props.potongan)) {
+                console.log('balikin uang')
+                this.setState({show_popup_pay_retur: true})
+            } else {
+                console.log('gausah balikin uang')
+            }
+            // if (!this.state.backOrder && this.state.showBackOrder) {
+            //     frappe.call({
+            // 		type: "POST",
+            // 		method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.edit_receive_purchase",
+            // 		args: {name: new_data.name, products: new_data.products, receive_date: new_data.receive_date},
+            // 		freeze: true,
+            // 		callback: function(r){
+            // 			if (r.message.purchase) {
+            // 				window.location.href = "/main/purchases/purchase-order/edit?n=" + r.message.purchase.name
+            // 			}
+            // 			if (r.message.error) {
+            // 				frappe.msgprint(r.message.error);
+            // 			}
+            // 		}
+            // 	});
+            // } else {
+            //     frappe.call({
+            // 		type: "POST",
+            // 		method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.receive_purchase",
+            // 		args: {name: new_data.name, products: products, receive_date: new_data.receive_date},
+            // 		freeze: true,
+            // 		callback: function(r){
+            // 			if (r.message.purchase) {
+            // 				window.location.href = "/main/purchases/purchase-order/edit?n=" + r.message.purchase.name
+            // 			}
+            // 			if (r.message.error) {
+            // 				frappe.msgprint(r.message.error);
+            // 			}
+            // 		}
+            // 	});
+            // }
+        } else {
+            frappe.msgprint('Retur Quantity melebihi Received Quantity')
+        }
+    }
+    
+    // toggleBackOrder(e) {
+    //     e.preventDefault()
+    //     this.setState({backOrder: !this.state.backOrder})
+    // }
+    
+    render() {
+        var maxwidth = {maxWidth: '480px', paddingTop: '100px'}
+        var maxwidth2 = {maxWidth: '20%', paddingTop: '100px'}
+        var payStyle = {background: '#056EAD', color: '#FFFFFF'}
+        var batalStyle = {color: '#056EAD', border: '1px solid #056EAD'}
+        var row_products = []
+        var bgStyle = {background: '#F5FBFF'}
+        var qtyStyle = {background: '#CEEDFF'}
+        var th = this
+        var popup_pay_retur
+        
+        console.log(this.state)
+        
+        this.props.products.forEach(function(item, index) {
+            row_products.push(
+                <div className="row mx-0" key={index.toString()}>
+            		<div className="col row-list" style={bgStyle}>
+            			<div className="row mx-0 fs14 fw600">
+            				<div className="col-8">
+            					<span>{item.product}</span>
+            				</div>
+            				<div className="col">
+            					<input name='quantity_retur' id="quantity_retur" style={qtyStyle} className="form-control border-0 fs14 fw600 px-0 text-center" onChange={e => th.handleInputChange(e, index)} defaultValue={item.quantity_receive}/>
+            				</div>
+            			</div>
+            		</div>
+            	</div>
+            )
+        })
+
+        if (this.state.show_popup_pay_retur) {
+            popup_pay_retur = <PopupPayRetur togglePopupPayRetur={this.togglePopupPayRetur} name={this.props.name} subtotal={this.props.subtotal} paid={this.props.paid} products={this.state.data.products} total_credit={this.props.total_credit} payment_method_list={this.props.payment_method_list} potongan={this.props.potongan}/>
+        }
+        
+        // if (this.state.showBackOrder) {
+        //     var checkbox_style = {width: '20px', height: '20px'}
+        //     backOrder = <div className="row mt-2">
+        //                     <div className="col-auto">
+        //                         <input type="checkbox" name="backOrder" id="backOrder" style={checkbox_style} onChange={this.handleInputChange} checked={this.state.backOrder}/>
+        //                     </div>
+        //                     <span>Back Order</span>
+        //                 </div>
+        // }
+        
+        return (
+            <div className="menu-popup">
+                <div className="container" style={maxwidth}>
+                    <div className="bg-white p-4">
+                        <div className="row mx-0 fs14 fw600 row-header">
+            				<div className="col-8 text-center">
+            					<span className="my-auto">Produk</span>
+            				</div>
+            				<div className="col text-center">
+            					<span className="my-auto">Qty</span>
+            				</div>
+            			</div>
+            			{row_products}
+                        {/* <div className="form-group mt-2">
+                            <span className="fs14 fw600 mb-2">Tanggal</span>
+                            <input required type="date" id="receive_date" name='receive_date' className="form-control border-0 fs22 fw600 mb-2" onChange={this.handleInputChange} defaultValue={this.state.data.receive_date || ''} style={qtyStyle}/>
+                        </div> */}
+            			{/* {backOrder} */}
+                        <div className="row justify-content-center mb-2">
+                            <div className="col-auto d-flex mt-4">
+                                <button className="btn btn-sm fs18 h-100 fwbold px-4" style={payStyle} onClick={this.confirmRetur}>Konfirmasi</button>
+                            </div>
+                            <div className="col-auto d-flex mt-4">
+                                <button className="btn btn-sm fs18 h-100 fwbold px-4" style={batalStyle} onClick={this.props.toggleRetur}>Batal</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="menu-popup-close" onClick={this.props.toggleRetur}></div>
+                {popup_pay_retur}
+            </div>
+        )
+    }
+}
+
+class PopupPayRetur extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state={
+            'data': {'name': this.props.name, 'products': this.props.products}
+        }
+        
+        // this.handleInputChange = this.handleInputChange.bind(this)
+        this.submitReturPay = this.submitReturPay.bind(this)
+    }
+    
+    // handleInputChange(e) {
+    //     var name = e.target.name
+    //     var value = e.target.value
+    //     var new_data = this.state.data
+        
+    //     new_data[name] = value
+    //     this.setState({data: new_data})
+    // }
+    
+    setPaymentMethod(value){
+        var new_data = Object.assign({}, this.state.data)
+        new_data.payment_method = value
+        this.setState({data: new_data})
+    }
+    
+    submitReturPay(e) {
+        e.preventDefault()
+        // var remaining = 0
+        
+        // remaining = this.props.subtotal - this.props.potongan - this.props.paid
+        
+        // if (this.state.data.refund > remaining) {
+        //     frappe.msgprint('Hanya ada sisa ' + formatter.format(remaining))
+        // } else {
+            // var new_data = this.state.data
+            
+            // new_data.products.forEach(function(item, index) {
+            //     if (item.quantity == '0' || item.quantity == 0) {
+            //         item.is_delete = true
+            //     }
+            // })
+            
+            console.log(new_data)
+            
+            // frappe.call({
+            //     type: "GET",
+            //     method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.submit_refund",
+            //     args: {data: new_data},
+            //     freeze: true,
+            //     callback: function(r){
+            //         if (r.message) {
+            //             console.log(r.message)
+            //             window.location.reload()
+            //         }
+            //     }
+            // });
+        // }
+    }
+    
+    render() {
+        var th = this
+        var maxwidth = {maxWidth: '480px', paddingTop: '100px'}
+        var colorStyle = {color: '#AD0505'}
+        var inputStyle = {background: '#FFCECE'}
+        var refundStyle = {background: '#AD0505', color: '#FFFFFF'}
+        var batalStyle = {color: '#AD0505', border: '1px solid #AD0505'}
+        var payStyle = {background: '#AD0505', color: '#FFFFFF'}
+
+        var jumlah = 0
+        
+        this.state.data.products.forEach(function(item, index) {
+            jumlah += item.price * item.quantity_receive - ((item.discount || 0) / 100 * (item.price * item.quantity_receive))
+        })
+
+
+        
+        var pm_buttons = []
+        this.props.payment_method_list.forEach(pm => {
+            var detail
+            var iconStyle = {maxWidth: 36, maxHeight: 36}
+            
+            if(th.state.data.payment_method != pm.method_name){
+                iconStyle.filter = "saturate(40000%) hue-rotate(240deg) brightness(75%)"
+            }
+            
+            if(pm.method_type == 'Cash'){
+                detail = (
+                <div className="row mx-n1">
+                    <div className="col-auto px-1 d-flex">
+                        <img src="/static/img/main/menu/method-cash.png" style={iconStyle} className="m-auto"/>
+                    </div>
+                    <div className="col px-1 d-flex">
+                        <span className="m-auto">{pm.method_name}</span>
+                    </div>
+                </div>
+                )
+            } else if(pm.method_type == 'Card'){
+                detail = (
+                <div className="row mx-n1">
+                    <div className="col-auto px-1 d-flex">
+                        <img src="/static/img/main/menu/method-card.png" style={iconStyle} className="m-auto"/>
+                    </div>
+                    <div className="col px-1 d-flex">
+                        <span className="m-auto">{pm.method_name}</span>
+                    </div>
+                </div>
+                )
+            } else if((pm.method_type == 'Deposit Supplier') && this.props.total_credit > 0){
+                detail = (
+                <div className="row mx-n1">
+                    <div className="col-auto px-1 d-flex">
+                        <img src="/static/img/main/menu/method-deposit.png" style={iconStyle} className="m-auto"/>
+                    </div>
+                    <div className="col px-1">
+                        {pm.method_name}<br/>{formatter.format(this.props.total_credit)}
+                    </div>
+                </div>
+                )
+            } else {
+                return;
+            }
+            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.method_name?payStyle:batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.method_name)}>{detail}</button></div>)
+        })
+        
+        return (
+                <div className="menu-popup">
+                    <div className="container" style={maxwidth}>
+                        <div className="bg-white p-4">
+                            <div className="text-center fs20 fw600 mb-4" style={colorStyle}>
+                                REFUND
+                            </div>
+                            <div className="row mx-n1 my-3">
+                                {pm_buttons}
+                            </div>
+                            <div className="form-group">
+                                <span className="fs14 fw600 mb-2">Jumlah</span>
+                                <input readOnly name='refund' id="refund" className="form-control border-0 fs22 fw600 mb-4" style={inputStyle} defaultValue={formatter2.format(jumlah)}/>
+                            </div>
+                            <div className="row justify-content-center mb-2">
+                                <div className="col-auto d-flex mt-4">
+                                    <button className="btn btn-sm fs18 h-100 fwbold px-4" style={refundStyle} onClick={this.submitReturPay}>Refund</button>
+                                </div>
+                                <div className="col-auto d-flex mt-4">
+                                    <button className="btn btn-sm fs18 h-100 fwbold px-4" style={batalStyle} onClick={this.props.togglePopupPayRetur}>Batal</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="menu-popup-close" onClick={this.props.togglePopupPayRetur}></div>
+                </div>
+            )
     }
 }
 
