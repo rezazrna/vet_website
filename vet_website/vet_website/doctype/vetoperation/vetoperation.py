@@ -427,7 +427,8 @@ def get_stock_move_list(filters=None):
 def get_kartu_stok_list(filters=None, mode=False):
 	td_filters = []
 	moves_filters = []
-	gudang_or_filters = [{'reference': ['not like', '%Retur%']}]
+	operation_filters = [{'reference': ['not like', '%Retur%']}]
+	gudang_or_filters = []
 	filter_json = False
 	
 	if filters:
@@ -471,8 +472,8 @@ def get_kartu_stok_list(filters=None, mode=False):
 			moves_filters.append({'receive_date': ['<', min_date]})
 			moves_filters.append({'receive_date': ['not in', [None, '']]})
 	try:
-		if gudang_or_filters:
-			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters)
+		if gudang_or_filters or operation_filters:
+			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters, filters=operation_filters)
 			td_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 			moves_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 		# kartu_stok = frappe.get_list("VetOperationMove", filters=td_filters, fields=["*"], order_by="date asc")
