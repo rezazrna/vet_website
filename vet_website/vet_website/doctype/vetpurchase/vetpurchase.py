@@ -701,7 +701,7 @@ def refund_purchase(name):
 		return {'error': e}
 
 @frappe.whitelist()
-def retur_purchase(name, products):
+def retur_purchase(name, products, jumlah=False, payment_method=False):
 	print('########## Retur Purchase ##########')
 	try:
 		purchase = frappe.get_doc('VetPurchase', name)
@@ -741,11 +741,8 @@ def retur_purchase(name, products):
 		moves = frappe.get_list('VetOperationMove', filters={'parent': operation.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
 		for m in moves:
 			purchase_product = next((p for p in purchase.products if p.product == m.product), False)
-			# purchase_product_received = next((p for p in json.loads(products) if p.get('product_id') == m.product), False)
 			if purchase_product:
 				m.quantity_done = purchase_product.quantity_receive
-			# if purchase_product_received:
-			# 	m.product_quantity_add = purchase_product_received.get('quantity_receive')
 		
 		action_receive(operation.name, json.dumps(moves))
 
@@ -781,38 +778,22 @@ def retur_purchase(name, products):
 				m.quantity_done = retur_product.get('quantity_retur')
 		
 		action_receive(operation_retur.name, json.dumps(moves))
-		
-		# if check_paid_purchase(purchase.name):
-		# 	purchase.status = 'Refund'
-		# 	purchase.save()
-			
-		# 	for p in purchase.products:
-		# 		product_purchase = frappe.get_doc('VetPurchaseProducts', p.get('name'))
-		# 		product_purchase.quantity_receive = p.quantity
-		# 		product_purchase.save()
-				
-		# 	purchase.reload()
-		# 	operation.reload()
-		# 	moves = frappe.get_list('VetOperationMove', filters={'parent': operation.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
-		# 	for m in moves:
-		# 		purchase_product = next((p for p in purchase.products if p.product == m.product), False)
-		# 		if purchase_product:
-		# 			m.quantity_done = purchase_product.quantity_receive
-			
-		# 	action_receive(operation.name, json.dumps(moves))
-			
-		# purchase.reload()
-		# owner_credit = frappe.new_doc('VetOwnerCredit')
-		# owner_credit.update({
-		# 	'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
-		# 	'purchase': purchase.name,
-		# 	'type': 'Refund',
-		# 	'nominal': pay.jumlah,
-		# 	'metode_pembayaran': data_json.get('payment_method')
-		# })
-		# owner_credit.insert()
-		# frappe.db.commit()
-		# set_owner_credit_total(purchase.supplier, True)
+
+		if jumlah and payment_method:
+			create_purchase_payment_journal_items(purchase.name, jumlah, True, 0, payment_method, dt.now().date().strftime('%Y-%m-%d'))
+
+			purchase.reload()
+			owner_credit = frappe.new_doc('VetOwnerCredit')
+			owner_credit.update({
+				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'purchase': purchase.name,
+				'type': 'Refund',
+				'nominal': jumlah,
+				'metode_pembayaran': payment_method,
+			})
+			owner_credit.insert()
+			frappe.db.commit()
+			set_owner_credit_total(purchase.supplier, True)			
 				
 		return {'purchase': purchase}
 	except PermissionError as e:

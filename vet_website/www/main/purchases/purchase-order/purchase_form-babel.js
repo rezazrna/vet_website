@@ -1389,32 +1389,40 @@ class PopupPayRetur extends React.Component {
         
         // remaining = this.props.subtotal - this.props.potongan - this.props.paid
         
-        // if (this.state.data.refund > remaining) {
-        //     frappe.msgprint('Hanya ada sisa ' + formatter.format(remaining))
-        // } else {
-            // var new_data = this.state.data
+        if (this.state.data.payment_method == undefined) {
+            frappe.msgprint('Pilih metode pembayaran')
+        } else {
+            var new_data = this.state.data
             
             // new_data.products.forEach(function(item, index) {
             //     if (item.quantity == '0' || item.quantity == 0) {
             //         item.is_delete = true
             //     }
             // })
+
+            var jumlah = 0
+        
+            this.state.data.products.forEach(function(item, index) {
+                jumlah += item.price * item.quantity_receive - ((item.discount || 0) / 100 * (item.price * item.quantity_receive))
+            })
+
+            jumlah = this.props.paid - jumlah
             
-            console.log(new_data)
+            console.log(new_data, jumlah)
             
-            // frappe.call({
-            //     type: "GET",
-            //     method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.submit_refund",
-            //     args: {data: new_data},
-            //     freeze: true,
-            //     callback: function(r){
-            //         if (r.message) {
-            //             console.log(r.message)
-            //             window.location.reload()
-            //         }
-            //     }
-            // });
-        // }
+            frappe.call({
+                type: "GET",
+                method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.submit_refund",
+                args: {name: new_data.name, products: new_data.products, jumlah: jumlah, payment_method: new_data.payment_method},
+                freeze: true,
+                callback: function(r){
+                    if (r.message) {
+                        console.log(r.message)
+                        window.location.reload()
+                    }
+                }
+            });
+        }
     }
     
     render() {
@@ -1431,8 +1439,6 @@ class PopupPayRetur extends React.Component {
         this.state.data.products.forEach(function(item, index) {
             jumlah += item.price * item.quantity_receive - ((item.discount || 0) / 100 * (item.price * item.quantity_receive))
         })
-
-
         
         var pm_buttons = []
         this.props.payment_method_list.forEach(pm => {
