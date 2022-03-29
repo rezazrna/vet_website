@@ -1412,7 +1412,7 @@ class PopupPayRetur extends React.Component {
             
             frappe.call({
                 type: "GET",
-                method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.submit_refund",
+                method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.retur_purchase",
                 args: {name: new_data.name, products: new_data.products, jumlah: jumlah, payment_method: new_data.payment_method},
                 freeze: true,
                 callback: function(r){
