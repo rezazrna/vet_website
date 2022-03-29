@@ -776,8 +776,8 @@ def retur_purchase(name, products):
 		operation_retur.reload()
 		moves = frappe.get_list('VetOperationMove', filters={'parent': operation_retur.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
 		for m in moves:
-			retur_product = next((p for p in json.loads(products) if p.get('product') == m.product), False)
-			if purchase_product:
+			retur_product = next((p for p in json.loads(products) if p.get('product_id') == m.product), False)
+			if retur_product:
 				m.quantity_done = retur_product.get('quantity_retur')
 		
 		action_receive(operation_retur.name, json.dumps(moves))
