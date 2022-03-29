@@ -974,10 +974,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 	subtotal = 0
 	
 	for p in purchase.products:
-		if retur:
-			subtotal = subtotal + (p.quantity_retur * p.price - (p.discount or 0) / 100 * (p.quantity_retur * p.price))	
-		else:
-			subtotal = subtotal + (p.quantity_receive * p.price - (p.discount or 0) / 100 * (p.quantity_receive * p.price))
+		subtotal = subtotal + (p.quantity_receive * p.price - (p.discount or 0) / 100 * (p.quantity_receive * p.price))
 	
 	if products:
 		purchase_products = products
