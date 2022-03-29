@@ -780,7 +780,7 @@ def retur_purchase(name, products, jumlah=False, payment_method=False):
 		action_receive(operation_retur.name, json.dumps(moves))
 
 		if jumlah and payment_method:
-			create_purchase_payment_journal_items(purchase.name, jumlah, True, 0, payment_method, dt.now().date().strftime('%Y-%m-%d'))
+			create_purchase_payment_journal_items(purchase.name, jumlah, True, 0, payment_method, False)
 
 			purchase.reload()
 			owner_credit = frappe.new_doc('VetOwnerCredit')
