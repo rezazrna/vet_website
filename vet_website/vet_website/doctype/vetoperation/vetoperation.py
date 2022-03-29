@@ -427,7 +427,7 @@ def get_stock_move_list(filters=None):
 def get_kartu_stok_list(filters=None, mode=False):
 	td_filters = []
 	moves_filters = []
-	gudang_or_filters = []
+	gudang_or_filters = ['reference': ['not like', '%Retur%']]
 	filter_json = False
 	
 	if filters:
