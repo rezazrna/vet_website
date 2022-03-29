@@ -1203,10 +1203,10 @@ class PopupRetur extends React.Component {
             new_data.products.forEach(function(item, index) {
                 if (item.quantity_receive > 0) {
                     if (item.quantity_retur_temp == undefined) {
-                        item.quantity_retur = item.quantity_receive
+                        item.quantity_retur = parseFloat(item.quantity_receive)
                         item.quantity_receive = 0
                     } else {
-                        item.quantity_retur = item.quantity_retur_temp
+                        item.quantity_retur = parseFloat(item.quantity_retur_temp)
                         item.quantity_receive = parseFloat(item.quantity_receive) - parseFloat(item.quantity_retur_temp)
                     }
                     
