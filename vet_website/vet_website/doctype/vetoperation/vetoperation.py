@@ -546,6 +546,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 	default_sort = "creation desc"
 	td_filters = []
 	moves_filters = []
+	operation_filters = [{'reference': ['not like', '%Retur%']}]
 	gudang_or_filters = []
 	nilai_akhir_filters = []
 	product_or_filters = []
@@ -615,8 +616,8 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 		else: 
 			products = frappe.get_list("VetProduct", or_filters=product_or_filters, fields=['default_code', 'product_name', 'uom_name', 'name'], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetProduct", or_filters=product_or_filters, as_list=True))
-		if gudang_or_filters:
-			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters)
+		if gudang_or_filters or operation_filters:
+			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters, filters=operation_filters)
 			td_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 			moves_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 			nilai_akhir_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
