@@ -281,7 +281,7 @@ class StockMoveListRow extends React.Component {
                 <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
                     <div className="row mx-0 fs12 fw600">
                         <div className="col-3 text-center">
-                            <span>{item.product_name.replace(/&lt;/g, "<").replace(/&gt;/g, ">")}</span>
+                            <span>{item.product_name != undefined ? item.product_name.replace(/&lt;/g, "<").replace(/&gt;/g, ">") : ''}</span>
                         </div>
                         <div className="col text-center">
                             <span>{item.parent}</span>

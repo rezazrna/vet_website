@@ -764,7 +764,7 @@ def retur_purchase(name, products):
 				'parent': operation_retur.name,
 				'parenttype': 'VetOperation',
 				'parentfield': 'moves',
-				'product': p.get('product'),
+				'product': p.get('product_id'),
 				'product_uom': p.get('uom'),
 				'quantity': p.get('quantity_retur'),
 				'date': dt.now().date().strftime('%Y-%m-%d'),
