@@ -1169,8 +1169,8 @@ class PopupRetur extends React.Component {
         //     } else {
         //         showBackOrder = false
         //     }
-            new_data.products[i].quantity_retur_temp = value
-            this.setState({data: new_data})
+        new_data.products[i].quantity_retur_temp = value
+        this.setState({data: new_data})
         // }
     }
 
@@ -1203,8 +1203,10 @@ class PopupRetur extends React.Component {
             new_data.products.forEach(function(item, index) {
                 if (item.quantity_receive > 0) {
                     if (item.quantity_retur_temp == undefined) {
+                        item.quantity_retur = item.quantity_receive
                         item.quantity_receive = 0
                     } else {
+                        item.quantity_retur = item.quantity_retur_temp
                         item.quantity_receive = parseFloat(item.quantity_receive) - parseFloat(item.quantity_retur_temp)
                     }
                     
@@ -1220,6 +1222,20 @@ class PopupRetur extends React.Component {
                 this.setState({show_popup_pay_retur: true})
             } else {
                 console.log('gausah balikin uang')
+                frappe.call({
+                    type: "POST",
+                    method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.retur_purchase",
+                    args: {name: new_data.name, products: new_data.products},
+                    freeze: true,
+                    callback: function(r){
+                        if (r.message.purchase) {
+                            window.location.reload()
+                        }
+                        if (r.message.error) {
+                            frappe.msgprint(r.message.error);
+                        }
+                    }
+                });
             }
             // if (!this.state.backOrder && this.state.showBackOrder) {
             //     frappe.call({
@@ -1478,7 +1494,7 @@ class PopupPayRetur extends React.Component {
                             </div>
                             <div className="form-group">
                                 <span className="fs14 fw600 mb-2">Jumlah</span>
-                                <input readOnly name='refund' id="refund" className="form-control border-0 fs22 fw600 mb-4" style={inputStyle} defaultValue={formatter2.format(jumlah)}/>
+                                <input readOnly name='refund' id="refund" className="form-control border-0 fs22 fw600 mb-4" style={inputStyle} defaultValue={formatter2.format(this.props.paid - jumlah)}/>
                             </div>
                             <div className="row justify-content-center mb-2">
                                 <div className="col-auto d-flex mt-4">

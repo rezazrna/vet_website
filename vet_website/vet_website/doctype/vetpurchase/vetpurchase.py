@@ -699,6 +699,124 @@ def refund_purchase(name):
 
 	except PermissionError as e:
 		return {'error': e}
+
+@frappe.whitelist()
+def retur_purchase(name, products):
+	print('########## Retur Purchase ##########')
+	try:
+		purchase = frappe.get_doc('VetPurchase', name)
+		operation = frappe.get_doc("VetOperation", {'reference': name})
+
+		create_purchase_journal_entry(purchase.name, False, json.loads(products), True)
+		
+		for p in json.loads(products):
+			product_purchase = frappe.get_doc('VetPurchaseProducts', p.get('name'))
+			product_purchase.quantity -= p.get('quantity_retur')
+			product_purchase.quantity_receive -= p.get('quantity_retur')
+			product_purchase.quantity_stocked -= p.get('quantity_retur')
+			product_purchase.save()
+			
+			move_search = frappe.get_list('VetOperationMove', filters={'parent': operation.name, 'product': product_purchase.product}, fields=['name'])
+			move = frappe.get_doc('VetOperationMove', move_search[0]['name'])
+			move.update({
+				'quantity': p.get('quantity') - p.get('quantity_retur'),
+			})
+			move.save()
+
+		purchase.reload()
+		if all(t.quantity == t.quantity_receive for t in purchase.products):
+			purchase.status = 'Receive'
+		
+		if check_paid_purchase(name):
+			purchase.status = 'Paid'
+			
+		if all(t.quantity == t.quantity_receive for t in purchase.products) and check_paid_purchase(name):
+			purchase.status = 'Done'
+			
+		purchase.save()
+		
+		purchase.reload()
+		operation.reload()
+
+		moves = frappe.get_list('VetOperationMove', filters={'parent': operation.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
+		for m in moves:
+			purchase_product = next((p for p in purchase.products if p.product == m.product), False)
+			# purchase_product_received = next((p for p in json.loads(products) if p.get('product_id') == m.product), False)
+			if purchase_product:
+				m.quantity_done = purchase_product.quantity_receive
+			# if purchase_product_received:
+			# 	m.product_quantity_add = purchase_product_received.get('quantity_receive')
+		
+		action_receive(operation.name, json.dumps(moves))
+
+		operation_retur = frappe.new_doc("VetOperation")
+		operation_retur.update({
+			'reference': purchase.name + ' Retur',
+			'from': purchase.deliver_to,
+			'date': dt.now().date().strftime('%Y-%m-%d'),
+			'status': 'Delivery'
+		})
+		operation_retur.insert()
+
+		for p in json.loads(products):
+			new_move = frappe.new_doc("VetOperationMove")
+			new_move.update({
+				'parent': operation_retur.name,
+				'parenttype': 'VetOperation',
+				'parentfield': 'moves',
+				'product': p.product,
+				'product_uom': p.uom,
+				'quantity': p.quantity_retur,
+				'date': dt.now().date().strftime('%Y-%m-%d'),
+			})
+
+			operation_retur.moves.append(new_move)
+			operation_retur.save()
+
+		operation_retur.reload()
+		moves = frappe.get_list('VetOperationMove', filters={'parent': operation_retur.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
+		for m in moves:
+			retur_product = next((p for p in json.loads(products) if p.product == m.product), False)
+			if purchase_product:
+				m.quantity_done = retur_product.quantity_retur
+		
+		action_receive(operation_retur.name, json.dumps(moves))
+		
+		# if check_paid_purchase(purchase.name):
+		# 	purchase.status = 'Refund'
+		# 	purchase.save()
+			
+		# 	for p in purchase.products:
+		# 		product_purchase = frappe.get_doc('VetPurchaseProducts', p.get('name'))
+		# 		product_purchase.quantity_receive = p.quantity
+		# 		product_purchase.save()
+				
+		# 	purchase.reload()
+		# 	operation.reload()
+		# 	moves = frappe.get_list('VetOperationMove', filters={'parent': operation.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
+		# 	for m in moves:
+		# 		purchase_product = next((p for p in purchase.products if p.product == m.product), False)
+		# 		if purchase_product:
+		# 			m.quantity_done = purchase_product.quantity_receive
+			
+		# 	action_receive(operation.name, json.dumps(moves))
+			
+		# purchase.reload()
+		# owner_credit = frappe.new_doc('VetOwnerCredit')
+		# owner_credit.update({
+		# 	'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+		# 	'purchase': purchase.name,
+		# 	'type': 'Refund',
+		# 	'nominal': pay.jumlah,
+		# 	'metode_pembayaran': data_json.get('payment_method')
+		# })
+		# owner_credit.insert()
+		# frappe.db.commit()
+		# set_owner_credit_total(purchase.supplier, True)
+				
+		return {'purchase': purchase}
+	except PermissionError as e:
+		return {'error': e}
 		
 @frappe.whitelist()
 def receive_purchase(name, products, receive_date):
@@ -842,7 +960,7 @@ def check_purchase_journal():
 			return False
 			
 			
-def create_purchase_journal_entry(purchase_name, refund=False, products=False):
+def create_purchase_journal_entry(purchase_name, refund=False, products=False, retur=False):
 	purchase = frappe.get_doc('VetPurchase', purchase_name)
 	purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
 	purchase_journal_debit = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'default_debit_account')
@@ -856,7 +974,10 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False):
 	subtotal = 0
 	
 	for p in purchase.products:
-		subtotal = subtotal + (p.quantity_receive * p.price - (p.discount or 0) / 100 * (p.quantity_receive * p.price))
+		if retur:
+			subtotal = subtotal + (p.quantity_retur * p.price - (p.discount or 0) / 100 * (p.quantity_retur * p.price))	
+		else:
+			subtotal = subtotal + (p.quantity_receive * p.price - (p.discount or 0) / 100 * (p.quantity_receive * p.price))
 	
 	if products:
 		purchase_products = products
@@ -869,13 +990,16 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False):
 		else:
 			category = frappe.db.get_value('VetProduct', pp.product, 'product_category')
 		account = frappe.db.get_value('VetProductCategory', category, 'stock_input_account')
-		amount = pp['quantity_receive'] * pp['price'] - ((pp['discount'] or 0) / 100 * (pp['quantity_receive'] * pp['price']))
+		if retur:
+			amount = pp['quantity_retur'] * pp['price'] - ((pp['discount'] or 0) / 100 * (pp['quantity_retur'] * pp['price']))
+		else:
+			amount = pp['quantity_receive'] * pp['price'] - ((pp['discount'] or 0) / 100 * (pp['quantity_receive'] * pp['price']))
 		total += amount
 		
 		berhasil = False
 		for u in jis:
 			if u['account'] == account:
-				if refund:
+				if refund or retur:
 					u['credit'] += amount
 					berhasil = True
 				else:
@@ -883,7 +1007,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False):
 					berhasil = True
 				
 		if not berhasil:
-			if refund:
+			if refund or retur:
 				jis.append({
 					'account': account,
 					'credit': amount
@@ -894,7 +1018,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False):
 					'debit': amount
 				})
 				
-	if refund:
+	if refund or retur:
 		jis.append({
 			'account': purchase_journal_credit,
 			'debit': total,
