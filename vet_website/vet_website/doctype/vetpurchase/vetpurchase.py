@@ -778,7 +778,7 @@ def retur_purchase(name, products):
 		for m in moves:
 			retur_product = next((p for p in json.loads(products) if p.get('product') == m.product), False)
 			if purchase_product:
-				m.quantity_done = retur_product.quantity_retur
+				m.quantity_done = retur_product.get('quantity_retur')
 		
 		action_receive(operation_retur.name, json.dumps(moves))
 		
