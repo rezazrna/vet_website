@@ -666,24 +666,29 @@ def count_nilai_awal(moves):
 	nilai = 0
 	for m in moves:
 		operation = frappe.get_doc("VetOperation", m.parent)
-		if operation.get('to', False) and 'PO' in operation.reference and 'POSORDER' not in operation.reference:
+		if 'PO' in operation.reference and 'POSORDER' not in operation.reference:
 			purchase = frappe.get_doc("VetPurchase", operation.reference)
-			if purchase.is_refund == 0 and purchase.already_refund == 0:
-				products_purchase = frappe.get_list("VetPurchaseProducts", filters={'parent': purchase.name, 'product': m.product}, fields=['quantity_receive', 'price'])
-				for pp in products_purchase:
+			products_purchase = frappe.get_list("VetPurchaseProducts", filters={'parent': purchase.name, 'product': m.product}, fields=['quantity_receive', 'price'])
+			for pp in products_purchase:
+				if purchase.is_refund == 1:
+					pembelian.append({'purchase': purchase.name, 'quantity': -pp.quantity_receive, 'price': pp.price})
+				else:
 					pembelian.append({'purchase': purchase.name, 'quantity': pp.quantity_receive, 'price': pp.price})
 
-		if operation.get('from', False):
-			if 'VCI' in operation.reference:
-				invoice = frappe.get_doc("VetCustomerInvoice", operation.reference)
-				print('invoice refund')
-				print(invoice.is_refund)
-				if invoice.is_refund == 0 and invoice.already_refund == 0:
-					penjualan += m.quantity_done
-			elif 'POSORDER' in operation.reference:
-				order = frappe.get_doc("VetPosOrder", operation.reference)
-				if order.is_refund == 0 and order.already_refund == 0:
-					penjualan += m.quantity_done
+		if 'VCI' in operation.reference:
+			invoice = frappe.get_doc("VetCustomerInvoice", operation.reference)
+			print('invoice refund')
+			print(invoice.is_refund)
+			if invoice.is_refund == 1:
+				penjualan -= m.quantity_done
+			else:
+				penjualan += m.quantity_done
+		elif 'POSORDER' in operation.reference:
+			order = frappe.get_doc("VetPosOrder", operation.reference)
+			if order.is_refund == 1:
+				penjualan -= m.quantity_done
+			else:
+				penjualan += m.quantity_done
 			
 
 	print('pembelian')
