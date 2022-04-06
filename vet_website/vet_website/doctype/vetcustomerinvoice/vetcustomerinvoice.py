@@ -1259,6 +1259,7 @@ def create_sales_journal_entry(invoice_name, refund=False):
 					'credit': amount_no_discount,
 				})
 		if product_category.stockable:
+			invoice_line = frappe.get_doc('VetCustomerInvoiceLine', pp.name)
 			amount = 0
 			current_quantity = pp.quantity
 			purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.product}, fields=['*'], order_by="creation asc")
@@ -1279,13 +1280,41 @@ def create_sales_journal_entry(invoice_name, refund=False):
 
 					# print('current qty')
 					# print(current_quantity)
+
+					new_invoice_line_purchase = frappe.new_doc("VetCustomerInvoiceLinePurchase")
+					print('masuk')
+					print(invoice_line.purchase_products)
 					
-					if current_quantity >= purchase_product.quantity_stocked:
-						# print('masuk current quantity lebih besar')
+					if float(current_quantity) >= purchase_product.quantity_stocked:
+						new_invoice_line_purchase.update({
+							'parent': invoice_line.name,
+							'parenttype': 'VetCustomerInvoiceLine',
+							'parentfield': 'purchase_products',
+							'purchase_products_name': purchase_product.name,
+							'quantity': float(current_quantity) - purchase_product.quantity_stocked,
+						})
+
+						invoice_line.purchase_products.append(new_invoice_line_purchase)
+						invoice_line.save()
+						frappe.db.commit()
+
 						current_quantity = float(current_quantity) - purchase_product.quantity_stocked
 						amount += purchase_product.price * math.ceil(purchase_product.quantity_stocked)
 					else:
-						# print('mauk current quantity lebih kecil')
+						new_invoice_line_purchase.update({
+							'parent': invoice_line.name,
+							'parenttype': 'VetCustomerInvoiceLine',
+							'parentfield': 'purchase_products',
+							'purchase_products_name': purchase_product.name,
+							'quantity': math.ceil(current_quantity),
+						})
+
+						invoice_line.purchase_products.append(new_invoice_line_purchase)
+						invoice_line.save()
+						print('keluar')
+						print(invoice_line.purchase_products)
+						frappe.db.commit()
+
 						amount += purchase_product.price * math.ceil(current_quantity)
 						current_quantity = 0
 
