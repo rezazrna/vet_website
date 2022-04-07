@@ -1299,7 +1299,8 @@ def create_sales_journal_entry(invoice_name, refund=False):
 							'purchase_products_name': purchase_product.name,
 							'quantity': float(current_quantity) - purchase_product.quantity_stocked,
 						})
-						invoice_line.save()
+						invoice_line.insert()
+						invoice_line.submit()
 						frappe.db.commit()
 
 						current_quantity = float(current_quantity) - purchase_product.quantity_stocked
@@ -1319,7 +1320,8 @@ def create_sales_journal_entry(invoice_name, refund=False):
 							'purchase_products_name': purchase_product.name,
 							'quantity': math.ceil(current_quantity),
 						})
-						invoice_line.save()
+						invoice_line.insert()
+						invoice_line.submit()
 						print('keluar')
 						print(invoice_line.purchase_products)
 						frappe.db.commit()
