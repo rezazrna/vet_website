@@ -1294,8 +1294,6 @@ def create_sales_journal_entry(invoice_name, refund=False):
 							'quantity': float(current_quantity) - purchase_product.quantity_stocked,
 						})
 
-						new_invoice_line_purchase.save()
-
 						invoice_line.purchase_products.append(new_invoice_line_purchase)
 						invoice_line.save()
 						frappe.db.commit()
@@ -1310,8 +1308,6 @@ def create_sales_journal_entry(invoice_name, refund=False):
 							'purchase_products_name': purchase_product.name,
 							'quantity': math.ceil(current_quantity),
 						})
-
-						new_invoice_line_purchase.save()
 
 						invoice_line.purchase_products.append(new_invoice_line_purchase)
 						invoice_line.save()
