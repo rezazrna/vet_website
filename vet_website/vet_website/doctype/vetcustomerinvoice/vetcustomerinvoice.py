@@ -1294,8 +1294,7 @@ def create_sales_journal_entry(invoice_name, refund=False):
 							'quantity': float(current_quantity) - purchase_product.quantity_stocked,
 						})
 
-						new_invoice_line_purchase.insert()
-						new_invoice_line_purchase.submit()
+						new_invoice_line_purchase.save()
 
 						invoice_line.purchase_products.append(new_invoice_line_purchase)
 						invoice_line.save()
@@ -1312,8 +1311,7 @@ def create_sales_journal_entry(invoice_name, refund=False):
 							'quantity': math.ceil(current_quantity),
 						})
 
-						new_invoice_line_purchase.insert()
-						new_invoice_line_purchase.submit()
+						new_invoice_line_purchase.save()
 
 						invoice_line.purchase_products.append(new_invoice_line_purchase)
 						invoice_line.save()
