@@ -35,7 +35,8 @@
   "rgt",
   "is_group",
   "old_parent",
-  "parent_vetcustomerinvoice"
+  "parent_vetcustomerinvoice",
+  "refund_from"
  ],
  "fields": [
   {
@@ -228,9 +229,15 @@
    "options": "VetCustomerInvoice",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "refund_from",
+   "fieldtype": "Link",
+   "label": "Refund From",
+   "options": "VetCustomerInvoice"
   }
  ],
- "modified": "2022-02-18 21:05:36.106128",
+ "modified": "2022-04-07 19:30:42.390782",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetCustomerInvoice",

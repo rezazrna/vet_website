@@ -1046,7 +1046,8 @@ def refund_invoice(name):
 			'total': old_invoice.total,
 			'status': 'Draft',
 			'invoice_line': old_invoice.invoice_line,
-			'is_refund': True
+			'is_refund': True,
+			'refund_from': old_invoice.name
 		})
 		invoice.insert()
 		frappe.db.commit()
@@ -1090,7 +1091,7 @@ def submit_refund(data):
 			invoice.save()
 			frappe.db.commit()
 			
-			create_sales_payment_journal_items(invoice.name, data_json.get('refund'), True, 0, data_json.get('payment_method'))
+			create_sales_payment_journal_items(invoice.name, data_json.get('refund'), True, 0, data_json.get('payment_method'), invoice.refund_from)
 			paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': invoice.name}, fields=['sum(jumlah) as paid'])
 			if len(paid_search) != 0:
 				paid = paid_search[0].paid
@@ -1281,38 +1282,28 @@ def create_sales_journal_entry(invoice_name, refund=False):
 					# print('current qty')
 					# print(current_quantity)
 
-					new_invoice_line_purchase = frappe.new_doc("VetCustomerInvoiceLinePurchase")
-					print('masuk')
-					print(invoice_line.purchase_products)
+					new_invoice_line_purchase = frappe.new_doc("VetCustomerInvoicePurchaseProducts")
 					
-					if float(current_quantity) >= purchase_product.quantity_stocked:
+					if float(current_quantity) > purchase_product.quantity_stocked:
 						new_invoice_line_purchase.update({
-							'parent': invoice_line.name,
-							'parenttype': 'VetCustomerInvoiceLine',
-							'parentfield': 'purchase_products',
+							'invoice_line_name': invoice_line.name,
 							'purchase_products_name': purchase_product.name,
-							'quantity': float(current_quantity) - purchase_product.quantity_stocked,
+							'quantity': math.ceil(purchase_product.quantity_stocked),
 						})
 
-						invoice_line.purchase_products.append(new_invoice_line_purchase)
-						invoice_line.save()
+						new_invoice_line_purchase.insert()
 						frappe.db.commit()
 
 						current_quantity = float(current_quantity) - purchase_product.quantity_stocked
 						amount += purchase_product.price * math.ceil(purchase_product.quantity_stocked)
 					else:
 						new_invoice_line_purchase.update({
-							'parent': invoice_line.name,
-							'parenttype': 'VetCustomerInvoiceLine',
-							'parentfield': 'purchase_products',
+							'invoice_line_name': invoice_line.name,
 							'purchase_products_name': purchase_product.name,
 							'quantity': math.ceil(current_quantity),
 						})
 
-						invoice_line.purchase_products.append(new_invoice_line_purchase)
-						invoice_line.save()
-						print('keluar')
-						print(invoice_line.purchase_products)
+						new_invoice_line_purchase.insert()
 						frappe.db.commit()
 
 						amount += purchase_product.price * math.ceil(current_quantity)
@@ -1397,7 +1388,7 @@ def create_sales_journal_entry(invoice_name, refund=False):
 	new_journal_entry(json.dumps(je_data))
 	
 	
-def create_sales_payment_journal_items(invoice_name, amount, refund=False, deposit=0, method=False):
+def create_sales_payment_journal_items(invoice_name, amount, refund=False, deposit=0, method=False, refund_from=False):
 	#create payment choose payment journal
 	# sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	if check_payment_journal():
@@ -1427,53 +1418,62 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 			}
 		]
 
-		products = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': invoice_name}, fields=['*'])
-		for pp in products:
-			product_category = frappe.get_doc('VetProductCategory', product.product_category)
-			if product_category.stockable:
-				invoice_line = frappe.get_doc('VetCustomerInvoiceLine', pp.name)
-				amount = 0
-				current_quantity = pp.quantity
-				purchase_products = frappe.get_list('VetCustomerInvoiceLinePurchase', filters={'parent': invoice_line.name}, fields=['*'], order_by="creation desc")
+		if refund_from:
+			products = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': invoice_name}, fields=['*'])
+			print('products')
+			print(products)
+			for pp in products:
+				product = frappe.get_doc('VetProduct', pp.product)
+				product_category = frappe.get_doc('VetProductCategory', product.product_category)
+				print('category')
+				print(product_category.stockable)
+				if product_category.stockable:
+					invoice_line = frappe.get_doc('VetCustomerInvoiceLine', pp.name)
+					amount = 0
+					current_quantity = pp.quantity
+					line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': refund_from, 'product': invoice_line.product}, fields=['*'])
+					if line:
+						purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': line[0]['name']}, fields=['*'], order_by="name desc")
+						print('purchase products')
+						print(purchase_products)
+						for pws in purchase_products:
+							if current_quantity != 0:
+								purchase_product = frappe.get_doc('VetPurchaseProducts', pws.purchase_products_name)
+								
+								# belum ngerti
+								# if (purchase_product.uom != pp.product_uom) :
+								# 	ratio = frappe.db.get_value('VetUOM', pp.product_uom, 'ratio')
+								# 	target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
+								# 	current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
+								# 	current_uom = purchase_product.uom
+								
+								if float(current_quantity) >= pws.quantity:
+									current_quantity = float(current_quantity) - pws.quantity
+									amount += purchase_product.price * math.ceil(pws.quantity)
+								else:
+									amount += purchase_product.price * math.ceil(current_quantity)
+									current_quantity = 0
 
-				for pws in purchase_products:
-					if current_quantity != 0:
-						purchase_product = frappe.get_doc('VetPurchaseProducts', pws.purchase_products_name)
-						
-						# belum ngerti
-						# if (purchase_product.uom != pp.product_uom) :
-						# 	ratio = frappe.db.get_value('VetUOM', pp.product_uom, 'ratio')
-						# 	target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
-						# 	current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
-						# 	current_uom = purchase_product.uom
-						
-						if float(current_quantity) >= pws.quantity:
-							current_quantity = float(current_quantity) - pws.quantity
-							amount += purchase_product.price * math.ceil(pws.quantity)
+						same_input_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_input_account), False)
+						same_output_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_output_account), False)
+						if same_input_ji:
+							same_input_ji.update({
+								'debit': same_input_ji.get('debit') + amount,
+							})
 						else:
-							amount += purchase_product.price * math.ceil(current_quantity)
-							current_quantity = 0
-
-				same_input_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_input_account), False)
-				same_output_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_output_account), False)
-				if same_input_ji:
-					same_input_ji.update({
-						'debit': same_input_ji.get('debit') + amount,
-					})
-				else:
-					jis.append({
-						'account': product_category.stock_input_account,
-						'debit': amount,
-					})
-				if same_output_ji:
-					same_output_ji.update({
-						'credit': same_output_ji.get('credit') + amount,
-					})
-				else:
-					jis.append({
-						'account': product_category.stock_output_account,
-						'credit': amount,
-					})
+							jis.append({
+								'account': product_category.stock_input_account,
+								'debit': amount,
+							})
+						if same_output_ji:
+							same_output_ji.update({
+								'credit': same_output_ji.get('credit') + amount,
+							})
+						else:
+							jis.append({
+								'account': product_category.stock_output_account,
+								'credit': amount,
+							})
 	else:
 		invoice = frappe.get_doc('VetCustomerInvoice', invoice_name)
 		paid = sum(i.jumlah for i in invoice.pembayaran)

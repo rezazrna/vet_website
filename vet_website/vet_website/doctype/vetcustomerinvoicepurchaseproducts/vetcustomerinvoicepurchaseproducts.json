@@ -1,0 +1,60 @@
+{
+ "autoname": "VCIPP-.#",
+ "creation": "2022-04-07 19:19:38.619207",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "invoice_line_name",
+  "purchase_products_name",
+  "quantity"
+ ],
+ "fields": [
+  {
+   "fieldname": "invoice_line_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Invoice Line",
+   "options": "VetCustomerInvoiceLine",
+   "reqd": 1
+  },
+  {
+   "fieldname": "purchase_products_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Purchase Products",
+   "options": "VetPurchaseProducts",
+   "reqd": 1
+  },
+  {
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "label": "quantity"
+  }
+ ],
+ "modified": "2022-04-07 19:19:38.619207",
+ "modified_by": "Administrator",
+ "module": "Vet Website",
+ "name": "VetCustomerInvoicePurchaseProducts",
+ "name_case": "UPPER CASE",
+ "nsm_parent_field": "parent_vetcustomerinvoice",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
