@@ -811,7 +811,7 @@ def add_payment(data):
 		return {'error': e}
 		
 @frappe.whitelist()
-def deliver_to_customer(name, refund=False):
+def deliver_to_customer(name, refund=False, refund_from=False):
 	try:
 		customer_invoice = frappe.get_doc("VetCustomerInvoice", name)
 		gudang = frappe.get_list("VetGudang", fields=["name"])
@@ -889,7 +889,7 @@ def deliver_to_customer(name, refund=False):
 			
 			for m in moves:
 				if refund:
-					increase_product_valuation(name, m.product, m.quantity, m.product_uom)
+					increase_product_valuation(name, m.product, m.quantity, m.product_uom, refund_from)
 				else:
 					decrease_product_valuation(m.product, m.quantity, m.product_uom, refund)
 		
@@ -1033,14 +1033,19 @@ def decrease_product_valuation(product, quantity, uom=False, reverse=False):
 	return adjustment_value
 
 @frappe.whitelist()
-def increase_product_valuation(invoice_name, product, quantity, uom=False):
+def increase_product_valuation(invoice_name, product, quantity, uom=False, refund_from=False):
 	adjustment_value = 0
+	line = []
 	
 	product_uom = uom
 	if not product_uom:
 		product_uom = frappe.db.get_value('VetProduct', 'product_uom')
 
-	line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': invoice_name, 'product': product}, fields=['*'])
+	if refund_from:
+		line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': refund_from, 'product': product}, fields=['*'])
+	else:
+		line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': invoice_name, 'product': product}, fields=['*'])
+
 	if line:
 		purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': line[0]['name']}, fields=['*'], order_by="name desc")
 		
@@ -1142,7 +1147,7 @@ def submit_refund(data):
 			if paid >= invoice.total:
 				invoice.status = 'Refund'
 				invoice.save()
-				deliver_to_customer(invoice.name, True)
+				deliver_to_customer(invoice.name, True, invoice.refund_from)
 				
 			pay.reload()
 			
