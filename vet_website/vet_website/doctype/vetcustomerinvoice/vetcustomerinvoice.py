@@ -888,7 +888,10 @@ def deliver_to_customer(name, refund=False):
 			action_receive(operation.name, json.dumps(moves))
 			
 			for m in moves:
-				decrease_product_valuation(m.product, m.quantity, m.product_uom, refund)
+				if refund:
+					increase_product_valuation(name, m.product, m.quantity, m.product_uom)
+				else:
+					decrease_product_valuation(m.product, m.quantity, m.product_uom, refund)
 		
 		# date = customer_invoice.invoice_date.strftime("%Y-%m-%d")
 		
@@ -1020,6 +1023,46 @@ def decrease_product_valuation(product, quantity, uom=False, reverse=False):
 						current_quantity = 0
 						purchase_product.save()
 						frappe.db.commit()
+				else:
+					adjustment_value += float(current_quantity) * purchase_product.price
+					purchase_product.quantity_stocked = purchase_product.quantity_stocked + float(current_quantity)
+					current_quantity = 0
+					purchase_product.save()
+					frappe.db.commit()
+					
+	return adjustment_value
+
+@frappe.whitelist()
+def increase_product_valuation(invoice_name, product, quantity, uom=False):
+	adjustment_value = 0
+	
+	product_uom = uom
+	if not product_uom:
+		product_uom = frappe.db.get_value('VetProduct', 'product_uom')
+
+	line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': invoice_name, 'product': product}, fields=['*'])
+	if line:
+		purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': line[0]['name']}, fields=['*'], order_by="name desc")
+		
+		current_quantity = float(quantity)
+		current_uom = product_uom
+		
+		for pws in purchase_products:
+			if current_quantity != 0:
+				purchase_product = frappe.get_doc('VetPurchaseProducts', pws.purchase_products_name)
+				
+				if(purchase_product.uom != current_uom):
+					ratio = frappe.db.get_value('VetUOM', current_uom, 'ratio')
+					target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
+					current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
+					current_uom = purchase_product.uom
+
+				if float(current_quantity) >= pws.quantity:
+					adjustment_value += pws.quantity * purchase_product.price
+					purchase_product.quantity_stocked = purchase_product.quantity_stocked + pws.quantity
+					current_quantity = float(current_quantity) - pws.quantity
+					purchase_product.save()
+					frappe.db.commit()
 				else:
 					adjustment_value += float(current_quantity) * purchase_product.price
 					purchase_product.quantity_stocked = purchase_product.quantity_stocked + float(current_quantity)
