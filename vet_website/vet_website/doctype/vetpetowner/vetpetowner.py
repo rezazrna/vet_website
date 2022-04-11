@@ -721,7 +721,7 @@ def set_owner_credit_total(name, supplier=False):
 				
 				owner_credit.debt = debt
 				
-			elif 'Deposit' in owner_credit.metode_pembayaran:
+			elif 'Deposit' in (owner_credit.metode_pembayaran or ''):
 				# Pembayaran dari Deposit
 				print("Pembayaran dari Deposit")
 				purchase_search = frappe.get_list('VetPurchase', filters={'name': owner_credit.purchase}, fields=['name'])

@@ -679,13 +679,13 @@ def count_nilai_awal(moves):
 			invoice = frappe.get_doc("VetCustomerInvoice", operation.reference)
 			print('invoice refund')
 			print(invoice.is_refund)
-			if invoice.is_refund == 1:
+			if invoice.is_refund == 1 or operation.get('to', False):
 				penjualan -= m.quantity_done
 			else:
 				penjualan += m.quantity_done
 		elif 'POSORDER' in operation.reference:
 			order = frappe.get_doc("VetPosOrder", operation.reference)
-			if order.is_refund == 1:
+			if order.is_refund == 1 or operation.get('to', False):
 				penjualan -= m.quantity_done
 			else:
 				penjualan += m.quantity_done
