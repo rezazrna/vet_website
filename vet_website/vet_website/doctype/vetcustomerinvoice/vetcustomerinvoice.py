@@ -816,7 +816,7 @@ def deliver_to_customer(name, refund=False):
 		customer_invoice = frappe.get_doc("VetCustomerInvoice", name)
 		gudang = frappe.get_list("VetGudang", fields=["name"])
 		customer_invoice_lines = frappe.get_list("VetCustomerInvoiceLine", filters={'parent': name}, fields=['*'])
-		if refund:
+		if refund and customer_invoice.is_refund == 1:
 			date = customer_invoice.refund_date.strftime("%Y-%m-%d")
 		else:
 			date = customer_invoice.invoice_date.strftime("%Y-%m-%d")
