@@ -332,8 +332,9 @@ def confirm_tindakan_dokter(data):
 			# 	marker.insert()
 			# 	tindakan_dokter.update({'marker': marker.name})
 			# 	tindakan_dokter.save()
-				
-			if data_json.get("obat"):
+			
+			check_apotik = frappe.get_list("VetApotik", filters={'register_number': tindakan_dokter.register_number})
+			if not check_apotik and data_json.get("obat"):
 				apotik = frappe.new_doc('VetApotik')
 				apotik.update({'register_number': tindakan_dokter.register_number})
 				apotik.insert()

@@ -1330,6 +1330,10 @@ class TemplateTindakan extends React.Component {
 	                        if (new_tindakan['quantity_template'] != undefined) {
             				    r.message.product['quantity_template'] = new_tindakan['quantity_template']
             				}
+
+                            if (new_tindakan['description'] != undefined) {
+            				    r.message.product['description'] = new_tindakan['description']
+            				}
             				
 	                        aa.setState({new_tindakan: r.message.product})
 	                    }
@@ -1378,25 +1382,41 @@ class TemplateTindakan extends React.Component {
     	
         if (e.key === 'Enter' || e.key == 'Tab') {
         	e.preventDefault();
-        	if(e.target.name == 'description' && new_tindakan.description && new_tindakan.description != ''){
-        	    new_data.tindakan.push({description: new_tindakan.description})
-            	this.setState({data: new_data, new_tindakan:{}})
-            	
-            	var desc = document.getElementById("description")
-            	desc.value = ''
-            	
-        	} else if (new_tindakan.name && new_tindakan.name != '' && new_tindakan.quantity_template != '0' && new_tindakan.quantity_template) {
-            	new_data.tindakan.push(new_tindakan)
+            if((new_tindakan.description && new_tindakan.description != '') || (new_tindakan.name && new_tindakan.name != '' && new_tindakan.quantity_template != '0' && new_tindakan.quantity_template)){
+        	    new_data.tindakan.push(new_tindakan)
             	
             	this.setState({data: new_data, new_tindakan:{}})
             	
             	var qty = document.getElementById("quantity_template")
             	var selectProduct = document.getElementById("tindakan_template")
+                var desc = document.getElementById("description")
+            	desc.value = ''
             	qty.value = qty.defaultValue
             	selectProduct.value = ''
             	
             	document.getElementById("tindakan_template").focus();
-            }
+            	
+        	}
+
+        	// if(e.target.name == 'description' && new_tindakan.description && new_tindakan.description != ''){
+        	//     new_data.tindakan.push({description: new_tindakan.description})
+            // 	this.setState({data: new_data, new_tindakan:{}})
+            	
+            // 	var desc = document.getElementById("description")
+            // 	desc.value = ''
+            	
+        	// } else if (new_tindakan.name && new_tindakan.name != '' && new_tindakan.quantity_template != '0' && new_tindakan.quantity_template) {
+            // 	new_data.tindakan.push(new_tindakan)
+            	
+            // 	this.setState({data: new_data, new_tindakan:{}})
+            	
+            // 	var qty = document.getElementById("quantity_template")
+            // 	var selectProduct = document.getElementById("tindakan_template")
+            // 	qty.value = qty.defaultValue
+            // 	selectProduct.value = ''
+            	
+            // 	document.getElementById("tindakan_template").focus();
+            // }
         }
     }
     
@@ -1579,6 +1599,7 @@ class TemplateTindakanRow extends React.Component {
 		
 		var total = <div className="col-3 px-0"/>
 		var amount_row = <div className="col-6 px-0"/>
+        var desc_row
 		if(item.uom_name != undefined && item.quantity_template != undefined && item.price != undefined){
 		    total = <div className="col-3 px-0">
 	        	    	<span className="mr-1 fs14">{formatter.format(item.quantity_template * item.price)}</span>
@@ -1597,6 +1618,12 @@ class TemplateTindakanRow extends React.Component {
     	        	        	</div>
     	        	        </div>
 		}
+
+        if (item.product_name && item.description) {
+            desc_row = <div className="col-12 px-0">
+                <span className="fs14">{item.description}</span>
+            </div>
+        }
 		
 		return <div>
 				<div className="row mx-0 mb-3 fs12 fw600 grooming_products rounded" style={panel_style}>
@@ -1609,6 +1636,7 @@ class TemplateTindakanRow extends React.Component {
     	        	        {deleteButtonTemplate}
     	        	    </div>
     	        	</div>
+                    {desc_row}
     	        	<div className="col-12">
     	        	    <div className="row d-flex">
     	        	        {amount_row}

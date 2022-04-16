@@ -8,6 +8,7 @@ import json
 import os
 import string
 import random
+import pytz
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from frappe.utils.data import to_markdown
@@ -20,7 +21,8 @@ class VetReception(Document):
 
 @frappe.whitelist()
 def new_reception(owner_data, reception_data):
-	now = dt.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = dt.now(tz)
 	now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 	try:
 		new_owner_data = json.loads(owner_data)
@@ -120,7 +122,8 @@ def new_reception(owner_data, reception_data):
 			reception.update({'pet': selected_new_pet})
 
 		if not reception.reception_date:
-			now = dt.now()
+			tz = pytz.timezone("Asia/Jakarta")
+			now = dt.now(tz)
 			reception.reception_date = dt.strftime(now, "%Y-%m-%d %H:%M:%S")
 
 		reception.insert()
@@ -422,7 +425,7 @@ def resize_image(file_url):
         image.save(path)
         print(file_url+" oke")
     except IOError:
-        print(_("Unable to write file format for {0}").format(path))
+        print(("Unable to write file format for {0}").format(path))
         return
 
     return image_url

@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 import json
 from frappe.model.document import Document
+from numpy import product
 from vet_website.vet_website.doctype.vetproduct.vetproduct import get_product
 
 class VetTemplateTindakan(Document):
@@ -82,6 +83,7 @@ def get_template_tindakan(register_number):
 					productTemplate[0]['malam'] = t.malam
 					productTemplate[0]['tindakan_name'] = t.name
 					productTemplate[0]['product_category'] = pr.get('product').get('product_category')
+					productTemplate[0]['description'] = t.description
 					
 					list_tindakan.append(productTemplate[0])
 					
