@@ -5,6 +5,7 @@ import os
 import time
 import csv
 import urllib.request
+import pytz
 from datetime import datetime as dt
 from frappe.utils.file_manager import save_file
 from vet_website.vet_website.doctype.vetpet.vetpet import get_pet
@@ -287,7 +288,8 @@ def ping():
 	
 @frappe.whitelist()
 def get_current_datetime():
-	return dt.now().strftime("%Y-%m-%d %H:%M:%S")
+	tz = pytz.timezone("Asia/Jakarta")
+	return dt.now(tz).strftime("%Y-%m-%d %H:%M:%S")
 	
 @frappe.whitelist()
 def get_spending(name=False, name_type=False):
