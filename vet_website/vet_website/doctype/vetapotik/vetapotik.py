@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 import json
 import math
+import pytz
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from frappe.model.document import Document
@@ -538,7 +539,8 @@ def update_invoice(products, register_number, apotik=False):
 			frappe.db.commit()
 		else:
 			invoice = frappe.new_doc("VetCustomerInvoice")
-			now = dt.now()
+			tz = pytz.timezone("Asia/Jakarta")
+			now = dt.now(tz)
 			now_1_hour = now + rd(hour=1)
 			invoice_date = dt.strftime(now, "%Y-%m-%d %H:%M:%S")
 			due_date = dt.strftime(now_1_hour, "%Y-%m-%d %H:%M:%S")

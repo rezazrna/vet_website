@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 import json
+import pytz
 from datetime import datetime
 from frappe.model.document import Document
 
@@ -151,12 +152,13 @@ def get_pos_order(name=None):
 @frappe.whitelist()
 def refund_order(name=None):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		old_order = frappe.get_doc('VetPosOrder', name)
 		old_order.already_refund = True
 		old_order.save()
 		order = frappe.new_doc('VetPosOrder')
 		order.update({
-			'refund_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+			'refund_date': datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S'),
 			'session': old_order.session,
 			'responsible': frappe.session.user,
 			'produk': old_order.produk,

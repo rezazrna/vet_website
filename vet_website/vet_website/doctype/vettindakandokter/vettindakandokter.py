@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 import json
 import math
+import pytz
 from datetime import datetime as dt
 from frappe.utils.file_manager import save_file, remove_file_by_url
 from frappe.model.document import Document
@@ -301,7 +302,8 @@ def send_to_apotik(data):
 	
 @frappe.whitelist()
 def confirm_tindakan_dokter(data):
-	now = dt.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = dt.now(tz)
 	now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 	try:
 		data_json = json.loads(data)
@@ -491,7 +493,7 @@ def confirm_tindakan_dokter(data):
 			for p in pops_rekam_medis:
 				if rekam_medis_data.get(p,False):
 					rekam_medis_data.pop(p)
-			rekam_medis_data.update({'service': 'Dokter', 'record_date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S")})
+			rekam_medis_data.update({'service': 'Dokter', 'record_date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S")})
 			rekam_medis_data.update({'attachments': tindakan_dokter.attachments, 'marker': tindakan_dokter.marker})
 			rekam_medis.update(rekam_medis_data)
 			rekam_medis.save()
@@ -546,7 +548,7 @@ def confirm_tindakan_dokter(data):
 					instalasi_medis = frappe.new_doc('VetInstalasiMedis')
 					instalasi_medis_data = {
 						'register_number': tindakan_dokter.register_number,
-						'date': dt.now().strftime('%Y-%m-%d'),
+						'date': dt.now(tz).strftime('%Y-%m-%d'),
 						'service': 'Operasi',
 						'reference': 'Dokter',
 						# 'condition': tindakan_dokter.condition,
@@ -565,7 +567,7 @@ def confirm_tindakan_dokter(data):
 					frappe.db.commit()
 				
 			for action in tindakan_dokter.layanan_berjadwal:
-				now = dt.now()
+				now = dt.now(tz)
 				scheduled_service_data = {
 					'create_date': dt.strftime(now, "%Y-%m-%d %H:%M:%S"),
 					'register_number': tindakan_dokter.register_number,
@@ -617,6 +619,7 @@ def confirm_tindakan_dokter(data):
 @frappe.whitelist()
 def add_invoice(invoice_data, name):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 
 		tindakan_dokter_check = frappe.get_list("VetTindakanDokter", filters={'name': name}, fields=['name'])
 
@@ -624,7 +627,7 @@ def add_invoice(invoice_data, name):
 			invoice_json = json.loads(invoice_data)
 
 			invoice = frappe.new_doc("VetCustomerInvoice")
-			now = dt.now()
+			now = dt.now(tz)
 			now_1_hour = now + rd(hour=1)
 			invoice_date = dt.strftime(now, "%Y-%m-%d %H:%M:%S")
 			due_date = dt.strftime(now_1_hour, "%Y-%m-%d %H:%M:%S")
@@ -692,6 +695,7 @@ def cancel_tindakan_dokter(name):
 @frappe.whitelist()
 def autosave(field, value, name):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		if field == 'layanan_berjadwal':
 			value_json = json.loads(value)
 			action = frappe.get_list('VetTindakanDokterAction', filters={'parent': name}, fields=['name'])
@@ -766,7 +770,7 @@ def autosave(field, value, name):
 					remove_file_by_url(r.attachment, 'VetTindakanDokter')
 			
 			for v in value_json:
-				now = dt.now()
+				now = dt.now(tz)
 				now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 				json_data = {'title': v['title']}
 				if v.get('name'):

@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 import json
+import pytz
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from frappe.model.document import Document
@@ -384,11 +385,12 @@ def get_coa_total_debit_credit(name, max_date=False, no_min_date=False):
 	
 @frappe.whitelist()
 def get_financial_report_data(month=False, year=False):
-	now_date = dt.now().strftime('%Y-%m-%d')
+	tz = pytz.timezone("Asia/Jakarta")
+	now_date = dt.now(tz).strftime('%Y-%m-%d')
 	if not month:
-		month = dt.now().strftime('%m')
+		month = dt.now(tz).strftime('%m')
 	if not year:
-		year = dt.now().strftime('%Y')
+		year = dt.now(tz).strftime('%Y')
 	accounts = frappe.get_list("VetCoa", fields=["*"], order_by='account_code asc')
 	# revenue_filters = {'account_parent': '', 'account_code': ['like', '4-%']}
 	# revenue = frappe.get_list("VetCoa", filters=revenue_filters, fields=["*"], order_by='account_code asc')
@@ -433,6 +435,7 @@ def get_financial_report_data(month=False, year=False):
 @frappe.whitelist()
 def get_annual_balance_sheet(name=False, year=False, get_all=False):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		if not get_all:
 			filters = {'account_type': ['in', ['Asset', 'Liability', 'Equity']]}
 		else:
@@ -447,7 +450,7 @@ def get_annual_balance_sheet(name=False, year=False, get_all=False):
 			totals = []
 			for i in range(1,13):
 				if not year:
-					date = dt.now() - rd(month=i) + rd(months=1) + rd(day=1)
+					date = dt.now(tz) - rd(month=i) + rd(months=1) + rd(day=1)
 				else:
 					date = dt(int(year), 1, 1) - rd(month=i) + rd(months=1) + rd(day=1)
 				print(date)

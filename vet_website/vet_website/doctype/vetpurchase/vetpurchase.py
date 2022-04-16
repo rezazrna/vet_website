@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 import json
+import pytz
 from frappe.model.document import Document
 from datetime import datetime as dt
 from vet_website.vet_website.doctype.vetoperation.vetoperation import action_receive
@@ -572,6 +573,7 @@ def submit_pembayaran(data):
 @frappe.whitelist()
 def submit_refund(data):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		data_json = json.loads(data)
 		
 		if data_json.get('refund') :
@@ -603,7 +605,7 @@ def submit_refund(data):
 			pay = frappe.new_doc("VetPurchasePay")
 			pay.update({
 				'jumlah': data_json.get('refund'),
-				'tanggal': dt.strftime(dt.now(), "%Y-%m-%d"),
+				'tanggal': dt.strftime(dt.now(tz), "%Y-%m-%d"),
 				'metode_pembayaran': data_json.get('metode_pembayaran'),
 				'parent': purchase.name,
 				'parenttype': 'VetPurchase',
@@ -638,7 +640,7 @@ def submit_refund(data):
 			purchase.reload()
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'purchase': purchase.name,
 				'type': 'Refund',
 				'nominal': pay.jumlah,
@@ -656,12 +658,13 @@ def submit_refund(data):
 @frappe.whitelist()
 def refund_purchase(name):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		old_purchase = frappe.get_doc('VetPurchase', name)
 		old_purchase.already_refund = True
 		old_purchase.save()
 		purchase = frappe.new_doc('VetPurchase')
 		purchase.update({
-			'refund_date': dt.now().date().strftime('%Y-%m-%d'),
+			'refund_date': dt.now(tz).date().strftime('%Y-%m-%d'),
 			'supplier': old_purchase.supplier,
 			'deliver_from': old_purchase.deliver_to,
 			'status': 'Draft',
@@ -704,6 +707,7 @@ def refund_purchase(name):
 def retur_purchase(name, products, jumlah=False, payment_method=False):
 	print('########## Retur Purchase ##########')
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		purchase = frappe.get_doc('VetPurchase', name)
 		operation = frappe.get_doc("VetOperation", {'reference': name})
 
@@ -750,7 +754,7 @@ def retur_purchase(name, products, jumlah=False, payment_method=False):
 		operation_retur.update({
 			'reference': purchase.name + ' Retur',
 			'from': purchase.deliver_to,
-			'date': dt.now().date().strftime('%Y-%m-%d'),
+			'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 			'status': 'Delivery'
 		})
 		operation_retur.insert()
@@ -764,7 +768,7 @@ def retur_purchase(name, products, jumlah=False, payment_method=False):
 				'product': p.get('product_id'),
 				'product_uom': p.get('uom'),
 				'quantity': p.get('quantity_retur'),
-				'date': dt.now().date().strftime('%Y-%m-%d'),
+				'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 			})
 
 			operation_retur.moves.append(new_move)
@@ -785,7 +789,7 @@ def retur_purchase(name, products, jumlah=False, payment_method=False):
 			purchase.reload()
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'purchase': purchase.name,
 				'type': 'Refund',
 				'nominal': jumlah,
@@ -942,6 +946,7 @@ def check_purchase_journal():
 			
 			
 def create_purchase_journal_entry(purchase_name, refund=False, products=False, retur=False):
+	tz = pytz.timezone("Asia/Jakarta")
 	purchase = frappe.get_doc('VetPurchase', purchase_name)
 	purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
 	purchase_journal_debit = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'default_debit_account')
@@ -1043,8 +1048,8 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 	
 	je_data = {
 		'journal': purchase_journal,
-		'period': dt.now().strftime('%m/%Y'),
-		'date': dt.now().date().strftime('%Y-%m-%d'),
+		'period': dt.now(tz).strftime('%m/%Y'),
+		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': purchase.name,
 		'journal_items': jis
 	}
@@ -1062,7 +1067,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 		else:
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'purchase': purchase.name,
 				'type': 'Purchase',
 				'nominal': total
@@ -1072,6 +1077,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 			set_owner_credit_total(purchase.supplier, True)
 	
 def create_purchase_payment_journal_items(purchase_name, amount, refund=False, deposit=0, method=False, date=False):
+	tz = pytz.timezone("Asia/Jakarta")
 	#create payment choose payment journal
 	# purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
 	
@@ -1165,8 +1171,8 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 	
 	je_data = {
 		'journal': purchase_journal,
-		'period': (date or dt.now()).strftime('%m/%Y'),
-		'date': (date or dt.now()).date().strftime('%Y-%m-%d'),
+		'period': (date or dt.now(tz)).strftime('%m/%Y'),
+		'date': (date or dt.now(tz)).date().strftime('%Y-%m-%d'),
 		'reference': purchase_name,
 		'journal_items': jis
 	}

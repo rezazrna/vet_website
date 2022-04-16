@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 import json
 import math
+import pytz
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from frappe.utils.file_manager import save_file, remove_file_by_url
@@ -35,7 +36,8 @@ def add_action_list(grooming_id):
 
 @frappe.whitelist()
 def edit_grooming(grooming_data, is_done=False):
-	now = dt.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = dt.now(tz)
 	now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 	try:
 		grooming_json = json.loads(grooming_data)
@@ -145,7 +147,7 @@ def edit_grooming(grooming_data, is_done=False):
 				add_rekam_medis(json.dumps(rekam_medis_data), grooming_json.get('name'))
 	
 				for action in grooming.actions:
-					now = dt.now()
+					now = dt.now(tz)
 					scheduled_service_data = {
 						'create_date': dt.strftime(now, "%Y-%m-%d %H:%M:%S"),
 						'register_number': grooming_json.get('register_number'),
@@ -225,6 +227,7 @@ def edit_grooming(grooming_data, is_done=False):
 @frappe.whitelist()
 def add_rekam_medis(rekam_medis_data, grooming_id):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 
 		grooming_check = frappe.get_list("VetGrooming", filters={'name': grooming_id}, fields=['name'])
 		attachments = frappe.get_list("VetGroomingAttachments", filters={'parent': grooming_id}, fields=['title', 'attachment'])
@@ -243,7 +246,7 @@ def add_rekam_medis(rekam_medis_data, grooming_id):
 				rekam_medis.update({'attachments': attachments})
 
 			if not rekam_medis.record_date:
-				now = dt.now()
+				now = dt.now(tz)
 				rekam_medis.record_date = dt.strftime(now, "%Y-%m-%d %H:%M:%S")
 
 			rekam_medis.insert()
@@ -264,6 +267,7 @@ def add_rekam_medis(rekam_medis_data, grooming_id):
 @frappe.whitelist()
 def add_invoice(invoice_data, grooming_id):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 
 		grooming_check = frappe.get_list("VetGrooming", filters={'name': grooming_id}, fields=['name'])
 
@@ -271,7 +275,7 @@ def add_invoice(invoice_data, grooming_id):
 			invoice_json = json.loads(invoice_data)
 
 			invoice = frappe.new_doc("VetCustomerInvoice")
-			now = dt.now()
+			now = dt.now(tz)
 			now_1_hour = now + rd(hours=1)
 			invoice_date = dt.strftime(now, "%Y-%m-%d %H:%M:%S")
 			due_date = dt.strftime(now_1_hour, "%Y-%m-%d %H:%M:%S")
@@ -519,6 +523,7 @@ def cancel_grooming(name):
 @frappe.whitelist()
 def autosave(field, value, name):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		if field == 'actions':
 			value_json = json.loads(value)
 			action = frappe.get_list('VetGroomingAction', filters={'parent': name}, fields=['name'])
@@ -557,7 +562,7 @@ def autosave(field, value, name):
 					remove_file_by_url(r.attachment, 'VetGrooming')
 			
 			for v in value_json:
-				now = dt.now()
+				now = dt.now(tz)
 				now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 				json_data = {'title': v['title']}
 				if v.get('name'):

@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 import json
+import pytz
 from datetime import datetime as dt
 from frappe.model.document import Document
 from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry
@@ -18,6 +19,7 @@ class VetOwnerCredit(Document):
 @frappe.whitelist()
 def submit_piutang(action, nominal, petOwner, method):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		if action == 'Buat':
 			session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
 			if len(session_search) < 1:
@@ -30,7 +32,7 @@ def submit_piutang(action, nominal, petOwner, method):
 					return {'error': 'Nominal melebihi deposit, jumlah deposit tersedia %s'% last_credit, 'nominal': last_credit}
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'invoice': '',
 				'type': 'Payment',
 				'nominal': -float(nominal),
@@ -48,7 +50,7 @@ def submit_piutang(action, nominal, petOwner, method):
 				return {'error': "Belum ada POS Session yang dibuka, bukan POS Session terlebih dahulu"}
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'invoice': '',
 				'type': 'Payment',
 				'nominal': nominal,
@@ -236,6 +238,7 @@ def process_invoice(data):
 @frappe.whitelist()
 def submit_piutang_purchase(action, nominal, supplier, method):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		if action == 'Buat':
 			last_credit = 0
 			last_credit_search = frappe.get_list('VetOwnerCredit', filters={'supplier': supplier}, fields=['credit'], order_by="creation desc")
@@ -246,7 +249,7 @@ def submit_piutang_purchase(action, nominal, supplier, method):
 			
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'purchase': '',
 				'type': 'Payment',
 				'nominal': -float(nominal),
@@ -262,7 +265,7 @@ def submit_piutang_purchase(action, nominal, supplier, method):
 		elif action == 'Deposit':
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'purchase': '',
 				'type': 'Payment',
 				'nominal': nominal,
@@ -354,6 +357,8 @@ def submit_piutang_purchase(action, nominal, supplier, method):
 def bayar_hutang_purchase(nominal, supplier, method):
 	def discount_value(value, discount):
 		return value - (value * discount/100)
+
+	tz = pytz.timezone("Asia/Jakarta")
 	
 	all_debt = 0
 	last_debt = frappe.get_list("VetOwnerCredit", fields=["debt"], filters={'supplier': supplier}, order_by="creation desc")
@@ -391,7 +396,7 @@ def bayar_hutang_purchase(nominal, supplier, method):
 	if all_debt > 0 and current_nominal > 0:
 		if all_debt >= current_nominal:
 			debt_payment = frappe.new_doc('VetOwnerCredit')
-			debt_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': current_nominal, 'supplier': supplier, 'metode_pembayaran': method})
+			debt_payment.update({'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': current_nominal, 'supplier': supplier, 'metode_pembayaran': method})
 			debt_payment.insert()
 			frappe.db.commit()
 			set_owner_credit_total(supplier, True)
@@ -400,7 +405,7 @@ def bayar_hutang_purchase(nominal, supplier, method):
 			current_nominal = 0
 		elif all_debt < current_nominal:
 			debt_payment = frappe.new_doc('VetOwnerCredit')
-			debt_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': all_debt, 'supplier': supplier, 'metode_pembayaran': method})
+			debt_payment.update({'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': all_debt, 'supplier': supplier, 'metode_pembayaran': method})
 			debt_payment.insert()
 			frappe.db.commit()
 			set_owner_credit_total(supplier, True)
@@ -409,7 +414,7 @@ def bayar_hutang_purchase(nominal, supplier, method):
 			
 			if 'Deposit' not in method:
 				credit_payment = frappe.new_doc('VetOwnerCredit')
-				credit_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': current_nominal-all_debt, 'supplier': supplier, 'metode_pembayaran': method})
+				credit_payment.update({'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': current_nominal-all_debt, 'supplier': supplier, 'metode_pembayaran': method})
 				credit_payment.insert()
 				frappe.db.commit()
 				set_owner_credit_total(supplier, True)
@@ -418,7 +423,7 @@ def bayar_hutang_purchase(nominal, supplier, method):
 			current_nominal = 0
 	elif all_debt <= 0 and current_nominal > 0 and 'Deposit' not in method:
 		credit_payment = frappe.new_doc('VetOwnerCredit')
-		credit_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': current_nominal, 'supplier': supplier, 'metode_pembayaran': method})
+		credit_payment.update({'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': current_nominal, 'supplier': supplier, 'metode_pembayaran': method})
 		credit_payment.insert()
 		frappe.db.commit()
 		set_owner_credit_total(supplier, True)
@@ -429,6 +434,8 @@ def bayar_hutang_purchase(nominal, supplier, method):
 def bayar_hutang_invoice(nominal, pet_owner, method):
 	def discount_value(value, discount):
 		return value - (value * discount/100)
+
+	tz = pytz.timezone("Asia/Jakarta")
 	
 	all_debt = 0
 	last_debt = frappe.get_list("VetOwnerCredit", fields=["debt"], filters={'pet_owner': pet_owner}, order_by="creation desc")
@@ -465,7 +472,7 @@ def bayar_hutang_invoice(nominal, pet_owner, method):
 	if all_debt > 0 and current_nominal > 0:
 		if all_debt >= current_nominal:
 			debt_payment = frappe.new_doc('VetOwnerCredit')
-			debt_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': current_nominal, 'pet_owner': pet_owner, 'metode_pembayaran': method})
+			debt_payment.update({'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': current_nominal, 'pet_owner': pet_owner, 'metode_pembayaran': method})
 			debt_payment.insert()
 			frappe.db.commit()
 			set_owner_credit_total(pet_owner)
@@ -474,7 +481,7 @@ def bayar_hutang_invoice(nominal, pet_owner, method):
 			current_nominal = 0
 		elif all_debt < current_nominal:
 			debt_payment = frappe.new_doc('VetOwnerCredit')
-			debt_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': all_debt, 'pet_owner': pet_owner, 'metode_pembayaran': method})
+			debt_payment.update({'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"), 'purchase': '', 'type': 'Payment', 'nominal': all_debt, 'pet_owner': pet_owner, 'metode_pembayaran': method})
 			debt_payment.insert()
 			frappe.db.commit()
 			set_owner_credit_total(pet_owner)
@@ -483,7 +490,7 @@ def bayar_hutang_invoice(nominal, pet_owner, method):
 			
 			if 'Deposit' not in method:
 				credit_payment = frappe.new_doc('VetOwnerCredit')
-				credit_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'invoice': '', 'type': 'Payment', 'nominal': current_nominal-all_debt, 'pet_owner': pet_owner, 'metode_pembayaran': method})
+				credit_payment.update({'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"), 'invoice': '', 'type': 'Payment', 'nominal': current_nominal-all_debt, 'pet_owner': pet_owner, 'metode_pembayaran': method})
 				credit_payment.insert()
 				frappe.db.commit()
 				set_owner_credit_total(pet_owner)
@@ -492,7 +499,7 @@ def bayar_hutang_invoice(nominal, pet_owner, method):
 			current_nominal = 0
 	elif all_debt <= 0 and current_nominal > 0 and 'Deposit' not in method:
 		credit_payment = frappe.new_doc('VetOwnerCredit')
-		credit_payment.update({'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"), 'invoice': '', 'type': 'Payment', 'nominal': current_nominal, 'pet_owner': pet_owner, 'metode_pembayaran': method})
+		credit_payment.update({'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"), 'invoice': '', 'type': 'Payment', 'nominal': current_nominal, 'pet_owner': pet_owner, 'metode_pembayaran': method})
 		credit_payment.insert()
 		frappe.db.commit()
 		set_owner_credit_total(pet_owner)
@@ -609,6 +616,7 @@ def check_invoice(invoice, owner_credit, total_invoice, purchase=False):
 		return True
 		
 def create_journal_entry(tipe, nominal, owner_credit, method=False, is_deposit=False):
+	tz = pytz.timezone("Asia/Jakarta")
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
 	
@@ -676,8 +684,8 @@ def create_journal_entry(tipe, nominal, owner_credit, method=False, is_deposit=F
 	
 	je_data = {
 		'journal': journal,
-		'period': dt.now().strftime('%m/%Y'),
-		'date': dt.now().date().strftime('%Y-%m-%d'),
+		'period': dt.now(tz).strftime('%m/%Y'),
+		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': owner_credit,
 		'journal_items': ji
 	}
@@ -685,6 +693,7 @@ def create_journal_entry(tipe, nominal, owner_credit, method=False, is_deposit=F
 	new_journal_entry(json.dumps(je_data))
 	
 def create_journal_entry_payment(tipe, nominal, reference, method=False):
+	tz = pytz.timezone("Asia/Jakarta")
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
 	piutang_account = frappe.db.get_value('VetCoa', {'account_code': '1-13001'}, 'name')
@@ -708,8 +717,8 @@ def create_journal_entry_payment(tipe, nominal, reference, method=False):
 	
 	je_data = {
 		'journal': journal,
-		'period': dt.now().strftime('%m/%Y'),
-		'date': dt.now().date().strftime('%Y-%m-%d'),
+		'period': dt.now(tz).strftime('%m/%Y'),
+		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': reference,
 		'journal_items': ji
 	}
@@ -717,12 +726,13 @@ def create_journal_entry_payment(tipe, nominal, reference, method=False):
 	new_journal_entry(json.dumps(je_data))
 	
 def create_je(data):
+	tz = pytz.timezone("Asia/Jakarta")
 	if data.get('jumlah') and data.get('tipe') == 'Sales' :
 		invoice = frappe.get_doc('VetCustomerInvoice', data.get('name'))
 		line_data = {}
 		line_data.update({'parent': invoice.name, 'parenttype': 'VetCustomerInvoice', 'parentfield': 'pembayaran'})
 		
-		tanggal = dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S")
+		tanggal = dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S")
 		
 		pay = frappe.new_doc("VetCustomerInvoicePay")
 		pay.jumlah = data.get('jumlah')
@@ -762,7 +772,7 @@ def create_je(data):
 		if not data.get('from_owner_credit'):
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'register_number': invoice.register_number,
 				'invoice': invoice.name,
 				'type': 'Payment',
@@ -778,7 +788,7 @@ def create_je(data):
 		pp_data = {}
 		pp_data.update({'parent': purchase.name, 'parenttype': 'VetPurchase', 'parentfield': 'pembayaran'})
 		
-		tanggal = dt.strftime(dt.now(), "%Y-%m-%d")
+		tanggal = dt.strftime(dt.now(tz), "%Y-%m-%d")
 		
 		pay = frappe.new_doc("VetPurchasePay")
 		pay.jumlah = data.get('jumlah')
@@ -804,7 +814,7 @@ def create_je(data):
 		if not data.get('from_owner_credit'):
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'purchase': purchase.name,
 				'type': 'Payment',
 				'nominal': pay.jumlah,

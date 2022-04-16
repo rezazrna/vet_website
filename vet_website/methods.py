@@ -377,7 +377,8 @@ def get_migration_table():
 def new_migration_upload(data):
 	try:
 		doctype = "Data Import Beta" if beta else "Data Import"
-		now = dt.now()
+		tz = pytz.timezone("Asia/Jakarta")
+		now = dt.now(tz)
 		now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 		data_json = json.loads(data)
 		
@@ -516,6 +517,7 @@ def new_customer_invoice_from_piutang_import(piutang_import_name):
 		
 def new_purchase_from_hutang_import(hutang_import_name):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		hutang_import = frappe.get_doc('VetHutangImport', hutang_import_name)
 			
 		product_name = False
@@ -530,7 +532,7 @@ def new_purchase_from_hutang_import(hutang_import_name):
 			uom_name = product[0].product_uom
 		
 		new_pu_data = {
-			'order_date': dt.now().strftime('%Y-%m-%d'),
+			'order_date': dt.now(tz).strftime('%Y-%m-%d'),
 			'supplier': hutang_import.supplier,
 			'first_action': 'Receive',
 			'status': 'Receive',

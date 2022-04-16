@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 import json
 import math
+import pytz
 from datetime import datetime as dt
 from frappe.utils.file_manager import save_file
 from frappe.model.document import Document
@@ -266,7 +267,8 @@ def get_rekam_medis(name):
 		
 @frappe.whitelist()
 def add_more_tindakan(datas):
-	now = dt.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = dt.now(tz)
 	now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 	try:
 		data_json = json.loads(datas)
@@ -280,7 +282,8 @@ def add_more_tindakan(datas):
 		
 @frappe.whitelist()
 def add_tindakan(data):
-	now = dt.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = dt.now(tz)
 	now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 	try:
 		data_json = json.loads(data)
@@ -461,6 +464,7 @@ def update_invoice(products, rawat_inap):
 	last_warehouse = frappe.db.get_single_value('VetSetting', 'apotik_warehouse')
 	
 	warehouse = last_warehouse or warehouse_search[0].name
+	tz = pytz.timezone("Asia/Jakarta")
 	
 	try:
 
@@ -515,7 +519,7 @@ def update_invoice(products, rawat_inap):
 
 		else:
 			invoice = frappe.new_doc("VetCustomerInvoice")
-			now = dt.now()
+			now = dt.now(tz)
 			now_1_hour = now + rd(hour=1)
 			invoice_date = dt.strftime(now, "%Y-%m-%d %H:%M:%S")
 			due_date = dt.strftime(now_1_hour, "%Y-%m-%d %H:%M:%S")

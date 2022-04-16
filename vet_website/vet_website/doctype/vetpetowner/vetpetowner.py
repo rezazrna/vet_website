@@ -10,6 +10,7 @@ import datetime
 import string
 import random
 import functools
+import pytz
 from frappe.model.document import Document
 from frappe.utils.file_manager import save_file
 from frappe.core.doctype.file.file import get_local_image
@@ -226,7 +227,8 @@ def get_last_data():
 
 @frappe.whitelist()
 def new_pet_owner(data, pets):
-	now = datetime.datetime.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = datetime.datetime.now(tz)
 	now_str = datetime.datetime.strftime(now, "%d%m%Y%H%M%S")
 	try:
 		data_json = json.loads(data)
@@ -278,7 +280,8 @@ def new_pet_owner(data, pets):
 	
 @frappe.whitelist(allow_guest=True)
 def create_from_api(data):
-	now = datetime.datetime.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = datetime.datetime.now(pytz)
 	now_str = datetime.datetime.strftime(now, "%d%m%Y%H%M%S")
 	data_json = json.loads(data)
 	doc_data = {}
@@ -308,7 +311,8 @@ def create_from_api(data):
 
 @frappe.whitelist()
 def edit_pet_owner(data, pets):
-	now = datetime.datetime.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = datetime.datetime.now(pytz)
 	now_str = datetime.datetime.strftime(now, "%d%m%Y%H%M%S")
 	try:
 		data_json = json.loads(data)

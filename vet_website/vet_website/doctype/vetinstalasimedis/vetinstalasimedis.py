@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 import json
 import math
+import pytz
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 from frappe.utils.file_manager import save_file, remove_file_by_url
@@ -143,7 +144,8 @@ def delete_instalasi_medis(data):
 	
 @frappe.whitelist()
 def get_instalasi_medis(name):
-	now = dt.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = dt.now(tz)
 	try:
 		list_product = []
 		instalasi_medis_search = frappe.get_list("VetInstalasiMedis", filters={'name': name}, fields=["*"])
@@ -222,7 +224,8 @@ def get_instalasi_medis_form(name):
 		
 @frappe.whitelist()
 def confirm_instalasi_medis(data):
-	now = dt.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = dt.now(tz)
 	now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 	try:
 		data_json = json.loads(data)
@@ -324,7 +327,7 @@ def confirm_instalasi_medis(data):
 			for p in pops_rekam_medis:
 				if rekam_medis_data.get(p,False):
 					rekam_medis_data.pop(p)  # TODO service ganti
-			rekam_medis_data.update({'service': 'Operasi', 'record_date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S")})
+			rekam_medis_data.update({'service': 'Operasi', 'record_date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S")})
 			rekam_medis_data.update({'attachments': instalasi_medis.attachments, 'marker': instalasi_medis.marker})
 			rekam_medis.update(rekam_medis_data)
 			rekam_medis.save()
@@ -361,6 +364,7 @@ def confirm_instalasi_medis(data):
 @frappe.whitelist()
 def update_invoice(products, register_number, reference=False):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		invoice_filters = {'register_number': register_number, 'Status': 'Draft'}
 		if reference == 'Rawat Inap':
 			invoice_filters.update({'is_rawat_inap': '1'})
@@ -405,7 +409,7 @@ def update_invoice(products, register_number, reference=False):
 
 		else:
 			invoice = frappe.new_doc("VetCustomerInvoice")
-			now = dt.now()
+			now = dt.now(tz)
 			now_1_hour = now + relativedelta(hour=1)
 			invoice_date = dt.strftime(now, "%Y-%m-%d %H:%M:%S")
 			due_date = dt.strftime(now_1_hour, "%Y-%m-%d %H:%M:%S")
@@ -467,6 +471,7 @@ def update_invoice(products, register_number, reference=False):
 @frappe.whitelist()
 def autosave(field, value, name):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		if field == 'jasa' or field == 'tindak_lanjut':
 			value_json = json.loads(value)
 			jasa = []
@@ -505,7 +510,7 @@ def autosave(field, value, name):
 					remove_file_by_url(r.attachment, 'VetInstalasiMedis')
 			
 			for v in value_json:
-				now = dt.now()
+				now = dt.now(tz)
 				now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 				json_data = {'title': v['title']}
 				if v.get('name'):

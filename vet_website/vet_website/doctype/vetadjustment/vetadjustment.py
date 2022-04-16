@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 import json
+import pytz
 from datetime import datetime as dt
 from frappe.model.document import Document
 from vet_website.vet_website.doctype.vetoperation.vetoperation import action_receive
@@ -244,9 +245,10 @@ def submit_adjustment(data):
 					})
 			
 			adjustment_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Adjustment Journal', 'type': 'General'}, 'name')
+			tz = pytz.timezone("Asia/Jakarta")
 			je_data = {
 				'journal': adjustment_journal,
-				'period': dt.now().strftime('%m/%Y'),
+				'period': dt.now(tz).strftime('%m/%Y'),
 				'date': adjustment.inventory_date.strftime('%Y-%m-%d'),
 				'reference': adjustment.name,
 				'journal_items': ji_list

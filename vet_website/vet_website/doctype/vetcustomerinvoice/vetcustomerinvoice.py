@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 import json
 import math
+import pytz
 from datetime import datetime as dt
 from frappe.model.document import Document
 from vet_website.vet_website.doctype.vetoperation.vetoperation import action_receive
@@ -149,6 +150,7 @@ def open_invoice(data, saveonly=False):
 		return {'error': e}
 		
 def open_invoice_process(data, saveonly=False):
+	tz = pytz.timezone("Asia/Jakarta")
 	invoice_check = frappe.get_list("VetCustomerInvoice", filters={'name': data.get('name')}, fields=['name', 'status', 'rawat_inap', 'is_rawat_inap'])
 
 	if invoice_check and invoice_check[0].status in ['Draft']:
@@ -240,7 +242,7 @@ def open_invoice_process(data, saveonly=False):
 			
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'register_number': invoice.register_number,
 				'invoice': invoice.name,
 				'type': 'Sales',
@@ -721,6 +723,7 @@ def add_payment_multiple(data):
 @frappe.whitelist()
 def add_payment(data):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		pos_session = False
 		data_json = json.loads(data)
 		
@@ -736,7 +739,7 @@ def add_payment(data):
 			line_data = {}
 			line_data.update({'parent': invoice.name, 'parenttype': 'VetCustomerInvoice', 'parentfield': 'pembayaran', 'pos_session': pos_session})
 			
-			tanggal = dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S")
+			tanggal = dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S")
 			
 			pay = frappe.new_doc("VetCustomerInvoicePay")
 			pay.jumlah = float(data_json.get('jumlah'))
@@ -1080,12 +1083,13 @@ def increase_product_valuation(invoice_name, product, quantity, uom=False, refun
 @frappe.whitelist()
 def refund_invoice(name):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		old_invoice = frappe.get_doc('VetCustomerInvoice', name)
 		old_invoice.already_refund = True
 		old_invoice.save()
 		invoice = frappe.new_doc('VetCustomerInvoice')
 		invoice.update({
-			'refund_date': dt.now().strftime('%Y-%m-%d %H:%M:%S'),
+			'refund_date': dt.now(tz).strftime('%Y-%m-%d %H:%M:%S'),
 			'register_number': old_invoice.register_number,
 			'pet': old_invoice.pet,
 			'user': old_invoice.user,
@@ -1108,6 +1112,7 @@ def refund_invoice(name):
 @frappe.whitelist()
 def submit_refund(data):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		data_json = json.loads(data)
 		
 		if data_json.get('refund') :
@@ -1128,7 +1133,7 @@ def submit_refund(data):
 			pay = frappe.new_doc("VetCustomerInvoicePay")
 			pay.update({
 				'jumlah': data_json.get('refund'),
-				'tanggal': dt.strftime(dt.now(), "%Y-%m-%d"),
+				'tanggal': dt.strftime(dt.now(tz), "%Y-%m-%d"),
 				'metode_pembayaran': data_json.get('payment_method'),
 				'parent': invoice.name,
 				'parenttype': 'VetCustomerInvoice',
@@ -1164,7 +1169,7 @@ def submit_refund(data):
 			
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'register_number': invoice.register_number,
 				'invoice': invoice.name,
 				'type': 'Refund',
@@ -1218,6 +1223,7 @@ def cancel_invoice_multiple(names):
 @frappe.whitelist()
 def cancel_invoice(name):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		invoice = frappe.get_doc('VetCustomerInvoice', name)
 		invoice.status = 'Cancel'
 		invoice.save()
@@ -1226,7 +1232,7 @@ def cancel_invoice(name):
 		deliver_to_customer(invoice.name, True)
 		owner_credit = frappe.new_doc('VetOwnerCredit')
 		owner_credit.update({
-			'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+			'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 			'register_number': invoice.register_number,
 			'invoice': invoice.name,
 			'type': 'Cancel',
@@ -1269,6 +1275,7 @@ def check_product_account(product_name):
 		
 		
 def create_sales_journal_entry(invoice_name, refund=False):
+	tz = pytz.timezone("Asia/Jakarta")
 	invoice = frappe.get_doc('VetCustomerInvoice', invoice_name)
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	journal_debit = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'default_debit_account')
@@ -1448,8 +1455,8 @@ def create_sales_journal_entry(invoice_name, refund=False):
 		
 	je_data = {
 		'journal': sales_journal,
-		'period': dt.now().strftime('%m/%Y'),
-		'date': dt.now().date().strftime('%Y-%m-%d'),
+		'period': dt.now(tz).strftime('%m/%Y'),
+		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': invoice.name,
 		'journal_items': jis
 	}
@@ -1458,6 +1465,7 @@ def create_sales_journal_entry(invoice_name, refund=False):
 	
 	
 def create_sales_payment_journal_items(invoice_name, amount, refund=False, deposit=0, method=False, refund_from=False):
+	tz = pytz.timezone("Asia/Jakarta")
 	#create payment choose payment journal
 	# sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	if check_payment_journal():
@@ -1581,8 +1589,8 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 	
 	je_data = {
 		'journal': sales_journal,
-		'period': dt.now().strftime('%m/%Y'),
-		'date': dt.now().date().strftime('%Y-%m-%d'),
+		'period': dt.now(tz).strftime('%m/%Y'),
+		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': invoice_name,
 		'journal_items': jis
 	}
@@ -1591,6 +1599,7 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 	
 @frappe.whitelist()
 def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
+	tz = pytz.timezone("Asia/Jakarta")
 	invoice = frappe.get_doc('VetCustomerInvoice', invoice_name)
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	credit_account = frappe.db.get_value('VetPaymentMethod', {'name': method}, 'account')
@@ -1618,7 +1627,7 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 		
 		owner_credit = frappe.new_doc('VetOwnerCredit')
 		owner_credit.update({
-			'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+			'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 			'register_number': invoice.register_number,
 			'invoice': invoice.name,
 			'type': 'Payment',
@@ -1646,7 +1655,7 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 		
 		owner_credit = frappe.new_doc('VetOwnerCredit')
 		owner_credit.update({
-			'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+			'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 			'register_number': invoice.register_number,
 			'invoice': invoice.name,
 			'type': 'Payment',
@@ -1660,8 +1669,8 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 	
 	je_data = {
 		'journal': sales_journal,
-		'period': dt.now().strftime('%m/%Y'),
-		'date': dt.now().date().strftime('%Y-%m-%d'),
+		'period': dt.now(tz).strftime('%m/%Y'),
+		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': invoice_name,
 		'journal_items': jis
 	}
@@ -1672,6 +1681,7 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 	
 	
 def add_payment_from_deposit(data):
+	tz = pytz.timezone("Asia/Jakarta")
 	credit_account = frappe.db.get_value('VetCoa', {'account_code': '1-13001'}, 'name')
 	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Customer'}, 'account')
 	if not deposit_account:
@@ -1697,7 +1707,7 @@ def add_payment_from_deposit(data):
 			line_data = {}
 			line_data.update({'parent': invoice.name, 'parenttype': 'VetCustomerInvoice', 'parentfield': 'pembayaran', 'pos_session': pos_session})
 			
-			tanggal = dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S")
+			tanggal = dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S")
 			
 			pay = frappe.new_doc("VetCustomerInvoicePay")
 			pay.jumlah = data_json.get('jumlah')
@@ -1737,8 +1747,8 @@ def add_payment_from_deposit(data):
 			
 			je_data = {
 				'journal': sales_journal,
-				'period': dt.now().strftime('%m/%Y'),
-				'date': dt.now().date().strftime('%Y-%m-%d'),
+				'period': dt.now(tz).strftime('%m/%Y'),
+				'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 				'reference': invoice.name,
 				'journal_items': jis
 			}
@@ -1747,7 +1757,7 @@ def add_payment_from_deposit(data):
 			
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'register_number': invoice.register_number,
 				'invoice': invoice.name,
 				'type': 'Payment',

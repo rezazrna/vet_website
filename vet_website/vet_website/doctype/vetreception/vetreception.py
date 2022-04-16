@@ -113,7 +113,7 @@ def new_reception(owner_data, reception_data):
 				if pet.get("selected"):
 					selected_new_pet = new_pet.name
 		
-		reception_list = frappe.get_list("VetReception", filters={'reception_date': ['between', [dt.now().strftime('%Y-%m-%d'), (dt.now() + rd(days=1)).strftime('%Y-%m-%d')]]}, fields=['name'])
+		reception_list = frappe.get_list("VetReception", filters={'reception_date': ['between', [dt.now(tz).strftime('%Y-%m-%d'), (dt.now(tz) + rd(days=1)).strftime('%Y-%m-%d')]]}, fields=['name'])
 		reception = frappe.new_doc("VetReception")
 		reception.update(new_reception_data)
 		reception.update({'queue': len(reception_list) + 1})

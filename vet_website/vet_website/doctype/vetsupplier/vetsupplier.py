@@ -7,6 +7,7 @@ import frappe
 import json
 import string
 import random
+import pytz
 from datetime import datetime as dt
 from frappe.utils.file_manager import save_file
 
@@ -187,7 +188,8 @@ def get_supplier(name):
 		
 @frappe.whitelist()
 def edit_supplier(data):
-	now = dt.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = dt.now(tz)
 	now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 	
 	try:

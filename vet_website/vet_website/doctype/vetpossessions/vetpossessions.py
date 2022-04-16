@@ -8,6 +8,7 @@ import json
 import random
 import string
 import math
+import pytz
 from datetime import datetime
 from dateutil import tz
 from frappe.model.document import Document
@@ -183,6 +184,7 @@ def get_sessions_list(filters=None):
 		
 @frappe.whitelist()
 def create_session():
+	tz = pytz.timezone("Asia/Jakarta")
 	checkActiveSession = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'})
 	
 	if not checkActiveSession:
@@ -239,7 +241,7 @@ def create_session():
 		
 		new_session = frappe.new_doc('VetPosSessions')
 		new_session.update({
-			'opening_session': datetime.now(),
+			'opening_session': datetime.now(tz),
 			'responsible': frappe.session.user,
 			'opening_balance': last_session[0]['closing_balance'] if setor >= 0 else last_session[0]['closing_balance']+setor,
 			'closing_balance': last_session[0]['closing_balance'],
@@ -301,6 +303,8 @@ def pos_add_customer(data):
 		data_json = json.loads(data)
 	except:
 		return {'error': "Gagal membuat pemilik baru"}
+
+	tz = pytz.timezone("Asia/Jakarta")
 		
 	data = {
 		"nik": ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(16)),
@@ -316,7 +320,7 @@ def pos_add_customer(data):
 			"name": "/",
 			"pet_name": data_json.get("pet_name"),
 			"hewan_jenis": pettypes[0].name,
-			"register_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+			"register_date": datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
 		}
 	]
 	
@@ -330,6 +334,8 @@ def pos_add_order(data):
 		data_json = json.loads(data)
 	except:
 		return {'error': "Gagal membuat order baru"}
+
+	tz = pytz.timezone("Asia/Jakarta")
 		
 	pet = data_json.get("pet", False)
 	if pet:
@@ -360,7 +366,7 @@ def pos_add_order(data):
 	new_order.reload()
 	create_pos_journal_entry(new_order.name, new_order.payment)
 	
-	return {"orders": get_order_list(json.dumps(pos_order_filters)), "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+	return {"orders": get_order_list(json.dumps(pos_order_filters)), "datetime": datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")}
 	
 @frappe.whitelist()
 def kas_masuk_keluar(session, list_kas):
@@ -368,6 +374,8 @@ def kas_masuk_keluar(session, list_kas):
 		kas = json.loads(list_kas)
 	except:
 		return {'error': "Gagal membuat kas baru"}
+
+	tz = pytz.timezone("Asia/Jakarta")
 		
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	kas_kecil_account = frappe.db.get_value('VetCoa', {'account_code': '1-11101'}, 'name')
@@ -434,8 +442,8 @@ def kas_masuk_keluar(session, list_kas):
 		
 	je_data = {
 		'journal': sales_journal,
-		'period': datetime.now().strftime('%m/%Y'),
-		'date': datetime.now().date().strftime('%Y-%m-%d'),
+		'period': datetime.now(tz).strftime('%m/%Y'),
+		'date': datetime.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': session,
 		'journal_items': jis
 	}
@@ -449,6 +457,8 @@ def closing_transfer(session, data):
 		data_json = json.loads(data)
 	except:
 		return {'error': "Gagal membuat kas baru"}
+
+	tz = pytz.timezone("Asia/Jakarta")
 		
 	if check_transfer_journal():
 		sales_journal = frappe.db.get_value('VetJournal', {'name': 'TRANS'}, 'name')
@@ -466,8 +476,8 @@ def closing_transfer(session, data):
 	]
 	je_data = {
 		'journal': sales_journal,
-		'period': datetime.now().strftime('%m/%Y'),
-		'date': datetime.now().date().strftime('%Y-%m-%d'),
+		'period': datetime.now(tz).strftime('%m/%Y'),
+		'date': datetime.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': session,
 		'journal_items': jis
 	}
@@ -553,6 +563,7 @@ def deliver_to_customer(name):
 		return {'error': e}
 		
 def create_pos_journal_entry(name, payment, refund=False):
+	tz = pytz.timezone("Asia/Jakarta")
 	pos_order = frappe.get_doc('VetPosOrder', name)
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	# journal_debit = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'default_debit_account')
@@ -715,8 +726,8 @@ def create_pos_journal_entry(name, payment, refund=False):
 		
 	je_data = {
 		'journal': sales_journal,
-		'period': datetime.now().strftime('%m/%Y'),
-		'date': datetime.now().date().strftime('%Y-%m-%d'),
+		'period': datetime.now(tz).strftime('%m/%Y'),
+		'date': datetime.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': pos_order.name,
 		'journal_items': jis
 	}

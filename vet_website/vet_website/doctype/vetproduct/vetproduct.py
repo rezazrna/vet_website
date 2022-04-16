@@ -7,6 +7,7 @@ import frappe
 import json
 import os
 import math
+import pytz
 from datetime import datetime as dt
 from frappe.utils import data
 from frappe.utils.file_manager import save_file
@@ -186,7 +187,8 @@ def check_pack(name, quantity):
 	
 @frappe.whitelist()
 def new_product(data):
-	now = dt.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = dt.now(tz)
 	now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 	try:
 		data_json = json.loads(data)
@@ -237,7 +239,8 @@ def new_product(data):
 		
 @frappe.whitelist()
 def edit_product(data):
-	now = dt.now()
+	tz = pytz.timezone("Asia/Jakarta")
+	now = dt.now(tz)
 	now_str = dt.strftime(now, "%d%m%Y%H%M%S")
 	try:
 		data_json = json.loads(data)

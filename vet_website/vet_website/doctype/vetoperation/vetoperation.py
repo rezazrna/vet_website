@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 from shutil import move
 import frappe
 import json
+import pytz
 from datetime import datetime as dt
 from urllib.parse import unquote
 from frappe.model.document import Document
@@ -152,6 +153,7 @@ def delete_operation(data):
 @frappe.whitelist()
 def new_operation(data):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		data_json = json.loads(data)
 		op_data = {}
 		op_data.update(data_json)
@@ -173,7 +175,7 @@ def new_operation(data):
 					'parent': new_operation.name, 
 					'parenttype': 'VetOperation', 
 					'parentfield': 'moves',
-					'date': data_json.get('date', dt.now().strftime('%Y-%m-%d'))
+					'date': data_json.get('date', dt.now(tz).strftime('%Y-%m-%d'))
 				})
 				new_move.insert()
 				
@@ -188,6 +190,7 @@ def new_operation(data):
 @frappe.whitelist()
 def edit_operation(data):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		data_json = json.loads(data)
 		op_data = {}
 		op_data.update({'from': data_json.get('from'), 'date': data_json.get('date'), 'reference': data_json.get('reference', '-'), 'expense_account': data_json.get('expense_account', '-')})
@@ -221,7 +224,7 @@ def edit_operation(data):
 						'parent': new_operation.name, 
 						'parenttype': 'VetOperation', 
 						'parentfield': 'moves',
-						'date': data_json.get('date', dt.now().strftime('%Y-%m-%d'))
+						'date': data_json.get('date', dt.now(tz).strftime('%Y-%m-%d'))
 					})
 					new_move.insert()
 					
@@ -264,6 +267,7 @@ def action_send(name):
 @frappe.whitelist()
 def action_receive(name, moves):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		data_check = frappe.get_list('VetOperation', filters={'name': name}, fields=['name'])
 		if len(data_check) != 0:
 			operation = frappe.get_doc('VetOperation', name)
@@ -277,7 +281,7 @@ def action_receive(name, moves):
 					move = frappe.get_doc('VetOperationMove', m.get('name', False))
 					move.update({
 						'quantity_done': m.get('quantity_done', False),
-						'receive_date': m.get('receive_date', dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S")),
+						'receive_date': m.get('receive_date', dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S")),
 					})
 					move.save()
 					frappe.db.commit()
