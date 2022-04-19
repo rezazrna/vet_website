@@ -16,6 +16,7 @@ class UkuranKandang extends React.Component {
     }
 
     componentDidMount() {
+        var td = this
         frappe.call({
             type: "GET",
             method: "vet_website.methods.get_current_user",
