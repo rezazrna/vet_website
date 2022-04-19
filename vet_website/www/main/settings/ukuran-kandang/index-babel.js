@@ -114,7 +114,7 @@ class UkuranKandang extends React.Component {
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetkandang.vetkandang.set_ukuran_kandang",
-            args: { data: this.state.data.join('\n') },
+            args: { options: this.state.data.join('\n') },
             callback: function (r) {
                 if (r.message) {
                     ukuran.setState({ data: r.message.split('\n'), show_form: false, show_edit: false });
@@ -129,7 +129,7 @@ class UkuranKandang extends React.Component {
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetkandang.vetkandang.set_ukuran_kandang",
-            args: { data: this.state.data.join('\n') },
+            args: { options: this.state.data.join('\n') },
             callback: function (r) {
                 if (r.message) {
                     var new_data = ukuran.state.data.slice()
