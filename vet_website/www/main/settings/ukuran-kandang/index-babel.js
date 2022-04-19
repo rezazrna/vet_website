@@ -142,6 +142,22 @@ class UkuranKandang extends React.Component {
         })
     }
 
+    deleteUkuranKandang(index) {
+        var ukuran = this
+        this.state.data.splice(index, 1)
+        frappe.call({
+            type: "POST",
+            method: "vet_website.vet_website.doctype.vetkandang.vetkandang.set_ukuran_kandang",
+            args: { options: this.state.data.join('\n') },
+            callback: function (r) {
+                if (r.message) {
+                    var new_data = ukuran.state.data.slice(index, 1)
+                    ukuran.setState({ data: new_data, show_form: false, show_edit: false });
+                }
+            }
+        })
+    }
+
     render() {
         var write = checkPermission('VetKandang', this.state.currentUser, 'write')
         var row_style2 = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px', 'height': '72px' }
@@ -167,7 +183,7 @@ class UkuranKandang extends React.Component {
                 popup_form = <UkuranKandangPopupForm write={write} cancelAction={() => this.toggleShowForm(false)} submitAction={this.newUkuranKandang} />
             }
             else if (this.state.data[this.state.show_form] != undefined) {
-                popup_form = <UkuranKandangPopupForm write={write} data={this.state.data[this.state.show_form]} cancelAction={() => this.toggleShowForm(false)} submitAction={data => this.editUkuranKandang(this.state.show_form, data)} />
+                popup_form = <UkuranKandangPopupForm write={write} data={this.state.data[this.state.show_form]} cancelAction={() => this.toggleShowForm(false)} submitAction={data => this.editUkuranKandang(this.state.show_form, data)} deleteAction={data => this.deleteUkuranKandang(this.state.show_form)} />
             }
         }
 
@@ -346,6 +362,14 @@ class UkuranKandangPopupForm extends React.Component {
         this.setState({ data: value })
     }
 
+    deleteUkuran(e) {
+        e.preventDefault()
+        var new_data = this.state.data
+        // var unit_master = this.props.uom_list.find(i => i.name == new_data.unit_master || i.uom_name == new_data.unit_master)
+        // unit_master ? new_data.unit_master = unit_master.name : unit_master = ''
+        this.props.deleteAction(new_data)
+    }
+
     // inputBlur(e, list) {
     //     const value = e.target.value
     //     const name = e.target.name
@@ -377,6 +401,7 @@ class UkuranKandangPopupForm extends React.Component {
         var input_style = { background: '#CEEDFF' }
         var button1_style = { minWidth: '147px', border: '1px solid #056EAD', background: '#056EAD', color: '#FFF' }
         var button2_style = { minWidth: '147px', border: '1px solid #056EAD', color: '#056EAD' }
+        var button1_style = { minWidth: '147px', border: '1px solid #056EAD', background: '#056EAD', color: '#FFF' }
         var button_title = 'Simpan'
         // var ratio_required = false
         // var unit_master_input
@@ -407,6 +432,9 @@ class UkuranKandangPopupForm extends React.Component {
         var submit_button = <div className="col-auto">
             <button type="submit" className="btn fs18 fw600 py-2" style={button1_style}>{button_title}</button>
         </div>
+        var delete_button = <div className="col-auto">
+            <button className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={(e) => this.deleteUkuran(e)}>Hapus</button>
+        </div>
         var readOnly = !this.props.write || false
 
         return (
@@ -427,6 +455,7 @@ class UkuranKandangPopupForm extends React.Component {
                             <div className="col-auto">
                                 <button type="button" className="btn fs18 fw600 py-2" style={button2_style} onClick={this.props.cancelAction}>Batal</button>
                             </div>
+                            {this.props.write ? delete_button : false}
                         </div>
                     </form>
                 </div>

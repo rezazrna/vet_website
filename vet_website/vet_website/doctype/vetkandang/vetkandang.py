@@ -106,6 +106,7 @@ def get_kandang_list(filters=None):
 		# 		kandang = filter(result_filter, kandang)
 
 		meta = frappe.get_meta('VetKandang')
+		meta.reload()
 		df = meta.get('fields', {'fieldname': 'cage_size'})[0]
 
 		return {'kandang': kandang, 'datalength': datalength, 'cage_size_list': df.get('options')}
@@ -185,6 +186,7 @@ def get_ukuran_kandang():
 def set_ukuran_kandang(options):
 	try:
 		meta = frappe.get_meta('VetKandang')
+		meta.reload()
 		df = meta.get('fields', {'fieldname': 'cage_size'})[0]
 		df.set('options', options)
 		meta.save()
