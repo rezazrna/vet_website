@@ -11,6 +11,7 @@ class Kandang extends React.Component {
             'search': false,
             'currentUser': {},
             'datalength': 0,
+            'cage_size_list': []
         }
         this.listSearch = this.listSearch.bind(this);
         this.toggleAddKandang = this.toggleAddKandang.bind(this)
@@ -46,7 +47,7 @@ class Kandang extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message)
-                    td.setState({ 'data': r.message.kandang, 'loaded': true, 'datalength': r.message.datalength });
+                    td.setState({ 'data': r.message.kandang, 'loaded': true, 'datalength': r.message.datalength, 'cage_size_list': r.message.cage_size_list.split('\n')});
                 }
             }
         });
@@ -72,7 +73,7 @@ class Kandang extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message)
-                    po.setState({ 'data': r.message.kandang, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.kandang, 'loaded': true, 'datalength': r.message.datalength, 'cage_size_list': r.message.cage_size_list.split('\n')});
                 }
             }
         });
@@ -100,7 +101,7 @@ class Kandang extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message)
-                    td.setState({ 'data': r.message.kandang, 'loaded': true, 'datalength': r.message.datalength });
+                    td.setState({ 'data': r.message.kandang, 'loaded': true, 'datalength': r.message.datalength, 'cage_size_list': r.message.cage_size_list.split('\n')});
                 }
             }
         });
@@ -202,6 +203,12 @@ class Kandang extends React.Component {
         //     var fields = [row.cage_name, row.status, row.cage_size, row.cage_location, moment(row.masuk_kandang_date).format('DD-MM-YYYY HH:mm'), row.pet_name, row.owner_name]
         //     return ![false, ''].includes(search) ? fields.some(filterField) : true
         // }
+        var cage_size_field_list = []
+
+        this.state.cage_size_list.forEach(function (item) {
+            cage_size_field_list.push({'label': item, 'value': item})
+        })
+
         var kd = this
         var row_style2 = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px' }
         var formStyle = { border: '1px solid #397DA6', color: '#397DA6' }
@@ -220,10 +227,7 @@ class Kandang extends React.Component {
                 ]
             },
             {
-                'label': 'Ukuran', 'field': 'cage_size', 'type': 'select', 'options': [
-                    { 'label': 'Besar', 'value': 'Besar' },
-                    { 'label': 'Kecil', 'value': 'Kecil' },
-                ]
+                'label': 'Ukuran', 'field': 'cage_size', 'type': 'select', 'options': cage_size_field_list
             },
             { 'label': 'Nama Pasien', 'field': 'pet_name', 'type': 'char' },
             { 'label': 'Nama Pemilik', 'field': 'owner_name', 'type': 'char' },
@@ -248,7 +252,7 @@ class Kandang extends React.Component {
         })
 
         if (this.state.show_add) {
-            add_kandang = <AddKandang new_kandang={this.state.new_kandang} toggleAddKandang={this.toggleAddKandang} formSubmit={this.formSubmit} handleInputChange={this.handleInputChange} />
+            add_kandang = <AddKandang new_kandang={this.state.new_kandang} toggleAddKandang={this.toggleAddKandang} formSubmit={this.formSubmit} handleInputChange={this.handleInputChange} cage_size_list={this.state.cage_size_list}/>
         }
 
         if (this.state.loaded) {
@@ -289,13 +293,19 @@ class AddKandang extends React.Component {
     handleInputBlur(e) {
         var value = e.target.value
 
-        if (!['Besar', 'Kecil'].includes(value)) {
+        if (!this.props.cage_size_list.includes(value)) {
             e.target.value = ''
         }
     }
 
     render() {
         var maxwidth = { maxWidth: '483px' }
+
+        var cage_size_option = []
+
+        this.props.cage_size_list.forEach(function (item) {
+            cage_size_option.push(<option value={item} />)
+        })
 
         return (
             <div className="menu-popup">
@@ -320,8 +330,7 @@ class AddKandang extends React.Component {
                                 <div className="row mx-0">
                                     <input required id="cage_size" name='cage_size' className="form-control border-0 lightbg" value={this.props.new_kandang.cage_size || ''} onChange={this.props.handleInputChange} placeholder="Masukkan Di Sini" list="size_list" autoComplete="off" onBlur={(e) => this.handleInputBlur(e)} />
                                     <datalist id="size_list">
-                                        <option value="Besar" />
-                                        <option value="Kecil" />
+                                        {cage_size_option}
                                     </datalist>
                                 </div>
                             </div>

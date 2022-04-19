@@ -104,7 +104,11 @@ def get_kandang_list(filters=None):
 		# 		empty = ['',None,False]
 		# 		result_filter = lambda a: a.register_number in empty if fj[2] == 'Available' else a.register_number not in empty
 		# 		kandang = filter(result_filter, kandang)
-		return {'kandang': kandang, 'datalength': datalength}
+
+		meta = frappe.get_meta('VetKandang')
+		df = meta.get('fields', {'fieldname': 'cage_size'})[0]
+
+		return {'kandang': kandang, 'datalength': datalength, 'cage_size_list': df.get('options')}
 		
 	except PermissionError as e:
 		return {'error': e}
@@ -163,6 +167,28 @@ def toggle_status(name):
 		kandang.save()
 		
 		return kandang.status
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
+def get_ukuran_kandang():
+	try:
+		meta = frappe.get_meta('VetKandang')
+		df = meta.get('fields', {'fieldname': 'cage_size'})[0]
+		
+		return df.get('options')
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
+def set_ukuran_kandang(options):
+	try:
+		meta = frappe.get_meta('VetKandang')
+		df = meta.get('fields', {'fieldname': 'cage_size'})[0]
+		df.set('options', options)
+		meta.save()
+		
+		return df.get('options')
 	except PermissionError as e:
 		return {'error': e}
 		
