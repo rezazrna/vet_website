@@ -158,9 +158,11 @@ class UkuranKandang extends React.Component {
         //     )
         // }
 
+        console.log(write)
+
         if (this.state.show_form !== false) {
             if (this.state.show_form === 'new') {
-                popup_form = <UkuranKandangPopupForm cancelAction={() => this.toggleShowForm(false)} submitAction={this.newUkuranKandang} />
+                popup_form = <UkuranKandangPopupForm write={write} cancelAction={() => this.toggleShowForm(false)} submitAction={this.newUkuranKandang} />
             }
             else if (this.state.data[this.state.show_form] != undefined) {
                 popup_form = <UkuranKandangPopupForm write={write} data={this.state.data[this.state.show_form]} cancelAction={() => this.toggleShowForm(false)} submitAction={data => this.editUkuranKandang(this.state.show_form, data)} />
