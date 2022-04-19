@@ -174,6 +174,7 @@ def toggle_status(name):
 def get_ukuran_kandang():
 	try:
 		meta = frappe.get_meta('VetKandang')
+		meta.reload()
 		df = meta.get('fields', {'fieldname': 'cage_size'})[0]
 		
 		return df.get('options')
