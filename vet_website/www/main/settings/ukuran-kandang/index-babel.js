@@ -111,12 +111,14 @@ class UkuranKandang extends React.Component {
     newUkuranKandang(data) {
         var ukuran = this
         this.state.data.push(data)
+        console.log(this.state.data)
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetkandang.vetkandang.set_ukuran_kandang",
             args: { options: this.state.data.join('\n') },
             callback: function (r) {
                 if (r.message) {
+                    console.log(r.message)
                     ukuran.setState({ data: r.message.split('\n'), show_form: false, show_edit: false });
                 }
             }

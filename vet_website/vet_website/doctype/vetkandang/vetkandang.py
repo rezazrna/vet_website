@@ -187,6 +187,7 @@ def set_ukuran_kandang(options):
 		df = meta.get('fields', {'fieldname': 'cage_size'})[0]
 		df.set('options', options)
 		meta.save()
+		df.save()
 		frappe.db.commit()
 		
 		return df.get('options')
