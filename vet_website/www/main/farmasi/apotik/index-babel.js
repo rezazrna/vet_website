@@ -399,7 +399,8 @@ class ApotikListRow extends React.Component {
                 <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
                     <div className="row mx-0 fs12 fw600">
                         <div className="col d-flex">
-                            <span className="my-auto">{moment(apotik.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}</span>
+                            {/* <span className="my-auto">{moment(apotik.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}</span> */}
+                            {tgl}
                         </div>
                         <div className="col d-flex">
                             <span className="my-auto">{apotik.name}</span>

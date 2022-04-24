@@ -182,7 +182,8 @@ def open_invoice_process(data, saveonly=False):
 						'product': line.get('product', False),
 						'product_name': line.get('product_name', False),
 						'product_uom': line.get('product_uom', False),
-						'quantity': math.ceil(float(line.get('quantity', False))),
+						# 'quantity': math.ceil(float(line.get('quantity', False))),
+						'quantity': float(line.get('quantity', False)),
 						'unit_price': line.get('unit_price', False),
 						'discount': line.get('discount', 0),
 						'total': line.get('total', False),
@@ -1325,12 +1326,11 @@ def create_sales_journal_entry(invoice_name, refund=False):
 					if current_quantity != 0:
 						purchase_product = frappe.get_doc('VetPurchaseProducts', pws.purchase_products_name)
 						
-						# belum ngerti
-						# if (purchase_product.uom != pp.product_uom) :
-						# 	ratio = frappe.db.get_value('VetUOM', pp.product_uom, 'ratio')
-						# 	target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
-						# 	current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
-						# 	current_uom = purchase_product.uom
+						if (purchase_product.uom != pp.product_uom) :
+							ratio = frappe.db.get_value('VetUOM', pp.product_uom, 'ratio')
+							target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
+							current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
+							current_uom = purchase_product.uom
 						
 						if float(current_quantity) >= pws.quantity:
 							current_quantity = float(current_quantity) - pws.quantity
@@ -1517,12 +1517,11 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 							if current_quantity != 0:
 								purchase_product = frappe.get_doc('VetPurchaseProducts', pws.purchase_products_name)
 								
-								# belum ngerti
-								# if (purchase_product.uom != pp.product_uom) :
-								# 	ratio = frappe.db.get_value('VetUOM', pp.product_uom, 'ratio')
-								# 	target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
-								# 	current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
-								# 	current_uom = purchase_product.uom
+								if (purchase_product.uom != pp.product_uom) :
+									ratio = frappe.db.get_value('VetUOM', pp.product_uom, 'ratio')
+									target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
+									current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
+									current_uom = purchase_product.uom
 								
 								if float(current_quantity) >= pws.quantity:
 									current_quantity = float(current_quantity) - pws.quantity

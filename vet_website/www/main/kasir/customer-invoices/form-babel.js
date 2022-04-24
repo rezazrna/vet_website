@@ -487,9 +487,9 @@ class CustomerInvoice extends React.Component {
         
             var invoice_line = old_data.invoice_line.farmasi.concat(old_data.invoice_line.jasa).concat(old_data.invoice_line.rawat_inap).concat(old_data.invoice_line.instalasi_medis)
             
-            invoice_line.forEach(function(item, index) {
-                item.quantity = Math.ceil(item.quantity)
-            })
+            // invoice_line.forEach(function(item, index) {
+            //     item.quantity = Math.ceil(item.quantity)
+            // })
             
             old_data.invoice_line = invoice_line
             old_data.total = old_data.total - old_data.potongan || 0
