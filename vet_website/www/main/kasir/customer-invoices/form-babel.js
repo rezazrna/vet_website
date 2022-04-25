@@ -2191,7 +2191,7 @@ class CustomerInvoiceLinesContent extends React.Component {
                         total_service += l.total
                     }
                     if (l.quantity) {
-                        total_quantity += l.quantity
+                        total_quantity += Math.ceil(l.quantity)
                     }
                 }
             })
@@ -2307,7 +2307,7 @@ class CustomerInvoiceLinesRow extends React.Component {
             required = true
         }
         var product = <span className="my-auto">{item.product_name?item.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):item.product}</span>
-        var quantity = <span className="my-auto">{item.quantity}</span>
+        var quantity = <span className="my-auto">{Math.ceil(item.quantity)}</span>
         var uom = <span className="my-auto">{item.uom_name||item.product_uom}</span>
         var unit_price = <span className="my-auto">{formatter2.format(this.props.racikan_total || item.unit_price)}</span>
         var total = <span className="my-auto">{formatter2.format(this.props.racikan_total || item.total || 0)}</span>
@@ -2347,7 +2347,7 @@ class CustomerInvoiceLinesRow extends React.Component {
                 deleteButton = <i className="fa fa-trash" style={cursor} onClick={this.props.deleteRow}/>
             }
         } else if (is_refund) {
-            quantity = <input required={required} autoComplete="off" placeholder="0" name='quantity' id="quantity" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} defaultValue={item.quantity||''}/>
+            quantity = <input required={required} autoComplete="off" placeholder="0" name='quantity' id="quantity" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} defaultValue={Math.ceil(item.quantity)||''}/>
             discount = <input placeholder="0" name='discount' id="discount" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} defaultValue={item.discount||''}/>
         }
         console.log('row')
