@@ -175,6 +175,7 @@ def check_pack(name, quantity):
 		product_sale_price = frappe.db.get_value('VetProduct', name, 'price')
 		pack = frappe.get_list('VetProductPack', filters={'parent': name}, fields=['harga_pack', 'quantity_pack'])
 		selected_pack = [i for i in pack if i['quantity_pack'] <= math.ceil(float(quantity))]
+		# selected_pack = [i for i in pack if i['quantity_pack'] <= float(quantity)]
 		selected_pack.sort(key=lambda a: a.quantity_pack, reverse=True)
 		if selected_pack:
 			harga_pack = get_pack_price(float(quantity), product_sale_price, selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])

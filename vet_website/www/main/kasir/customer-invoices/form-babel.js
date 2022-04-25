@@ -269,6 +269,7 @@ class CustomerInvoice extends React.Component {
 	                        
 	                        if (new_data.invoice_line[service][i].quantity) {
 	                            new_data.invoice_line[service][i].total = selected.price * Math.ceil(parseFloat(new_data.invoice_line[service][i].quantity)) - ((new_data.invoice_line[service][i].discount || 0) / 100 * (selected.price * Math.ceil(parseFloat(new_data.invoice_line[service][i].quantity))))
+                                // new_data.invoice_line[service][i].total = selected.price * parseFloat(new_data.invoice_line[service][i].quantity) - ((new_data.invoice_line[service][i].discount || 0) / 100 * (selected.price * parseFloat(new_data.invoice_line[service][i].quantity)))
 	                        }
 	                        ci.setState({data: new_data})
 	                        ci.checkProductQuantity(i, service)
@@ -304,6 +305,7 @@ class CustomerInvoice extends React.Component {
                         } else if (r.message == false) {
                             if (new_data.invoice_line[service][i].unit_price) {
                                 new_data.invoice_line[service][i].total = new_data.invoice_line[service][i].unit_price * Math.ceil(parseFloat(value)) - ((new_data.invoice_line[service][i].discount || 0) / 100 * (new_data.invoice_line[service][i].unit_price * Math.ceil(parseFloat(value))))
+                                // new_data.invoice_line[service][i].total = new_data.invoice_line[service][i].unit_price * parseFloat(value) - ((new_data.invoice_line[service][i].discount || 0) / 100 * (new_data.invoice_line[service][i].unit_price * parseFloat(value)))
                             }
                 	        ci.setState({data: new_data})
                 	        ci.refresh_subtotal()
@@ -439,9 +441,9 @@ class CustomerInvoice extends React.Component {
             this.state.data.children_customer_invoice.forEach((i, index) => {
                 var old_data = Object.assign({},i.customer_invoice)
                 var invoice_line = old_data.invoice_line.farmasi.concat(old_data.invoice_line.jasa).concat(old_data.invoice_line.rawat_inap).concat(old_data.invoice_line.instalasi_medis)
-                invoice_line.forEach(function(item, index) {
-                    item.quantity = Math.ceil(item.quantity)
-                })
+                // invoice_line.forEach(function(item, index) {
+                //     item.quantity = Math.ceil(item.quantity)
+                // })
                 
                 old_data.invoice_line = invoice_line
                 old_data.total = old_data.total - old_data.potongan || 0
@@ -1961,7 +1963,7 @@ class CustomerInvoiceLines extends React.Component {
                     paid = c.customer_invoice.pembayaran.map(p => p.jumlah).reduce((a,b) => a+b, 0)
                 }
                 children_customer_invoice_rows.push(
-                    <CustomerInvoiceLinesMultipleRow index={index.toString()} key={c.customer_invoice.name} name={c.customer_invoice.name} status={c.customer_invoice.status} is_rawat_inap={c.customer_invoice.is_rawat_inap} pet_name={c.customer_invoice.pet_name} list={c.customer_invoice.invoice_line} children_customer_invoice={c.customer_invoice.children_customer_invoice} edit_mode={th.props.edit_mode} no_exchange={c.customer_invoice.no_exchange} is_refund={c.customer_invoice.is_refund} product_list={th.props.product_list} uom_list={th.props.uom_list} status={c.customer_invoice.status} payments={c.customer_invoice.pembayaran} payment_method_list={th.props.payment_method_list} subtotal={c.customer_invoice.subtotal} paid={paid} changeInput={th.props.changeInput} inputBlur={th.props.inputBlur} warehouse_list={th.props.warehouse_list} potongan={c.customer_invoice.potongan} deleteRow={th.props.deleteRow} role={th.props.role} service={c.customer_invoice.service} is_rawat_inap={c.customer_invoice.is_rawat_inap} current_session={th.props.current_session} links={th.props.links} services={th.props.services} register_number={c.customer_invoice.register_number}/>
+                    <CustomerInvoiceLinesMultipleRow index={index.toString()} key={c.customer_invoice.name} name={c.customer_invoice.name} status={c.customer_invoice.status} is_rawat_inap={c.customer_invoice.is_rawat_inap} pet_name={c.customer_invoice.pet_name} list={c.customer_invoice.invoice_line} children_customer_invoice={c.customer_invoice.children_customer_invoice} edit_mode={th.props.edit_mode} no_exchange={c.customer_invoice.no_exchange} is_refund={c.customer_invoice.is_refund} product_list={th.props.product_list} uom_list={th.props.uom_list} payments={c.customer_invoice.pembayaran} payment_method_list={th.props.payment_method_list} subtotal={c.customer_invoice.subtotal} paid={paid} changeInput={th.props.changeInput} inputBlur={th.props.inputBlur} warehouse_list={th.props.warehouse_list} potongan={c.customer_invoice.potongan} deleteRow={th.props.deleteRow} role={th.props.role} service={c.customer_invoice.service} current_session={th.props.current_session} links={th.props.links} services={th.props.services} register_number={c.customer_invoice.register_number}/>
                 )
             })
             

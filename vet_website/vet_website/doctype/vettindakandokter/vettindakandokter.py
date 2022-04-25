@@ -436,7 +436,8 @@ def confirm_tindakan_dokter(data):
 						
 				product_data = {
 					'product': jasa.get('product'),
-					'quantity': math.ceil(float(jasa.get('quantity'))),
+					# 'quantity': math.ceil(float(jasa.get('quantity'))),
+					'quantity': float(jasa.get('quantity')),
 				}
 				products_invoice.append(product_data)
 						
@@ -655,12 +656,15 @@ def add_invoice(invoice_data, name):
 				new_product.insert()
 				check_pack = frappe.get_list('VetProductPack', filters={'parent': new_product.product}, fields=['harga_pack', 'quantity_pack'])
 				selected_pack = [i for i in check_pack if i['quantity_pack'] <= math.ceil(new_product.quantity)]
+				# selected_pack = [i for i in check_pack if i['quantity_pack'] <= new_product.quantity]
 				selected_pack.sort(key=lambda a: a.quantity_pack, reverse=True)
 				if selected_pack:
 					total = get_pack_price(float(math.ceil(new_product.quantity)), float(new_product.unit_price), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
+					# total = get_pack_price(float(new_product.quantity), float(new_product.unit_price), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
 					new_product.update({'total': total})
 				else:
 					new_product.update({'total': float(new_product.unit_price) * math.ceil(float(new_product.quantity))})
+					# new_product.update({'total': float(new_product.unit_price) * float(new_product.quantity)})
 				new_product.save()
 
 				subtotal += new_product.total

@@ -82,12 +82,15 @@ def new_invoice(data):
 				if(not product_data.get('total')):
 					check_pack = frappe.get_list('VetProductPack', filters={'parent': new_product.product}, fields=['harga_pack', 'quantity_pack'])
 					selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(math.ceil(new_product.quantity))]
+					# selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(new_product.quantity)]
 					selected_pack.sort(key=lambda a: a.quantity_pack, reverse=True)
 					if (selected_pack):
 						total = get_pack_price(float(math.ceil(new_product.quantity)), float(new_product.unit_price), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
+						# total = get_pack_price(float(new_product.quantity), float(new_product.unit_price), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
 						new_product.update({'total': total-(float(new_product.discount, 0) / 100*total)})
 					else:
 						new_product.update({'total': float(new_product.unit_price) * float(math.ceil(new_product.quantity)) - (float(new_product.discount, 0) / 100 * (float(new_product.unit_price) * float(math.ceil(new_product.quantity))))})
+						# new_product.update({'total': float(new_product.unit_price) * float(new_product.quantity) - (float(new_product.discount, 0) / 100 * (float(new_product.unit_price) * float(new_product.quantity)))})
 					
 				new_product.save()
 		
@@ -191,12 +194,15 @@ def open_invoice_process(data, saveonly=False):
 					if(not line.get('total', False)):
 						check_pack = frappe.get_list('VetProductPack', filters={'parent': line_doc.product}, fields=['harga_pack', 'quantity_pack'])
 						selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(math.ceil(line_doc.quantity))]
+						# selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(line_doc.quantity)]
 						selected_pack.sort(key=lambda a: a.quantity_pack, reverse=True)
 						if selected_pack:
 							total = get_pack_price(float(math.ceil(line.get('quantity'))), float(line.get('unit_price')), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
+							# total = get_pack_price(float(line.get('quantity')), float(line.get('unit_price')), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
 							line_doc.total = total-(float(line.get('discount', 0)) / 100*total)
 						else:
 							line_doc.total = float(line.get('unit_price')) * float(math.ceil(line.get('quantity'))) - (float(line.get('discount', 0)) / 100 * (float(line.get('unit_price')) * float(math.ceil(line.get('quantity')))))
+							# line_doc.total = float(line.get('unit_price')) * float(line.get('quantity')) - (float(line.get('discount', 0)) / 100 * (float(line.get('unit_price')) * float(line.get('quantity'))))
 							
 					subtotal += line_doc.total
 					line_doc.save()
@@ -212,12 +218,15 @@ def open_invoice_process(data, saveonly=False):
 					if(not line_data.get('total', False)):
 						check_pack = frappe.get_list('VetProductPack', filters={'parent': new_line.product}, fields=['harga_pack', 'quantity_pack'])
 						selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(math.ceil(new_line.quantity))]
+						# selected_pack = [i for i in check_pack if i['quantity_pack'] <= new_line.quantity]
 						selected_pack.sort(key=lambda a: a.quantity_pack, reverse=True)
 						if selected_pack:
 							total = get_pack_price(float(math.ceil(new_line.quantity)), float(new_line.unit_price), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
+							# total = get_pack_price(float(new_line.quantity), float(new_line.unit_price), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
 							new_line.update({'total': total-(float(new_line.discount, 0) / 100*total)})
 						else:
 							new_line.update({'total': float(new_line.unit_price) * float(math.ceil(new_line.quantity)) - (float(new_line.discount, 0) / 100 * (float(new_line.unit_price) * float(math.ceil(new_line.quantity))))})
+							# new_line.update({'total': float(new_line.unit_price) * float(new_line.quantity) - (float(new_line.discount, 0) / 100 * (float(new_line.unit_price) * float(new_line.quantity)))})
 					new_line.save()
 					frappe.db.commit()
 			
@@ -1129,6 +1138,7 @@ def submit_refund(data):
 					frappe.db.commit()
 			invoice.reload()
 			invoice.subtotal = sum(i.unit_price * math.ceil(i.quantity) - ((i.discount or 0) / 100 * (i.unit_price * math.ceil(i.quantity))) for i in invoice.invoice_line)
+			# invoice.subtotal = sum(i.unit_price * i.quantity - ((i.discount or 0) / 100 * (i.unit_price * i.quantity)) for i in invoice.invoice_line)
 			invoice.total = invoice.subtotal - (float(invoice.potongan) or 0)
 			invoice.save()
 			pay = frappe.new_doc("VetCustomerInvoicePay")
@@ -1334,9 +1344,11 @@ def create_sales_journal_entry(invoice_name, refund=False):
 						
 						if float(current_quantity) >= pws.quantity:
 							current_quantity = float(current_quantity) - pws.quantity
-							amount += purchase_product.price * math.ceil(pws.quantity)
+							# amount += purchase_product.price * math.ceil(pws.quantity)
+							amount += purchase_product.price * pws.quantity
 						else:
-							amount += purchase_product.price * math.ceil(current_quantity)
+							# amount += purchase_product.price * math.ceil(current_quantity)
+							amount += purchase_product.price * current_quantity
 							current_quantity = 0
 			else:
 				purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.product}, fields=['*'], order_by="creation asc")
@@ -1364,25 +1376,29 @@ def create_sales_journal_entry(invoice_name, refund=False):
 							new_invoice_line_purchase.update({
 								'invoice_line_name': invoice_line.name,
 								'purchase_products_name': purchase_product.name,
-								'quantity': math.ceil(purchase_product.quantity_stocked),
+								# 'quantity': math.ceil(purchase_product.quantity_stocked),
+								'quantity': purchase_product.quantity_stocked,
 							})
 
 							new_invoice_line_purchase.insert()
 							frappe.db.commit()
 
 							current_quantity = float(current_quantity) - purchase_product.quantity_stocked
-							amount += purchase_product.price * math.ceil(purchase_product.quantity_stocked)
+							# amount += purchase_product.price * math.ceil(purchase_product.quantity_stocked)
+							amount += purchase_product.price * purchase_product.quantity_stocked
 						else:
 							new_invoice_line_purchase.update({
 								'invoice_line_name': invoice_line.name,
 								'purchase_products_name': purchase_product.name,
-								'quantity': math.ceil(current_quantity),
+								# 'quantity': math.ceil(current_quantity),
+								'quantity': current_quantity,
 							})
 
 							new_invoice_line_purchase.insert()
 							frappe.db.commit()
 
-							amount += purchase_product.price * math.ceil(current_quantity)
+							# amount += purchase_product.price * math.ceil(current_quantity)
+							amount += purchase_product.price * current_quantity
 							current_quantity = 0
 
 			# print('amount')
@@ -1526,8 +1542,10 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 								if float(current_quantity) >= pws.quantity:
 									current_quantity = float(current_quantity) - pws.quantity
 									amount += purchase_product.price * math.ceil(pws.quantity)
+									# amount += purchase_product.price * pws.quantity
 								else:
 									amount += purchase_product.price * math.ceil(current_quantity)
+									# amount += purchase_product.price * current_quantity
 									current_quantity = 0
 
 						same_input_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_input_account), False)

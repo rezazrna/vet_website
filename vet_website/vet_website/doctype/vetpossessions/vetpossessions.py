@@ -620,9 +620,11 @@ def create_pos_journal_entry(name, payment, refund=False):
 					
 					if current_quantity >= purchase_product.quantity_stocked:
 						current_quantity = float(current_quantity) - purchase_product.quantity_stocked
-						amount += purchase_product.price * math.ceil(purchase_product.quantity_stocked)
+						# amount += purchase_product.price * math.ceil(purchase_product.quantity_stocked)
+						amount += purchase_product.price * purchase_product.quantity_stocked
 					else:
-						amount += purchase_product.price * math.ceil(current_quantity)
+						# amount += purchase_product.price * math.ceil(current_quantity)
+						amount += purchase_product.price * current_quantity
 						current_quantity = 0
 			
 			same_input_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_input_account), False)
