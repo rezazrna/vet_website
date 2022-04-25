@@ -160,6 +160,7 @@ class PenerimaanPasien extends React.Component {
                 args: {name: id},
                 callback: function(r){
                     if (r.message) {
+                        console.log(r.message)
                         var data = {
                             petType: r.message[0].petType,
                             total_visit: r.message[0].total_visit,

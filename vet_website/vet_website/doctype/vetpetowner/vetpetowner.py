@@ -107,7 +107,6 @@ def get_pet_owner(filters=None):
 			owner.sort(key=sort_filter, reverse=sort_filter_reverse)
 		owner = filter(result_filter, owner)
 		
-		
 		return {'pet_owner': owner, 'datalength': datalength}
 		
 	except PermissionError as e:
@@ -196,7 +195,8 @@ def get_pet_owner_by_name(name):
 				total_visit += visit
 				total_spending += (spending + order_spending)
 				p.update({'hewan_jenis_label': pet_type.type_name, 'type_name': pet_type.type_name, 'visit': str(visit), 'spending': str(spending)})
-			o.update({'pets': pets, 'total_spending': total_spending, 'total_visit': total_visit, 'petType': petTypeAll, 'total_credit': total_credit, 'total_remaining': total_remaining, 'total_debt': total_debt})
+			credits = frappe.get_list('VetOwnerCredit', filters={'pet_owner': o.name}, fields=['*'], order_by="creation asc")
+			o.update({'pets': pets, 'total_spending': total_spending, 'total_visit': total_visit, 'petType': petTypeAll, 'total_credit': total_credit, 'total_remaining': total_remaining, 'total_debt': total_debt, 'credits': credits})
 		return owner
 		
 	except PermissionError as e:
@@ -774,7 +774,7 @@ def set_owner_credit_total(name, supplier=False):
 					owner_credit.debt = debt
 					owner_credit.debt_mutation = -o['nominal']
 			
-			elif debt >= o['nominal'] and o['nominal'] > 0:
+			elif debt >= o['nominal'] and o['nominal'] > 0 and o['type'] != 'Refund':
 				# Nominal lebik kecil dari utang
 				# print("Nominal lebik kecil dari utang")
 				purchase_search = frappe.get_list('VetPurchase', filters={'name': owner_credit.purchase}, fields=['name'])
@@ -810,7 +810,7 @@ def set_owner_credit_total(name, supplier=False):
 					owner_credit.debt_mutation = -o['nominal']
 				
 				owner_credit.credit = credit
-			elif debt < o['nominal'] and o['nominal'] > 0:
+			elif debt < o['nominal'] and o['nominal'] > 0 and o['type'] != 'Refund':
 				# Nominal lebik besar dari utang
 				# print("Nominal lebik besar dari utang")
 				excess = o['nominal'] - debt
