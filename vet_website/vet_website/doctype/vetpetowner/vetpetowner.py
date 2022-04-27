@@ -776,7 +776,7 @@ def set_owner_credit_total(name, supplier=False):
 			elif debt >= o['nominal'] and o['nominal'] > 0:
 				# Nominal lebik kecil dari utang
 				# print("Nominal lebik kecil dari utang")
-				if o['type'] != 'Refund':
+				if o['type'] == 'Refund':
 					owner_credit.debt = debt
 					owner_credit.debt_mutation = 0
 				else:
@@ -816,7 +816,7 @@ def set_owner_credit_total(name, supplier=False):
 			elif debt < o['nominal'] and o['nominal'] > 0:
 				# Nominal lebik besar dari utang
 				# print("Nominal lebik besar dari utang")
-				if o['type'] != 'Refund':
+				if o['type'] == 'Refund':
 					owner_credit.debt = debt
 					owner_credit.debt_mutation = 0
 				else:
