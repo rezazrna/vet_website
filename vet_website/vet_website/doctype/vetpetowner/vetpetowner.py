@@ -441,7 +441,7 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 		if supplier == 'true':
 			credit_filters.append(['purchase_status', 'in', ['Draft', 'RFQ', 'Purchase Order', 'Receive']])
 		else:
-			credit_filters.append(['invoice_status', 'in', ['Draft', 'Open']])
+			credit_filters.append(['invoice_status', 'in', ['Draft', 'Open', 'Cancel']])
 		credit_filters.append(['type', 'in', ['Sales', 'Purchase']])
 	# print(credit_filters)
 	odd_filters = []
