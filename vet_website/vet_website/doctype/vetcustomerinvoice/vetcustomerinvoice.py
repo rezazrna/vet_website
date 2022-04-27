@@ -685,8 +685,8 @@ def get_customer_invoice_form_after_loading():
 				'is_operasi': frappe.db.get_value('VetProductCategory', pl.product_category, 'is_operasi'),
 			})
 		warehouse_list = frappe.get_list("VetGudang", fields=['*'])
-		# payment_method = frappe.get_list("VetPaymentMethod", fields=['*'])
-		payment_method = frappe.get_list("VetPaymentMethod", filters={'account': ['!=', 'VC-104']}, fields=['*'])
+		payment_method = frappe.get_list("VetPaymentMethod", fields=['*'])
+		# payment_method = frappe.get_list("VetPaymentMethod", filters={'account': ['!=', 'VC-104']}, fields=['*'])
 			
 		return {'pet_owner_list': pet_owner_list, 'pet_list': pet_list, 'task_list': task_list, 'product_list': product_list, 'warehouse_list': warehouse_list, 'payment_method_list': payment_method}
 		
@@ -980,8 +980,8 @@ def edit_payment(name, method):
 		return {'error': 'Gagal mengubah payment'}
 		
 def edit_payment_journal_entry(customer_invoice, amount, old_payment_method, new_payment_method):
-	old_payment_method_account = frappe.db.get_value('VetPaymentMethod', {'name': old_payment_method}, 'account')
-	new_payment_method_account =  frappe.db.get_value('VetPaymentMethod', {'name': new_payment_method}, 'account')
+	old_payment_method_account = frappe.db.get_value('VetPaymentMethod', {'method_name': old_payment_method}, 'account')
+	new_payment_method_account =  frappe.db.get_value('VetPaymentMethod', {'method_name': new_payment_method}, 'account')
 	journal_entry_search = frappe.get_list('VetJournalEntry', filters={'reference': customer_invoice}, fields=['name'])
 	journal_item_name = False
 	for je in journal_entry_search:
@@ -1488,9 +1488,9 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 		sales_journal = frappe.db.get_value('VetJournal', {'name': 'PAY'}, 'name')
 	else:
 		sales_journal = create_payment_journal()
-	# print(method)
+
 	if method: 
-		debit_account = frappe.db.get_value('VetPaymentMethod', {'name': method}, 'account')
+		debit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
 	else:
 		debit_account = frappe.db.get_value('VetCoa', {'account_code': '1-11101'}, 'name')
 
@@ -1619,7 +1619,7 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 	tz = pytz.timezone("Asia/Jakarta")
 	invoice = frappe.get_doc('VetCustomerInvoice', invoice_name)
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
-	credit_account = frappe.db.get_value('VetPaymentMethod', {'name': method}, 'account')
+	credit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
 	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Customer'}, 'account')
 	if not deposit_account:
 		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')
