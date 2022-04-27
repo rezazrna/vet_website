@@ -195,8 +195,7 @@ def get_pet_owner_by_name(name):
 				total_visit += visit
 				total_spending += (spending + order_spending)
 				p.update({'hewan_jenis_label': pet_type.type_name, 'type_name': pet_type.type_name, 'visit': str(visit), 'spending': str(spending)})
-			credits = frappe.get_list('VetOwnerCredit', filters={'pet_owner': o.name}, fields=['*'], order_by="creation asc")
-			o.update({'pets': pets, 'total_spending': total_spending, 'total_visit': total_visit, 'petType': petTypeAll, 'total_credit': total_credit, 'total_remaining': total_remaining, 'total_debt': total_debt, 'credits': credits})
+			o.update({'pets': pets, 'total_spending': total_spending, 'total_visit': total_visit, 'petType': petTypeAll, 'total_credit': total_credit, 'total_remaining': total_remaining, 'total_debt': total_debt})
 		return owner
 		
 	except PermissionError as e:
@@ -774,98 +773,106 @@ def set_owner_credit_total(name, supplier=False):
 					owner_credit.debt = debt
 					owner_credit.debt_mutation = -o['nominal']
 			
-			elif debt >= o['nominal'] and o['nominal'] > 0 and o['type'] != 'Refund':
+			elif debt >= o['nominal'] and o['nominal'] > 0:
 				# Nominal lebik kecil dari utang
 				# print("Nominal lebik kecil dari utang")
-				purchase_search = frappe.get_list('VetPurchase', filters={'name': owner_credit.purchase}, fields=['name'])
-				if len(purchase_search) > 0:
-					# print("Ada Purchase")
-					purchase = frappe.get_doc('VetPurchase', owner_credit.purchase)
-					purchase_debt = get_purchase_debit_credit(owner_credit.name)
-					purchase_debt = -purchase_debt if purchase_debt < 0 else 0
-					excess = 0
-					if purchase_debt > 0:
-						excess = o['nominal'] - purchase_debt
-					excess = excess if excess > 0 else 0
-					debt_mutation = o['nominal'] - excess
-					
-					# print(excess)
-					# print(debt_mutation)
-
-					# if excess >= 0:
-					# 	owner_credit.credit = 0
-					# 	credit += excess
-					# 	owner_credit.credit = credit
-					# 	owner_credit.credit_mutation = excess
-						
-					owner_credit.debt = 0
-					debt -= debt_mutation
+				if o['type'] != 'Refund':
 					owner_credit.debt = debt
-					owner_credit.debt_mutation = -debt_mutation
-				
+					owner_credit.debt_mutation = 0
 				else:
-					owner_credit.debt = 0
-					debt -= o['nominal']
-					owner_credit.debt = debt
-					owner_credit.debt_mutation = -o['nominal']
-				
+					purchase_search = frappe.get_list('VetPurchase', filters={'name': owner_credit.purchase}, fields=['name'])
+					if len(purchase_search) > 0:
+						# print("Ada Purchase")
+						purchase = frappe.get_doc('VetPurchase', owner_credit.purchase)
+						purchase_debt = get_purchase_debit_credit(owner_credit.name)
+						purchase_debt = -purchase_debt if purchase_debt < 0 else 0
+						excess = 0
+						if purchase_debt > 0:
+							excess = o['nominal'] - purchase_debt
+						excess = excess if excess > 0 else 0
+						debt_mutation = o['nominal'] - excess
+						
+						# print(excess)
+						# print(debt_mutation)
+
+						# if excess >= 0:
+						# 	owner_credit.credit = 0
+						# 	credit += excess
+						# 	owner_credit.credit = credit
+						# 	owner_credit.credit_mutation = excess
+							
+						owner_credit.debt = 0
+						debt -= debt_mutation
+						owner_credit.debt = debt
+						owner_credit.debt_mutation = -debt_mutation
+					
+					else:
+						owner_credit.debt = 0
+						debt -= o['nominal']
+						owner_credit.debt = debt
+						owner_credit.debt_mutation = -o['nominal']
+					
 				owner_credit.credit = credit
-			elif debt < o['nominal'] and o['nominal'] > 0 and o['type'] != 'Refund':
+			elif debt < o['nominal'] and o['nominal'] > 0:
 				# Nominal lebik besar dari utang
 				# print("Nominal lebik besar dari utang")
-				excess = o['nominal'] - debt
-				excess = excess if excess > 0 else 0
-				debt_mutation = o['nominal'] - excess
-				
-				purchase_search = frappe.get_list('VetPurchase', filters={'name': owner_credit.purchase}, fields=['name'])
-				invoice_search = frappe.get_list('VetCustomerInvoice', filters={'name': owner_credit.invoice}, fields=['name'])
-				
-				if len(purchase_search) > 0:
-					# print("Ada Purchase")
-					purchase = frappe.get_doc('VetPurchase', owner_credit.purchase)
-					purchase_debt = get_purchase_debit_credit(owner_credit.name)
-					purchase_debt = -purchase_debt if purchase_debt < 0 else 0
-					excess = 0
-					if purchase_debt > 0:
-						excess = o['nominal'] - purchase_debt
+				if o['type'] != 'Refund':
+					owner_credit.debt = debt
+					owner_credit.debt_mutation = 0
+				else:
+					excess = o['nominal'] - debt
 					excess = excess if excess > 0 else 0
 					debt_mutation = o['nominal'] - excess
-					owner_credit.credit = credit
-
-					# if excess >= 0:
-					# 	owner_credit.credit = 0
-					# 	credit += excess
-					# 	owner_credit.credit = credit
-					# 	owner_credit.credit_mutation = excess
-						
-					owner_credit.debt = 0
-					debt -= debt_mutation
-					owner_credit.debt = debt
-					owner_credit.debt_mutation = -debt_mutation
-
-				elif len(invoice_search) > 0:
-					owner_credit.debt = 0
-					debt -= debt_mutation
-					owner_credit.debt = debt
-					owner_credit.debt_mutation = -debt_mutation
 					
-					invoice = frappe.get_doc('VetCustomerInvoice', owner_credit.invoice)
-					paid = sum([p.jumlah for p in invoice.pembayaran])
-					if paid > invoice.total:
-						owner_credit.exchange = excess
-						
-					owner_credit.credit = credit
-				
-				else:
-					owner_credit.credit = 0
-					credit += excess
-					owner_credit.credit = credit
-					owner_credit.credit_mutation = excess
+					purchase_search = frappe.get_list('VetPurchase', filters={'name': owner_credit.purchase}, fields=['name'])
+					invoice_search = frappe.get_list('VetCustomerInvoice', filters={'name': owner_credit.invoice}, fields=['name'])
 					
-					owner_credit.debt = 0
-					debt -= debt_mutation
-					owner_credit.debt = debt
-					owner_credit.debt_mutation = -debt_mutation
+					if len(purchase_search) > 0:
+						# print("Ada Purchase")
+						purchase = frappe.get_doc('VetPurchase', owner_credit.purchase)
+						purchase_debt = get_purchase_debit_credit(owner_credit.name)
+						purchase_debt = -purchase_debt if purchase_debt < 0 else 0
+						excess = 0
+						if purchase_debt > 0:
+							excess = o['nominal'] - purchase_debt
+						excess = excess if excess > 0 else 0
+						debt_mutation = o['nominal'] - excess
+						owner_credit.credit = credit
+
+						# if excess >= 0:
+						# 	owner_credit.credit = 0
+						# 	credit += excess
+						# 	owner_credit.credit = credit
+						# 	owner_credit.credit_mutation = excess
+							
+						owner_credit.debt = 0
+						debt -= debt_mutation
+						owner_credit.debt = debt
+						owner_credit.debt_mutation = -debt_mutation
+
+					elif len(invoice_search) > 0:
+						owner_credit.debt = 0
+						debt -= debt_mutation
+						owner_credit.debt = debt
+						owner_credit.debt_mutation = -debt_mutation
+						
+						invoice = frappe.get_doc('VetCustomerInvoice', owner_credit.invoice)
+						paid = sum([p.jumlah for p in invoice.pembayaran])
+						if paid > invoice.total:
+							owner_credit.exchange = excess
+							
+						owner_credit.credit = credit
+					
+					else:
+						owner_credit.credit = 0
+						credit += excess
+						owner_credit.credit = credit
+						owner_credit.credit_mutation = excess
+						
+						owner_credit.debt = 0
+						debt -= debt_mutation
+						owner_credit.debt = debt
+						owner_credit.debt_mutation = -debt_mutation
 				
 		elif o['type'] == 'Sales' or o['type'] == 'Purchase':
 			if o['type'] == 'Sales':
