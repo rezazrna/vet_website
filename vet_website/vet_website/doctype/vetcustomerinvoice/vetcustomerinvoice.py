@@ -1541,11 +1541,11 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 								
 								if float(current_quantity) >= pws.quantity:
 									current_quantity = float(current_quantity) - pws.quantity
-									amount += purchase_product.price * math.ceil(pws.quantity)
-									# amount += purchase_product.price * pws.quantity
+									# amount += purchase_product.price * math.ceil(pws.quantity)
+									amount += purchase_product.price * pws.quantity
 								else:
-									amount += purchase_product.price * math.ceil(current_quantity)
-									# amount += purchase_product.price * current_quantity
+									# amount += purchase_product.price * math.ceil(current_quantity)
+									amount += purchase_product.price * current_quantity
 									current_quantity = 0
 
 						same_input_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_input_account), False)

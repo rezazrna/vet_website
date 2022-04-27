@@ -290,7 +290,7 @@ class CustomerInvoice extends React.Component {
 	        if (Object.keys(new_data.invoice_line[service][i]).length === 0) {
                 new_data.invoice_line[service].push({})
             }
-            new_data.invoice_line[service][i][name] = value
+            new_data.invoice_line[service][i][name] = value || 0
             
             if (new_data.invoice_line[service][i]['product']) {
                 frappe.call({
@@ -304,9 +304,9 @@ class CustomerInvoice extends React.Component {
                             ci.refresh_subtotal()
                         } else if (r.message == false) {
                             if (new_data.invoice_line[service][i].unit_price) {
-                                new_data.invoice_line[service][i].total = new_data.invoice_line[service][i].unit_price * Math.ceil(parseFloat(value)) - ((new_data.invoice_line[service][i].discount || 0) / 100 * (new_data.invoice_line[service][i].unit_price * Math.ceil(parseFloat(value))))
+                                new_data.invoice_line[service][i].total = new_data.invoice_line[service][i].unit_price * Math.ceil(parseFloat(value || 0)) - ((new_data.invoice_line[service][i].discount || 0) / 100 * (new_data.invoice_line[service][i].unit_price * Math.ceil(parseFloat(value || 0))))
                                 // new_data.invoice_line[service][i].total = new_data.invoice_line[service][i].unit_price * parseFloat(value) - ((new_data.invoice_line[service][i].discount || 0) / 100 * (new_data.invoice_line[service][i].unit_price * parseFloat(value)))
-                            }
+                            }  
                 	        ci.setState({data: new_data})
                 	        ci.refresh_subtotal()
                         }
