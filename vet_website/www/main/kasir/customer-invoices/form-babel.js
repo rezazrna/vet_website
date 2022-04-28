@@ -2346,9 +2346,14 @@ class CustomerInvoiceLinesRow extends React.Component {
                 var cursor = {cursor: 'pointer'}
                 deleteButton = <i className="fa fa-trash" style={cursor} onClick={this.props.deleteRow}/>
             }
-        } else if (is_refund) {
+        } else if (is_refund && status != 'Refund') {
             quantity = <input required={required} autoComplete="off" placeholder="0" name='quantity' id="quantity" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} defaultValue={Math.ceil(item.quantity)||''}/>
             discount = <input placeholder="0" name='discount' id="discount" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} defaultValue={item.discount||''}/>
+
+            if (item.product && item.quantity) {
+                var cursor = {cursor: 'pointer'}
+                deleteButton = <i className="fa fa-trash" style={cursor} onClick={this.props.deleteRow}/>
+            }
         }
         console.log('row')
         console.log(item.quantity_in_warehouse)
