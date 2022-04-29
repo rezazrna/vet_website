@@ -1134,6 +1134,7 @@ def submit_refund(data):
 				else:
 					invoice_line = frappe.get_doc('VetCustomerInvoiceLine', t.get('name'))
 					invoice_line.quantity = t.get('quantity')
+					invoice_line.total = t.get('total')
 					invoice_line.save()
 					frappe.db.commit()
 			invoice.reload()
