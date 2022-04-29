@@ -1129,7 +1129,7 @@ def submit_refund(data):
 			invoice = frappe.get_doc('VetCustomerInvoice', data_json.get('name'))
 			
 			for t in data_json.get('invoice_line'):
-				if t.get('is_delete', False):
+				if t.get('deleted', False):
 					frappe.delete_doc('VetCustomerInvoiceLine', t.get('name'))
 				else:
 					invoice_line = frappe.get_doc('VetCustomerInvoiceLine', t.get('name'))
