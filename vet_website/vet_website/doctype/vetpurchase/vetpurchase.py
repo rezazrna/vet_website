@@ -1080,11 +1080,17 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 	tz = pytz.timezone("Asia/Jakarta")
 	#create payment choose payment journal
 	# purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
-	
-	if check_payment_journal():
-		purchase_journal = frappe.db.get_value('VetJournal', {'name': 'PPAY'}, 'name')
+
+	if refund:
+		if check_refund_journal():
+			purchase_journal = frappe.db.get_value('VetJournal', {'name': 'PREFUND'}, 'name')
+		else:
+			purchase_journal = create_refund_journal()
 	else:
-		purchase_journal = create_payment_journal()
+		if check_payment_journal():
+			purchase_journal = frappe.db.get_value('VetJournal', {'name': 'PPAY'}, 'name')
+		else:
+			purchase_journal = create_payment_journal()
 
 	if refund:
 		debit_account = frappe.db.get_value('VetCoa', {'account_code': '1-17002'}, 'name')
@@ -1228,3 +1234,19 @@ def create_payment_journal():
 	frappe.db.commit()
 	
 	return payment_journal.name
+
+def check_refund_journal():
+	refund_journal = frappe.get_list('VetJournal', filters={'name': 'PREFUND'}, fields=['name'])
+	return len(refund_journal) > 0
+
+def create_refund_journal():
+	refund_journal = frappe.new_doc('VetJournal')
+	refund_journal.update({
+		'code': 'PREFUND',
+		'type': 'General',
+		'journal_name': 'Purchase Refund Journal',
+	})
+	refund_journal.insert()
+	frappe.db.commit()
+	
+	return refund_journal.name

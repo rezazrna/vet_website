@@ -40,8 +40,8 @@ def get_all_journal(filters=None):
 	try:
 		journal = frappe.get_list("VetJournal", filters=journal_filters, fields=['*'], order_by=default_sort)
 		for j in journal:
-		    j['default_debit_account_name'] = frappe.db.get_value('VetCoa', j.default_debit_account, 'account_name')
-		    j['default_credit_account_name'] = frappe.db.get_value('VetCoa', j.default_credit_account, 'account_name')
+			j['default_debit_account_name'] = frappe.db.get_value('VetCoa', j.default_debit_account, 'account_name')
+			j['default_credit_account_name'] = frappe.db.get_value('VetCoa', j.default_credit_account, 'account_name')
 		
 		return journal
 		
