@@ -108,8 +108,8 @@ def get_sessions_list(filters=None):
 							r['credit_mutation_return'] = 0
 							cash_payment.append(r)
 							
-			credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz).today()], ['type', '=', 'Payment']]
-			sales_credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz).today()], ['type', '=', 'Sales']]
+			credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz)], ['type', '=', 'Payment']]
+			sales_credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz)], ['type', '=', 'Sales']]
 			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by='creation desc')
 			sales_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=sales_credit_filters, fields=['*'], order_by='creation desc')
 			
@@ -180,7 +180,7 @@ def get_sessions_list(filters=None):
 		# if len(journal_out) == 0:
 		# 	journal_out = frappe.get_list("VetCoa", filters={'account_parent': '6-0000'}, fields=["*"])
 		
-		return {'session': session, 'journal': journal, 'journal_out': journal, 'datalength': datalength, 'today': datetime.now(tz).today()}
+		return {'session': session, 'journal': journal, 'journal_out': journal, 'datalength': datalength, 'today': datetime.now(tz)}
 		
 	except PermissionError as e:
 		return {'error': e}
