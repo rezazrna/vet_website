@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 import json
+import pytz
 from frappe.model.document import Document
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
@@ -100,6 +101,7 @@ def get_asset(name=None):
 @frappe.whitelist()
 def submit_asset(data):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		data_json = json.loads(data)
 		
 		if data_json.get('name') :
@@ -135,7 +137,7 @@ def submit_asset(data):
 			
 		depreciation_value = original_value / duration
 		
-		r = relativedelta(datetime.today(), acquistion_date)
+		r = relativedelta(datetime.now(tz).today(), acquistion_date)
 		
 		book_value = float(data_json.get('original_value')) - (float(r.months + (12 * r.years)) * depreciation_value)
 		
@@ -161,7 +163,7 @@ def submit_asset(data):
 			asset.reload()
 			
 			i = 1
-			while acquistion_date + relativedelta(months=i) <= datetime.today() and i <= duration:
+			while acquistion_date + relativedelta(months=i) <= datetime.now(tz).today() and i <= duration:
 				new_depreciation = frappe.new_doc('VetDepreciationList')
 				new_depreciation.update({
 					'reference': data_json.get('asset_name') + ' ' + '(' + str(i) + '/' + str(int(duration)) + ')',
@@ -197,6 +199,7 @@ def submit_asset(data):
 		
 @frappe.whitelist()
 def sell_asset(data):
+	tz = pytz.timezone("Asia/Jakarta")
 	try:
 		data_json = json.loads(data)
 		
@@ -206,7 +209,7 @@ def sell_asset(data):
 		new_depreciation = frappe.new_doc('VetDepreciationList')
 		new_depreciation.update({
 			'reference': 'Sell/Dispose',
-			'depreciation_date': datetime.today(),
+			'depreciation_date': datetime.now(tz).today(),
 			'depreciation_value': float(asset.book_value) - float(data_json.get('amount')),
 			'cumulative_depreciation': data_json.get('amount'),
 			'parent': asset.name, 
@@ -236,7 +239,7 @@ def sell_asset(data):
 				)
 		
 		journal_entry =  {
-			'date': datetime.today().strftime('%Y-%m-%d'),
+			'date': datetime.now(tz).today().strftime('%Y-%m-%d'),
 			'journal': '8137c6f684',
 			'period': asset.period.strftime('%m/%Y'),
 			'reference': asset.name,

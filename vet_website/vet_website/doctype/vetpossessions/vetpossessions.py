@@ -24,6 +24,7 @@ class VetPosSessions(Document):
 
 @frappe.whitelist()
 def get_sessions_list(filters=None):
+	tz = pytz.timezone("Asia/Jakarta")
 	default_sort = "opening_session desc"
 	session_filters = []
 	session_or_filters = []
@@ -107,8 +108,8 @@ def get_sessions_list(filters=None):
 							r['credit_mutation_return'] = 0
 							cash_payment.append(r)
 							
-			credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.today()], ['type', '=', 'Payment']]
-			sales_credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.today()], ['type', '=', 'Sales']]
+			credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz).today()], ['type', '=', 'Payment']]
+			sales_credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz).today()], ['type', '=', 'Sales']]
 			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by='creation desc')
 			sales_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=sales_credit_filters, fields=['*'], order_by='creation desc')
 			
@@ -212,7 +213,7 @@ def create_session():
 						r['debt_mutation'] = 0
 						r['credit_mutation'] = 0
 						cash_payment.append(r)
-			credit_filters = [['date', '>=', last_session[0]['opening_session']], ['date', '<=', last_session[0]['closing_session'] or datetime.today()], ['type', '=', 'Payment']]
+			credit_filters = [['date', '>=', last_session[0]['opening_session']], ['date', '<=', last_session[0]['closing_session'] or datetime.now(tz).today()], ['type', '=', 'Payment']]
 			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by='creation desc')
 			for ow in owner_credit_list:
 				method_name = frappe.db.get_value('VetPaymentMethod', ow['metode_pembayaran'], 'method_name')
@@ -370,6 +371,7 @@ def pos_add_order(data):
 	
 @frappe.whitelist()
 def kas_masuk_keluar(session, list_kas):
+	tz = pytz.timezone("Asia/Jakarta")
 	try:
 		kas = json.loads(list_kas)
 	except:
@@ -386,7 +388,7 @@ def kas_masuk_keluar(session, list_kas):
 	
 	if kas['type'] == 'in':
 		kas_data = {}
-		kas_data.update({'jumlah': kas['jumlah'], 'keterangan': kas['keterangan'], 'kas_date': datetime.today(), 'parent': session, 'parenttype': 'VetPosSessions', 'parentfield': 'kas_masuk'})
+		kas_data.update({'jumlah': kas['jumlah'], 'keterangan': kas['keterangan'], 'kas_date': datetime.now(tz).today(), 'parent': session, 'parenttype': 'VetPosSessions', 'parentfield': 'kas_masuk'})
 		
 		new_kas = frappe.new_doc("VetPosSessionsKasMasuk")
 		new_kas.update(kas_data)
@@ -409,7 +411,7 @@ def kas_masuk_keluar(session, list_kas):
 			sales_journal = create_transfer_journal()
 	else:
 		kas_data = {}
-		kas_data.update({'jumlah': kas['jumlah'], 'keterangan': kas['keterangan'], 'kas_date': datetime.today(), 'parent': session, 'parenttype': 'VetPosSessions', 'parentfield': 'kas_keluar'})
+		kas_data.update({'jumlah': kas['jumlah'], 'keterangan': kas['keterangan'], 'kas_date': datetime.now(tz).today(), 'parent': session, 'parenttype': 'VetPosSessions', 'parentfield': 'kas_keluar'})
 		
 		new_kas = frappe.new_doc("VetPosSessionsKasKeluar")
 		new_kas.update(kas_data)

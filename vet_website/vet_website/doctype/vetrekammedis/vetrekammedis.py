@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 import json
+import pytz
 from frappe.model.document import Document
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -127,6 +128,7 @@ def get_all_diagnose():
 @frappe.whitelist()
 def get_rekam_medis(name):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		analisa_layanan_obat = []
 		list_product = []
 		rekam_medis_search = frappe.get_list("VetRekamMedis", filters={'name': name}, fields=["*"])
@@ -141,7 +143,7 @@ def get_rekam_medis(name):
 		if len(marker_list):
 			marker = frappe.get_doc("VetMarker", rekam_medis.marker)
 		pet = frappe.get_list('VetPet', filters={'name': rekam_medis.pet}, fields=['status', 'birth_date'])
-		now = date.today()
+		now = date.now(tz).today()
 		birth_date = pet[0].birth_date
 		if birth_date:
 			delta = relativedelta(now, birth_date)
