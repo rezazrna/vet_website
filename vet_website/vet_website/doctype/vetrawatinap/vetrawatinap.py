@@ -588,6 +588,7 @@ def update_invoice(products, rawat_inap):
 @frappe.whitelist()
 def rawat_inap_return(name):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		rawat_inap_search = frappe.get_list('VetRawatInap', filters={'name': name}, fields=['register_number'])
 		if len(rawat_inap_search):
 			kandang_search = frappe.get_list('VetKandang', filters={'register_number': rawat_inap_search[0].register_number}, fields=['name'])
@@ -608,7 +609,7 @@ def rawat_inap_return(name):
 				if product:
 					product_invoice_data = {
 						'product': product[0],
-						'quantity': (dt.today() - rawat_inap.creation).days if (dt.today() - rawat_inap.creation).days > 0 else 1,
+						'quantity': (dt.now(tz).today() - rawat_inap.creation).days if (dt.now(tz).today() - rawat_inap.creation).days > 0 else 1,
 					}
 					
 					update_invoice(json.dumps([product_invoice_data]), rawat_inap.name)

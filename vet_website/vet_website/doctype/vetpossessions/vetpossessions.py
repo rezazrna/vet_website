@@ -113,6 +113,8 @@ def get_sessions_list(filters=None):
 			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by='creation desc')
 			sales_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=sales_credit_filters, fields=['*'], order_by='creation desc')
 			
+			s['owner_credit_list'] = owner_credit_list
+
 			for ow in owner_credit_list:
 				# print(ow.metode_pembayaran)
 				method_name = frappe.db.get_value('VetPaymentMethod', ow['metode_pembayaran'], 'method_name')
@@ -178,7 +180,7 @@ def get_sessions_list(filters=None):
 		# if len(journal_out) == 0:
 		# 	journal_out = frappe.get_list("VetCoa", filters={'account_parent': '6-0000'}, fields=["*"])
 		
-		return {'session': session, 'journal': journal, 'journal_out': journal, 'datalength': datalength}
+		return {'session': session, 'journal': journal, 'journal_out': journal, 'datalength': datalength, 'today': datetime.now(tz).today()}
 		
 	except PermissionError as e:
 		return {'error': e}
