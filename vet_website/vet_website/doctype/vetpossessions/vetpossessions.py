@@ -112,8 +112,6 @@ def get_sessions_list(filters=None):
 			sales_credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz)], ['type', '=', 'Sales']]
 			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by='creation desc')
 			sales_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=sales_credit_filters, fields=['*'], order_by='creation desc')
-			
-			s['owner_credit_list'] = owner_credit_list
 
 			for ow in owner_credit_list:
 				# print(ow.metode_pembayaran)
@@ -180,7 +178,7 @@ def get_sessions_list(filters=None):
 		# if len(journal_out) == 0:
 		# 	journal_out = frappe.get_list("VetCoa", filters={'account_parent': '6-0000'}, fields=["*"])
 		
-		return {'session': session, 'journal': journal, 'journal_out': journal, 'datalength': datalength, 'today': datetime.now(tz)}
+		return {'session': session, 'journal': journal, 'journal_out': journal, 'datalength': datalength}
 		
 	except PermissionError as e:
 		return {'error': e}
@@ -215,7 +213,7 @@ def create_session():
 						r['debt_mutation'] = 0
 						r['credit_mutation'] = 0
 						cash_payment.append(r)
-			credit_filters = [['date', '>=', last_session[0]['opening_session']], ['date', '<=', last_session[0]['closing_session'] or datetime.now(tz).today()], ['type', '=', 'Payment']]
+			credit_filters = [['date', '>=', last_session[0]['opening_session']], ['date', '<=', last_session[0]['closing_session'] or datetime.now(tz)], ['type', '=', 'Payment']]
 			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by='creation desc')
 			for ow in owner_credit_list:
 				method_name = frappe.db.get_value('VetPaymentMethod', ow['metode_pembayaran'], 'method_name')
@@ -390,7 +388,7 @@ def kas_masuk_keluar(session, list_kas):
 	
 	if kas['type'] == 'in':
 		kas_data = {}
-		kas_data.update({'jumlah': kas['jumlah'], 'keterangan': kas['keterangan'], 'kas_date': datetime.now(tz).today(), 'parent': session, 'parenttype': 'VetPosSessions', 'parentfield': 'kas_masuk'})
+		kas_data.update({'jumlah': kas['jumlah'], 'keterangan': kas['keterangan'], 'kas_date': datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S"), 'parent': session, 'parenttype': 'VetPosSessions', 'parentfield': 'kas_masuk'})
 		
 		new_kas = frappe.new_doc("VetPosSessionsKasMasuk")
 		new_kas.update(kas_data)
@@ -413,7 +411,7 @@ def kas_masuk_keluar(session, list_kas):
 			sales_journal = create_transfer_journal()
 	else:
 		kas_data = {}
-		kas_data.update({'jumlah': kas['jumlah'], 'keterangan': kas['keterangan'], 'kas_date': datetime.now(tz).today(), 'parent': session, 'parenttype': 'VetPosSessions', 'parentfield': 'kas_keluar'})
+		kas_data.update({'jumlah': kas['jumlah'], 'keterangan': kas['keterangan'], 'kas_date': datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S"), 'parent': session, 'parenttype': 'VetPosSessions', 'parentfield': 'kas_keluar'})
 		
 		new_kas = frappe.new_doc("VetPosSessionsKasKeluar")
 		new_kas.update(kas_data)

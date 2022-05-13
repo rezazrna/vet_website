@@ -143,7 +143,7 @@ def get_rekam_medis(name):
 		if len(marker_list):
 			marker = frappe.get_doc("VetMarker", rekam_medis.marker)
 		pet = frappe.get_list('VetPet', filters={'name': rekam_medis.pet}, fields=['status', 'birth_date'])
-		now = date.now(tz).today()
+		now = date.now(tz)
 		birth_date = pet[0].birth_date
 		if birth_date:
 			delta = relativedelta(now, birth_date)

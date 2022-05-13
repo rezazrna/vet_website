@@ -506,7 +506,7 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 				if session not in ['',False]: 
 					doc_session = frappe.get_doc('VetPosSessions', session)
 					credit_filters.append(['date', '>=', doc_session.opening_session])
-					credit_filters.append(['date', '<=', doc_session.closing_session or datetime.datetime.now(tz).today()])
+					credit_filters.append(['date', '<=', doc_session.closing_session or datetime.datetime.now(tz)])
 					credit_filters.append(['type', '=', 'Payment'])
 					pos_order = frappe.get_list('VetPosOrder', filters={'session': session}, fields=['name', 'order_date', 'owner_name'])
 					for po in pos_order:
