@@ -241,7 +241,7 @@ def create_session():
 		
 		new_session = frappe.new_doc('VetPosSessions')
 		new_session.update({
-			'opening_session': datetime.now(tz),
+			'opening_session': datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S"),
 			'responsible': frappe.session.user,
 			'opening_balance': last_session[0]['closing_balance'] if setor >= 0 else last_session[0]['closing_balance']+setor,
 			'closing_balance': last_session[0]['closing_balance'],
