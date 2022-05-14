@@ -609,7 +609,7 @@ def rawat_inap_return(name):
 				if product:
 					product_invoice_data = {
 						'product': product[0],
-						'quantity': (dt.now(tz).strftime("%Y-%m-%d %H:%M:%S") - rawat_inap.creation).days if (dt.now(tz).strftime("%Y-%m-%d %H:%M:%S") - rawat_inap.creation).days > 0 else 1,
+						'quantity': (dt.now(tz).today() - rawat_inap.creation).days if (dt.now(tz).today() - rawat_inap.creation).days > 0 else 1,
 					}
 					
 					update_invoice(json.dumps([product_invoice_data]), rawat_inap.name)

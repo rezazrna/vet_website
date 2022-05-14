@@ -7,7 +7,7 @@ import frappe
 import json
 import pytz
 from frappe.model.document import Document
-from datetime import date
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 class VetRekamMedis(Document):
@@ -143,7 +143,7 @@ def get_rekam_medis(name):
 		if len(marker_list):
 			marker = frappe.get_doc("VetMarker", rekam_medis.marker)
 		pet = frappe.get_list('VetPet', filters={'name': rekam_medis.pet}, fields=['status', 'birth_date'])
-		now = date.now(tz)
+		now = datetime.now(tz).today()
 		birth_date = pet[0].birth_date
 		if birth_date:
 			delta = relativedelta(now, birth_date)
