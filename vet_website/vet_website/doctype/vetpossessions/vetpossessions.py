@@ -356,7 +356,7 @@ def pos_add_order(data):
 	session = frappe.get_doc("VetPosSessions", data_json.get('session'))
 	session.transaction += total
 	total_kas_masuk = sum([i.jumlah for i in session.kas_masuk])
-	total_kas_keluar = sum([a.jumlah for a in session.kas_masuk])
+	total_kas_keluar = sum([a.jumlah for a in session.kas_keluar])
 	session.current_balance = session.opening_balance + session.transaction + total_kas_masuk - total_kas_keluar
 	session.difference = session.current_balance - session.closing_balance
 	session.save()
