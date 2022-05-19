@@ -276,6 +276,30 @@ class PosSessions extends React.Component {
         });
     }
 
+    goToPos() {
+        // var pathname = "/pos"
+        // window.location = pathname
+        frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                'doctype': 'VetPosSessions',
+                'filters': { 'status': 'In Progress' },
+                'fieldname': ['name']
+            },
+            callback: function (r) {
+                console.log(r)
+                if (!r.exc) {
+                    if (r.message.name) {
+                        window.location.href = "/pos"
+                    } else {
+                        frappe.msgprint('POS Session belum dibuka')
+                    }
+                    // code snippet
+                }
+            }
+        });
+    }
+
     render() {
         var write = checkPermission('VetPosSessions', this.state.currentUser, 'write')
         console.log(this.state)
@@ -300,7 +324,9 @@ class PosSessions extends React.Component {
 
         var row_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px' }
         var formStyle = { border: '1px solid #397DA6', color: '#397DA6' }
+        var btnOpenPos = { background: '#056EAD', color: '#FFFFFF'}
         var delete_button
+        var openPosButton = <button className="btn text-center fs12 fwbold mx-2" style={btnOpenPos} onClick={() => this.goToPos()}>Open POS</button>
 
         if (this.state.show_delete) {
             delete_button = <button className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={this.deleteRow}>Hapus</button>
@@ -312,6 +338,7 @@ class PosSessions extends React.Component {
                     <div className="row mx-0" style={row_style}>
                         <div className="col-auto">
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={this.createSession}><i className="fa fa-plus mr-2" />Tambah</button>
+                            {openPosButton}
                             {delete_button}
                         </div>
                         <div className="col">
@@ -474,11 +501,6 @@ class PosSessionsListRow extends React.Component {
         window.location = pathname
     }
 
-    goToPos() {
-        var pathname = "/pos"
-        window.location = pathname
-    }
-
     printPDF() {
         var pdfid = 'pdf' + this.props.session.name
         var format = [559, 794]
@@ -524,7 +546,6 @@ class PosSessionsListRow extends React.Component {
             btnMain: { border: '1px solid #037CC5', background: '#037CC5', color: '#FFF', width: '100%' },
             btnOrder: { border: '1px solid #126930', color: '#126930', width: '100%' },
             btnCloseSession: { border: '1px solid #056EAD', color: '#056EAD', width: '100%' },
-            btnOpenPos: { background: '#056EAD', color: '#FFFFFF', width: '100%' },
             border: { borderBottom: '1px solid #1B577B' },
             border2: { borderBottom: '1px solid #000' },
             cBlue: { color: '#1B577B' },
@@ -539,10 +560,6 @@ class PosSessionsListRow extends React.Component {
             fs11: { fontSize: 11 },
             cursor: { cursor: 'pointer' }
         }
-
-        var openPosButton = <div className="col-12 mt-2">
-            <button className="btn text-center fs14 py-2" style={styles.btnOpenPos} onClick={() => this.goToPos()}>Open POS</button>
-        </div>
 
         var non_cash_transaction = session.non_cash_payment.filter(item => !['Deposit Customer', 'Deposit Supplier', 'Cash'].includes(item.type)).reduce((total, p) => total += (p.value - (p.exchange + p.credit_mutation)), 0)
         var non_cash_deposit = session.non_cash_payment.filter(item => !['Deposit Customer', 'Deposit Supplier', 'Cash'].includes(item.type)).reduce((total, p) => total += p.credit_mutation, 0)
