@@ -166,7 +166,8 @@ def refund_order(name=None):
 			'subtotal': old_order.subtotal,
 			'tax': old_order.tax,
 			'total': old_order.total,
-			'is_refund': True
+			'is_refund': True,
+			'refund_from': old_order.name
 		})
 		order.insert()
 		frappe.db.commit()

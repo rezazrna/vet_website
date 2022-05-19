@@ -1046,21 +1046,31 @@ def decrease_product_valuation(product, quantity, uom=False, reverse=False):
 	return adjustment_value
 
 @frappe.whitelist()
-def increase_product_valuation(invoice_name, product, quantity, uom=False, refund_from=False):
+def increase_product_valuation(name, product, quantity, uom=False, refund_from=False):
 	adjustment_value = 0
 	line = []
+	isOrder = 'PO' in name
 	
 	product_uom = uom
 	if not product_uom:
 		product_uom = frappe.db.get_value('VetProduct', 'product_uom')
 
 	if refund_from:
-		line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': refund_from, 'product': product}, fields=['*'])
+		if isOrder:
+			line = frappe.get_list('VetPosOrderProduk', filters={'parent': refund_from, 'produk': product}, fields=['*'])
+		else:
+			line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': refund_from, 'product': product}, fields=['*'])
 	else:
-		line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': invoice_name, 'product': product}, fields=['*'])
+		if isOrder:
+			line = frappe.get_list('VetPosOrderProduk', filters={'parent': name, 'produk': product}, fields=['*'])
+		else:
+			line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': name, 'product': product}, fields=['*'])
 
 	if line:
-		purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': line[0]['name']}, fields=['*'], order_by="name desc")
+		if isOrder:
+			purchase_products = frappe.get_list('VetPosOrderPurchaseProducts', filters={'order_produk_name': line[0]['name']}, fields=['*'], order_by="name desc")
+		else:
+			purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': line[0]['name']}, fields=['*'], order_by="name desc")
 		
 		current_quantity = float(quantity)
 		current_uom = product_uom

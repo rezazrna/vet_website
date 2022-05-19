@@ -9,10 +9,13 @@ class PosOrder extends React.Component {
             'loaded': false,
             'data': {},
             'payment_method_list': [],
-            'currentUser': {}
+            'currentUser': {},
+            'show_refund': false,
         }
         
         this.navigationAction = this.navigationAction.bind(this)
+        this.deleteRow = this.deleteRow.bind(this)
+        this.changeInput = this.changeInput.bind(this)
     }
     
     componentDidMount() {
@@ -46,6 +49,14 @@ class PosOrder extends React.Component {
             callback: function(r){
                 if (r.message) {
                     console.log(r.message)
+                    r.message.order.produk.forEach(i => {
+                        var uom = r.message.uom_list.find(u => u.name == i.uom)
+                        i.uom_name = uom.uom_name
+                        
+                        if (r.message.order.is_refund) {
+                            i.quantity_default = i.quantity
+                        }
+                    })
                     gr.setState({'data': r.message.order, 'payment_method_list': r.message.payment_method_list, 'loaded': true});
                 }
             }
@@ -69,6 +80,60 @@ class PosOrder extends React.Component {
                 }
             }
         });
+    }
+
+    changeInput(e, i=false){
+        console.log(i)
+        var ci = this
+        var target = e.target
+        var name = target.name
+        var value = target.value
+        var new_data = Object.assign({}, this.state.data)
+        var selected = false
+        
+        if (['quantity'].includes(name)) {
+            new_data.produk[i][name] = value || 0
+
+            if (new_data.produk[i].price) {
+                new_data.produk[i].amount = new_data.produk[i].price * Math.ceil(parseFloat(value || 0)) - ((new_data.produk[i].disc || 0) / 100 * (new_data.produk[i].price * Math.ceil(parseFloat(value || 0))))
+                // new_data.invoice_line[service][i].total = new_data.invoice_line[service][i].unit_price * parseFloat(value) - ((new_data.invoice_line[service][i].discount || 0) / 100 * (new_data.invoice_line[service][i].unit_price * parseFloat(value)))
+            }  
+            ci.setState({data: new_data})
+            ci.refresh_subtotal()
+	    }
+    }
+
+    togglePopupRefund() {
+        var new_data = this.state.data
+        if (new_data.produk.filter(i => i.quantity).every(i => i.quantity_default >= i.quantity)) {
+            this.setState({'show_refund': !this.state.show_refund})
+        } else {
+            frappe.msgprint('Quantity Melebihi Batas')
+        }
+    }
+
+    deleteRow(i){
+        var new_data = this.state.data
+        if(new_data.produk[i].name != undefined){
+            new_data.produk[i].deleted = true
+        }else {
+            new_data.produk.splice(i, 1)
+        }
+        this.setState({data: new_data})
+        this.refresh_subtotal()
+    }
+
+    refresh_subtotal() {
+        var new_data = this.state.data
+        var order_produk = new_data.produk
+        new_data.subtotal = 0
+        order_produk.forEach(function(item, index) {
+            if (item.price && !item.deleted) {
+                new_data.subtotal += item.amount
+            }
+        })
+        new_data.total = new_data.subtotal
+        this.setState({data: new_data})
     }
     
     printPDF(e, mini=false) {
@@ -115,14 +180,26 @@ class PosOrder extends React.Component {
         var rowMinHeight = {minHeight: '64px'}
         var color = {color: '#056EAD', cursor: 'pointer'}
         var data = this.state.data
-        var refundBtn
+        var refundBtn, payRefundBtn, popup_refund
         var refund = checkPermission('VetPosOrder', this.state.currentUser, 'refund')
-        
+        var paid = data.payment.reduce((total, p) => total += p.value, 0)
+        var isDone = paid >= data.total
+
+        if (this.state.show_refund) {
+    	    popup_refund = <PopupRefund togglePopupRefund={() => this.togglePopupRefund()} name={this.state.data.name} subtotal={this.state.data.subtotal} total={this.state.data.total} paid={paid} order_produk={this.state.data.produk} payment_method_list={this.state.payment_method_list}/>
+    	}
+
         if (this.state.loaded) {
             console.log(this.state.data)
             if (!data.already_refund && !data.is_refund && refund) {
                 refundBtn = <div className="col-auto d-flex my-auto" key="2">
                 				<button type="button" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4" onClick={(e) => this.refundOrder(e)}>Refund</button>
+                			</div>
+            }
+
+            if (!isDone && data.is_refund) {
+                payRefundBtn = <div className="col-auto d-flex my-auto" key="3">
+                				<button type="button" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4" onClick={() => this.togglePopupRefund()}>Pay</button>
                 			</div>
             }
         	
@@ -132,6 +209,7 @@ class PosOrder extends React.Component {
     	            	<div style={bgstyle}>
     	            		<div className="row mx-0 flex-row-reverse" style={rowMinHeight}>
 		            			{refundBtn}
+                                {payRefundBtn}
 		            			<div className="col-auto d-flex my-auto"><button type="button" onClick={(e) => this.printPDF(e, true)} className="d-block btn btn-sm btn-outline-danger fs12 text-uppercase fwbold py-2 px-4">Print</button></div>
 		            			<span key="999" className="fs16 fw600 mr-auto my-auto" style={color} onClick={() => window.location.href='/main/kasir/pos-order'}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
 		            		</div>
@@ -142,7 +220,8 @@ class PosOrder extends React.Component {
     	            	    </div>
     	            	</div>
     	            	<PosOrderMainForm data={data}/>
-    	            	<PosOrderProducts data={data} payment_method_list={this.state.payment_method_list}/>
+    	            	<PosOrderProducts data={data} payment_method_list={this.state.payment_method_list} isDone={isDone} isRefund={data.is_refund} deleteRow={this.deleteRow} changeInput={this.changeInput}/>
+                        {popup_refund}
     	            </form>
         } else {
         	return <div className="row justify-content-center" key='0'>
@@ -215,7 +294,7 @@ class PosOrderProducts extends React.Component {
             var sl = this
             data.produk.forEach(function(item, index){
                 rows.push(
-                    <ProdukListRow key={index.toString()} item={item} status={data.status} index={index.toString()}/>
+                    <ProdukListRow key={index.toString()} item={item} index={index.toString()} isDone={sl.props.isDone} isRefund={sl.props.isRefund} deleteRow={() => sl.props.deleteRow(index)} changeInput={sl.props.changeInput}/>
                 )
             })
         }
@@ -320,7 +399,19 @@ class PosOrderPaymentRow extends React.Component {
 class ProdukListRow extends React.Component {
     render() {
         var item = this.props.item
+        var isDone = this.props.isDone
+        var isRefund = this.propd.isRefund
         var bgStyle = {background: '#F5FBFF'}
+        var quantity = <span className="my-auto">{item.quantity}</span>
+        var deleteButton
+
+        if (!isDone && isRefund) {
+            quantity = <input required={true} autoComplete="off" placeholder="0" name='quantity' id="quantity" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} defaultValue={Math.ceil(item.quantity)||''}/>
+            if (item.product && item.quantity) {
+                var cursor = {cursor: 'pointer'}
+                deleteButton = <i className="fa fa-trash" style={cursor} onClick={this.props.deleteRow}/>
+            }
+        }
         
         return(
             <div className="row mx-0">
@@ -330,7 +421,7 @@ class ProdukListRow extends React.Component {
                             <span className="my-auto">{item.nama_produk}</span>
                         </div>
         				<div className="col-1 text-center">
-        					<span className="my-auto">{item.quantity}</span>
+        					{quantity}
         				</div>
         				<div className="col text-center my-auto">
                             <span className="my-auto">{item.uom_name}</span>
@@ -348,6 +439,178 @@ class ProdukListRow extends React.Component {
         		</div>
         	</div>
         )
+    }
+}
+
+class PopupRefund extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state={
+            'data': {'name': this.props.name, 'order_produk': this.props.order_produk}
+        }
+        
+        this.handleInputChange = this.handleInputChange.bind(this)
+        this.submitRefund = this.submitRefund.bind(this)
+    }
+    
+    componentDidMount(){
+        if(this.props.total != undefined && this.props.paid != undefined){
+            var remaining = this.props.total - this.props.paid
+            var new_data = Object.assign({}, this.state.data)
+            new_data.refund = remaining.toLocaleString('id-ID')
+            this.setState({'data': new_data})
+        }
+    }
+    
+    handleInputChange(e) {
+        var name = e.target.name
+        var value = e.target.value
+        var new_data = this.state.data
+        if(name == 'refund' && value != ''){
+            var filtered = value.replace(/\D/g,'')
+            if(filtered != ''){
+                var formatted = parseInt(filtered).toLocaleString('id-ID')
+                new_data.refund = formatted
+            }
+        }
+        else {
+            new_data[name] = value
+        }
+        this.setState({data: new_data})
+    }
+    
+    
+    setPaymentMethod(value){
+        var new_data = Object.assign({}, this.state.data)
+        new_data.payment_method = value
+        this.setState({data: new_data})
+    }
+    
+    submitRefund(e) {
+        e.preventDefault()
+        var remaining = 0
+        
+        remaining = this.props.total - this.props.paid
+        if(['',undefined,null].includes(this.state.data.refund)){
+            var new_data = Object.assign({}, this.state.data)
+            new_data.refund = parseInt(remaining).toLocaleString('id-ID')
+            this.setState({'data': new_data})
+        }
+        else if (this.state.data.refund.replace(/\D/g,'') > remaining) {
+            frappe.msgprint('Hanya ada sisa ' + formatter.format(remaining))
+        } else if (this.state.data.payment_method != undefined) {
+            var new_data = this.state.data
+            var order_produk = new_data.order_produk
+            new_data.refund = parseInt(new_data.refund.replace(/\D/g,''))
+        
+            new_data.order_produk = order_produk.filter(i => i.produk && i.quantity)
+            new_data.order_produk.forEach(function(item, index) {
+                if (item.quantity == '0' || item.quantity == 0) {
+                    item.is_delete = true
+                }
+            })
+            
+            console.log(new_data)
+            
+            frappe.call({
+                type: "GET",
+                method:"vet_website.vet_website.doctype.vetpossessions.vetpossessions.submit_refund",
+                freeze: true,
+                args: {data: new_data},
+                callback: function(r){
+                    if (r.message) {
+                        console.log(r.message)
+                        window.location.reload()
+                    }
+                }
+            });
+        }
+    }
+    
+    render() {
+        var th = this
+        var maxwidth = {maxWidth: '480px', paddingTop: '100px'}
+        var colorStyle = {color: '#AD0505'}
+        var inputStyle = {background: '#FFCECE'}
+        var refundStyle = {background: '#AD0505', color: '#FFFFFF'}
+        var batalStyle = {color: '#AD0505', border: '1px solid #AD0505'}
+        var payStyle = {background: '#AD0505', color: '#FFFFFF'}
+        
+        var pm_buttons = []
+        this.props.payment_method_list.forEach(pm => {
+            var detail
+            var iconStyle = {maxWidth: 36, maxHeight: 36}
+            
+            if(th.state.data.payment_method != pm.method_name){
+                iconStyle.filter = "saturate(40000%) hue-rotate(240deg) brightness(75%)"
+            }
+            
+            if(pm.method_type == 'Cash'){
+                detail = (
+                <div className="row mx-n1">
+                    <div className="col-auto px-1 d-flex">
+                        <img src="/static/img/main/menu/method-cash.png" style={iconStyle} className="m-auto"/>
+                    </div>
+                    <div className="col px-1 d-flex">
+                        <span className="m-auto">{pm.method_name}</span>
+                    </div>
+                </div>
+                )
+            } else if(pm.method_type == 'Card'){
+                detail = (
+                <div className="row mx-n1">
+                    <div className="col-auto px-1 d-flex">
+                        <img src="/static/img/main/menu/method-card.png" style={iconStyle} className="m-auto"/>
+                    </div>
+                    <div className="col px-1 d-flex">
+                        <span className="m-auto">{pm.method_name}</span>
+                    </div>
+                </div>
+                )
+            } else if((pm.method_type == 'Deposit Customer') && this.props.total_credit > 0){
+                detail = (
+                <div className="row mx-n1">
+                    <div className="col-auto px-1 d-flex">
+                        <img src="/static/img/main/menu/method-deposit.png" style={iconStyle} className="m-auto"/>
+                    </div>
+                    <div className="col px-1">
+                        {pm.method_name}<br/>{formatter.format(this.props.total_credit)}
+                    </div>
+                </div>
+                )
+            } else {
+                return;
+            }
+            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.method_name? payStyle :batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.method_name)}>{detail}</button></div>)
+        })
+        
+        return (
+                <div className="menu-popup">
+                    <div className="container" style={maxwidth}>
+                        <div className="bg-white p-4">
+                            <div className="text-center fs20 fw600 mb-4" style={colorStyle}>
+                                REFUND
+                            </div>
+                            <div className="row mx-n1 my-3">
+                                {pm_buttons}
+                            </div>
+                            <div className="form-group">
+                                <span className="fs14 fw600 mb-2">Jumlah</span>
+                                <input required name='refund' id="refund" className="form-control border-0 fs22 fw600 mb-4" onChange={this.handleInputChange} value={this.state.data.refund||''} style={inputStyle}/>
+                            </div>
+                            <div className="row justify-content-center mb-2">
+                                <div className="col-auto d-flex mt-4">
+                                    <button className="btn btn-sm fs18 h-100 fwbold px-4" style={refundStyle} onClick={this.submitRefund}>Refund</button>
+                                </div>
+                                <div className="col-auto d-flex mt-4">
+                                    <button className="btn btn-sm fs18 h-100 fwbold px-4" style={batalStyle} onClick={this.props.togglePopupRefund}>Batal</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="menu-popup-close" onClick={this.props.togglePopupRefund}></div>
+                </div>
+            )
     }
 }
 
