@@ -182,14 +182,10 @@ class PosOrder extends React.Component {
         var data = this.state.data
         var refundBtn, payRefundBtn, popup_refund
         var refund = checkPermission('VetPosOrder', this.state.currentUser, 'refund')
-        var paid = data.payment.reduce((total, p) => total += p.value, 0)
-        var isDone = paid >= data.total
-
-        if (this.state.show_refund) {
-    	    popup_refund = <PopupRefund togglePopupRefund={() => this.togglePopupRefund()} name={this.state.data.name} subtotal={this.state.data.subtotal} total={this.state.data.total} paid={paid} order_produk={this.state.data.produk} payment_method_list={this.state.payment_method_list}/>
-    	}
 
         if (this.state.loaded) {
+            var paid = data.payment.reduce((total, p) => total += p.value, 0)
+            var isDone = paid >= data.total
             console.log(this.state.data)
             if (!data.already_refund && !data.is_refund && refund) {
                 refundBtn = <div className="col-auto d-flex my-auto" key="2">
@@ -201,6 +197,10 @@ class PosOrder extends React.Component {
                 payRefundBtn = <div className="col-auto d-flex my-auto" key="3">
                 				<button type="button" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4" onClick={() => this.togglePopupRefund()}>Pay</button>
                 			</div>
+            }
+
+            if (this.state.show_refund) {
+                popup_refund = <PopupRefund togglePopupRefund={() => this.togglePopupRefund()} name={this.state.data.name} subtotal={this.state.data.subtotal} total={this.state.data.total} paid={paid} order_produk={this.state.data.produk} payment_method_list={this.state.payment_method_list}/>
             }
         	
     		return <form onSubmit={this.formSubmit}>
@@ -286,16 +286,20 @@ class PosOrderProducts extends React.Component {
         var data = this.props.data
         var rows = []
         var payment_rows = []
-        var payment_list
+        var payment_list, deleteRow
         var blueStyle = {'color': '#1B577B'}
         var lineStyle = {'border': '1px solid #1B577B'}
+        var isDone = this.props.isDone
+        var isRefund = this.props.isRefund
         
         if (data.produk.length != 0){
             var sl = this
             data.produk.forEach(function(item, index){
-                rows.push(
-                    <ProdukListRow key={index.toString()} item={item} index={index.toString()} isDone={sl.props.isDone} isRefund={sl.props.isRefund} deleteRow={() => sl.props.deleteRow(index)} changeInput={sl.props.changeInput}/>
-                )
+                if (!item.deleted) {
+                    rows.push(
+                        <ProdukListRow key={index.toString()} item={item} index={index.toString()} isDone={sl.props.isDone} isRefund={sl.props.isRefund} deleteRow={() => sl.props.deleteRow(index)} changeInput={sl.props.changeInput}/>
+                    )
+                }
             })
         }
         
@@ -314,6 +318,11 @@ class PosOrderProducts extends React.Component {
         			{payment_rows}
 			    </div>
 			)
+        }
+
+        if (!isDone && isRefund) {
+            deleteRow = <div className="col-1 text-right">
+                        </div>
         }
         
         
@@ -338,6 +347,7 @@ class PosOrderProducts extends React.Component {
     				<div className="col text-right">
     					<span className="my-auto">Amount</span>
     				</div>
+                    {deleteRow}
     			</div>
     			{rows}
     			<div className="row mx-0 justify-content mt-4 fw600">
@@ -400,16 +410,21 @@ class ProdukListRow extends React.Component {
     render() {
         var item = this.props.item
         var isDone = this.props.isDone
-        var isRefund = this.propd.isRefund
+        var isRefund = this.props.isRefund
         var bgStyle = {background: '#F5FBFF'}
         var quantity = <span className="my-auto">{item.quantity}</span>
         var deleteButton
 
+        console.log(isDone)
+        console.log(isRefund)
+
         if (!isDone && isRefund) {
             quantity = <input required={true} autoComplete="off" placeholder="0" name='quantity' id="quantity" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} defaultValue={Math.ceil(item.quantity)||''}/>
-            if (item.product && item.quantity) {
+            if (item.produk && item.quantity) {
                 var cursor = {cursor: 'pointer'}
-                deleteButton = <i className="fa fa-trash" style={cursor} onClick={this.props.deleteRow}/>
+                deleteButton = <div className="col-1 text-center">
+                                <i className="fa fa-trash" style={cursor} onClick={this.props.deleteRow}/>
+                            </div>
             }
         }
         
@@ -435,6 +450,7 @@ class ProdukListRow extends React.Component {
         				<div className="col text-right my-auto">
         					<span className="my-auto">{formatter2.format(item.amount || 0)}</span>
         				</div>
+                        {deleteButton}
         			</div>
         		</div>
         	</div>
@@ -454,6 +470,8 @@ class PopupRefund extends React.Component {
     }
     
     componentDidMount(){
+        console.log(this.props.total)
+        console.log(this.props.paid)
         if(this.props.total != undefined && this.props.paid != undefined){
             var remaining = this.props.total - this.props.paid
             var new_data = Object.assign({}, this.state.data)
@@ -480,9 +498,10 @@ class PopupRefund extends React.Component {
     }
     
     
-    setPaymentMethod(value){
+    setPaymentMethod(value, method_type){
         var new_data = Object.assign({}, this.state.data)
         new_data.payment_method = value
+        new_data.method_type = method_type
         this.setState({data: new_data})
     }
     
@@ -581,7 +600,7 @@ class PopupRefund extends React.Component {
             } else {
                 return;
             }
-            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.method_name? payStyle :batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.method_name)}>{detail}</button></div>)
+            pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.method_name? payStyle :batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.method_name, pm.method_type)}>{detail}</button></div>)
         })
         
         return (

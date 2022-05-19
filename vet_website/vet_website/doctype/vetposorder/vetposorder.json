@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "POSORDER-.#",
  "creation": "2020-12-10 10:00:44.865806",
  "doctype": "DocType",
@@ -21,7 +20,8 @@
   "payment",
   "is_refund",
   "already_refund",
-  "refund_date"
+  "refund_date",
+  "refund_from"
  ],
  "fields": [
   {
@@ -117,10 +117,15 @@
    "fieldname": "refund_date",
    "fieldtype": "Datetime",
    "label": "refund date"
+  },
+  {
+   "fieldname": "refund_from",
+   "fieldtype": "Link",
+   "label": "refund from",
+   "options": "VetPosOrder"
   }
  ],
- "links": [],
- "modified": "2020-12-19 14:21:24.546748",
+ "modified": "2022-05-19 20:22:35.824237",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetPosOrder",

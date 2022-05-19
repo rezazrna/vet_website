@@ -141,7 +141,8 @@ def get_pos_order(name=None):
 		if name != None :
 			payment_method_list = frappe.get_list('VetPaymentMethod', fields=['*'])
 			order = frappe.get_doc('VetPosOrder', name)
-			res = {'order': order, 'payment_method_list': payment_method_list}
+			uom_list = frappe.get_list("VetUOM", fields=['*'])
+			res = {'order': order, 'payment_method_list': payment_method_list, 'uom_list': uom_list}
 		else:
 			res = {}
 		    

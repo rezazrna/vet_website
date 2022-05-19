@@ -598,16 +598,17 @@ def submit_refund(data):
 					order_produk.amount = t.get('total')
 					order_produk.save()
 					frappe.db.commit()
-			# order.reload()
+			order.reload()
 			order.subtotal = sum(i.price * math.ceil(i.quantity) - ((i.disc or 0) / 100 * (i.price * math.ceil(i.quantity))) for i in order.produk)
 			# invoice.subtotal = sum(i.unit_price * i.quantity - ((i.discount or 0) / 100 * (i.unit_price * i.quantity)) for i in invoice.invoice_line)
 			order.total = order.subtotal
 			order.save()
 			pay = frappe.new_doc("VetPosOrderPayment")
 			pay.update({
-				'jumlah': data_json.get('refund'),
+				'value': data_json.get('refund'),
 				# 'tanggal': dt.strftime(dt.now(tz), "%Y-%m-%d"),
-				'metode_pembayaran': data_json.get('payment_method'),
+				'type': data_json.get('payment_method'),
+				'method_type': data_json.get('method_type'),
 				'pos_session': order.session,
 				'parent': order.name,
 				'parenttype': 'VetPosOrder',
@@ -635,7 +636,7 @@ def submit_refund(data):
 				session = frappe.get_doc('VetPosSessions', search_active_session[0]['name'])
 				total_kas_masuk = sum([i.jumlah for i in session.kas_masuk])
 				total_kas_keluar = sum([q.jumlah for q in session.kas_keluar])
-				session.transaction -= float(pay.jumlah)
+				session.transaction -= float(pay.value)
 				session.current_balance = session.transaction + session.opening_balance + total_kas_masuk - total_kas_keluar
 				session.difference = session.current_balance - session.closing_balance
 				session.save()
@@ -702,7 +703,7 @@ def create_sales_payment_journal_items(order_name, amount, refund=False, deposit
 			print('products')
 			print(products)
 			for pp in products:
-				product = frappe.get_doc('VetProduct', pp.product)
+				product = frappe.get_doc('VetProduct', pp.produk)
 				product_category = frappe.get_doc('VetProductCategory', product.product_category)
 				print('category')
 				print(product_category.stockable)
@@ -710,7 +711,7 @@ def create_sales_payment_journal_items(order_name, amount, refund=False, deposit
 					order_produk = frappe.get_doc('VetPosOrderProduk', pp.name)
 					amount = 0
 					current_quantity = pp.quantity
-					line = frappe.get_list('VetPosOrderProduk', filters={'parent': refund_from, 'product': order.produk}, fields=['*'])
+					line = frappe.get_list('VetPosOrderProduk', filters={'parent': refund_from, 'produk': order_produk.produk}, fields=['*'])
 					if line:
 						purchase_products = frappe.get_list('VetPosOrderPurchaseProducts', filters={'order_produk_name': line[0]['name']}, fields=['*'], order_by="name desc")
 						print('purchase products')
@@ -792,8 +793,8 @@ def create_sales_payment_journal_items(order_name, amount, refund=False, deposit
 	
 	je_data = {
 		'journal': sales_journal,
-		'period': dt.now(tz).strftime('%m/%Y'),
-		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
+		'period': datetime.now(tz).strftime('%m/%Y'),
+		'date': datetime.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': order_name,
 		'journal_items': jis
 	}
@@ -844,8 +845,13 @@ def create_pos_journal_entry(name, payment, refund=False):
 			order_produk = frappe.get_doc('VetPosOrderProduk', pp.name)
 			amount = 0
 			current_quantity = pp.quantity
-			purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.product}, fields=['*'], order_by="creation asc")
+			purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.produk}, fields=['*'], order_by="creation asc")
 			purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
+
+			print('purchase_with_stock')
+			print(purchase_with_stock)
+			print('current quantity')
+			print(current_quantity)
 			
 			for pws in purchase_with_stock:
 				if current_quantity != 0:
@@ -858,6 +864,9 @@ def create_pos_journal_entry(name, payment, refund=False):
 						current_uom = purchase_product.uom
 
 					new_order_produk_purchase = frappe.new_doc("VetPosOrderPurchaseProducts")
+
+					print('purchase_product')
+					print(purchase_product.quantity_stocked)
 					
 					if float(current_quantity) > purchase_product.quantity_stocked:
 						new_order_produk_purchase.update({
@@ -1028,3 +1037,35 @@ def create_expense_journal():
 	frappe.db.commit()
 	
 	return expense_journal.name
+
+def check_payment_journal():
+	payment_journal = frappe.get_list('VetJournal', filters={'name': 'PPAY'}, fields=['name'])
+	return len(payment_journal) > 0
+
+def create_payment_journal():
+	payment_journal = frappe.new_doc('VetJournal')
+	payment_journal.update({
+		'code': 'PPAY',
+		'type': 'General',
+		'journal_name': 'Purchase Payment Journal',
+	})
+	payment_journal.insert()
+	frappe.db.commit()
+	
+	return payment_journal.name
+
+def check_refund_journal():
+	refund_journal = frappe.get_list('VetJournal', filters={'name': 'PREFUND'}, fields=['name'])
+	return len(refund_journal) > 0
+
+def create_refund_journal():
+	refund_journal = frappe.new_doc('VetJournal')
+	refund_journal.update({
+		'code': 'PREFUND',
+		'type': 'General',
+		'journal_name': 'Purchase Refund Journal',
+	})
+	refund_journal.insert()
+	frappe.db.commit()
+	
+	return refund_journal.name
