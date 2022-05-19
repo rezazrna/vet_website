@@ -620,7 +620,7 @@ def create_pos_journal_entry(name, payment, refund=False):
 						current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
 						current_uom = purchase_product.uom
 					
-					if current_quantity >= purchase_product.quantity_stocked:
+					if float(current_quantity) >= purchase_product.quantity_stocked:
 						current_quantity = float(current_quantity) - purchase_product.quantity_stocked
 						# amount += purchase_product.price * math.ceil(purchase_product.quantity_stocked)
 						amount += purchase_product.price * purchase_product.quantity_stocked
