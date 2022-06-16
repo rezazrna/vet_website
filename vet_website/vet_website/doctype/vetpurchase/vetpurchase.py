@@ -248,9 +248,10 @@ def get_last_product_details(name):
 		
 		if last_product :
 			product = last_product[0]
+			current_product = frappe.get_doc('VetProduct', name)
 		
 			res = {
-				'product': product['product_name'],
+				'product': current_product.product_name,
 				'uom': product['uom_name'],
 				'price': product['price'] or 0
 			}
