@@ -1861,7 +1861,8 @@ class ProductsListRow extends React.Component {
         
         if (['Draft', 'RFQ'].includes(this.props.status) && !is_refund && this.props.edit_mode) {
             this.props.productAll.forEach(function(item, index) {
-                productOptions.push(<option value={item.product_name} key={index.toString()}>{item.name}</option>)
+                var display_name = item.name.startsWith('[') ? item.name : "[" + item.name + ']' + item.product_name
+                productOptions.push(<option value={item.product_name} key={index.toString()}>{display_name}</option>)
             })
               
             this.props.uomAll.forEach(function(item, index) {
