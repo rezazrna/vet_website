@@ -683,7 +683,10 @@ class OperationStockMove extends React.Component {
         
         var product_options = []
         if(product_list.length != 0){
-            product_list.forEach((l, index) => product_options.push(<option value={l.product_name} key={l.name}>{l.name}</option>))
+            product_list.forEach(function (l, index) {
+                var display_name = l.name.startsWith('[') ? l.name : "[" + l.name + ']' + l.product_name
+                product_options.push(<option value={l.product_name} key={l.name}>{display_name}</option>)
+            })
         }
         var product_datalist = (
             <datalist id="product">

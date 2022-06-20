@@ -800,8 +800,9 @@ class ApotikObat extends React.Component {
     	if ((apotik.status == 'Draft' && this.props.edit_mode) || id == undefined) {
     		var option_product = []
     		obatAll.forEach(function(item, index) {
+				var display_name = item.name.startsWith('[') ? item.name : "[" + item.name + ']' + item.product_name
     			option_product.push(
-    				<option value={item.product_name} key={index.toString()}>{item.name}</option>
+    				<option value={item.product_name} key={index.toString()}>{display_name}</option>
     				)
     		})
     		

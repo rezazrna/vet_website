@@ -2436,7 +2436,7 @@ class Attachments extends React.Component {
                                 <input type="text" name="title" id="title" className="form-control fs12" required placeholder="Masukkan Judul" value={this.state.new_file.title || ''} onChange={e => this.changeNewFile(e)}/>
                             </div>
                             <div className="col-auto">
-                                <input type="file" className="d-none" name="attachment" onChange={() => this.changeNewFile} ref={(ref) => this.$file = ref} onChange={e => this.changeNewFile(e)}/>
+                                <input type="file" className="d-none" name="attachment" ref={(ref) => this.$file = ref} onChange={e => this.changeNewFile(e)}/>
                                 {file_button}
                             </div>
                             <div className="col-auto">
