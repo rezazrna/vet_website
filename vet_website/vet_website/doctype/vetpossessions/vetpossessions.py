@@ -275,6 +275,7 @@ def update_data(data):
 		closing_je_data = {
 			'journal': json_data['close_journal'],
 			'jumlah': json_data['setor'],
+			'closing_session': json_data['closing_session']
 		}
 	closing_transfer(json_data['name'], json.dumps(closing_je_data))
 	
@@ -476,10 +477,11 @@ def closing_transfer(session, data):
 			'credit': data_json['jumlah']
 		}
 	]
+	closing_date = datetime.strptime(data_json['closing_session'], '%Y-%m-%d %H:%M:%S')
 	je_data = {
 		'journal': sales_journal,
-		'period': datetime.now(tz).strftime('%m/%Y'),
-		'date': datetime.now(tz).date().strftime('%Y-%m-%d'),
+		'period': closing_date.strftime('%m/%Y'),
+		'date': closing_date.date().strftime('%Y-%m-%d'),
 		'reference': session,
 		'journal_items': jis
 	}
