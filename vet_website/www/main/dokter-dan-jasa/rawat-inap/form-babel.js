@@ -503,6 +503,14 @@ class PopupTindakan extends React.Component {
 	                args: {name: realValue},
 	                callback: function(r){
 	                    if (r.message) {
+                            if (new_obat['quantity'] != undefined) {
+            				    r.message.product['quantity'] = new_obat['quantity']
+            				}
+
+                            if (new_obat['description'] != undefined) {
+            				    r.message.product['description'] = new_obat['description']
+            				}
+
 	                        aa.setState({new_obat: r.message.product})
 	                    }
 	                }
@@ -550,18 +558,13 @@ class PopupTindakan extends React.Component {
     	
         if (e.key === 'Enter' || e.key == 'Tab') {
         	e.preventDefault();
-            if(e.target.name == 'description' && new_obat.description && new_obat.description != ''){
-                var pemeriksaan = Object.assign({}, this.state.pemeriksaan)
-        	    pemeriksaan.jasa_dan_obat.push({description: new_obat.description})
-            	this.setState({pemeriksaan: pemeriksaan, new_obat:{}})
-            	
-            	var desc = document.getElementById("description")
-            	desc.value = ''
-            	
-        	} else if (new_obat.name && new_obat.name != '' && new_obat.quantity != '0' && new_obat.quantity) {
+            if ((new_obat.description && new_obat.description != '') || (new_obat.name && new_obat.name != '' && new_obat.quantity != '0' && new_obat.quantity)) {
+                console.log(new_obat)
             	var pemeriksaan = Object.assign({}, this.state.pemeriksaan)
         		pemeriksaan.jasa_dan_obat.push(new_obat)
+
             	this.setState({pemeriksaan: pemeriksaan, new_obat:{}})
+
             	var qty = document.getElementById("quantity")
             	var selectProduct = document.getElementById("product_jasa")
                 var desc = document.getElementById("description")
@@ -569,6 +572,26 @@ class PopupTindakan extends React.Component {
             	qty.value = qty.defaultValue
             	selectProduct.value = ''
             }
+
+            // if(e.target.name == 'description' && new_obat.description && new_obat.description != ''){
+            //     var pemeriksaan = Object.assign({}, this.state.pemeriksaan)
+        	//     pemeriksaan.jasa_dan_obat.push({description: new_obat.description})
+            // 	this.setState({pemeriksaan: pemeriksaan, new_obat:{}})
+            	
+            // 	var desc = document.getElementById("description")
+            // 	desc.value = ''
+            	
+        	// } else if (new_obat.name && new_obat.name != '' && new_obat.quantity != '0' && new_obat.quantity) {
+            // 	var pemeriksaan = Object.assign({}, this.state.pemeriksaan)
+        	// 	pemeriksaan.jasa_dan_obat.push(new_obat)
+            // 	this.setState({pemeriksaan: pemeriksaan, new_obat:{}})
+            // 	var qty = document.getElementById("quantity")
+            // 	var selectProduct = document.getElementById("product_jasa")
+            //     var desc = document.getElementById("description")
+            // 	desc.value = ''
+            // 	qty.value = qty.defaultValue
+            // 	selectProduct.value = ''
+            // }
         }
     }
 	
@@ -862,6 +885,7 @@ class PopupTindakanRow extends React.Component {
 		
 		var total_display = <div className="col-3 px-0"/>
 		var amount_row = <div className="col-6 px-0"/>
+        var desc_row
 		if(item.uom_name != undefined && item.quantity != undefined && item.price != undefined){
 		    var quantity_display = <span className="fs14">{item.quantity + ' ' + item.uom_name}</span>
     		if(item.original_quantity != undefined || parseFloat(item.quantity) % 1 != 0 ){
@@ -886,6 +910,12 @@ class PopupTindakanRow extends React.Component {
     	        	        	</div>
     	        	        </div>
 		}
+
+        if (item.product_name && item.description) {
+            desc_row = <div className="col-12 px-0">
+                <span className="fs14">{item.description}</span>
+            </div>
+        }
 		
 		return <div>
 				<div className="row mx-0 mb-3 fs12 fw600 grooming_products rounded" style={panel_style}>
@@ -900,6 +930,7 @@ class PopupTindakanRow extends React.Component {
     			        	</div>
     	        	    </div>
     	        	</div>
+                    {desc_row}
     	        	<div className="col-12">
     	        	    <div className="row d-flex">
     	        	        {amount_row}

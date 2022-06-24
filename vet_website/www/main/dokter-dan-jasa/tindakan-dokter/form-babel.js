@@ -1349,8 +1349,8 @@ class TemplateTindakan extends React.Component {
     	} else if (name == 'quantity_template') {
     	    new_tindakan[name] = value
     	    this.setState({new_tindakan: new_tindakan})
-    	} else if (name == 'description') {
-    	    new_tindakan[name] = value
+    	} else if (name == 'description_template') {
+    	    new_tindakan['description'] = value
     	    this.setState({new_tindakan: new_tindakan})
     	} else {
     	    new_data[name] = value
@@ -1389,7 +1389,7 @@ class TemplateTindakan extends React.Component {
             	
             	var qty = document.getElementById("quantity_template")
             	var selectProduct = document.getElementById("tindakan_template")
-                var desc = document.getElementById("description")
+                var desc = document.getElementById("description_template")
             	desc.value = ''
             	qty.value = qty.defaultValue
             	selectProduct.value = ''
@@ -1498,7 +1498,7 @@ class TemplateTindakan extends React.Component {
         					</div>
         	tindakanDesc = <div className="row mx-0 mb-3">
                                 <div className="col-12 px-0">
-                                    <input id="description" name='description' className="form-control fs14 text-center" style={select_style} placeholder="Masukkan Deskripsi Tindakan" onChange={this.handleInputChangeTemplate} onKeyDown={this.pressEnterTemplate}/>
+                                    <input id="description_template" name='description_template' className="form-control fs14 text-center" style={select_style} placeholder="Masukkan Deskripsi Tindakan" onChange={this.handleInputChangeTemplate} onKeyDown={this.pressEnterTemplate}/>
                                 </div>
         					</div>
         	rowButton = <div className="row justify-content-center">

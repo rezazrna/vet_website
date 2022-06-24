@@ -161,6 +161,7 @@ def get_tindakan_dokter(name):
 					productTemplate = frappe.get_list('VetProduct', filters={'name': t.product}, fields=['*'])
 					uom = frappe.get_list('VetUOM', filters={'name': productTemplate[0]['product_uom']}, fields=['*'])
 					productTemplate[0]['quantity_template'] = t.quantity
+					productTemplate[0]['description'] = t.description
 					productTemplate[0]['uom_name'] = uom[0].uom_name
 					productTemplate[0]['pagi'] = t.pagi
 					productTemplate[0]['siang'] = t.siang

@@ -348,7 +348,7 @@ def add_tindakan(data):
 						product_data = {
 							'product': jo.get('name', False),
 							'quantity': jo.get('quantity', False),
-							'note': ''
+							'note': jo.get('description', False)
 						}
 						product_data.update({'parent': rekam_medis.name, 'parenttype': 'VetRekamMedis', 'parentfield': 'obat'})
 		
@@ -364,7 +364,7 @@ def add_tindakan(data):
 								pr_data = {
 									'product': pr.get('name', False),
 									'quantity': pr.get('quantity', False),
-									'note': ''
+									'note': pr.get('description', False),
 								}
 								pr_data.update({'parent': rekam_medis.name, 'parenttype': 'VetRekamMedis', 'parentfield': 'obat', 'racikan': new_product.name})
 								
