@@ -564,6 +564,8 @@ class PopupTindakan extends React.Component {
             	this.setState({pemeriksaan: pemeriksaan, new_obat:{}})
             	var qty = document.getElementById("quantity")
             	var selectProduct = document.getElementById("product_jasa")
+                var desc = document.getElementById("description")
+            	desc.value = ''
             	qty.value = qty.defaultValue
             	selectProduct.value = ''
             }
