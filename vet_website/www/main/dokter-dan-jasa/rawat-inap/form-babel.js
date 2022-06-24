@@ -1545,9 +1545,9 @@ class ListRowExpandableDetail extends React.Component {
             	)
             })
             
-            var offset = new Date().getTimezoneOffset();
+            // var offset = new Date().getTimezoneOffset();
             var date = new Date(data.rekam_medis.record_date)
-            date.setHours(date.getHours() + (-offset/60));
+            // date.setHours(date.getHours() + (-offset/60));
             var moment_date = moment(date)
             var time_icon
             if(['Pagi','Siang','Sore','Malam'].includes(data.time)){

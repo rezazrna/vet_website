@@ -178,7 +178,7 @@ def get_rawat_inap(name):
 		rawat_inap_search = frappe.get_list('VetRawatInap', filters={'name': name}, fields=['*'])
 		rawat_inap = rawat_inap_search[0]
 		tindakan_dokter = frappe.get_list('VetTindakanDokter', filters={'register_number': rawat_inap.register_number}, fields=['*'])
-		rawat_inap_tindakan = frappe.get_list('VetRawatInapTindakan', filters={'parent': rawat_inap.name}, fields=['*'], order_by="creation desc")
+		rawat_inap_tindakan = frappe.get_list('VetRawatInapTindakan', filters={'parent': rawat_inap.name}, fields=['*'], order_by="modified desc")
 		
 		rawat_inap['pet_name'] = tindakan_dokter[0]['pet_name']
 		rawat_inap['pet'] = tindakan_dokter[0]['pet']
