@@ -238,6 +238,7 @@ class CustomerInvoice extends React.Component {
         }
         else if (name == 'product') {
 	        selected = this.state.product_list.find(i => i.product_name == value || i.default_code == value)
+            console.log(service, i, selected)
 	        if (selected) {
 	            frappe.call({
 	                type: "GET",
@@ -245,7 +246,9 @@ class CustomerInvoice extends React.Component {
 	                args: {name: selected.name},
 	                callback: function(r){
 	                    if (r.message) {
-	                        if (Object.keys(new_data.invoice_line[service][i]).filter(n => !['product', 'product_name'].includes(n)).length === 0) {
+                            console.log(Object.keys(new_data.invoice_line[service][i]))
+	                        if (Object.keys(new_data.invoice_line[service][i]).filter(n => !['product', 'product_name', 'realIndex'].includes(n)).length === 0) {
+                                console.log('masuk tambah baru')
 	                            new_data.invoice_line[service].push({})
 	                        }
 	                        new_data.invoice_line[service][i].product_name = r.message.product_name
@@ -557,7 +560,16 @@ class CustomerInvoice extends React.Component {
     }
     
     toggleEditMode() {
-        this.setState({'edit_mode': !this.state.edit_mode})
+        var new_data = this.state.data
+        new_data.temp_invoice_line = JSON.parse(JSON.stringify(this.state.data.invoice_line))
+        this.setState({'edit_mode': !this.state.edit_mode, 'data': new_data})
+    }
+
+    cancelEdit() {
+        var new_data = this.state.data
+        new_data.invoice_line = this.state.data.temp_invoice_line
+        new_data.temp_invoice_line = []
+        this.setState({'edit_mode': !this.state.edit_mode, data: new_data})
     }
     
     togglePopupRefund() {
@@ -856,17 +868,25 @@ class CustomerInvoice extends React.Component {
                         )
                     }
                     if(this.state.data.children_customer_invoice.length==0 && write){
-                        this.state.edit_mode?
-                        buttonMode.push(
-                            <div className="col-auto d-flex my-auto" key="save_button">
-                				<button type="button" onClick={(e) => this.formSubmit(e, true)} className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Save</button>
-                			</div>
-                        ):
-                        buttonMode.push(
-                            <div className="col-auto d-flex my-auto" key="edit_button">
-                				<button type="button" onClick={() => this.toggleEditMode()} className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Edit</button>
-                			</div>
-                        )
+                        if (this.state.edit_mode) {
+                            buttonMode.push(
+                                <div className="col-auto d-flex my-auto" key="save_button">
+                                    <button type="button" onClick={(e) => this.formSubmit(e, true)} className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Save</button>
+                                </div>
+                            )
+
+                            buttonMode.push(
+                                <div className="col-auto d-flex my-auto" key="cancel_button">
+                                    <button type="button" onClick={() => this.cancelEdit()} className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Cancel</button>
+                                </div>
+                            )
+                        } else {
+                            buttonMode.push(
+                                <div className="col-auto d-flex my-auto" key="edit_button">
+                                    <button type="button" onClick={() => this.toggleEditMode()} className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Edit</button>
+                                </div>
+                            )
+                        }
                     }
                 }
             }
@@ -1914,9 +1934,22 @@ class CustomerInvoiceLines extends React.Component {
         var rawat_inap_rows = []
         var date_groups = []
         // list.forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
-        list.rawat_inap.forEach(l => !date_groups.map(d => d.date).includes(moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"))?date_groups.push({'date': moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"), 'rows': []}):false)
+        list.rawat_inap.forEach(function (l) {
+            !date_groups.map(d => d.date).includes(moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"))
+            ? date_groups.push({'date': moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"), 'rows': []})
+            : false
+        })
+        date_groups.sort((a, b) => a.date.localeCompare(b.date));
+        var realIndex = 0
         date_groups.forEach((d, index) => {
-            list.rawat_inap.forEach(l => moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD") == d.date?d.rows.push(l):false)
+            list.rawat_inap.forEach(function (l) {
+                if (moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD") == d.date) {
+                    console.log(realIndex)
+                    l.realIndex = realIndex
+                    realIndex++
+                    d.rows.push(l)
+                }
+            })
             rawat_inap_rows.push(
                 <CustomerInvoiceLinesContent key={index.toString()} list={d.rows} edit_mode={th.props.edit_mode} product_list={th.props.product_list} uom_list={th.props.uom_list} status={th.props.status} payments={th.props.payments} subtotal={th.props.subtotal} paid={th.props.paid} changeInput={th.props.changeInput} inputBlur={th.props.inputBlur} service_name={d.date} service="rawat_inap" warehouse_list={th.props.warehouse_list} is_refund={th.props.is_refund} no_exchange={th.props.no_exchange} potongan={th.props.potongan} deleteRow={(index) => th.props.deleteRow(index, 'rawat_inap')} role={th.props.role} links={parent_links} register_number={th.props.register_number}/>
             )
@@ -2036,6 +2069,7 @@ class CustomerInvoiceLinesMultipleRow extends React.Component {
         var rawat_inap_rows = []
         var date_groups = []
         list.rawat_inap.forEach(l => !date_groups.map(d => d.date).includes(moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"))?date_groups.push({'date': moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"), 'rows': []}):false)
+        date_groups.sort((a, b) => a.date.localeCompare(b.date));
         date_groups.forEach((d, index) => {
             list.rawat_inap.forEach(l => moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD") == d.date?d.rows.push(l):false)
             rawat_inap_rows.push(
@@ -2178,16 +2212,17 @@ class CustomerInvoiceLinesContent extends React.Component {
             
             list.forEach(function(l, index){
                 if (!l.deleted) {
+                    var realIndex = l.realIndex ? l.realIndex : index
                     if(l.apotik_obat_id != undefined && racikan.includes(l.apotik_obat_id)){
                         rows.push(
-                            <CustomerInvoiceLinesRow edit_mode={false} index={index.toString()} product_list={sl.props.product_list} uom_list={sl.props.uom_list} key={index.toString()} item={l} status={sl.props.status} changeInput={e => sl.props.changeInput(e, index.toString(), sl.props.service)} inputBlur={sl.props.inputBlur} warehouse_list={sl.props.warehouse_list} service={sl.props.service} is_refund={sl.props.is_refund} deleteRow={() => sl.props.deleteRow(index)} role={sl.props.role} racikan_total={l.total + list.filter(lf => lf.racikan == l.apotik_obat_id).reduce((total, item) => total += item.total, 0)}/>
+                            <CustomerInvoiceLinesRow edit_mode={false} index={index.toString()} product_list={sl.props.product_list} uom_list={sl.props.uom_list} key={index.toString()} item={l} status={sl.props.status} changeInput={e => sl.props.changeInput(e, realIndex, sl.props.service)} inputBlur={sl.props.inputBlur} warehouse_list={sl.props.warehouse_list} service={sl.props.service} is_refund={sl.props.is_refund} deleteRow={() => sl.props.deleteRow(index)} role={sl.props.role} racikan_total={l.total + list.filter(lf => lf.racikan == l.apotik_obat_id).reduce((total, item) => total += item.total, 0)}/>
                         )
                     } else {
                         if (l.racikan!=undefined && racikan.includes(l.racikan)) {
                             rows.push(false)
                         } else {
                             rows.push(
-                                <CustomerInvoiceLinesRow edit_mode={sl.props.edit_mode} index={index.toString()} product_list={sl.props.product_list} uom_list={sl.props.uom_list} key={index.toString()} item={l} status={sl.props.status} changeInput={e => sl.props.changeInput(e, index.toString(), sl.props.service)} inputBlur={sl.props.inputBlur} warehouse_list={sl.props.warehouse_list} service={sl.props.service} is_refund={sl.props.is_refund} deleteRow={() => sl.props.deleteRow(index)} role={sl.props.role}/>
+                                <CustomerInvoiceLinesRow edit_mode={sl.props.edit_mode} index={index.toString()} product_list={sl.props.product_list} uom_list={sl.props.uom_list} key={index.toString()} item={l} status={sl.props.status} changeInput={e => sl.props.changeInput(e, realIndex, sl.props.service)} inputBlur={sl.props.inputBlur} warehouse_list={sl.props.warehouse_list} service={sl.props.service} is_refund={sl.props.is_refund} deleteRow={() => sl.props.deleteRow(index)} role={sl.props.role}/>
                             )
                          }
                     }
