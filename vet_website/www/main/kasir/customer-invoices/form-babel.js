@@ -179,6 +179,8 @@ class CustomerInvoice extends React.Component {
         var value = target.value
         var new_data = Object.assign({}, this.state.data)
         var selected = false
+
+        console.log(service, i)
         
         if(name == 'register_number'){
             new_data[name] = value
@@ -238,7 +240,6 @@ class CustomerInvoice extends React.Component {
         }
         else if (name == 'product') {
 	        selected = this.state.product_list.find(i => i.product_name == value || i.default_code == value)
-            console.log(service, i, selected)
 	        if (selected) {
 	            frappe.call({
 	                type: "GET",
@@ -1933,20 +1934,20 @@ class CustomerInvoiceLines extends React.Component {
         var parent_links = this.props.links.find(l => l.name == th.props.name)
         var rawat_inap_rows = []
         var date_groups = []
+        var realIndex = 0
         // list.forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
         list.rawat_inap.forEach(function (l) {
+            console.log(realIndex)
+            l.realIndex = realIndex
+            realIndex++
             !date_groups.map(d => d.date).includes(moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"))
             ? date_groups.push({'date': moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"), 'rows': []})
             : false
         })
         date_groups.sort((a, b) => a.date.localeCompare(b.date));
-        var realIndex = 0
         date_groups.forEach((d, index) => {
             list.rawat_inap.forEach(function (l) {
                 if (moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD") == d.date) {
-                    console.log(realIndex)
-                    l.realIndex = realIndex
-                    realIndex++
                     d.rows.push(l)
                 }
             })
