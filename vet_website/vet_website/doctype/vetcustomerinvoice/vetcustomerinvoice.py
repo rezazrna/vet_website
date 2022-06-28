@@ -1308,6 +1308,7 @@ def create_sales_journal_entry(invoice_name, refund=False):
 	jis = []
 	total = 0
 	total_discount = 0
+	temp_stock = []
 	for pp in products:
 		product = frappe.get_doc('VetProduct', pp.product)
 		product_category = frappe.get_doc('VetProductCategory', product.product_category)
@@ -1365,55 +1366,71 @@ def create_sales_journal_entry(invoice_name, refund=False):
 				purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.product}, fields=['*'], order_by="creation asc")
 				purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
 
-				# print('purchase with stock')
-				# print(purchase_with_stock)
+				print('purchase with stock')
+				print(purchase_with_stock)
+
+				print('temp stock')
+				print(temp_stock)
 				
 				for pws in purchase_with_stock:
 					if current_quantity != 0:
 						purchase_product = frappe.get_doc('VetPurchaseProducts', pws.name)
+						stok = next((x for x in temp_stock if x['name'] == pws.name), None)
+						print('stok')
+						print(stok)
+						if stok:
+							purchase_product.quantity_stocked = purchase_product.quantity_stocked - stok['stok_berkurang']
+
+						print('quantity stocked')
+						print(purchase_product.quantity_stocked) 
 						
-						if (purchase_product.uom != pp.product_uom) :
-							ratio = frappe.db.get_value('VetUOM', pp.product_uom, 'ratio')
-							target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
-							current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
-							current_uom = purchase_product.uom
+						if purchase_product.quantity_stocked > 0:
 
-						# print('current qty')
-						# print(current_quantity)
+							if (purchase_product.uom != pp.product_uom) :
+								ratio = frappe.db.get_value('VetUOM', pp.product_uom, 'ratio')
+								target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
+								current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
+								current_uom = purchase_product.uom
 
-						new_invoice_line_purchase = frappe.new_doc("VetCustomerInvoicePurchaseProducts")
-						
-						if float(current_quantity) > purchase_product.quantity_stocked:
-							new_invoice_line_purchase.update({
-								'invoice_line_name': invoice_line.name,
-								'purchase_products_name': purchase_product.name,
-								# 'quantity': math.ceil(purchase_product.quantity_stocked),
-								'quantity': purchase_product.quantity_stocked,
-							})
+							print('current qty')
+							print(current_quantity)
 
-							new_invoice_line_purchase.insert()
-							frappe.db.commit()
+							new_invoice_line_purchase = frappe.new_doc("VetCustomerInvoicePurchaseProducts")
+							
+							if float(current_quantity) > purchase_product.quantity_stocked:
+								new_invoice_line_purchase.update({
+									'invoice_line_name': invoice_line.name,
+									'purchase_products_name': purchase_product.name,
+									# 'quantity': math.ceil(purchase_product.quantity_stocked),
+									'quantity': purchase_product.quantity_stocked,
+								})
 
-							current_quantity = float(current_quantity) - purchase_product.quantity_stocked
-							# amount += purchase_product.price * math.ceil(purchase_product.quantity_stocked)
-							amount += purchase_product.price * purchase_product.quantity_stocked
-						else:
-							new_invoice_line_purchase.update({
-								'invoice_line_name': invoice_line.name,
-								'purchase_products_name': purchase_product.name,
-								# 'quantity': math.ceil(current_quantity),
-								'quantity': current_quantity,
-							})
+								new_invoice_line_purchase.insert()
+								frappe.db.commit()
 
-							new_invoice_line_purchase.insert()
-							frappe.db.commit()
+								current_quantity = float(current_quantity) - purchase_product.quantity_stocked
+								# amount += purchase_product.price * math.ceil(purchase_product.quantity_stocked)
+								amount += purchase_product.price * purchase_product.quantity_stocked
 
-							# amount += purchase_product.price * math.ceil(current_quantity)
-							amount += purchase_product.price * current_quantity
-							current_quantity = 0
+								temp_stock.append({'name': pws.name, 'stok_berkurang': purchase_product.quantity_stocked})
+							else:
+								new_invoice_line_purchase.update({
+									'invoice_line_name': invoice_line.name,
+									'purchase_products_name': purchase_product.name,
+									# 'quantity': math.ceil(current_quantity),
+									'quantity': current_quantity,
+								})
 
-			# print('amount')
-			# print(amount)
+								new_invoice_line_purchase.insert()
+								frappe.db.commit()
+
+								# amount += purchase_product.price * math.ceil(current_quantity)
+								amount += purchase_product.price * current_quantity
+								temp_stock.append({'name': pws.name, 'stok_berkurang': current_quantity})
+								current_quantity = 0
+
+			print('amount')
+			print(amount)
 			
 			same_input_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_input_account), False)
 			same_output_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_output_account), False)
