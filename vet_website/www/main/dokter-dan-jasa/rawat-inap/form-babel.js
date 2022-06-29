@@ -2301,7 +2301,7 @@ class TemplateTindakanRow extends React.Component {
 		var total_display = <div className="col-3 px-0"/>
 		var amount_row = <div className="col-6 px-0"/>
         var desc_row
-		if(item.uom_name != undefined && item.quantity_template != undefined && item.price != undefined){
+		if(item.uom_name != undefined && (item.quantity_template != undefined || item.quantity != undefined) && item.price != undefined){
 		    var quantity_display = <span className="fs14">{item.quantity + ' ' + item.uom_name}</span>
     		if(item.original_quantity != undefined || parseFloat(item.quantity) % 1 != 0 ){
     		    var rounded = Math.ceil(parseFloat(item.quantity))

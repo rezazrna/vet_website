@@ -1119,7 +1119,8 @@ def refund_invoice(name):
 			'status': 'Draft',
 			'invoice_line': old_invoice.invoice_line,
 			'is_refund': True,
-			'refund_from': old_invoice.name
+			'refund_from': old_invoice.name,
+			'is_rawat_inap': old_invoice.is_rawat_inap
 		})
 		invoice.insert()
 		frappe.db.commit()

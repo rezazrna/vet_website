@@ -213,6 +213,8 @@ def get_rawat_inap(name):
 
 		for i in tindakan_list:
 			i.sort(key = lambda a: a['rekam_medis']['record_date'])
+
+		tindakan_list.sort(key = lambda a: a[0]['rekam_medis']['record_date'])
 			
 		rawat_inap.tindakan = tindakan_list
 		# products = frappe.get_list("VetProduct", fields=["*"])
