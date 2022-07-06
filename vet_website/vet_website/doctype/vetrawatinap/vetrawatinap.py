@@ -350,7 +350,7 @@ def add_tindakan(data):
 						product_data = {
 							'product': jo.get('name', False),
 							'quantity': jo.get('quantity', False),
-							'note': jo.get('description', False)
+							'note': jo.get('description', '')
 						}
 						product_data.update({'parent': rekam_medis.name, 'parenttype': 'VetRekamMedis', 'parentfield': 'obat'})
 		
@@ -366,7 +366,7 @@ def add_tindakan(data):
 								pr_data = {
 									'product': pr.get('name', False),
 									'quantity': pr.get('quantity', False),
-									'note': pr.get('description', False),
+									'note': pr.get('description', ''),
 								}
 								pr_data.update({'parent': rekam_medis.name, 'parenttype': 'VetRekamMedis', 'parentfield': 'obat', 'racikan': new_product.name})
 								
@@ -556,6 +556,13 @@ def update_invoice(products, rawat_inap):
 				product_data = {}
 				product_data.update(product)
 				product_data.update({'parent': invoice.name, 'parenttype': 'VetCustomerInvoice', 'parentfield': 'invoice_line', 'service': 'Rawat Inap'})
+
+				default_warehouse = frappe.get_list('VetGudang', filters={'is_default': '1'}, fields=['name', 'gudang_name'], limit=1)
+				product_category = frappe.db.get_value('VetProduct', product.get('product'), 'product_category')
+				if product_category:
+					stockable = frappe.db.get_value('VetProductCategory', product_category, 'stockable') or False
+				if len(default_warehouse) > 0 and stockable:
+					product_data.update({'warehouse': default_warehouse[0].name})
 
 				new_product = frappe.new_doc("VetCustomerInvoiceLine")
 				new_product.update(product_data)

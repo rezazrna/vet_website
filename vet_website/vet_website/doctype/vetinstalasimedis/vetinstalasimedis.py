@@ -153,8 +153,8 @@ def get_instalasi_medis(name):
 		pet = frappe.get_doc('VetPet', instalasi_medis.pet)
 		owner = frappe.get_doc('User', instalasi_medis.owner)
 		owner_name = owner.full_name
-		pet_age_year = relativedelta(now, pet.birth_date).years
-		pet_age_month = relativedelta(now, pet.birth_date).months
+		pet_age_year = relativedelta(now.today(), pet.birth_date).years
+		pet_age_month = relativedelta(now.today(), pet.birth_date).months
 		jasa = frappe.get_list("VetInstalasiMedisJasa", filters={'parent': name}, fields=["*"])
 		tindak_lanjut = frappe.get_list("VetInstalasiMedisTindakLanjut", filters={'parent': name}, fields=["*"])
 		attachments = frappe.get_list("VetInstalasiMedisAttachments", filters={'parent': name}, fields=["*"])
