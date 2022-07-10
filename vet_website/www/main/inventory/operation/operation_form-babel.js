@@ -597,9 +597,20 @@ class FormOperation extends React.Component {
             date = <input required type="date" name="date" id="date" className="form-control fs14" value={data.date||''} onChange={e => this.props.changeInput(e)}/>
         }
         else if(id != undefined){
+            var from_name = data.from_name == undefined
+            ? data.reference.match(/^VCI-.*$/) || data.reference.match(/^POSORDER.*$/)
+                ? 'Customer'
+                : 'Supplier'
+            : data.from_name
+            var to_name = data.to_name == undefined
+                ? data.reference.match(/^VCI-.*$/) || data.reference.match(/^POSORDER.*$/)
+                    ? 'Customer'
+                    : 'Supplier'
+                : data.to_name
+
             title = <p className="fs18 fw600 text-dark mb-2">{data.name}</p>
-            from = <span className="fs16 px-0" id="from">{data.from_name||'Supplier'}</span>
-            to = <span className="fs16 px-0" id="to">{data.to_name||'Customer'}</span>
+            from = <span className="fs16 px-0" id="from">{from_name}</span>
+            to = <span className="fs16 px-0" id="to">{to_name}</span>
             expense_account = <span className="fs16 px-0" id="to">{data.expense_account_name||''}</span>
             source = <span className="fs16 px-0" id="reference">{data.reference||''}</span>
             moment_date = moment(date)

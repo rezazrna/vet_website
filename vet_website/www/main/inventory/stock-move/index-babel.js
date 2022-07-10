@@ -275,6 +275,16 @@ class StockMoveListRow extends React.Component {
         var item = this.props.item
         var date = item.date || item.creation
         var moment_date = moment(date)
+        var from_name = item.from_name == undefined
+            ? item.reference.match(/^VCI-.*$/) || item.reference.match(/^POSORDER.*$/)
+                ? 'Customer'
+                : 'Supplier'
+            : item.from_name
+        var to_name = item.to_name == undefined
+            ? item.reference.match(/^VCI-.*$/) || item.reference.match(/^POSORDER.*$/)
+                ? 'Customer'
+                : 'Supplier'
+            : item.to_name
 
         return (
             <div className="row mx-0">
@@ -290,10 +300,10 @@ class StockMoveListRow extends React.Component {
                             <span>{item.quantity_done}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{item.from_name || 'Supplier'}</span>
+                            <span>{from_name}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{item.to_name || 'Customer'}</span>
+                            <span>{to_name}</span>
                         </div>
                         <div className="col text-center">
                             <span>{moment_date.format('DD-MM-YYYY')}</span>
@@ -368,13 +378,24 @@ class PDF extends React.Component {
         // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
         // currentItems = data.slice(0,30)
         data.forEach((d, index) => {
+            var from_name = d.from_name == undefined
+            ? d.reference.match(/^VCI-.*$/) || d.reference.match(/^POSORDER.*$/)
+                ? 'Customer'
+                : 'Supplier'
+            : d.from_name
+            var to_name = d.to_name == undefined
+                ? d.reference.match(/^VCI-.*$/) || d.reference.match(/^POSORDER.*$/)
+                    ? 'Customer'
+                    : 'Supplier'
+                : d.to_name
+
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">
                     <td className="py-1">{d.product_name}</td>
                     <td className="py-1">{d.name}</td>
                     <td className="py-1">{d.quantity}</td>
-                    <td className="py-1">{d.from_name || 'Supplier'}</td>
-                    <td className="py-1">{d.to_name || 'Customer'}</td>
+                    <td className="py-1">{from_name}</td>
+                    <td className="py-1">{to_name}</td>
                     <td className="py-1">{moment(d.date).format('DD-MM-YYYY')}</td>
                     <td className="py-1">{d.receive_date ? moment(d.receive_date).format('DD-MM-YYYY') : '-'}</td>
                     <td className="py-1">{d.status}</td>
