@@ -499,7 +499,7 @@ class KartuStokListRow extends React.Component {
     render() {
 
         var item = this.props.item
-        var date = item.date || item.creation
+        var date = item.receive_date || item.date || item.creation
         var moment_date = moment(date)
 
         return (
