@@ -338,9 +338,9 @@ class JournalItemsList extends React.Component {
                 }
             })
 
-            if (accountParams != undefined) {
+            if (this.props.account != undefined) {
                 account_col = (
-                    <div className="col-1 d-flex">
+                    <div className="col d-flex">
                         <span className="my-auto">Total</span>
                     </div>
                 )
@@ -360,7 +360,7 @@ class JournalItemsList extends React.Component {
                                 <div className="col-2 d-flex">
                                     <span className="my-auto">Effective Date</span>
                                 </div>
-                                <div className="col-4 d-flex">
+                                <div className="col-3 d-flex">
                                     <span className="my-auto">Account</span>
                                 </div>
                                 <div className="col-1 d-flex">
@@ -369,10 +369,10 @@ class JournalItemsList extends React.Component {
                                 <div className="col-1 d-flex">
                                     <span className="my-auto">Keterangan</span>
                                 </div>
-                                <div className="col-1 d-flex">
+                                <div className="col d-flex">
                                     <span className="my-auto">Debit</span>
                                 </div>
-                                <div className="col-1 d-flex">
+                                <div className="col d-flex">
                                     <span className="my-auto">Credit</span>
                                 </div>
                                 {account_col}
@@ -414,9 +414,9 @@ class JournalItemsListRow extends React.Component {
             checked = true
         }
 
-        if (accountParams != undefined) {
+        if (this.props.account != undefined) {
             account_col = (
-                <div className="col-1 d-flex">
+                <div className="col d-flex">
                     <span className="my-auto">{formatter2.format(item.total || item.computed_total || 0)}</span>
                 </div>
             )
@@ -435,7 +435,7 @@ class JournalItemsListRow extends React.Component {
                         <div className="col-2 d-flex">
                             <span className="my-auto">{moment(item.date).format("DD-MM-YYYY")}</span>
                         </div>
-                        <div className="col-4 d-flex">
+                        <div className="col-3 d-flex">
                             <span className="my-auto">{item.account_name}</span>
                         </div>
                         <div className="col-1 d-flex">
@@ -444,10 +444,10 @@ class JournalItemsListRow extends React.Component {
                         <div className="col-1 d-flex">
                             <span className="my-auto">{item.keterangan}</span>
                         </div>
-                        <div className="col-1 d-flex">
+                        <div className="col d-flex">
                             <span className="my-auto">{formatter2.format(item.debit)}</span>
                         </div>
-                        <div className="col-1 d-flex">
+                        <div className="col d-flex">
                             <span className="my-auto">{formatter2.format(item.credit)}</span>
                         </div>
                         {account_col}
@@ -516,7 +516,7 @@ class PDF extends React.Component {
         // // currentItems = data.slice(0,30)
         data.forEach((d, index) => {
             var account_col
-            if (this.props.account != undefined) {
+            if (accountParams != undefined) {
                 account_col = (
                     <td className="py-1">{formatter2.format(d.total || d.computed_total || 0)}</td>
                 )
@@ -544,7 +544,7 @@ class PDF extends React.Component {
                 image = <img src={profile.temp_image} style={image_style} />
             }
 
-            if (this.props.account != undefined) {
+            if (accountParams != undefined) {
                 account_col = (
                     <th className="fw700 py-1">Total</th>
                 )
@@ -564,7 +564,7 @@ class PDF extends React.Component {
                                 <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
                             </div>
                             <div className="col-4 px-0">
-                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>{accountParams ? 'Journal' : 'General Ledger'}</p>
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>{accountParams ? 'General Ledger' : 'Journal'}</p>
                                 <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{moment().format("MM/YYYY")}</p>
                             </div>
                             <div className="col-12" style={borderStyle} />
