@@ -546,7 +546,7 @@ class PDF extends React.Component {
 
             if (this.props.account != undefined) {
                 account_col = (
-                    <th className="fw700 py-1">{formatter2.format(d.total || d.computed_total || 0)}</th>
+                    <th className="fw700 py-1">Total</th>
                 )
             }
 
