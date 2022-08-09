@@ -14,7 +14,7 @@ class VetJournalItem(Document):
 	# 	set_journal_item_total(self.name)
 	
 @frappe.whitelist()
-def get_journal_item_list(filters=None):
+def get_journal_item_list(filters=None, all_page=False):
 	default_sort = "date desc, reference desc"
 	je_filters = []
 	je_or_filters = []
@@ -62,11 +62,17 @@ def get_journal_item_list(filters=None):
 			journal_items_filters.append({'parent': ['in', journal_entry_names]})
 		if ji_account:
 			journal_items_filters.append({'account': ji_account})
-		journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by='creation desc', start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_list("VetJournalItem", filters=journal_items_filters, as_list=True))
+		if all_page:
+			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by='creation desc')
+		else:
+			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by='creation desc', start=(page - 1) * 10, page_length= 10)
+		datalength = 0
+		if not all_page:
+			datalength = len(frappe.get_list("VetJournalItem", filters=journal_items_filters, as_list=True))
 		for ji in journal_items:
 			ji['period'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'period')
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+			ji['keterangan'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'keterangan')
 			ji['reference'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'reference')
 			ji['account_name'] = "%s %s"%(frappe.db.get_value('VetCoa', ji.account, 'account_code'), frappe.db.get_value('VetCoa', ji.account, 'account_name'))
 			ji['account_type'] = frappe.db.get_value('VetCoa', ji.account, 'account_type')

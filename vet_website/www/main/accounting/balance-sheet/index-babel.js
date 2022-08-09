@@ -208,7 +208,13 @@ class BalanceSheet extends React.Component {
             var content, pdf, print_button, month_select, sd_period
             content = <BalanceSheetList items={this.state.data} month={this.state.month} year={this.state.year}/>
             pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year}/>
-            print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
+            print_button = <button type="button" 
+                className={this.state.print_loading
+                    ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2"
+                    : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} 
+                onClick={() => this.getPrintData()}>{this.state.print_loading
+                    ?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                    :"Print"}</button>
             
             if(this.state.mode == 'monthly' || this.state.mode == 'period'){
                 if (this.state.mode == 'period') {

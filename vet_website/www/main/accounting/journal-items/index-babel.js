@@ -12,6 +12,7 @@ class JournalItems extends React.Component {
             'journals': [],
             'search': false,
             'datalength': 0,
+            'print_loading': false
         }
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -169,6 +170,31 @@ class JournalItems extends React.Component {
         }
     }
 
+    getPrintData() {
+        var po = this
+
+        if (!this.state.print_loading) {
+            var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+            this.setState({
+                print_loading: true,
+            });
+    
+            frappe.call({
+                type: "GET",
+                method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
+                args: { filters: filters, all_page: true },
+                callback: function (r) {
+                    if (r.message) {
+                        console.log(r.message);
+                        po.setState({print_data: r.message});
+                        po.printPDF()
+                    }
+                }
+            });
+        }
+    }
+
     printPDF() {
         var pdfid = 'pdf'
         var format = [559, 794]
@@ -187,6 +213,7 @@ class JournalItems extends React.Component {
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
         }
         html2pdf().set(opt).from(source).save()
+        this.setState({print_loading: false})
         // doc.html(source, {
         //   callback: function (doc) {
         //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
@@ -223,6 +250,14 @@ class JournalItems extends React.Component {
         var sorts = [{ 'label': 'Pilih Journal', 'value': '' }]
         this.state.journals.forEach(j => sorts.push({ 'label': j.journal_name, 'value': j.name }))
 
+        var print_button = <button type="button" 
+            className={this.state.print_loading
+                ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2"
+                : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} 
+            onClick={() => this.getPrintData()}>{this.state.print_loading
+                ?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                :"Print"}</button>
+
         if (this.state.loaded) {
             return (
                 <div>
@@ -230,7 +265,7 @@ class JournalItems extends React.Component {
                         <div className="col-auto my-auto">
                             {back_button}
                             {delete_button}
-                            <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => this.printPDF()}>Print</button>
+                            {print_button}
                         </div>
                         <div className="col">
                             <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.itemSearch(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
@@ -240,7 +275,7 @@ class JournalItems extends React.Component {
                         </div>
                     </div>
                     <JournalItemsList account={this.props.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.data} search={this.state.search} currentpage={this.state.currentpage} />
+                    <PDF data={this.state.print_data}/>
                 </div>
             )
         }
@@ -331,6 +366,9 @@ class JournalItemsList extends React.Component {
                                     <span className="my-auto">Reference</span>
                                 </div>
                                 <div className="col d-flex">
+                                    <span className="my-auto">Keterangan</span>
+                                </div>
+                                <div className="col d-flex">
                                     <span className="my-auto">Debit</span>
                                 </div>
                                 <div className="col d-flex">
@@ -403,6 +441,9 @@ class JournalItemsListRow extends React.Component {
                             <span className="my-auto">{item.reference}</span>
                         </div>
                         <div className="col d-flex">
+                            <span className="my-auto">{item.keterangan}</span>
+                        </div>
+                        <div className="col d-flex">
                             <span className="my-auto">{formatter2.format(item.debit)}</span>
                         </div>
                         <div className="col d-flex">
@@ -441,14 +482,14 @@ class PDF extends React.Component {
     }
 
     render() {
-        var search = this.props.search
-        function filterRow(row) {
-            function filterField(field) {
-                return field ? field.toString().includes(search) : false
-            }
-            var fields = [row.period, moment(row.date).format("DD-MM-YYYY"), row.account_name, row.reference, row.debit, row.credit]
-            return ![false, ''].includes(search) ? fields.some(filterField) : true
-        }
+        // var search = this.props.search
+        // function filterRow(row) {
+        //     function filterField(field) {
+        //         return field ? field.toString().includes(search) : false
+        //     }
+        //     var fields = [row.period, moment(row.date).format("DD-MM-YYYY"), row.account_name, row.reference, row.debit, row.credit]
+        //     return ![false, ''].includes(search) ? fields.some(filterField) : true
+        // }
 
         var data = this.props.data
         var profile = this.state.profile
@@ -477,6 +518,7 @@ class PDF extends React.Component {
                 <tr key={d.name} style={fs9}>
                     <td className="py-1">{moment(d.date).format('DD-MM-YYYY')}</td>
                     <td className="py-1">{d.reference}</td>
+                    <td className="py-1">{d.keterangan}</td>
                     <td className="py-1">{d.account_name}</td>
                     <td className="py-1">{formatter.format(d.debit)}</td>
                     <td className="py-1">{formatter.format(d.credit)}</td>
@@ -517,6 +559,7 @@ class PDF extends React.Component {
                                 <tr className="text-center">
                                     <th className="fw700 py-2" width="89px" >Tanggal</th>
                                     <th className="fw700 py-2" width="88px" >Reference</th>
+                                    <th className="fw700 py-2" width="88px" >Keterangan</th>
                                     <th className="fw700 py-2" width="202px" >Account</th>
                                     <th className="fw700 py-2" width="90px" >Debit</th>
                                     <th className="fw700 py-2" width="90px" >Credit</th>
