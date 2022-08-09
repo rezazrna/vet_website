@@ -357,17 +357,17 @@ class JournalItemsList extends React.Component {
                                 <div className="col-1 d-flex">
                                     <span className="my-auto">Period</span>
                                 </div>
-                                <div className="col-2 d-flex">
+                                <div className="col-1 d-flex">
                                     <span className="my-auto">Effective Date</span>
-                                </div>
-                                <div className="col-3 d-flex">
-                                    <span className="my-auto">Account</span>
                                 </div>
                                 <div className="col-1 d-flex">
                                     <span className="my-auto">Reference</span>
                                 </div>
-                                <div className="col-1 d-flex">
+                                <div className="col-2 d-flex">
                                     <span className="my-auto">Keterangan</span>
+                                </div>
+                                <div className="col-3 d-flex">
+                                    <span className="my-auto">Account</span>
                                 </div>
                                 <div className="col d-flex">
                                     <span className="my-auto">Debit</span>
@@ -432,17 +432,17 @@ class JournalItemsListRow extends React.Component {
                         <div className="col-1 d-flex">
                             <span className="my-auto">{item.period}</span>
                         </div>
-                        <div className="col-2 d-flex">
+                        <div className="col-1 d-flex">
                             <span className="my-auto">{moment(item.date).format("DD-MM-YYYY")}</span>
-                        </div>
-                        <div className="col-3 d-flex">
-                            <span className="my-auto">{item.account_name}</span>
                         </div>
                         <div className="col-1 d-flex">
                             <span className="my-auto">{item.reference}</span>
                         </div>
-                        <div className="col-1 d-flex">
+                        <div className="col-2 d-flex">
                             <span className="my-auto">{item.keterangan}</span>
+                        </div>
+                        <div className="col-3 d-flex">
+                            <span className="my-auto">{item.account_name}</span>
                         </div>
                         <div className="col d-flex">
                             <span className="my-auto">{formatter2.format(item.debit)}</span>
@@ -518,18 +518,18 @@ class PDF extends React.Component {
             var account_col
             if (accountParams != undefined) {
                 account_col = (
-                    <td className="py-1">{formatter2.format(d.total || d.computed_total || 0)}</td>
+                    <td className="py-1" width="90px">{formatter2.format(d.total || d.computed_total || 0)}</td>
                 )
             }
 
             table_rows.push(
                 <tr key={d.name} style={fs9}>
-                    <td className="py-1">{moment(d.date).format('DD-MM-YYYY')}</td>
-                    <td className="py-1">{d.reference}</td>
-                    <td className="py-1">{d.keterangan}</td>
-                    <td className="py-1">{d.account_name}</td>
-                    <td className="py-1">{formatter.format(d.debit)}</td>
-                    <td className="py-1">{formatter.format(d.credit)}</td>
+                    <td className="py-1" width="89px">{moment(d.date).format('DD-MM-YYYY')}</td>
+                    <td className="py-1" width="88px">{d.reference}</td>
+                    <td className="py-1" width="88px">{d.keterangan}</td>
+                    <td className="py-1" width="202px">{d.account_name}</td>
+                    <td className="py-1" width="90px">{formatter.format(d.debit)}</td>
+                    <td className="py-1" width="90px">{formatter.format(d.credit)}</td>
                     {account_col}
                 </tr>
             )
@@ -546,7 +546,7 @@ class PDF extends React.Component {
 
             if (accountParams != undefined) {
                 account_col = (
-                    <th className="fw700 py-1">Total</th>
+                    <th className="fw700 py-1" width="90px">Total</th>
                 )
             }
 
@@ -572,12 +572,12 @@ class PDF extends React.Component {
                         <table className="fs12" style={row2}>
                             <thead className="text-uppercase" style={thead}>
                                 <tr className="text-center">
-                                    <th className="fw700 py-1" >Tanggal</th>
-                                    <th className="fw700 py-1" >Reference</th>
-                                    <th className="fw700 py-1" >Keterangan</th>
-                                    <th className="fw700 py-1" >Account</th>
-                                    <th className="fw700 py-1" >Debit</th>
-                                    <th className="fw700 py-1" >Credit</th>
+                                    <th className="fw700 py-2" width="89px">Tanggal</th>
+                                    <th className="fw700 py-2" width="88px">Reference</th>
+                                    <th className="fw700 py-2" width="88px">Keterangan</th>
+                                    <th className="fw700 py-2" width="202px">Account</th>
+                                    <th className="fw700 py-2" width="90px">Debit</th>
+                                    <th className="fw700 py-2" width="90px">Credit</th>
                                     {account_col}
                                 </tr>
                             </thead>
