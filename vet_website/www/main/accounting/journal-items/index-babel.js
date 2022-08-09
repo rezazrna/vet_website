@@ -188,7 +188,7 @@ class JournalItems extends React.Component {
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({print_data: r.message});
+                        po.setState({print_data: r.message.journal_items});
                         po.printPDF()
                     }
                 }
