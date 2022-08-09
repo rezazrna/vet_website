@@ -24,7 +24,7 @@ class JournalItems extends React.Component {
         var new_filters = { filters: [], sorts: [] }
 
         if (this.props.account != undefined) {
-            new_filters.filters.push(['account', '=', this.props.account])
+            new_filters.account = this.props.account
         }
 
         sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
