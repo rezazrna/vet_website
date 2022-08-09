@@ -550,7 +550,7 @@ class PDF extends React.Component {
                                 <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
                             </div>
                             <div className="col-4 px-0">
-                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Journal</p>
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>{accountParams ? 'Journal' : 'General Ledger'}</p>
                                 <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{moment().format("MM/YYYY")}</p>
                             </div>
                             <div className="col-12" style={borderStyle} />
@@ -558,12 +558,12 @@ class PDF extends React.Component {
                         <table className="fs12" style={row2}>
                             <thead className="text-uppercase" style={thead}>
                                 <tr className="text-center">
-                                    <th className="fw700 py-2" width="89px" >Tanggal</th>
-                                    <th className="fw700 py-2" width="88px" >Reference</th>
-                                    <th className="fw700 py-2" width="88px" >Keterangan</th>
-                                    <th className="fw700 py-2" width="202px" >Account</th>
-                                    <th className="fw700 py-2" width="90px" >Debit</th>
-                                    <th className="fw700 py-2" width="90px" >Credit</th>
+                                    <th className="fw700 py-1" >Tanggal</th>
+                                    <th className="fw700 py-1" >Reference</th>
+                                    <th className="fw700 py-1" >Keterangan</th>
+                                    <th className="fw700 py-1" >Account</th>
+                                    <th className="fw700 py-1" >Debit</th>
+                                    <th className="fw700 py-1" >Credit</th>
                                 </tr>
                             </thead>
                             <tbody>
