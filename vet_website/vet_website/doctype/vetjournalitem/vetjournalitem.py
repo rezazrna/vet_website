@@ -55,21 +55,21 @@ def get_journal_item_list(filters=None):
 		if je_filters or je_or_filters:
 			journal_entry_search = frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, fields=["name"], order_by=default_sort)
 		# datalength = len(frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, as_list=True))
-		if len(journal_entry_search):
-			journal_items_filters = []
-			if journal_entry_search:
-				journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
-				journal_items_filters.append({'parent': ['in', journal_entry_names]})
-			if ji_account:
-				journal_items_filters.append({'account': ji_account})
-			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by='creation desc', start=(page - 1) * 10, page_length= 10)
-			datalength = len(frappe.get_list("VetJournalItem", filters=journal_items_filters, as_list=True))
-			for ji in journal_items:
-				ji['period'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'period')
-				ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
-				ji['reference'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'reference')
-				ji['account_name'] = "%s %s"%(frappe.db.get_value('VetCoa', ji.account, 'account_code'), frappe.db.get_value('VetCoa', ji.account, 'account_name'))
-				ji['account_type'] = frappe.db.get_value('VetCoa', ji.account, 'account_type')
+		# if len(journal_entry_search):
+		journal_items_filters = []
+		if journal_entry_search:
+			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+			journal_items_filters.append({'parent': ['in', journal_entry_names]})
+		if ji_account:
+			journal_items_filters.append({'account': ji_account})
+		journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by='creation desc', start=(page - 1) * 10, page_length= 10)
+		datalength = len(frappe.get_list("VetJournalItem", filters=journal_items_filters, as_list=True))
+		for ji in journal_items:
+			ji['period'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'period')
+			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+			ji['reference'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'reference')
+			ji['account_name'] = "%s %s"%(frappe.db.get_value('VetCoa', ji.account, 'account_code'), frappe.db.get_value('VetCoa', ji.account, 'account_name'))
+			ji['account_type'] = frappe.db.get_value('VetCoa', ji.account, 'account_type')
 				
 			journal_items.sort(key=lambda x: x.date, reverse=True)
 
