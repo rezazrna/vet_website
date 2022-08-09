@@ -338,7 +338,7 @@ class JournalItemsList extends React.Component {
                 }
             })
 
-            if (this.props.account != undefined) {
+            if (accountParams != undefined) {
                 account_col = (
                     <div className="col-1 d-flex">
                         <span className="my-auto">Total</span>
@@ -357,10 +357,10 @@ class JournalItemsList extends React.Component {
                                 <div className="col-1 d-flex">
                                     <span className="my-auto">Period</span>
                                 </div>
-                                <div className="col-1 d-flex">
+                                <div className="col-2 d-flex">
                                     <span className="my-auto">Effective Date</span>
                                 </div>
-                                <div className="col-3 d-flex">
+                                <div className="col-4 d-flex">
                                     <span className="my-auto">Account</span>
                                 </div>
                                 <div className="col-1 d-flex">
@@ -414,7 +414,7 @@ class JournalItemsListRow extends React.Component {
             checked = true
         }
 
-        if (this.props.account != undefined) {
+        if (accountParams != undefined) {
             account_col = (
                 <div className="col-1 d-flex">
                     <span className="my-auto">{formatter2.format(item.total || item.computed_total || 0)}</span>
@@ -432,10 +432,10 @@ class JournalItemsListRow extends React.Component {
                         <div className="col-1 d-flex">
                             <span className="my-auto">{item.period}</span>
                         </div>
-                        <div className="col-1 d-flex">
+                        <div className="col-2 d-flex">
                             <span className="my-auto">{moment(item.date).format("DD-MM-YYYY")}</span>
                         </div>
-                        <div className="col-3 d-flex">
+                        <div className="col-4 d-flex">
                             <span className="my-auto">{item.account_name}</span>
                         </div>
                         <div className="col-1 d-flex">
