@@ -340,7 +340,7 @@ class JournalItemsList extends React.Component {
 
             if (this.props.account != undefined) {
                 account_col = (
-                    <div className="col d-flex">
+                    <div className="col-1 d-flex">
                         <span className="my-auto">Total</span>
                     </div>
                 )
@@ -354,25 +354,25 @@ class JournalItemsList extends React.Component {
                         </div>
                         <div className="col row-header">
                             <div className="row mx-0 fs12 fw600">
-                                <div className="col d-flex">
+                                <div className="col-1 d-flex">
                                     <span className="my-auto">Period</span>
                                 </div>
-                                <div className="col d-flex">
+                                <div className="col-1 d-flex">
                                     <span className="my-auto">Effective Date</span>
                                 </div>
-                                <div className="col-4 d-flex">
+                                <div className="col-3 d-flex">
                                     <span className="my-auto">Account</span>
                                 </div>
-                                <div className="col d-flex">
+                                <div className="col-1 d-flex">
                                     <span className="my-auto">Reference</span>
                                 </div>
-                                <div className="col d-flex">
+                                <div className="col-1 d-flex">
                                     <span className="my-auto">Keterangan</span>
                                 </div>
-                                <div className="col d-flex">
+                                <div className="col-1 d-flex">
                                     <span className="my-auto">Debit</span>
                                 </div>
-                                <div className="col d-flex">
+                                <div className="col-1 d-flex">
                                     <span className="my-auto">Credit</span>
                                 </div>
                                 {account_col}
@@ -416,7 +416,7 @@ class JournalItemsListRow extends React.Component {
 
         if (this.props.account != undefined) {
             account_col = (
-                <div className="col d-flex">
+                <div className="col-1 d-flex">
                     <span className="my-auto">{formatter2.format(item.total || item.computed_total || 0)}</span>
                 </div>
             )
@@ -429,25 +429,25 @@ class JournalItemsListRow extends React.Component {
                 </div>
                 <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
                     <div className="row mx-0 fs12 fw600">
-                        <div className="col d-flex">
+                        <div className="col-1 d-flex">
                             <span className="my-auto">{item.period}</span>
                         </div>
-                        <div className="col d-flex">
+                        <div className="col-1 d-flex">
                             <span className="my-auto">{moment(item.date).format("DD-MM-YYYY")}</span>
                         </div>
-                        <div className="col-4 d-flex">
+                        <div className="col-3 d-flex">
                             <span className="my-auto">{item.account_name}</span>
                         </div>
-                        <div className="col d-flex">
+                        <div className="col-1 d-flex">
                             <span className="my-auto">{item.reference}</span>
                         </div>
-                        <div className="col d-flex">
+                        <div className="col-1 d-flex">
                             <span className="my-auto">{item.keterangan}</span>
                         </div>
-                        <div className="col d-flex">
+                        <div className="col-1 d-flex">
                             <span className="my-auto">{formatter2.format(item.debit)}</span>
                         </div>
-                        <div className="col d-flex">
+                        <div className="col-1 d-flex">
                             <span className="my-auto">{formatter2.format(item.credit)}</span>
                         </div>
                         {account_col}
@@ -515,6 +515,13 @@ class PDF extends React.Component {
         // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
         // // currentItems = data.slice(0,30)
         data.forEach((d, index) => {
+            var account_col
+            if (this.props.account != undefined) {
+                account_col = (
+                    <td className="py-1">{formatter2.format(d.total || d.computed_total || 0)}</td>
+                )
+            }
+
             table_rows.push(
                 <tr key={d.name} style={fs9}>
                     <td className="py-1">{moment(d.date).format('DD-MM-YYYY')}</td>
@@ -523,17 +530,24 @@ class PDF extends React.Component {
                     <td className="py-1">{d.account_name}</td>
                     <td className="py-1">{formatter.format(d.debit)}</td>
                     <td className="py-1">{formatter.format(d.credit)}</td>
+                    {account_col}
                 </tr>
             )
         })
 
         if (this.state.loaded) {
-            var image
+            var image, account_col
             if (profile.image != undefined) {
                 var image_style = { position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%' }
                 image = <img src={profile.temp_image || profile.image} style={image_style} />
             } else {
                 image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            if (this.props.account != undefined) {
+                account_col = (
+                    <th className="fw700 py-1">{formatter2.format(d.total || d.computed_total || 0)}</th>
+                )
             }
 
             return (
@@ -564,6 +578,7 @@ class PDF extends React.Component {
                                     <th className="fw700 py-1" >Account</th>
                                     <th className="fw700 py-1" >Debit</th>
                                     <th className="fw700 py-1" >Credit</th>
+                                    {account_col}
                                 </tr>
                             </thead>
                             <tbody>
