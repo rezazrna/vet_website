@@ -159,6 +159,11 @@ class Filter extends React.Component {
             )
         }
 
+        var form
+        if (this.state.show_form) {
+            form = <FilterForm field_list={this.props.field_list} new_filter={this.state.new_filter} filterChange={this.filterChange} addFilters={this.addFilters} />
+        }
+
         if (this.props.field_list.length != 0) {
             filter_col = <div className="col-auto px-1 position-relative">
                 <button type="button" className="btn py-0 px-2 h-100" style={btnStyle} onClick={() => this.toggleShowForm()}>
@@ -166,11 +171,6 @@ class Filter extends React.Component {
                 </button>
                 {form}
             </div>
-        }
-
-        var form
-        if (this.state.show_form) {
-            form = <FilterForm field_list={this.props.field_list} new_filter={this.state.new_filter} filterChange={this.filterChange} addFilters={this.addFilters} />
         }
 
         var filter_list = []
