@@ -90,13 +90,16 @@ class JournalItems extends React.Component {
         filters['search'] = this.state.search
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
+        console.log('filters')
+        console.log(filters)
+
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
             args: { filters: filters },
             callback: function (r) {
                 if (r.message) {
-                    po.setState({ 'data': r.message.journal_items, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength });
                 }
             }
         });
