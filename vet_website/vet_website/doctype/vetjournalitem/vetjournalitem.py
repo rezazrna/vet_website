@@ -71,7 +71,7 @@ def get_journal_item_list(filters=None):
 			ji['account_name'] = "%s %s"%(frappe.db.get_value('VetCoa', ji.account, 'account_code'), frappe.db.get_value('VetCoa', ji.account, 'account_name'))
 			ji['account_type'] = frappe.db.get_value('VetCoa', ji.account, 'account_type')
 				
-			# journal_items.sort(key=lambda x: x.date, reverse=True)
+			journal_items.sort(key=lambda x: x['date'], reverse=True)
 
 		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength}
 		
