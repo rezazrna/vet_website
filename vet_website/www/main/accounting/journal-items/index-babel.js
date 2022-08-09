@@ -13,7 +13,8 @@ class JournalItems extends React.Component {
             'journals': [],
             'search': false,
             'datalength': 0,
-            'print_loading': false
+            'print_loading': false,
+            'account_name': ''
         }
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -188,7 +189,7 @@ class JournalItems extends React.Component {
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({print_data: r.message.journal_items});
+                        po.setState({print_data: r.message.journal_items, account_name: r.message.account_name});
                         po.printPDF()
                     }
                 }
@@ -276,7 +277,7 @@ class JournalItems extends React.Component {
                         </div>
                     </div>
                     <JournalItemsList account={this.props.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.print_data}/>
+                    <PDF data={this.state.print_data} account_name={this.state.account_name}/>
                 </div>
             )
         }
@@ -504,8 +505,44 @@ class PDF extends React.Component {
         var fs9 = { fontSize: 9 }
         var invoice = { letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18 }
         var invoice2 = { letterSpacing: 0 }
+        var invoice3 = { letterSpacing: 0, marginBottom: 0 }
         var thead = { background: '#d9d9d9', fontSize: 11 }
         var table_rows = []
+        var subtitle = ''
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters.filters.some((element) => element[0] == 'period')) {
+            var period = filters.filters.find((e) => e[0] == 'period')
+            if (period[1] == '=') {
+                tanggal = period[2]
+            } else if (period[1] == '!=') {
+                tanggal = 'Tidak Sama Dengan ' + period[2]
+            } else if (period[1] == 'like') {
+                tanggal = 'Seperti ' + period[2].replaceAll('%', '')
+            } else if (period[1] == 'not like') {
+                tanggal = 'Tidak Seperti ' + period[2].replaceAll('%', '')
+            }
+            subtitle += 'Periode ' + period[2].replaceAll('%', '')
+        } else if (filters.filters.some((element) => element[0] == 'date')) {
+            var date = filters.filters.find((e) => e[0] == 'date')
+            var tanggal = ''
+            if (date[1] == 'between') {
+                tanggal = date[2] + ' - ' + date[3]
+            } else if (date[1] == '=') {
+                tanggal = date[2]
+            } else if (date[1] == '!=') {
+                tanggal = 'Tidak Sama Dengan ' + date[2]
+            } else if (date[1] == '>') {
+                tanggal = 'Lebih Dari ' + date[2]
+            } else if (date[1] == '>=') {
+                tanggal = 'Lebih Dari Sama Dengan ' + date[2]
+            } else if (date[1] == '<') {
+                tanggal = 'Kurang Dari ' + date[2]
+            } else if (date[1] == '<=') {
+                tanggal = 'Kurang Dari Sama Dengan ' + date[2]
+            }
+            subtitle += 'Tanggal ' + tanggal
+        }
 
         // const indexOfLastTodo = this.props.currentpage * 30;
         // const indexOfFirstTodo = indexOfLastTodo - 30;
@@ -534,6 +571,12 @@ class PDF extends React.Component {
                 </tr>
             )
         })
+
+        var account_name
+
+        if (this.props.account_name) {
+            account_name = <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.account_name}</p>
+        }
 
         if (this.state.loaded) {
             var image, account_col
@@ -565,7 +608,8 @@ class PDF extends React.Component {
                             </div>
                             <div className="col-4 px-0">
                                 <p className="fwbold text-right text-uppercase fs28" style={invoice}>{accountParams ? 'General Ledger' : 'Journal'}</p>
-                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{moment().format("MM/YYYY")}</p>
+                                {account_name}
+                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{subtitle}</p>
                             </div>
                             <div className="col-12" style={borderStyle} />
                         </div>
