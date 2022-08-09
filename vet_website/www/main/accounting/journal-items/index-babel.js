@@ -5,6 +5,7 @@ class JournalItems extends React.Component {
         super(props)
         this.state = {
             'data': [],
+            'print_data': [],
             'loaded': false,
             'check_all': false,
             'show_delete': false,
