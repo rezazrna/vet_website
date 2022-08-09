@@ -28,7 +28,8 @@ class JournalItems extends React.Component {
         }
 
         sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
-
+        console.log('new_filters')
+        console.log(new_filters)
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",

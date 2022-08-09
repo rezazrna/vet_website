@@ -55,9 +55,9 @@ def get_journal_item_list(filters=None):
 		datalength = len(frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, as_list=True))
 		if len(journal_entry_search):
 			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
-			journal_items_filters = {'parent': ['in', journal_entry_names]}
+			journal_items_filters = [{'parent': ['in', journal_entry_names]}]
 			if ji_account:
-				journal_items_filters.update({'account': ji_account})
+				journal_items_filters.append({'account': ji_account})
 			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by='creation desc')
 			for ji in journal_items:
 				ji['period'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'period')
