@@ -69,7 +69,7 @@ def get_journal_item_list(filters=None):
 				
 			journal_items.sort(key=lambda x: x.date, reverse=True)
 
-		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength}
+		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength, 'journal_entry_search': journal_entry_search, 'journal_entry_names': journal_entry_names}
 		
 	except PermissionError as e:
 		return {'error': e}
