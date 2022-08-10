@@ -163,7 +163,7 @@ class StockMove extends React.Component {
                         </div>
                     </div>
                     <StockMoveList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.data} search={this.state.search} currentpage={this.state.currentpage} />
+                    <PDF data={this.state.data}/>
                 </div>
             )
         }
@@ -346,15 +346,6 @@ class PDF extends React.Component {
     }
 
     render() {
-        var search = this.props.search
-        function filterRow(row) {
-            function filterField(field) {
-                return field ? field.toString().replace(/&lt;/g, "<").replace(/&gt;/g, ">").includes(search) : false
-            }
-            var fields = [row.product_name, row.parent, row.quantity_done, row.from_name || 'Supplier', row.to_name || 'Customer', moment(row.date || row.creation).format('DD-MM-YYYY'), row.status]
-            return ![false, ''].includes(search) ? fields.some(filterField) : true
-        }
-
         var data = this.props.data
         var profile = this.state.profile
         console.log(data)

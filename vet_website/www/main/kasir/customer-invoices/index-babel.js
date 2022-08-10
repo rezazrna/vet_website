@@ -436,7 +436,7 @@ class CustomerInvoice extends React.Component {
                         </div>
                     </div>
                     <CustomerInvoiceList invoices={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} rawat_inap={this.props.rawat_inap} datalength={this.state.datalength} />
-                    <PDF data={this.state.data} rawat_inap={this.props.rawat_inap} search={this.state.search} currentpage={this.state.currentpage} />
+                    <PDF data={this.state.data} rawat_inap={this.props.rawat_inap} />
                 </div>
             )
         }
@@ -663,16 +663,6 @@ class PDF extends React.Component {
     }
 
     render() {
-        var search = this.props.search
-        function filterRow(row) {
-            function filterField(field) {
-                return field ? field.toString().includes(search) : false
-            }
-            var fields = [moment(row.is_refund ? row.refund_date : row.invoice_date).format("YYYY-MM-DD HH:mm:ss"), row.name, row.owner_name, row.pet_name, row.user_name, row.remaining > 0 ? row.remaining : 0, row.status]
-            rawat_inap ? fields.push(row.credit > 0 ? row.credit : 0) : false
-            return ![false, ''].includes(search) ? fields.some(filterField) : true
-        }
-
         var data = this.props.data
         var profile = this.state.profile
         var rawat_inap = this.props.rawat_inap || false

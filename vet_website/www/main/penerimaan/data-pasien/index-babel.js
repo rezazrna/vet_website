@@ -295,7 +295,7 @@ class Pet extends React.Component {
                     </div>
                     <PetList pets={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
                     {popup}
-                    <PDF data={this.state.data} search={this.state.search} currentpage={this.state.currentpage} />
+                    <PDF data={this.state.data} />
                 </div>
             )
         }
@@ -497,15 +497,7 @@ class PDF extends React.Component {
     }
 
     render() {
-        // var search = this.props.search
         var profile = this.state.profile
-        // function filterPet(pet){
-        //     function filterField(field){
-        //         return field?field.toString().includes(search):false
-        //     }
-        //     var fields = [pet.register_date, pet.name, pet.pet_name, pet.pet_owner.owner_name, pet.pet_type.type_name, pet.pet_description]
-        //     return ![false,''].includes(search)?fields.some(filterField):true
-        // }
 
         var data = this.props.data
         console.log(data)

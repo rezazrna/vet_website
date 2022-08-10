@@ -265,7 +265,7 @@ class PurchaseOrder extends React.Component {
         var print_button, pdf
         if (!product) {
             print_button = <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => this.printPDF()}>Print</button>
-            pdf = <PDF data={this.state.data} search={this.state.search} currentpage={this.state.currentpage} />
+            pdf = <PDF data={this.state.data}/>
         }
 
         var row_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px' }
@@ -577,19 +577,7 @@ class PDF extends React.Component {
     }
 
     render() {
-        var search = this.props.search
         var profile = this.state.profile
-        function filterRow(row) {
-            function filterField(field) {
-                return field ? field.toString().includes(search) : false
-            }
-            var fields
-            product ?
-                fields = [moment(row.is_refund == 1 ? row.refund_date : row.order_date).format("DD-MM-YYYY"), row.name, row.purchase_product.product_name, row.purchase_product.quantity, row.purchase_product.quantity_receive, row.purchase_product.uom_name, row.purchase_product.price, row.total, row.status] :
-                fields = [moment(row.is_refund == 1 ? row.refund_date : row.order_date).format("DD-MM-YYYY"), row.name, row.supplier, row.paid, row.total, row.status]
-            return ![false, ''].includes(search) ? fields.some(filterField) : true
-        }
-
         var data = this.props.data
         console.log(data)
         var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }

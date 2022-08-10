@@ -244,7 +244,7 @@ class PetOwner extends React.Component {
                         </div>
                     </div>
                     <PetOwnerList owners={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.data} search={this.state.search} currentpage={this.state.currentpage} />
+                    <PDF data={this.state.data}/>
                 </div>
             )
         }
@@ -419,14 +419,6 @@ class PDF extends React.Component {
     }
 
     render() {
-        var search = this.props.search
-        function filterOwner(owner) {
-            function filterField(field) {
-                return owner[field] ? owner[field].toString().includes(search) : false
-            }
-            var fields = ['creation', 'nik', 'owner_name', 'address', 'phone', 'email', 'debt']
-            return ![false, ''].includes(search) ? fields.some(filterField) : true
-        }
 
         var data = this.props.data
         var profile = this.state.profile

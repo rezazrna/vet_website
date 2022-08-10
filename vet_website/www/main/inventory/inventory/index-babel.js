@@ -219,7 +219,7 @@ class Inventory extends React.Component {
         
         if(!product){
             print_button = <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => this.printPDF()}>Print</button>
-            pdf = <PDF data={this.state.data} valuation={this.props.valuation} currentpage={this.state.currentpage}/>
+            pdf = <PDF data={this.state.data} valuation={this.props.valuation}/>
         }
         
         if (this.state.loaded){

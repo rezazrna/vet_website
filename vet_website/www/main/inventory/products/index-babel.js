@@ -237,7 +237,7 @@ class Products extends React.Component {
                         </div>
                     </div>
                     <ProductGrid items={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.data} search={this.state.search} currentpage={this.state.currentpage} />
+                    <PDF data={this.state.data}/>
                 </div>
             )
         }
@@ -421,15 +421,6 @@ class PDF extends React.Component {
     }
 
     render() {
-        var search = this.props.search
-        function filterRow(row) {
-            function filterField(field) {
-                return field ? field.toString().replace(/&lt;/g, "<").replace(/&gt;/g, ">").includes(search) : false
-            }
-            var fields = [row.product_name, row.quantity, row.price]
-            return ![false, ''].includes(search) ? fields.some(filterField) : true
-        }
-
         var data = this.props.data
         var profile = this.state.profile
         console.log(data)
