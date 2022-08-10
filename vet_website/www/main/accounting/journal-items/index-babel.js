@@ -1,4 +1,6 @@
 var accountParams = getUrlParameter('account')
+var ji = document.getElementById('journal_item_list')
+var gl = document.getElementById('general_ledger_list')
 
 class JournalItems extends React.Component {
     constructor(props) {
@@ -14,7 +16,9 @@ class JournalItems extends React.Component {
             'search': false,
             'datalength': 0,
             'print_loading': false,
-            'account': this.props.account
+            'account': this.props.account,
+            'account_input': '',
+            'coaAll': []
         }
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -42,7 +46,7 @@ class JournalItems extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coalAll});
+                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coaAll});
                 }
             }
         });
@@ -69,7 +73,7 @@ class JournalItems extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coalAll});
+                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coaAll});
                 }
             }
         });
@@ -80,7 +84,9 @@ class JournalItems extends React.Component {
         if (filters.sort != undefined) {
             filters.journal = filters.sort
         }
-        if (this.state.account != undefined) {
+        console.log('account')
+        console.log(this.state.account)
+        if (this.state.account != undefined && filters.account == undefined) {
             filters.account = this.state.account
         }
         var po = this
@@ -102,24 +108,42 @@ class JournalItems extends React.Component {
             args: { filters: filters },
             callback: function (r) {
                 if (r.message) {
-                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coalAll });
+                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coaAll });
                 }
             }
         });
     }
 
-    handleInputBlur(e, list) {
+    handleInputChange(e) {
+        const value = e.target.value
+        var selected = this.state.coaAll.find(i => i.account_name == value)
+
+        console.log(value)
+    	
+    	if (selected) {
+    	    var tempFilters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+            tempFilters.account = selected.name
+            this.setState({account: selected.name, account_input: selected.account_name})
+            this.itemSearch(tempFilters)
+    	} else {
+            this.setState({account_input: value})
+        }
+    }
+
+    handleInputBlur(e) {
         const value = e.target.value
     	var selected = false
     	
-    	selected = this.state.coaAll.find(i => i.name == value)
+    	selected = this.state.coaAll.find(i => i.account_name == value)
     	
     	if (!selected) {
     	    e.target.value = ''
-            this.setState({})
+            this.setState({account: undefined, account_input : ''})
     	} else {
-            this.setState({account: value})
-            this.itemSearch(JSON.parse(sessionStorage.getItem(window.location.pathname)))
+            var tempFilters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+            tempFilters.account = selected.name
+            this.setState({account: selected.name, account_input: selected.account_name})
+            this.itemSearch(tempFilters)
         }
     }
 
@@ -255,25 +279,6 @@ class JournalItems extends React.Component {
         if (this.state.show_delete) {
             delete_button = <button className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => frappe.msgprint("Journal Item tidak bisa dihapus karena akan menyebabkan Journal Entry tidak balance, jika ingin menghapus lakukan lewat Journal Entry")}>Hapus</button>
         }
-        if (this.state.account != undefined) {
-            var color = { color: '#056EAD', cursor: 'pointer' }
-            back_button = <span className="fs16 fw600 mr-4 my-auto" style={color} onClick={() => { history.back() }}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
-            var coa = this.state.coaAll.find((e) => e.name == this.state.account)
-            account_name = coa != undefined ? coa.account_name : ''
-        }
-
-        if (accountParams == undefined) {
-            this.state.coaAll.forEach(function(item, index) {
-                account_options.push(<option value={item.name} key={index.toString()} >{item.account_name}</option>)
-            })
-
-            account_dropdown = <div className="col">
-                                <input style={input_style} name='account' list="list_account" id="account" className="form-control border-0 " onBlur={e => this.handleInputBlur(e)} />
-                                <datalist id="list_account">
-                                    {account_options}
-                                </datalist>
-                            </div>
-        }
 
         var field_list = [
             //  {'label': 'Journal Name', 'field': 'journal_name', 'type': 'char'},
@@ -295,6 +300,26 @@ class JournalItems extends React.Component {
                 :"Print"}</button>
 
         if (this.state.loaded) {
+            if (this.state.account != undefined) {
+                var color = { color: '#056EAD', cursor: 'pointer' }
+                back_button = <span className="fs16 fw600 mr-4 my-auto" style={color} onClick={() => { history.back() }}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
+                var coa = this.state.coaAll.find((e) => e.name == this.state.account)
+                account_name = coa != undefined ? coa.account_name : ''
+            }
+    
+            if (gl != undefined && accountParams == undefined) {
+                this.state.coaAll.forEach(function(item, index) {
+                    account_options.push(<option value={item.account_name} key={index.toString()} />)
+                })
+    
+                account_dropdown = <div className="col">
+                                    <input style={input_style} name='account' list="list_account" id="account" className="form-control border-0 " onChange={e => this.handleInputChange(e)} onBlur={e => this.handleInputBlur(e)} value={this.state.account_input}/>
+                                    <datalist id="list_account">
+                                        {account_options}
+                                    </datalist>
+                                </div>
+            }
+
             return (
                 <div>
                     <div className="row mx-0" style={row_style}>
@@ -312,7 +337,7 @@ class JournalItems extends React.Component {
                         </div>
                     </div>
                     <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.print_data} account_name={account_name}/>
+                    <PDF data={this.state.print_data} account_name={account_name} account={this.state.account}/>
                 </div>
             )
         }
@@ -629,7 +654,7 @@ class PDF extends React.Component {
         // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
         // // currentItems = data.slice(0,30)
 
-        if (accountParams != undefined) {
+        if (this.props.account != undefined) {
             var saldo_awal = 0
 
             if (data.length > 0 && data[0].debit > 0) {
@@ -653,7 +678,7 @@ class PDF extends React.Component {
 
         data.forEach((d, index) => {
             var account_col
-            if (accountParams != undefined) {
+            if (this.props.account != undefined) {
                 account_col = (
                     <td className="py-1" width="90px">{formatter2.format(d.total || d.computed_total || 0)}</td>
                 )
@@ -687,7 +712,7 @@ class PDF extends React.Component {
                 image = <img src={profile.temp_image} style={image_style} />
             }
 
-            if (accountParams != undefined) {
+            if (this.props.account != undefined) {
                 account_col = (
                     <th className="fw700 py-1" width="90px">Total</th>
                 )
@@ -707,7 +732,7 @@ class PDF extends React.Component {
                                 <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
                             </div>
                             <div className="col-4 px-0">
-                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>{accountParams ? 'General Ledger' : 'Journal'}</p>
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>{this.props.account ? 'General Ledger' : 'Journal'}</p>
                                 {account_name}
                                 <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{subtitle}</p>
                             </div>
@@ -744,8 +769,6 @@ class PDF extends React.Component {
     }
 }
 
-var ji = document.getElementById('journal_item_list')
-var gl = document.getElementById('general_ledger_list')
 if (ji != undefined) {
     ReactDOM.render(<JournalItems />, document.getElementById('journal_item_list'))
 }
