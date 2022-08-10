@@ -393,7 +393,7 @@ class KartuStokList extends React.Component {
             // currentItems = items.slice(indexOfFirstTodo, indexOfLastTodo)
             rows.push(
                 <div className="row mx-0">
-                    <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                    <div className="col row-list row-list-link">
                         <div className="row mx-0 fs12 fw600">
                             {/* <div className="col-3 text-center">
                                 <span>{item.product_name.replace(/&lt;/g, "<").replace(/&gt;/g, ">")}</span>

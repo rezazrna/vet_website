@@ -329,6 +329,56 @@ class JournalItemsList extends React.Component {
             // ![false,''].includes(search)?
             // currentItems = data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
             // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
+            
+            if (this.props.account != undefined) {
+                account_col = (
+                    <div className="col d-flex">
+                        <span className="my-auto">Total</span>
+                    </div>
+                )
+
+                var saldo_awal = 0
+
+                if (data.length > 0 && data[0].debit > 0) {
+                    saldo_awal = data[0].total + data[0].debit
+                } else if (data.length > 0 && data[0].credit > 0) {
+                    saldo_awal = data[0].total - data[0].credit
+                }
+
+                item_rows.push(
+                    <div className="row mx-0">
+                        <div className="col row-list row-list-link">
+                            <div className="row mx-0 fs12 fw600">
+                                <div className="col-1 d-flex">
+                                    <span className="my-auto"></span>
+                                </div>
+                                <div className="col-1 d-flex">
+                                    <span className="my-auto"></span>
+                                </div>
+                                <div className="col-1 d-flex">
+                                    <span className="my-auto"></span>
+                                </div>
+                                <div className="col-2 d-flex">
+                                    <span className="my-auto"></span>
+                                </div>
+                                <div className="col-3 d-flex">
+                                    <span className="my-auto"></span>
+                                </div>
+                                <div className="col d-flex">
+                                    <span className="my-auto"></span>
+                                </div>
+                                <div className="col d-flex">
+                                    <span className="my-auto"></span>
+                                </div>
+                                <div className="col d-flex">
+                                    <span className="my-auto">{formatter2.format(saldo_awal)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
             data.forEach(function (item, index) {
                 if (item.debit != 0 || item.credit != 0) {
                     // if (currentItems.includes(item)){
@@ -338,14 +388,6 @@ class JournalItemsList extends React.Component {
                     // }
                 }
             })
-
-            if (this.props.account != undefined) {
-                account_col = (
-                    <div className="col d-flex">
-                        <span className="my-auto">Total</span>
-                    </div>
-                )
-            }
 
             return (
                 <div style={panel_style}>
@@ -551,6 +593,29 @@ class PDF extends React.Component {
         // currentItems = data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
         // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
         // // currentItems = data.slice(0,30)
+
+        if (accountParams != undefined) {
+            var saldo_awal = 0
+
+            if (data.length > 0 && data[0].debit > 0) {
+                saldo_awal = data[0].total + data[0].debit
+            } else if (data.length > 0 && data[0].credit > 0) {
+                saldo_awal = data[0].total - data[0].credit
+            }
+            
+            table_rows.push(
+                <tr key='999999' style={fs9}>
+                    <td className="py-1" width="89px"></td>
+                    <td className="py-1" width="88px"></td>
+                    <td className="py-1" width="88px"></td>
+                    <td className="py-1" width="202px"></td>
+                    <td className="py-1" width="90px"></td>
+                    <td className="py-1" width="90px"></td>
+                    <td className="py-1" width="90px">{formatter2.format(saldo_awal)}</td>
+                </tr>
+            )
+        }
+
         data.forEach((d, index) => {
             var account_col
             if (accountParams != undefined) {
