@@ -14,7 +14,8 @@ class JournalItems extends React.Component {
             'search': false,
             'datalength': 0,
             'print_loading': false,
-            'account_name': ''
+            'account_name': '',
+            'account': this.props.account
         }
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -26,14 +27,14 @@ class JournalItems extends React.Component {
         var po = this
         var new_filters = { filters: [], sorts: [] }
 
-        if (this.props.account != undefined) {
-            new_filters.account = this.props.account
+        if (this.state.account != undefined) {
+            new_filters.account = this.state.account
         }
 
         sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
         console.log('new_filters')
         console.log(new_filters)
-        console.log(this.props.account)
+        console.log(this.state.account)
         console.log(accountParams)
         frappe.call({
             type: "GET",
@@ -42,7 +43,7 @@ class JournalItems extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coalAll});
                 }
             }
         });
@@ -69,7 +70,7 @@ class JournalItems extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coalAll});
                 }
             }
         });
@@ -80,8 +81,8 @@ class JournalItems extends React.Component {
         if (filters.sort != undefined) {
             filters.journal = filters.sort
         }
-        if (this.props.account != undefined) {
-            filters.account = this.props.account
+        if (this.state.account != undefined) {
+            filters.account = this.state.account
         }
         var po = this
         this.setState({
@@ -102,10 +103,25 @@ class JournalItems extends React.Component {
             args: { filters: filters },
             callback: function (r) {
                 if (r.message) {
-                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coalAll });
                 }
             }
         });
+    }
+
+    handleInputBlur(e, list) {
+        const value = e.target.value
+    	var selected = false
+    	
+    	selected = this.state.coaAll.find(i => i.name == value)
+    	
+    	if (!selected) {
+    	    e.target.value = ''
+            this.setState({})
+    	} else {
+            this.setState({account: value})
+            this.itemSearch(JSON.parse(sessionStorage.getItem(window.location.pathname)))
+        }
     }
 
     checkAll() {
@@ -232,13 +248,29 @@ class JournalItems extends React.Component {
 
         var row_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px' }
         var formStyle = { border: '1px solid #397DA6', color: '#397DA6' }
-        var delete_button, back_button
+        var input_style = {background: '#CEEDFF'}
+        var delete_button, back_button, account_dropdown
+        var account_options = []
+
         if (this.state.show_delete) {
             delete_button = <button className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => frappe.msgprint("Journal Item tidak bisa dihapus karena akan menyebabkan Journal Entry tidak balance, jika ingin menghapus lakukan lewat Journal Entry")}>Hapus</button>
         }
-        if (this.props.account != undefined) {
+        if (this.state.account != undefined) {
             var color = { color: '#056EAD', cursor: 'pointer' }
             back_button = <span className="fs16 fw600 mr-4 my-auto" style={color} onClick={() => { history.back() }}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
+        }
+
+        if (accountParams == undefined) {
+            this.state.coaAll.forEach(function(item, index) {
+                account_options.push(<option value={item.name} key={index.toString()} >{item.account_name}</option>)
+            })
+
+            account_dropdown = <div className="col">
+                                <input style={input_style} name='account' list="list_account" id="account" className="form-control border-0 " onBlur={e => this.handleInputBlur(e)} />
+                                <datalist id="list_account">
+                                    {account_options}
+                                </datalist>
+                            </div>
         }
 
         var field_list = [
@@ -272,11 +304,12 @@ class JournalItems extends React.Component {
                         <div className="col">
                             <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.itemSearch(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
                         </div>
+                        {account_dropdown}
                         <div className="col-7">
                             <Filter sorts={[]} searchAction={this.itemSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))} />
                         </div>
                     </div>
-                    <JournalItemsList account={this.props.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
+                    <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
                     <PDF data={this.state.print_data} account_name={this.state.account_name}/>
                 </div>
             )
@@ -602,7 +635,7 @@ class PDF extends React.Component {
             } else if (data.length > 0 && data[0].credit > 0) {
                 saldo_awal = data[0].total - data[0].credit
             }
-            
+
             table_rows.push(
                 <tr key='999999' style={fs9}>
                     <td className="py-1" width="89px"></td>

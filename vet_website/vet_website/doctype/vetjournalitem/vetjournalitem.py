@@ -79,8 +79,9 @@ def get_journal_item_list(filters=None, all_page=False):
 			ji['account_type'] = frappe.db.get_value('VetCoa', ji.account, 'account_type')
 				
 		journal_items.sort(key=lambda x: x.date, reverse=True)
+		coaAll = frappe.get_list("VetCoa", fields=["name","account_name", "account_code"])
 
-		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength, 'account_name': account_name}
+		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength, 'account_name': account_name, 'coaAll': coaAll}
 		
 	except PermissionError as e:
 		return {'error': e}
