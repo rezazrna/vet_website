@@ -21,7 +21,6 @@ def get_journal_item_list(filters=None, all_page=False):
 	filter_json = False
 	ji_account = False
 	page = 1
-	account_name = ''
 	
 	if filters:
 		try:
@@ -62,7 +61,6 @@ def get_journal_item_list(filters=None, all_page=False):
 			journal_items_filters.append({'parent': ['in', journal_entry_names]})
 		if ji_account:
 			journal_items_filters.append({'account': ji_account})
-			account_name = frappe.db.get_value('VetCoa', ji_account, 'account_name')
 		if all_page:
 			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by='creation desc')
 		else:
@@ -81,7 +79,7 @@ def get_journal_item_list(filters=None, all_page=False):
 		journal_items.sort(key=lambda x: x.date, reverse=True)
 		coaAll = frappe.get_list("VetCoa", fields=["name","account_name", "account_code"])
 
-		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength, 'account_name': account_name, 'coaAll': coaAll}
+		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength, 'coaAll': coaAll}
 		
 	except PermissionError as e:
 		return {'error': e}

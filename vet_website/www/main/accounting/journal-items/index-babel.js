@@ -14,7 +14,6 @@ class JournalItems extends React.Component {
             'search': false,
             'datalength': 0,
             'print_loading': false,
-            'account_name': '',
             'account': this.props.account
         }
         this.checkRow = this.checkRow.bind(this);
@@ -205,7 +204,7 @@ class JournalItems extends React.Component {
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({print_data: r.message.journal_items, account_name: r.message.account_name});
+                        po.setState({print_data: r.message.journal_items});
                         po.printPDF()
                     }
                 }
@@ -251,6 +250,7 @@ class JournalItems extends React.Component {
         var input_style = {background: '#CEEDFF'}
         var delete_button, back_button, account_dropdown
         var account_options = []
+        var account_name = ''
 
         if (this.state.show_delete) {
             delete_button = <button className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => frappe.msgprint("Journal Item tidak bisa dihapus karena akan menyebabkan Journal Entry tidak balance, jika ingin menghapus lakukan lewat Journal Entry")}>Hapus</button>
@@ -258,6 +258,8 @@ class JournalItems extends React.Component {
         if (this.state.account != undefined) {
             var color = { color: '#056EAD', cursor: 'pointer' }
             back_button = <span className="fs16 fw600 mr-4 my-auto" style={color} onClick={() => { history.back() }}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
+            var coa = this.state.coaAll.find((e) => e.name == this.state.account)
+            account_name = coa != undefined ? coa.account_name : ''
         }
 
         if (accountParams == undefined) {
@@ -310,7 +312,7 @@ class JournalItems extends React.Component {
                         </div>
                     </div>
                     <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.print_data} account_name={this.state.account_name}/>
+                    <PDF data={this.state.print_data} account_name={account_name}/>
                 </div>
             )
         }
