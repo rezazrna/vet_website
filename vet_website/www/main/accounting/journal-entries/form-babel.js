@@ -300,7 +300,7 @@ class JournalEntryMainForm extends React.Component {
     
     render() {
         var moment_date = moment()
-        var period_list = Array.apply(0, Array(12)).map((a,i) => moment().month(i).format('MM/YYYY'))
+        var period_list = Array.apply(0, Array(36)).map((a,i) => moment().month(i).format('MM/YYYY'))
         var bgstyle2 = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
         var inputStyle = {height:'35px'}
         var cursor = {cursor: 'pointer'}

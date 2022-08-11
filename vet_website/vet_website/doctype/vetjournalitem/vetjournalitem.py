@@ -7,6 +7,7 @@ import frappe
 import json
 from datetime import datetime as dt
 from frappe.model.document import Document
+from dateutil.relativedelta import relativedelta as rd
 
 class VetJournalItem(Document):
 	pass
@@ -14,7 +15,7 @@ class VetJournalItem(Document):
 	# 	set_journal_item_total(self.name)
 	
 @frappe.whitelist()
-def get_journal_item_list(filters=None, all_page=False):
+def get_journal_item_list(filters=None, all_page=False, mode=False):
 	default_sort = "date desc, reference desc"
 	je_filters = []
 	je_or_filters = []
@@ -33,6 +34,7 @@ def get_journal_item_list(filters=None, all_page=False):
 		account = filter_json.get('account', False)
 		currentpage = filter_json.get('currentpage', False)
 		search = filter_json.get('search', False)
+		journal_date = filter_json.get('journal_date', False)
 
 		if currentpage:
 			page = currentpage
@@ -47,6 +49,22 @@ def get_journal_item_list(filters=None, all_page=False):
 
 		if account:
 			ji_account =  account
+
+		if journal_date:
+			max_date_dt = dt.strptime(journal_date, '%Y-%m-%d') - rd(days=1)
+			if mode == 'monthly':
+				min_date = (max_date_dt).strftime('%Y-%m-01')
+			else:
+				min_date = max_date_dt.strftime('%Y-01-01')
+			print('min date')
+			print(min_date)
+			print('max date')
+			print(max_date_dt.strftime('%Y-%m-%d'))
+			print(mode)
+			# td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			# moves_filters.append({'date': ['<', min_date]})
+			# nilai_akhir_filters.append({'date': ['<', max_date_dt.strftime('%Y-%m-%d')]})
+			je_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 	try:
 		journals = []
 		if not all_page:
