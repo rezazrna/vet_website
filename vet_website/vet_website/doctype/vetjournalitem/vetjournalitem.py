@@ -48,7 +48,9 @@ def get_journal_item_list(filters=None, all_page=False):
 		if account:
 			ji_account =  account
 	try:
-		journals = frappe.get_list("VetJournal", fields=["name","journal_name"])
+		journals = []
+		if not all_page:
+			journals = frappe.get_list("VetJournal", fields=["name","journal_name"])
 		journal_items = []
 		journal_entry_search = []
 		if je_filters or je_or_filters:
@@ -77,7 +79,9 @@ def get_journal_item_list(filters=None, all_page=False):
 			ji['account_type'] = frappe.db.get_value('VetCoa', ji.account, 'account_type')
 				
 		journal_items.sort(key=lambda x: x.date, reverse=True)
-		coaAll = frappe.get_list("VetCoa", fields=["name","account_name", "account_code"])
+		coaAll = []
+		if not all_page:
+			coaAll = frappe.get_list("VetCoa", fields=["name","account_name", "account_code"])
 
 		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength, 'coaAll': coaAll}
 		
