@@ -314,9 +314,9 @@ class JournalItems extends React.Component {
             if (this.state.mode == 'monthly') {
                 title += 'Monthly-' + moment(filters.journal_date).format('MM-YYYY')
             } else if (this.state.mode == 'annual') {
-                title = 'Annual-' + moment(filters.journal_date).format('YYYY')
+                title += 'Annual-' + moment(filters.journal_date).format('YYYY')
             } else if (this.state.mode == 'period') {
-                title = 'Periode-sampai-' + moment(filters.journal_date).format('MM-YYYY')
+                title += 'Periode-sampai-' + moment(filters.journal_date).format('MM-YYYY')
             }
         } else if (filters.filters.some((element) => element[0] == 'period')) {
             var period = filters.filters.find((e) => e[0] == 'period')
