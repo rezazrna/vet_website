@@ -30,6 +30,18 @@ class JournalItems extends React.Component {
 
     componentDidMount() {
         var po = this
+        var new_filters = { filters: [], sorts: [] }
+
+        if (this.state.account != undefined) {
+            new_filters.account = this.state.account
+        }
+
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
+        console.log('new_filters')
+        console.log(new_filters)
+        console.log(this.state.account)
+        console.log(accountParams)
+
         if (gl != undefined && accountParams == undefined) {
             frappe.call({
                 type: "GET",
@@ -43,17 +55,6 @@ class JournalItems extends React.Component {
                 }
             });   
         } else {
-            var new_filters = { filters: [], sorts: [] }
-
-            if (this.state.account != undefined) {
-                new_filters.account = this.state.account
-            }
-
-            sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
-            console.log('new_filters')
-            console.log(new_filters)
-            console.log(this.state.account)
-            console.log(accountParams)
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
