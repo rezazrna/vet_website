@@ -107,6 +107,16 @@ def get_journal_item_list(filters=None, all_page=False, mode=False):
 		return {'error': e}
 
 @frappe.whitelist()
+def get_coa_all():
+	try:
+		coaAll = frappe.get_list("VetCoa", fields=["name","account_name", "account_code"])
+
+		return {'coaAll': coaAll}
+		
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
 def delete_journal_item(data):
 	try:
 		data_json = json.loads(data)
