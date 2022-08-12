@@ -108,7 +108,11 @@ class JournalEntry extends React.Component {
             }
     	    new_data.journal_items[i][name] = value
 	        this.setState({data: new_data})
-    	}
+    	} else if (name == 'date') {
+            new_data[name] = value
+            new_data.period = moment(value).format("MM-YYYY")
+	        this.setState({data: new_data})
+        }
     	else {
     	    new_data[name] = value
 	        this.setState({data: new_data})
@@ -300,14 +304,14 @@ class JournalEntryMainForm extends React.Component {
     
     render() {
         var moment_date = moment()
-        var period_list = Array.apply(0, Array(36)).map((a,i) => moment().month(i).format('MM/YYYY'))
+        // var period_list = Array.apply(0, Array(36)).map((a,i) => moment().month(i).format('MM/YYYY'))
         var bgstyle2 = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
         var inputStyle = {height:'35px'}
         var cursor = {cursor: 'pointer'}
         var data = this.props.data
         var journal, period, date, reference, keterangan
         var journal_options = []
-        var period_options = []
+        // var period_options = []
         
         if (id == undefined || this.props.edit) {
             
@@ -315,15 +319,18 @@ class JournalEntryMainForm extends React.Component {
                 journal_options.push(<option value={item.name} key={index.toString()}>{item.journal_name}</option>)
             })
             
-            period_list.forEach((i, index) => period_options.push(<option value={i} key={i}>{i}</option>))
+            // period_list.forEach((i, index) => period_options.push(<option value={i} key={i}>{i}</option>))
             
             journal = <input required name='journal' list="journal" id="journal" className="form-control border-0 lightbg" onChange={this.props.handleInputChange} onBlur={e => this.props.handleInputBlur(e, this.props.journals)} value={data.journal_name || ''}/>
-			period = (
-			    <select required id="period" name='period' className="form-control border-0 lightbg" onChange={this.props.handleInputChange} value={data.period || ''}>
-			    <option/>
-			    {period_options}
-			    </select>
-			    )
+			// period = (
+			//     <select required id="period" name='period' className="form-control border-0 lightbg" onChange={this.props.handleInputChange} value={data.period || ''}>
+			//     <option/>
+			//     {period_options}
+			//     </select>
+			//     )
+
+            period = <input readOnly id="period" name='period' className="form-control border-0 lightbg" onChange={this.props.handleInputChange} value={data.period || ''} />
+                    
 			
 			date = <input required type="date" id="date" name='date' className="form-control border-0 lightbg" onChange={this.props.handleInputChange} value={data.date || ''}/>
 			reference = <input required type="text" id="reference" name='reference' className="form-control border-0 lightbg" onChange={this.props.handleInputChange} value={data.reference || ''}/>
