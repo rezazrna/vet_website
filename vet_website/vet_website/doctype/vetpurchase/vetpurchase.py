@@ -1052,7 +1052,8 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 		'period': dt.now(tz).strftime('%m/%Y'),
 		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': purchase.name,
-		'journal_items': jis
+		'journal_items': jis,
+		'keterangan': purchase.supplier_name
 	}
 	
 	new_journal_entry(json.dumps(je_data))
@@ -1079,6 +1080,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 	
 def create_purchase_payment_journal_items(purchase_name, amount, refund=False, deposit=0, method=False, date=False):
 	tz = pytz.timezone("Asia/Jakarta")
+	purchase = frappe.get_doc('VetPurchase', purchase_name)
 	#create payment choose payment journal
 	# purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
 
@@ -1119,7 +1121,6 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 			}
 		]
 	else:
-		purchase = frappe.get_doc('VetPurchase', purchase_name)
 		paid = sum(i.jumlah for i in purchase.pembayaran)
 		subtotal = 0 - (purchase.potongan or 0)
 		for p in purchase.products:
@@ -1181,7 +1182,8 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 		'period': (date or dt.now(tz)).strftime('%m/%Y'),
 		'date': (date or dt.now(tz)).date().strftime('%Y-%m-%d'),
 		'reference': purchase_name,
-		'journal_items': jis
+		'journal_items': jis,
+		'keterangan': purchase.supplier_name
 	}
 	
 	new_journal_entry(json.dumps(je_data))

@@ -1503,7 +1503,8 @@ def create_sales_journal_entry(invoice_name, refund=False):
 		'period': dt.now(tz).strftime('%m/%Y'),
 		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': invoice.name,
-		'journal_items': jis
+		'journal_items': jis,
+		'keterangan': invoice.owner_name
 	}
 	
 	new_journal_entry(json.dumps(je_data))
@@ -1511,6 +1512,7 @@ def create_sales_journal_entry(invoice_name, refund=False):
 	
 def create_sales_payment_journal_items(invoice_name, amount, refund=False, deposit=0, method=False, refund_from=False):
 	tz = pytz.timezone("Asia/Jakarta")
+	invoice = frappe.get_doc('VetCustomerInvoice', invoice_name)
 	#create payment choose payment journal
 	# sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	if refund:
@@ -1604,7 +1606,6 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 								'credit': amount,
 							})
 	else:
-		invoice = frappe.get_doc('VetCustomerInvoice', invoice_name)
 		paid = sum(i.jumlah for i in invoice.pembayaran)
 		jis = []
 		
@@ -1644,7 +1645,8 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 		'period': dt.now(tz).strftime('%m/%Y'),
 		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': invoice_name,
-		'journal_items': jis
+		'journal_items': jis,
+		'keterangan': invoice.owner_name
 	}
 	
 	new_journal_entry(json.dumps(je_data))
@@ -1724,7 +1726,8 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 		'period': dt.now(tz).strftime('%m/%Y'),
 		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': invoice_name,
-		'journal_items': jis
+		'journal_items': jis,
+		'keterangan': invoice.owner_name
 	}
 	
 	new_journal_entry(json.dumps(je_data))
@@ -1802,7 +1805,8 @@ def add_payment_from_deposit(data):
 				'period': dt.now(tz).strftime('%m/%Y'),
 				'date': dt.now(tz).date().strftime('%Y-%m-%d'),
 				'reference': invoice.name,
-				'journal_items': jis
+				'journal_items': jis,
+				'keterangan': invoice.owner_name
 			}
 			
 			new_journal_entry(json.dumps(je_data))
