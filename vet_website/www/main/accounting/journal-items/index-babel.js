@@ -20,7 +20,10 @@ class JournalItems extends React.Component {
             'account_input': '',
             'coaAll': [],
             'month': '',
+            'min_month': '',
             'year': '',
+            'min_date': '',
+            'max_date': ''
         }
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -167,14 +170,22 @@ class JournalItems extends React.Component {
     setMode(e) {
         var th = this
         var mode = e.target.value
-        th.setState({ 'mode': mode, 'month': '', 'year': '' })
+        th.setState({ 'mode': mode, 'min_month': '', 'month': '',
+         'year': '', 'journal_min_date': undefined, 'journal_date': undefined,
+         'min_date': '', 'max_date': ''
+        })
     }
 
     filterChange(e) {
         var th = this
         var name = e.target.name
         var value = e.target.value
-        if (name == 'month') {
+        if (name == 'min_month') {
+            var journal_min_date
+            this.setState({ min_month: value })
+            journal_min_date = moment(this.state.year + '-' + value + '-01', 'YYYY-MM-DD').format('YYYY-MM-DD')
+            th.setState({ journal_min_date: journal_min_date })
+        } else if (name == 'month') {
             var journal_date
             this.setState({ month: value })
             journal_date = moment(this.state.year + '-' + value, 'YYYY-MM').add(1, 'month').format('YYYY-MM-DD')
@@ -189,6 +200,10 @@ class JournalItems extends React.Component {
             }
 
             th.setState({ journal_date: journal_date })
+        } else if (name == 'min_date') {
+            th.setState({min_date: value, journal_min_date: value})
+        } else if (name == 'max_date') {
+            th.setState({max_date: value, journal_date: value})
         }
     }
 
@@ -199,11 +214,17 @@ class JournalItems extends React.Component {
         }
         console.log(this.state.mode)
         console.log(this.state.month)
+        console.log(this.state.min_month)
         console.log(this.state.year)
-        console.log(this.state.stock_date)
-        console.log(this.state.gudang)
-        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
+        console.log(this.state.journal_date)
+        console.log(this.state.min_date)
+        console.log(this.state.max_date)
+        if ((((this.state.mode == 'monthly' && this.state.month != '') ||
+         (this.state.mode == 'period' && this.state.month != '' && this.state.min_month != '')
+          || (this.state.mode == 'annual')) && this.state.year != '') ||
+          (this.state.mode == 'daily' && this.state.min_date != '' && this.state.max_date != '')) {
             filters['journal_date'] = this.state.journal_date
+            filters['journal_min_date'] = this.state.journal_min_date
             sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             console.log(filters)
             this.itemSearch(filters)
@@ -219,7 +240,7 @@ class JournalItems extends React.Component {
             //     }
             // });
         } else {
-            frappe.msgprint(('Month or Year must be selected'));
+            frappe.msgprint(('Date or Month or Year must be selected'));
         }
     }
 
@@ -331,7 +352,9 @@ class JournalItems extends React.Component {
             } else if (this.state.mode == 'annual') {
                 title += 'Annual-' + moment(filters.journal_date).format('YYYY')
             } else if (this.state.mode == 'period') {
-                title += 'Periode-sampai-' + moment(filters.journal_date).format('MM-YYYY')
+                title += 'Periode-' + moment(filters.journal_min_date).format('MM-YYYY') + '-' + moment(filters.journal_date).format('MM-YYYY') 
+            } else if (this.state.mode == 'daily') {
+                title += 'Tanggal-' + moment(filters.journal_min_date).format('DD-MM-YYYY') + '-' + moment(filters.journal_date).format('DD-MM-YYYY')
             }
         } else if (filters.filters.some((element) => element[0] == 'period')) {
             var period = filters.filters.find((e) => e[0] == 'period')
@@ -393,7 +416,7 @@ class JournalItems extends React.Component {
         var row_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px' }
         var formStyle = { border: '1px solid #397DA6', color: '#397DA6' }
         var input_style = {background: '#CEEDFF'}
-        var delete_button, back_button, account_dropdown, mode_options, sd_period, month_select, year_select, set_button
+        var delete_button, back_button, account_dropdown, mode_options, sd_period, month_select, year_select, set_button, min_month_select, min_date_input, max_date_input
         var account_options = []
         var account_name = ''
 
@@ -459,6 +482,12 @@ class JournalItems extends React.Component {
                         sd_period = <div className="col-auto my-auto mx-auto">
                             s/d
                         </div>
+
+                        min_month_select = <div className="col-2 my-auto">
+                            <select name="min_month" placeholder="Month" className="form-control" value={this.state.min_month} onChange={e => this.filterChange(e)}>
+                                {month_options}
+                            </select>
+                        </div>
                     }
     
                     month_select = <div className="col-2 my-auto">
@@ -471,17 +500,28 @@ class JournalItems extends React.Component {
                 mode_options = <div className="col-2 my-auto">
                                     <select name="mode" placeholder="Periode" className="form-control" value={this.state.mode} onChange={e => this.setMode(e)}>
                                         <option className="d-none" key="99999"></option>
+                                        <option value="daily">Daily</option>
                                         <option value="monthly">Monthly</option>
                                         <option value="annual">Annual</option>
                                         <option value="period">Period</option>
                                     </select>
                                 </div>
 
-                year_select = <div className="col-2 my-auto">
+                if (this.state.mode == 'daily') {
+                    min_date_input = <div className="col-2 my-auto">
+                        <input type="date" id="min_date" name='min_date' className="form-control" onChange={e => this.filterChange(e)} value={this.state.min_date}/>
+                    </div>
+
+                    max_date_input = <div className="col-2 my-auto">
+                        <input type="date" id="max_date" name='max_date' className="form-control" onChange={e => this.filterChange(e)} value={this.state.max_date}/>
+                    </div>
+                } else {
+                    year_select = <div className="col-2 my-auto">
                                 <select name="year" placeholder="Year" className="form-control" value={this.state.year} onChange={e => this.filterChange(e)}>
                                     {year_options}
                                 </select>
                             </div>
+                }
 
                 set_button = <div className="col-2 my-auto">
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
@@ -501,9 +541,12 @@ class JournalItems extends React.Component {
                         </div>
                         {account_dropdown}
                         {mode_options}
+                        {year_select}
+                        {min_month_select}
                         {sd_period}
                         {month_select}
-                        {year_select}
+                        {min_date_input}
+                        {max_date_input}
                         {set_button}
                         <div className="col">
                             <Filter sorts={[]} searchAction={this.itemSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))} />

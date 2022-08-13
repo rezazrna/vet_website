@@ -35,6 +35,7 @@ def get_journal_item_list(filters=None, all_page=False, mode=False):
 		currentpage = filter_json.get('currentpage', False)
 		search = filter_json.get('search', False)
 		journal_date = filter_json.get('journal_date', False)
+		journal_min_date = filter_json.get('journal_min_date', False)
 
 		if currentpage:
 			page = currentpage
@@ -51,20 +52,24 @@ def get_journal_item_list(filters=None, all_page=False, mode=False):
 			ji_account =  account
 
 		if journal_date:
-			max_date_dt = dt.strptime(journal_date, '%Y-%m-%d') - rd(days=1)
-			if mode == 'monthly':
+			if mode == 'daily':
+				max_date = journal_date
+			else:
+				max_date_dt = dt.strptime(journal_date, '%Y-%m-%d') - rd(days=1)
+				max_date = max_date_dt.strftime('%Y-%m-%d')
+
+			if journal_min_date:
+				min_date = journal_min_date
+			elif mode == 'monthly':
 				min_date = (max_date_dt).strftime('%Y-%m-01')
 			else:
 				min_date = max_date_dt.strftime('%Y-01-01')
 			print('min date')
 			print(min_date)
 			print('max date')
-			print(max_date_dt.strftime('%Y-%m-%d'))
+			print(max_date)
 			print(mode)
-			# td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
-			# moves_filters.append({'date': ['<', min_date]})
-			# nilai_akhir_filters.append({'date': ['<', max_date_dt.strftime('%Y-%m-%d')]})
-			je_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			je_filters.append({'date': ['between', [min_date, max_date]]})
 	try:
 		journals = []
 		if not all_page:
