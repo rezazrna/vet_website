@@ -283,7 +283,7 @@ class SettingUsers extends React.Component {
                 role = <span className="fs16"><img className="mx-2" src="/static/img/main/menu/master.png" />Master</span>
             } else {
                 var parents = item.roles.filter(r => r.parent)
-                role = <span className="fs16"><img className="mx-2" src="/static/img/main/menu/master.png" />{parents ? parents[0].role : 'Guest'}</span>
+                role = <span className="fs16"><img className="mx-2" src="/static/img/main/menu/master.png" />{parents.length > 0 ? parents[0].role : 'Guest'}</span>
             }
             
             rows.push(
