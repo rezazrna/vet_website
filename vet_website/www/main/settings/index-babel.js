@@ -200,7 +200,8 @@ class SettingUsers extends React.Component {
         } else if (user.roles.filter(i => i.role == 'System Manager').length != 0) {
             role = 'Master'
         } else if (user.roles.length != 0){
-            role = user.roles.filter(r => r.parent)[0].parent
+            var parents = user.roles.filter(r => r.parent)
+            role = parents.length > 0 ? parents[0].parent : 'Guest'
         }
         
         var new_user = {
