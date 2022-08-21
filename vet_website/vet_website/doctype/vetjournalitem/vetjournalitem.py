@@ -76,14 +76,13 @@ def get_journal_item_list(filters=None, all_page=False, mode=False):
 			journals = frappe.get_list("VetJournal", fields=["name","journal_name"])
 		journal_items = []
 		journal_entry_search = []
+		journal_items_filters = []
 		if je_filters or je_or_filters:
 			journal_entry_search = frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, fields=["name"], order_by=default_sort)
-		# datalength = len(frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, as_list=True))
-		# if len(journal_entry_search):
-		journal_items_filters = []
-		if journal_entry_search:
 			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
 			journal_items_filters.append({'parent': ['in', journal_entry_names]})
+		# datalength = len(frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, as_list=True))
+		# if len(journal_entry_search):
 		if ji_account:
 			journal_items_filters.append({'account': ji_account})
 		if all_page:
