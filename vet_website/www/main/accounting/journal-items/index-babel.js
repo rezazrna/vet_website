@@ -128,6 +128,7 @@ class JournalItems extends React.Component {
             args: { filters: filters, mode: po.state.mode},
             callback: function (r) {
                 if (r.message) {
+                    console.log(r.message)
                     po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coaAll });
                 }
             }
