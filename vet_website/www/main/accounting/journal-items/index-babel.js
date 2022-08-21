@@ -656,13 +656,13 @@ class JournalItemsList extends React.Component {
             }
 
             data.forEach(function (item, index) {
-                if (item.debit != 0 || item.credit != 0) {
+                // if (item.debit != 0 || item.credit != 0) {
                     // if (currentItems.includes(item)){
                     item_rows.push(
                         <JournalItemsListRow account={ji.props.account} key={item.name} item={item} checkRow={() => ji.props.checkRow(index)} />
                     )
                     // }
-                }
+                // }
             })
 
             return (
