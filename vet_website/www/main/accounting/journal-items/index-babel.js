@@ -349,7 +349,9 @@ class JournalItems extends React.Component {
         if (filters.journal_date != undefined && this.state.mode != undefined) {
             tanggal = ''
             if (this.state.mode == 'monthly') {
-                title += 'Monthly-' + moment(filters.journal_date).format('MM-YYYY')
+                var bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                console.log(bulan)
+                title += 'Monthly-' + bulan
             } else if (this.state.mode == 'annual') {
                 title += 'Annual-' + moment(filters.journal_date).format('YYYY')
             } else if (this.state.mode == 'period') {
@@ -554,7 +556,7 @@ class JournalItems extends React.Component {
                         </div>
                     </div>
                     <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode}/>
+                    <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year}/>
                 </div>
             )
         }
@@ -833,7 +835,8 @@ class PDF extends React.Component {
         if (filters.journal_date != undefined && this.props.mode != undefined) {
             tanggal = ''
             if (this.props.mode == 'monthly') {
-                subtitle = 'Monthly ' + moment(filters.journal_date).format('MM-YYYY')
+                var bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                subtitle = 'Monthly ' + bulan
             } else if (this.props.mode == 'annual') {
                 subtitle = 'Annual ' + moment(filters.journal_date).format('YYYY')
             } else if (this.state.mode == 'period') {
