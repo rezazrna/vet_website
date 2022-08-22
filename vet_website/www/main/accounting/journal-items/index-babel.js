@@ -35,6 +35,10 @@ class JournalItems extends React.Component {
         var po = this
         var new_filters = { filters: [], sorts: [] }
 
+        if (sessionStorage.getItem(window.location.pathname) != null && document.referrer.includes('/main/accounting/journal-entries/edit')) {
+            new_filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+        }
+
         if (this.state.account != undefined) {
             new_filters.account = this.state.account
         }
@@ -82,6 +86,7 @@ class JournalItems extends React.Component {
         });
 
         filters['currentpage'] = this.state.currentpage
+        filters['mode'] = this.state.mode
 
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
@@ -89,7 +94,7 @@ class JournalItems extends React.Component {
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
-            args: { filters: filters, mode: po.state.mode},
+            args: { filters: filters},
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
@@ -117,6 +122,7 @@ class JournalItems extends React.Component {
 
         filters['currentpage'] = 1;
         filters['search'] = this.state.search
+        filters['mode'] = this.state.mode
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
         console.log('filters')
@@ -125,7 +131,7 @@ class JournalItems extends React.Component {
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
-            args: { filters: filters, mode: po.state.mode},
+            args: { filters: filters},
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message)
@@ -315,6 +321,8 @@ class JournalItems extends React.Component {
         if (!this.state.print_loading) {
             var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
+            filters['mode'] = this.state.mode
+
             this.setState({
                 print_loading: true,
             });
@@ -322,7 +330,7 @@ class JournalItems extends React.Component {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
-                args: { filters: filters, all_page: true, mode: po.state.mode},
+                args: { filters: filters, all_page: true},
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);

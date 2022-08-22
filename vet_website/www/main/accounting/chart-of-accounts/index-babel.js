@@ -11,6 +11,7 @@ class Coa extends React.Component {
             'edit_data': {},
             'month': moment().format('MM'),
             'year': moment().format('YYYY'),
+            'accounting_date': moment().add(1,'month').format('YYYY-MM-DD'),
             'print_loading': false,
             'currentUser': {}
         }
@@ -18,7 +19,6 @@ class Coa extends React.Component {
         this.toggleAdd = this.toggleAdd.bind(this)
         this.toggleEdit = this.toggleEdit.bind(this)
         this.selectRow = this.selectRow.bind(this)
-        this.actionSearch = this.actionSearch.bind(this)
     }
     
     componentDidMount() {
@@ -26,7 +26,7 @@ class Coa extends React.Component {
         var filters = {}
         var dc_mode = this.props.dc_mode
         if(dc_mode == '1'){
-            this.setState({dc_mode: true})
+            this.setState({dc_mode: true, loaded: true})
             filters.dc_mode = 1
         }
         // frappe.call({
@@ -51,27 +51,26 @@ class Coa extends React.Component {
                 }
             }
         });
-        this.coaSearch(filters)
+        if (!dc_mode) {
+            this.coaSearch(filters)
+        }
     }
     
-    actionSearch(e) {
+    handleInputOnChange(e) {
         var th = this
         var name = e.target.name
         var value = e.target.value
-        var filters = {}
-        this.setState({loaded: false})
+        // var filters = {}
+        // this.setState({loaded: false})
         if(name == 'month'){
-            this.setState({month: value})
-            filters.accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            var accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            this.setState({month: value, accounting_date: accounting_date})
         }
         else if(name == 'year'){
-            this.setState({year: value})
-            filters.accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            var accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            this.setState({year: value, accounting_date: accounting_date})
         }
-        if(this.state.dc_mode){
-            filters.dc_mode = 1
-        }
-        this.coaSearch(filters)
+        // this.coaSearch(filters)
         // frappe.call({
         //     type: "GET",
         //     method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
@@ -84,11 +83,17 @@ class Coa extends React.Component {
         //     }
         // });
     }
+
+    setFilter() {
+        var filters = {accounting_date: this.state.accounting_date}
+        this.setState({loaded: false})
+        this.coaSearch(filters)
+    }
     
     getPrintData(){
         var th = this
         var filters = {
-            accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            accounting_date: this.state.accounting_date
         }
         if(this.state.dc_mode){
             filters.dc_mode = 1
@@ -143,6 +148,9 @@ class Coa extends React.Component {
     
     coaSearch(filters, all=false) {
         var td = this
+        if(this.state.dc_mode){
+            filters.dc_mode = 1
+        }
         var args = {filters: filters}
         if (all) { args.all_children = true }
         console.log(args)
@@ -205,7 +213,7 @@ class Coa extends React.Component {
         
         if (this.state.loaded){
             console.log(this.state)
-            var add_button, month_select, year_select
+            var add_button, month_select, year_select, set_button
             if(!this.state.dc_mode){
                 add_button = <a href="#" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={this.toggleAdd}><i className="fa fa-plus mr-2"/>Tambah</a>
                 if (this.state.show_add) {
@@ -242,18 +250,22 @@ class Coa extends React.Component {
                 
                 month_select = (
                 <div className="col-2 my-auto ml-auto">
-                    <select name="month" className="form-control" value={this.state.month} onChange={e => this.actionSearch(e)}>
+                    <select name="month" className="form-control" value={this.state.month} onChange={e => this.handleInputOnChange(e)}>
                         {month_options}
                     </select>
                 </div>
                 )
                 year_select = (
                 <div className="col-2 my-auto">
-                    <select name="year" className="form-control" value={this.state.year} onChange={e => this.actionSearch(e)}>
+                    <select name="year" className="form-control" value={this.state.year} onChange={e => this.handleInputOnChange(e)}>
                         {year_options}
                     </select>
                 </div>
                 )
+
+                set_button =<div className="col-2 my-auto">
+                            <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
+                        </div>
             }
             
             return(
@@ -268,6 +280,7 @@ class Coa extends React.Component {
                         </div>
                         {month_select}
                         {year_select}
+                        {set_button}
                     </div>
                     {pdf}
                     <CoaList items={this.state.data} selected={this.state.selected} selectRow={this.selectRow} dc_mode={this.state.dc_mode} month={this.state.month} year={this.state.year}/>
