@@ -249,14 +249,14 @@ class Coa extends React.Component {
                 
                 month_select = (
                 <div className="col-2 my-auto ml-auto">
-                    <select name="month" className="form-control" value={this.state.month} onChange={e => this.actionSearch(e)}>
+                    <select name="month" className="form-control" value={this.state.month} onChange={e => this.handleInputOnChange(e)}>
                         {month_options}
                     </select>
                 </div>
                 )
                 year_select = (
                 <div className="col-2 my-auto">
-                    <select name="year" className="form-control" value={this.state.year} onChange={e => this.actionSearch(e)}>
+                    <select name="year" className="form-control" value={this.state.year} onChange={e => this.handleInputOnChange(e)}>
                         {year_options}
                     </select>
                 </div>
