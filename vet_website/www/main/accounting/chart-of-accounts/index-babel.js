@@ -63,11 +63,11 @@ class Coa extends React.Component {
         // var filters = {}
         // this.setState({loaded: false})
         if(name == 'month'){
-            accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            var accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             this.setState({month: value, accounting_date: accounting_date})
         }
         else if(name == 'year'){
-            accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+            var accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             this.setState({year: value, accounting_date: accounting_date})
         }
         // this.coaSearch(filters)
