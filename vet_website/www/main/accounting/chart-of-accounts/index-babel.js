@@ -19,7 +19,6 @@ class Coa extends React.Component {
         this.toggleAdd = this.toggleAdd.bind(this)
         this.toggleEdit = this.toggleEdit.bind(this)
         this.selectRow = this.selectRow.bind(this)
-        this.actionSearch = this.actionSearch.bind(this)
     }
     
     componentDidMount() {
@@ -52,7 +51,9 @@ class Coa extends React.Component {
                 }
             }
         });
-        this.coaSearch(filters)
+        if (!dc_mode) {
+            this.coaSearch(filters)
+        }
     }
     
     handleInputOnChange(e) {
