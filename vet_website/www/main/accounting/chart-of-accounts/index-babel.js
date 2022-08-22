@@ -26,7 +26,7 @@ class Coa extends React.Component {
         var filters = {}
         var dc_mode = this.props.dc_mode
         if(dc_mode == '1'){
-            this.setState({dc_mode: true})
+            this.setState({dc_mode: true, loaded: true})
             filters.dc_mode = 1
         }
         // frappe.call({
