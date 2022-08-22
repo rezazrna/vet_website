@@ -432,6 +432,8 @@ class JournalItems extends React.Component {
             { 'label': 'Period', 'field': 'period', 'type': 'char' },
             { 'label': 'Date', 'field': 'date', 'type': 'date' },
             { 'label': 'Reference', 'field': 'reference', 'type': 'char' },
+            { 'label': 'Debit', 'field': 'debit', 'type': 'char' },
+            { 'label': 'Credit', 'field': 'credit', 'type': 'char' },
             //  {'label': 'Status', 'field': 'status', 'type': 'char'},
         ]
 
@@ -637,6 +639,9 @@ class JournalItemsList extends React.Component {
                                 <div className="col-1 d-flex">
                                     <span className="my-auto"></span>
                                 </div>
+                                <div className="col-1 d-flex">
+                                    <span className="my-auto"></span>
+                                </div>
                                 <div className="col-2 d-flex">
                                     <span className="my-auto"></span>
                                 </div>
@@ -684,6 +689,9 @@ class JournalItemsList extends React.Component {
                                 </div>
                                 <div className="col-1 d-flex">
                                     <span className="my-auto">Reference</span>
+                                </div>
+                                <div className="col-1 d-flex">
+                                    <span className="my-auto">Journal Entry</span>
                                 </div>
                                 <div className="col-2 d-flex">
                                     <span className="my-auto">Keterangan</span>
@@ -759,6 +767,9 @@ class JournalItemsListRow extends React.Component {
                         </div>
                         <div className="col-1 d-flex">
                             <span className="my-auto">{item.reference}</span>
+                        </div>
+                        <div className="col-1 d-flex">
+                            <span className="my-auto">{item.parent}</span>
                         </div>
                         <div className="col-2 d-flex">
                             <span className="my-auto">{item.keterangan}</span>
@@ -899,6 +910,7 @@ class PDF extends React.Component {
                     <td className="py-1" width="89px"></td>
                     <td className="py-1" width="88px"></td>
                     <td className="py-1" width="88px"></td>
+                    <td className="py-1" width="88px"></td>
                     <td className="py-1" width="202px"></td>
                     <td className="py-1" width="90px"></td>
                     <td className="py-1" width="90px"></td>
@@ -919,6 +931,7 @@ class PDF extends React.Component {
                 <tr key={d.name} style={fs9}>
                     <td className="py-1" width="89px">{moment(d.date).format('DD-MM-YYYY')}</td>
                     <td className="py-1" width="88px">{d.reference}</td>
+                    <td className="py-1" width="88px">{d.parent}</td>
                     <td className="py-1" width="88px">{d.keterangan}</td>
                     <td className="py-1" width="202px">{d.account_name}</td>
                     <td className="py-1" width="90px">{formatter.format(d.debit)}</td>
@@ -974,6 +987,7 @@ class PDF extends React.Component {
                                 <tr className="text-center">
                                     <th className="fw700 py-2" width="89px">Tanggal</th>
                                     <th className="fw700 py-2" width="88px">Reference</th>
+                                    <th className="fw700 py-2" width="88px">Journal</th>
                                     <th className="fw700 py-2" width="88px">Keterangan</th>
                                     <th className="fw700 py-2" width="202px">Account</th>
                                     <th className="fw700 py-2" width="90px">Debit</th>

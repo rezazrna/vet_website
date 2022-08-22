@@ -47,6 +47,8 @@ def get_journal_item_list(filters=None, all_page=False, mode=False):
 		if search:
 			je_or_filters.append({'reference': ['like', '%'+search+'%']})
 			je_or_filters.append({'period': ['like', '%'+search+'%']})
+			je_or_filters.append({'debit': ['like', '%'+search+'%']})
+			je_or_filters.append({'credit': ['like', '%'+search+'%']})
 
 		if account:
 			ji_account =  account
@@ -105,7 +107,7 @@ def get_journal_item_list(filters=None, all_page=False, mode=False):
 		if not all_page:
 			coaAll = frappe.get_list("VetCoa", fields=["name","account_name", "account_code"])
 
-		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength, 'coaAll': coaAll, 'je_filters': je_filters, 'je_or_filters': je_or_filters, 'journal_items_filters': journal_items_filters}
+		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength, 'coaAll': coaAll}
 		
 	except PermissionError as e:
 		return {'error': e}
