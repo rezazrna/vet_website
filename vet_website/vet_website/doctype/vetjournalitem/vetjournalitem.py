@@ -15,7 +15,7 @@ class VetJournalItem(Document):
 	# 	set_journal_item_total(self.name)
 	
 @frappe.whitelist()
-def get_journal_item_list(filters=None, all_page=False, mode=False):
+def get_journal_item_list(filters=None, all_page=False):
 	default_sort = "date desc, reference desc"
 	je_filters = []
 	je_or_filters = []
@@ -36,6 +36,7 @@ def get_journal_item_list(filters=None, all_page=False, mode=False):
 		search = filter_json.get('search', False)
 		journal_date = filter_json.get('journal_date', False)
 		journal_min_date = filter_json.get('journal_min_date', False)
+		mode = filter_json.get('mode', False)
 
 		if currentpage:
 			page = currentpage
