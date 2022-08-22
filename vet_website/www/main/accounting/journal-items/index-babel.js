@@ -35,6 +35,10 @@ class JournalItems extends React.Component {
         var po = this
         var new_filters = { filters: [], sorts: [] }
 
+        if (sessionStorage.getItem(window.location.pathname) != null && document.referrer.includes('/main/accounting/journal-entries/edit')) {
+            new_filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+        }
+
         if (this.state.account != undefined) {
             new_filters.account = this.state.account
         }
