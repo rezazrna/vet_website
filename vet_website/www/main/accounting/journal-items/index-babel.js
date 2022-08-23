@@ -35,6 +35,11 @@ class JournalItems extends React.Component {
         var po = this
         var new_filters = { filters: [], sorts: [] }
 
+        console.log('masuk component')
+        console.log(window.location.pathname)
+        console.log(sessionStorage.getItem(window.location.pathname))
+        console.log(document.referrer)
+
         if (sessionStorage.getItem(window.location.pathname) != null && document.referrer.includes('/main/accounting/journal-entries/edit')) {
             new_filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
         }
@@ -87,6 +92,10 @@ class JournalItems extends React.Component {
 
         filters['currentpage'] = this.state.currentpage
         filters['mode'] = this.state.mode
+
+        console.log('simpan filters')
+        console.log(window.location.pathname)
+        console.log(filters)
 
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
