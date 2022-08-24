@@ -775,7 +775,7 @@ class JournalItemsListRow extends React.Component {
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
                 <a className="col row-list row-list-link" href={"/main/accounting/journal-entries/edit?n=" + this.props.item.parent}>
-                    <div className="row mx-0 fs12 fw600" style={linkStyle}>
+                    <div className="row mx-0 fs12 fw600">
                         <div className="col-1 d-flex">
                             <span className="my-auto">{item.period}</span>
                         </div>
