@@ -91,16 +91,20 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc')
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)
-			# journal_items = []
-			# if journal_entry_names:
-			# 	journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account'])
-			# else:
-			# 	journal_items = frappe.get_list('VetJournalItem', fields=['total', 'account'], page_length=1)
+			journal_items = []
+			if journal_entry_names:
+				journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account'])
+
 			for c in coa_list:
-				tdc = get_coa_total_debit_credit(c.name, journal_entry_names=journal_entry_names)
-				# tdc = get_coa_total_debit_credit2(c.name, journal_items=journal_items)
-				c['total_debit'] = tdc.get('total_debit', 0)
-				c['total_credit'] = tdc.get('total_credit', 0)
+				# tdc = get_coa_total_debit_credit(c.name, journal_entry_names=journal_entry_names)
+				if journal_items:
+					tdc = get_coa_total_debit_credit(c.name, journal_items=journal_items)
+					c['total_debit'] = tdc.get('total_debit', 0)
+					c['total_credit'] = tdc.get('total_credit', 0)
+				else:
+					c['total_debit'] = 0
+					c['total_credit'] = 0
+
 		# res = []
 		
 		# for c in coa_list:
@@ -163,11 +167,18 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc')
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)
+			journal_items = []
+			if journal_entry_names:
+				journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account'])
 
 			for c in children:
-				tdc = get_coa_total_debit_credit(c.name, journal_entry_names=journal_entry_names)
-				c['total_debit'] = tdc.get('total_debit', 0)
-				c['total_credit'] = tdc.get('total_credit', 0)
+				if journal_items:
+					tdc = get_coa_total_debit_credit(c.name, journal_items=journal_items)
+					c['total_debit'] = tdc.get('total_debit', 0)
+					c['total_credit'] = tdc.get('total_credit', 0)
+				else:
+					c['total_debit'] = 0
+					c['total_credit'] = 0
 		
 		if all_children:
 			for c in children:
@@ -346,69 +357,69 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode=False):
 		
 	return total
 	
-def get_coa_total_debit_credit(name, journal_entry_names=False):
+# def get_coa_total_debit_credit(name, journal_entry_names=False):
 	
-	total_debit = 0
-	total_credit = 0
+# 	total_debit = 0
+# 	total_credit = 0
 	
-	coa = frappe.get_doc('VetCoa', name)
+# 	coa = frappe.get_doc('VetCoa', name)
 	
-	journal_items_filters = {'account': coa.name}
-	# je_filters = {}
+# 	journal_items_filters = {'account': coa.name}
+# 	# je_filters = {}
 			
-	# if max_date:
-	# 	max_date_dt = dt.strptime(max_date, '%Y-%m-%d') - rd(days=1)
-	# 	if no_min_date:
-	# 		je_filters.update({'date': ['<', max_date]})
-	# 	else:
-	# 		if max_date_dt.day != 1:
-	# 			min_date = max_date_dt.strftime('%Y-%m-01')
-	# 		else:
-	# 			min_date = (max_date_dt-rd(months=1)).strftime('%Y-%m-01')
-	# 		je_filters.update({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+# 	# if max_date:
+# 	# 	max_date_dt = dt.strptime(max_date, '%Y-%m-%d') - rd(days=1)
+# 	# 	if no_min_date:
+# 	# 		je_filters.update({'date': ['<', max_date]})
+# 	# 	else:
+# 	# 		if max_date_dt.day != 1:
+# 	# 			min_date = max_date_dt.strftime('%Y-%m-01')
+# 	# 		else:
+# 	# 			min_date = (max_date_dt-rd(months=1)).strftime('%Y-%m-01')
+# 	# 		je_filters.update({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 	
-	# if je_filters:
-	# 	journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc')
-	# 	if len(journal_entry_search):
-	# 		journal_entry_names = list(j.name for j in journal_entry_search)
-	# 		journal_items_filters.update({'parent': ['in', journal_entry_names]})
+# 	# if je_filters:
+# 	# 	journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc')
+# 	# 	if len(journal_entry_search):
+# 	# 		journal_entry_names = list(j.name for j in journal_entry_search)
+# 	# 		journal_items_filters.update({'parent': ['in', journal_entry_names]})
 
-	if journal_entry_names:
-		journal_items_filters.update({'parent': ['in', journal_entry_names]})
+# 	if journal_entry_names:
+# 		journal_items_filters.update({'parent': ['in', journal_entry_names]})
 	
-	# journal_items = frappe.get_list('VetJournalItem', filters=journal_items_filters, fields=['total', 'parent'], order_by="creation desc")
+# 	# journal_items = frappe.get_list('VetJournalItem', filters=journal_items_filters, fields=['total', 'parent'], order_by="creation desc")
 	
-	journal_items = frappe.get_list('VetJournalItem', filters=journal_items_filters, fields=['total', 'parent'], page_length=1)
+# 	journal_items = frappe.get_list('VetJournalItem', filters=journal_items_filters, fields=['total', 'parent'], page_length=1)
 
-	# for ji in journal_items:
-	# 	ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
-	# journal_items.sort(key=lambda x: x.date, reverse=True)
+# 	# for ji in journal_items:
+# 	# 	ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+# 	# journal_items.sort(key=lambda x: x.date, reverse=True)
 	
-	if len(journal_items) != 0:
-		if coa.account_type in ['Asset','Expense']:
-			if '1-' in coa.account_code:
-				if journal_items[0].total < 0:
-					total_credit = total_credit + (-journal_items[0].total)
-				else:
-					total_debit = total_debit + journal_items[0].total
-			else:
-				total_debit = total_debit + journal_items[0].total
-		elif coa.account_type in ['Equity','Income','Liability']:
-			total_credit = total_credit + journal_items[0].total
+# 	if len(journal_items) != 0:
+# 		if coa.account_type in ['Asset','Expense']:
+# 			if '1-' in coa.account_code:
+# 				if journal_items[0].total < 0:
+# 					total_credit = total_credit + (-journal_items[0].total)
+# 				else:
+# 					total_debit = total_debit + journal_items[0].total
+# 			else:
+# 				total_debit = total_debit + journal_items[0].total
+# 		elif coa.account_type in ['Equity','Income','Liability']:
+# 			total_credit = total_credit + journal_items[0].total
 	
-	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields="name", order_by="account_code asc")
-	if len(children) != 0:
-		for c in children:
-			tdc = get_coa_total_debit_credit(c.name, journal_entry_names=journal_entry_names)
-			total_debit = total_debit + tdc.get('total_debit', 0)
-			total_credit = total_credit + tdc.get('total_credit', 0)
+# 	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields="name", order_by="account_code asc")
+# 	if len(children) != 0:
+# 		for c in children:
+# 			tdc = get_coa_total_debit_credit(c.name, journal_entry_names=journal_entry_names)
+# 			total_debit = total_debit + tdc.get('total_debit', 0)
+# 			total_credit = total_credit + tdc.get('total_credit', 0)
 			
-	return {
-		'total_debit': total_debit,
-		'total_credit': total_credit
-	}
+# 	return {
+# 		'total_debit': total_debit,
+# 		'total_credit': total_credit
+# 	}
 
-def get_coa_total_debit_credit2(name, journal_items=False):
+def get_coa_total_debit_credit(name, journal_items=False):
 	
 	total_debit = 0
 	total_credit = 0
@@ -464,7 +475,7 @@ def get_coa_total_debit_credit2(name, journal_items=False):
 	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields="name", order_by="account_code asc")
 	if len(children) != 0:
 		for c in children:
-			tdc = get_coa_total_debit_credit2(c.name, journal_items=journal_items)
+			tdc = get_coa_total_debit_credit(c.name, journal_items=journal_items)
 			total_debit = total_debit + tdc.get('total_debit', 0)
 			total_credit = total_credit + tdc.get('total_credit', 0)
 			
