@@ -757,6 +757,7 @@ class JournalItemsListRow extends React.Component {
         var item = this.props.item
         var checked = false
         var account_col
+        var linkStyle = {textDecoration: 'none'}
         if (item.checked) {
             checked = true
         }
@@ -774,10 +775,10 @@ class JournalItemsListRow extends React.Component {
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <a className="col row-list row-list-link text-decoration-none" href={"/main/accounting/journal-entries/edit?n=" + this.props.item.parent}>
-                    <div className="row mx-0 fs12 fw600 text-decoration-none">
-                        <div className="col-1 d-flex">
-                            <span className="my-auto">{item.period}</span>
+                <a className="col row-list row-list-link text-decoration-none" href={"/main/accounting/journal-entries/edit?n=" + this.props.item.parent} style={linkStyle}>
+                    <div className="row mx-0 fs12 fw600 text-decoration-none" style={linkStyle}>
+                        <div className="col-1 d-flex text-decoration-none">
+                            <span className="my-auto text-decoration-none">{item.period}</span>
                         </div>
                         <div className="col-1 d-flex">
                             <span className="my-auto">{moment(item.date).format("DD-MM-YYYY")}</span>
