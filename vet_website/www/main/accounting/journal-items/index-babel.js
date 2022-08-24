@@ -774,7 +774,7 @@ class JournalItemsListRow extends React.Component {
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <a className="col row-list row-list-link" href={"/main/accounting/journal-entries/edit?n=" + this.props.item.parent}>
+                <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
                     <div className="row mx-0 fs12 fw600">
                         <div className="col-1 d-flex">
                             <span className="my-auto">{item.period}</span>
@@ -802,7 +802,7 @@ class JournalItemsListRow extends React.Component {
                         </div>
                         {account_col}
                     </div>
-                </a>
+                </div>
             </div>
         )
     }
