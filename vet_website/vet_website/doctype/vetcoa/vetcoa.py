@@ -370,11 +370,13 @@ def get_coa_total_debit_credit(name, journal_entry_names=False):
 	if journal_entry_names:
 		journal_items_filters.update({'parent': ['in', journal_entry_names]})
 	
-	journal_items = frappe.get_list('VetJournalItem', filters=journal_items_filters, fields=['total', 'parent'], order_by="creation desc")
+	# journal_items = frappe.get_list('VetJournalItem', filters=journal_items_filters, fields=['total', 'parent'], order_by="creation desc")
 	
-	for ji in journal_items:
-		ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
-	journal_items.sort(key=lambda x: x.date, reverse=True)
+	journal_items = frappe.get_list('VetJournalItem', filters=journal_items_filters, fields=['total', 'parent'], page_length=1)
+
+	# for ji in journal_items:
+	# 	ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+	# journal_items.sort(key=lambda x: x.date, reverse=True)
 	
 	if len(journal_items) != 0:
 		if coa.account_type in ['Asset','Expense']:
