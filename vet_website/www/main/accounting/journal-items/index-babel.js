@@ -39,12 +39,12 @@ class JournalItems extends React.Component {
         console.log(window.location.pathname)
         console.log(sessionStorage.getItem(window.location.pathname))
         console.log(document.referrer)
-        if (history.location.from) {
+        if (history.location) {
             console.log(history.location.from)
-        }
 
-        if (history.location.state.from) {
-            console.log(history.location.state.from)
+            if (history.location.state) {
+                console.log(history.location.state.from)
+            }
         }
 
         if (sessionStorage.getItem(window.location.pathname) != null && document.referrer.includes('/main/accounting/journal-entries/edit')) {
