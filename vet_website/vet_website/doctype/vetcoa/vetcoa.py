@@ -91,14 +91,14 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc')
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)
-			journal_items = []
-			if journal_entry_names:
-				journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account'])
-			else:
-				journal_items = frappe.get_list('VetJournalItem', fields=['total', 'account'], page_length=1)
+			# journal_items = []
+			# if journal_entry_names:
+			# 	journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account'])
+			# else:
+			# 	journal_items = frappe.get_list('VetJournalItem', fields=['total', 'account'], page_length=1)
 			for c in coa_list:
-				# tdc = get_coa_total_debit_credit(c.name, journal_entry_names=journal_entry_names)
-				tdc = get_coa_total_debit_credit2(c.name, journal_items=journal_items)
+				tdc = get_coa_total_debit_credit(c.name, journal_entry_names=journal_entry_names)
+				# tdc = get_coa_total_debit_credit2(c.name, journal_items=journal_items)
 				c['total_debit'] = tdc.get('total_debit', 0)
 				c['total_credit'] = tdc.get('total_credit', 0)
 		# res = []
