@@ -132,6 +132,7 @@ html, body {
 .row-list:hover, .row-list.active {
 	background: #FFE9EB;
 	text-decoration: none;
+	color: #787E84;
 }
 
 .form-control.lightbg {
