@@ -122,7 +122,6 @@ html, body {
 
 .row-list.row-list-link, .row-list.row-list-expandable {
 	cursor: pointer;
-	text-decoration: none;
 }
 
 .row-list.row-list-expandable {
@@ -132,6 +131,7 @@ html, body {
 
 .row-list:hover, .row-list.active {
 	background: #FFE9EB;
+	text-decoration: none;
 }
 
 .form-control.lightbg {
