@@ -39,6 +39,7 @@ class JournalItems extends React.Component {
         console.log(window.location.pathname)
         console.log(sessionStorage.getItem(window.location.pathname))
         console.log(document.referrer)
+        console.log(history.location.state.from)
 
         if (sessionStorage.getItem(window.location.pathname) != null && document.referrer.includes('/main/accounting/journal-entries/edit')) {
             new_filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
