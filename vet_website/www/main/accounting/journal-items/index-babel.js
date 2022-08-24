@@ -23,7 +23,9 @@ class JournalItems extends React.Component {
             'min_month': '',
             'year': '',
             'min_date': '',
-            'max_date': ''
+            'max_date': '',
+            'journal_date': '',
+            'remove_storage': true
         }
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -40,8 +42,37 @@ class JournalItems extends React.Component {
         console.log(sessionStorage.getItem(window.location.pathname))
         console.log(document.referrer)
 
-        if (sessionStorage.getItem(window.location.pathname) != null && document.referrer.includes('/main/accounting/journal-entries/edit')) {
+        if (sessionStorage.getItem(window.location.pathname) != null) {
             new_filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+            if (new_filters.hasOwnProperty("currentpage")) {
+                this.setState({ 'currentpage': new_filters['currentpage'] })
+            }
+    
+            if (new_filters.hasOwnProperty("search")) {
+                this.setState({ 'search': new_filters['search'] })
+            }
+
+            if (new_filters.hasOwnProperty("journal_date")) {
+                this.setState({ 
+                    'journal_date': new_filters['journal_date'],
+                    'max_date': new_filters['journal_date'],
+                    'month': moment(new_filters['journal_date'], 'YYYY-MM-DD').subtract(1, 'month').format('MM'),
+                    'year': moment(new_filters['journal_date'], 'YYYY-MM-DD').format('YYYY')
+                })
+            }
+
+            if (new_filters.hasOwnProperty("journal_min_date")) {
+                this.setState({ 
+                    'journal_min_date': new_filters['journal_min_date'],
+                    'min_date': new_filters['journal_min_date'],
+                    'min_month': moment(new_filters['journal_min_date'], 'YYYY-MM-DD').format('MM'),
+                })
+            }
+
+            if (new_filters.hasOwnProperty("mode")) {
+                this.setState({ 'mode': new_filters['mode'] })
+            }
         }
 
         if (this.state.account != undefined) {
@@ -66,7 +97,9 @@ class JournalItems extends React.Component {
                     }
                 }
             });   
-        } else {
+        } 
+
+        if (gl == undefined || accountParams != undefined || new_filters.hasOwnProperty("journal_date")) {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
@@ -79,6 +112,13 @@ class JournalItems extends React.Component {
                 }
             });
         }
+
+        window.addEventListener('beforeunload', (e) => {
+            console.log('before unload')
+            if (this.state.remove_storage) {
+                sessionStorage.removeItem(window.location.pathname)
+            }
+        });
     }
 
     paginationClick(number) {
@@ -258,6 +298,10 @@ class JournalItems extends React.Component {
         } else {
             frappe.msgprint(('Date or Month or Year must be selected'));
         }
+    }
+
+    changeRemoveStorage(value) {
+        this.setState({'remove_storage': value})
     }
 
     checkAll() {
@@ -574,7 +618,7 @@ class JournalItems extends React.Component {
                             <Filter sorts={[]} searchAction={this.itemSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))} />
                         </div>
                     </div>
-                    <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
+                    <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} changeRemoveStorage={(value) => this.changeRemoveStorage(value)}/>
                     <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year}/>
                 </div>
             )
@@ -684,7 +728,7 @@ class JournalItemsList extends React.Component {
                 // if (item.debit != 0 || item.credit != 0) {
                     // if (currentItems.includes(item)){
                     item_rows.push(
-                        <JournalItemsListRow account={ji.props.account} key={item.name} item={item} checkRow={() => ji.props.checkRow(index)} />
+                        <JournalItemsListRow account={ji.props.account} key={item.name} item={item} checkRow={() => ji.props.checkRow(index)} changeRemoveStorage={(value) => ji.props.changeRemoveStorage(value)} />
                     )
                     // }
                 // }
@@ -749,8 +793,12 @@ class JournalItemsList extends React.Component {
 
 class JournalItemsListRow extends React.Component {
     clickRow() {
-        var href = "/main/accounting/journal-entries/edit?n=" + this.props.item.parent
-        window.location.href = href
+        var th = this
+        this.props.changeRemoveStorage(false)
+        setTimeout(function(){
+            var href = "/main/accounting/journal-entries/edit?n=" + th.props.item.parent
+            window.location.href = href
+        }, 500);
     }
 
     render() {
@@ -860,49 +908,51 @@ class PDF extends React.Component {
         var subtitle = ''
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
-        if (filters.journal_date != undefined && this.props.mode != undefined) {
-            tanggal = ''
-            if (this.props.mode == 'monthly') {
-                var bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
-                subtitle = 'Monthly ' + bulan
-            } else if (this.props.mode == 'annual') {
-                subtitle = 'Annual ' + moment(filters.journal_date).format('YYYY')
-            } else if (this.state.mode == 'period') {
-                subtitle = 'Periode ' + moment(filters.journal_min_date).format('MM-YYYY') + '-' + moment(filters.journal_date).format('MM-YYYY') 
-            } else if (this.state.mode == 'daily') {
-                subtitle = 'Tanggal ' + moment(filters.journal_min_date).format('DD-MM-YYYY') + '-' + moment(filters.journal_date).format('DD-MM-YYYY')
+        if (filters != undefined) {
+            if (filters.journal_date != undefined && this.props.mode != undefined) {
+                tanggal = ''
+                if (this.props.mode == 'monthly') {
+                    var bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                    subtitle = 'Monthly ' + bulan
+                } else if (this.props.mode == 'annual') {
+                    subtitle = 'Annual ' + moment(filters.journal_date).format('YYYY')
+                } else if (this.state.mode == 'period') {
+                    subtitle = 'Periode ' + moment(filters.journal_min_date).format('MM-YYYY') + '-' + moment(filters.journal_date).format('MM-YYYY') 
+                } else if (this.state.mode == 'daily') {
+                    subtitle = 'Tanggal ' + moment(filters.journal_min_date).format('DD-MM-YYYY') + '-' + moment(filters.journal_date).format('DD-MM-YYYY')
+                }
+            } else if (filters.filters.some((element) => element[0] == 'period')) {
+                var period = filters.filters.find((e) => e[0] == 'period')
+                if (period[1] == '=') {
+                    tanggal = period[2]
+                } else if (period[1] == '!=') {
+                    tanggal = 'Tidak Sama Dengan ' + period[2]
+                } else if (period[1] == 'like') {
+                    tanggal = 'Seperti ' + period[2].replaceAll('%', '')
+                } else if (period[1] == 'not like') {
+                    tanggal = 'Tidak Seperti ' + period[2].replaceAll('%', '')
+                }
+                subtitle += 'Periode ' + period[2].replaceAll('%', '')
+            } else if (filters.filters.some((element) => element[0] == 'date')) {
+                var date = filters.filters.find((e) => e[0] == 'date')
+                var tanggal = ''
+                if (date[1] == 'between') {
+                    tanggal = date[2] + ' - ' + date[3]
+                } else if (date[1] == '=') {
+                    tanggal = date[2]
+                } else if (date[1] == '!=') {
+                    tanggal = 'Tidak Sama Dengan ' + date[2]
+                } else if (date[1] == '>') {
+                    tanggal = 'Lebih Dari ' + date[2]
+                } else if (date[1] == '>=') {
+                    tanggal = 'Lebih Dari Sama Dengan ' + date[2]
+                } else if (date[1] == '<') {
+                    tanggal = 'Kurang Dari ' + date[2]
+                } else if (date[1] == '<=') {
+                    tanggal = 'Kurang Dari Sama Dengan ' + date[2]
+                }
+                subtitle += 'Tanggal ' + tanggal
             }
-        } else if (filters.filters.some((element) => element[0] == 'period')) {
-            var period = filters.filters.find((e) => e[0] == 'period')
-            if (period[1] == '=') {
-                tanggal = period[2]
-            } else if (period[1] == '!=') {
-                tanggal = 'Tidak Sama Dengan ' + period[2]
-            } else if (period[1] == 'like') {
-                tanggal = 'Seperti ' + period[2].replaceAll('%', '')
-            } else if (period[1] == 'not like') {
-                tanggal = 'Tidak Seperti ' + period[2].replaceAll('%', '')
-            }
-            subtitle += 'Periode ' + period[2].replaceAll('%', '')
-        } else if (filters.filters.some((element) => element[0] == 'date')) {
-            var date = filters.filters.find((e) => e[0] == 'date')
-            var tanggal = ''
-            if (date[1] == 'between') {
-                tanggal = date[2] + ' - ' + date[3]
-            } else if (date[1] == '=') {
-                tanggal = date[2]
-            } else if (date[1] == '!=') {
-                tanggal = 'Tidak Sama Dengan ' + date[2]
-            } else if (date[1] == '>') {
-                tanggal = 'Lebih Dari ' + date[2]
-            } else if (date[1] == '>=') {
-                tanggal = 'Lebih Dari Sama Dengan ' + date[2]
-            } else if (date[1] == '<') {
-                tanggal = 'Kurang Dari ' + date[2]
-            } else if (date[1] == '<=') {
-                tanggal = 'Kurang Dari Sama Dengan ' + date[2]
-            }
-            subtitle += 'Tanggal ' + tanggal
         }
 
         // const indexOfLastTodo = this.props.currentpage * 30;
