@@ -25,6 +25,7 @@ class Adjustment extends React.Component {
             args: {},
             callback: function(r){
                 if (r.message) {
+                    this.setState({'edit_mode': checkPermission('VetAdjustment', r.message, 'write')})
                     gr.setState({'currentUser': r.message});
                 }
             }
@@ -222,9 +223,9 @@ class Adjustment extends React.Component {
     	});
     }
     
-    toggleEditMode(){
-        this.setState({edit_mode: !this.state.edit_mode})
-    }
+    // toggleEditMode(){
+    //     this.setState({edit_mode: !this.state.edit_mode})
+    // }
     
     goToJournalEntries(){
         window.location.href = '/main/accounting/journal-entries?reference=' + this.state.data.name
@@ -268,7 +269,7 @@ class Adjustment extends React.Component {
         var data = this.state.data
         var headerButton
         var backButton = <span key="999" className="fs16 fw600 my-auto" style={color} onClick={() => window.location.href='/main/inventory/adjustment'}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
-        var write = checkPermission('VetAdjustment', this.state.currentUser, 'write')
+        // var write = checkPermission('VetAdjustment', this.state.currentUser, 'write')
         var cancel = checkPermission('VetAdjustment', this.state.currentUser, 'cancel')
         var validate = checkPermission('VetAdjustment', this.state.currentUser, 'validate')
         
@@ -287,30 +288,32 @@ class Adjustment extends React.Component {
 			            		</div>
 			    adjustment_inventory = false
         	} else if (data.status == 'On Progress') {
-        	    var edit_button, cancel_button, validate_button, batal_button
-        	    if(this.state.edit_mode){
-        	        edit_button = <div className="col-auto my-auto"><button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.saveAdjustment()}>Save</button></div>
-                    batal_button = <div className="col-auto my-auto">
-                                    <button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.toggleEditMode()}>Batal</button>
-                                </div>
-        	    }else{
-        	        edit_button = <div className="col-auto my-auto"><button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.toggleEditMode()}>Edit</button></div>
-                    if(validate){
-                        validate_button = <div className="col-auto my-auto">
-                            <button type="submit" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14}>Validate</button>
-                        </div>
-                    }
-                    if(cancel){
-                        cancel_button = <div className="col-auto my-auto">
-                                            <button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={(e) => this.cancelAction(e)}>Cancel</button>
-                                        </div>
-                    }
-        	    }
+        	    // var edit_button, 
+                var cancel_button, validate_button
+                // , batal_button
+        	    // if(this.state.edit_mode){
+        	    //     edit_button = <div className="col-auto my-auto"><button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.saveAdjustment()}>Save</button></div>
+                //     batal_button = <div className="col-auto my-auto">
+                //                     <button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.toggleEditMode()}>Batal</button>
+                //                 </div>
+        	    // }else{
+        	    //     edit_button = <div className="col-auto my-auto"><button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.toggleEditMode()}>Edit</button></div>
+                if(validate){
+                    validate_button = <div className="col-auto my-auto">
+                        <button type="submit" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14}>Validate</button>
+                    </div>
+                }
+                if(cancel){
+                    cancel_button = <div className="col-auto my-auto">
+                                        <button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={(e) => this.cancelAction(e)}>Cancel</button>
+                                    </div>
+                }
+        	    // }
         	    headerButton = <div className="row mx-0 flex-row-reverse" style={rowMinHeight}>
 			            			{validate_button}
 			            			{cancel_button}
-                                    {batal_button}
-			            			{write?edit_button:false}
+                                    {/* {batal_button} */}
+			            			{/* {write?edit_button:false} */}
 			            			<div className="col-auto px-0 mx-auto"/>
 			            			{backButton}
 			            		</div>
