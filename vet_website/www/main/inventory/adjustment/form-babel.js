@@ -25,8 +25,7 @@ class Adjustment extends React.Component {
             args: {},
             callback: function(r){
                 if (r.message) {
-                    this.setState({'edit_mode': checkPermission('VetAdjustment', r.message, 'write')})
-                    gr.setState({'currentUser': r.message});
+                    gr.setState({'currentUser': r.message, 'edit_mode': checkPermission('VetAdjustment', r.message, 'write')});
                 }
             }
         });
