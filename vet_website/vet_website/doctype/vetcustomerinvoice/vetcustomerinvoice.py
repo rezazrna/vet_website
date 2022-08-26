@@ -1006,8 +1006,12 @@ def decrease_product_valuation(product, quantity, uom=False, reverse=False):
 	if not product_uom:
 		product_uom = frappe.db.get_value('VetProduct', 'product_uom')
 		
-	purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product}, fields=['*'], order_by="creation asc")
+	purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price'], order_by="creation asc")
 	purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
+	print('decrease product valuation')
+	print(quantity)
+	print('purchase with stock')
+	print(purchase_with_stock)
 	if len(purchase_with_stock):
 		
 		current_quantity = float(quantity)
@@ -1042,6 +1046,8 @@ def decrease_product_valuation(product, quantity, uom=False, reverse=False):
 					current_quantity = 0
 					purchase_product.save()
 					frappe.db.commit()
+	print('adjustment value')
+	print(adjustment_value)
 					
 	return adjustment_value
 
@@ -1364,7 +1370,7 @@ def create_sales_journal_entry(invoice_name, refund=False):
 							amount += purchase_product.price * current_quantity
 							current_quantity = 0
 			else:
-				purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.product}, fields=['*'], order_by="creation asc")
+				purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.product}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price'], order_by="creation asc")
 				purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
 
 				print('purchase with stock')
