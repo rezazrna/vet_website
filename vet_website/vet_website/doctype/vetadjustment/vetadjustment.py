@@ -311,7 +311,8 @@ def cancel_adjustment(name):
 	
 def increase_product_valuation(product, quantity):
 	adjustment_value = 0
-	purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product, 'quantity_stocked': ['>', 0]}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price'], order_by="creation desc")
+	# purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product, 'quantity_stocked': ['>', 0]}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price'], order_by="creation desc")
+	purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price'], order_by="creation desc", page_length=1)
 	print('increase product valuation')
 	print(quantity)
 	print('purchase stok')
