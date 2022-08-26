@@ -288,14 +288,15 @@ class Adjustment extends React.Component {
 			    adjustment_inventory = false
         	} else if (data.status == 'On Progress') {
         	    // var edit_button, 
-                var cancel_button, validate_button
+                var cancel_button, validate_button, save_button
                 // , batal_button
-        	    // if(this.state.edit_mode){
-        	    //     edit_button = <div className="col-auto my-auto"><button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.saveAdjustment()}>Save</button></div>
+        	    if(this.state.edit_mode){
+        	        save_button = <div className="col-auto my-auto"><button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.saveAdjustment()}>Save</button></div>
                 //     batal_button = <div className="col-auto my-auto">
                 //                     <button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.toggleEditMode()}>Batal</button>
                 //                 </div>
-        	    // }else{
+        	    }
+                // else{
         	    //     edit_button = <div className="col-auto my-auto"><button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.toggleEditMode()}>Edit</button></div>
                 if(validate){
                     validate_button = <div className="col-auto my-auto">
@@ -311,6 +312,7 @@ class Adjustment extends React.Component {
         	    headerButton = <div className="row mx-0 flex-row-reverse" style={rowMinHeight}>
 			            			{validate_button}
 			            			{cancel_button}
+                                    {save_button}
                                     {/* {batal_button} */}
 			            			{/* {write?edit_button:false} */}
 			            			<div className="col-auto px-0 mx-auto"/>
