@@ -693,6 +693,14 @@ def count_nilai_awal(moves):
 				penjualan -= m.quantity_done
 			else:
 				penjualan += m.quantity_done
+
+		if 'VAJ' in operation.reference:
+			product_adjustment = frappe.get_list("VetAdjustmentInventoryDetails", filters={'parent': operation.reference, 'product': m.product}, fields=['diff_quantity', 'adjustment_value'])
+			for pa in product_adjustment:
+				if pa.diff_quantity > 0:
+					nilai += pa.adjustment_value:
+				elif pa.diff_quantity < 0:
+					nilai -= pa.adjustment_value:
 			
 
 	print('pembelian')
@@ -700,7 +708,7 @@ def count_nilai_awal(moves):
 	print('penjualan')
 	print(penjualan)
 
-	nilai = sum(c['price'] * c['quantity'] for c in pembelian)
+	nilai += sum(c['price'] * c['quantity'] for c in pembelian)
 
 	print('nilai')
 	print(nilai)
