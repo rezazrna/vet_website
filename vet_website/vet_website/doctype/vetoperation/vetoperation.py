@@ -697,9 +697,9 @@ def count_nilai_awal(moves):
 		if 'VAJ' in operation.reference:
 			product_adjustment = frappe.get_list("VetAdjustmentInventoryDetails", filters={'parent': operation.reference, 'product': m.product}, fields=['diff_quantity', 'adjustment_value'])
 			for pa in product_adjustment:
-				if pa.diff_quantity > 0:
+				if float(pa.diff_quantity) > 0:
 					nilai += pa.adjustment_value
-				elif pa.diff_quantity < 0:
+				elif float(pa.diff_quantity) < 0:
 					nilai -= pa.adjustment_value
 			
 
