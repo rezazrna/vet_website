@@ -15,8 +15,10 @@ class VetJournalItem(Document):
 	# 	set_journal_item_total(self.name)
 	
 @frappe.whitelist()
-def get_journal_item_list(filters=None, all_page=False):
+def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 	default_sort = "date desc, reference desc"
+	if is_gl:
+		default_sort = "date asc"
 	je_filters = []
 	je_or_filters = []
 	filter_json = False
@@ -102,8 +104,10 @@ def get_journal_item_list(filters=None, all_page=False):
 			ji['reference'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'reference')
 			ji['account_name'] = "%s %s"%(frappe.db.get_value('VetCoa', ji.account, 'account_code'), frappe.db.get_value('VetCoa', ji.account, 'account_name'))
 			ji['account_type'] = frappe.db.get_value('VetCoa', ji.account, 'account_type')
-				
-		journal_items.sort(key=lambda x: x.date, reverse=True)
+		reverse = True
+		if is_gl:
+			reverse = False
+		journal_items.sort(key=lambda x: x.date, reverse=is_gl)
 		coaAll = []
 		if not all_page:
 			coaAll = frappe.get_list("VetCoa", fields=["name","account_name", "account_code"])

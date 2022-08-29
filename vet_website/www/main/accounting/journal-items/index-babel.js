@@ -103,7 +103,7 @@ class JournalItems extends React.Component {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
-                args: { filters: new_filters },
+                args: { filters: new_filters, is_gl: gl != undefined ? 1 : 0},
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
@@ -143,7 +143,7 @@ class JournalItems extends React.Component {
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
-            args: { filters: filters},
+            args: { filters: filters, is_gl: gl != undefined ? 1 : 0},
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
@@ -180,7 +180,7 @@ class JournalItems extends React.Component {
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
-            args: { filters: filters},
+            args: { filters: filters, is_gl: gl != undefined ? 1 : 0},
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message)
@@ -383,7 +383,7 @@ class JournalItems extends React.Component {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
-                args: { filters: filters, all_page: true},
+                args: { filters: filters, all_page: true, is_gl: gl != undefined ? 1 : 0},
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
