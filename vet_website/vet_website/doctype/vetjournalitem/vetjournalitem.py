@@ -107,7 +107,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		reverse = True
 		if is_gl:
 			reverse = False
-		journal_items.sort(key=lambda x: x.date, reverse=is_gl)
+		journal_items.sort(key=lambda x: x.date, reverse=reverse)
 		coaAll = []
 		if not all_page:
 			coaAll = frappe.get_list("VetCoa", fields=["name","account_name", "account_code"])
