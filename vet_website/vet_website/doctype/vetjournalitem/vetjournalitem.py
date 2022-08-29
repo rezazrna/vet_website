@@ -18,7 +18,7 @@ class VetJournalItem(Document):
 def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 	default_sort = "date desc, reference desc"
 	if is_gl:
-		default_sort = "date asc"
+		default_sort = "date asc, reference asc"
 	je_filters = []
 	je_or_filters = []
 	filter_json = False

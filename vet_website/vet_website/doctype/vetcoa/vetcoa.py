@@ -88,7 +88,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 			if limit_date:
 				je_filters = {}
 				je_filters.update({'date': ['<', limit_date]})
-				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc')
+				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)
 			journal_items = []
@@ -164,7 +164,7 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 			if max_date:
 				je_filters = {}
 				je_filters.update({'date': ['<', max_date]})
-				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc')
+				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)
 			journal_items = []
@@ -328,7 +328,7 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode=False):
 			je_filters.update({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 			
 	if je_filters:
-		journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc')
+		journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
 		print('je length')
 		print(len(journal_entry_search))
 		if len(journal_entry_search):
