@@ -180,6 +180,8 @@ class JournalEntry extends React.Component {
         
         var total_debit = new_data.journal_items.reduce((total, j) => total+=parseFloat(j.debit||'0'),0)
         var total_credit = new_data.journal_items.reduce((total, j) => total+=parseFloat(j.credit||'0'),0)
+        console.log(total_debit)
+        console.log(total_credit)
         if(total_debit!=total_credit){
             frappe.msgprint("Total debit tidak sama dengan total credit")
         } else {
