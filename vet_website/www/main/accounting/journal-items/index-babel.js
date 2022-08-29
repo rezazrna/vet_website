@@ -1001,8 +1001,8 @@ class PDF extends React.Component {
                     <td className="py-1" width="88px">{d.parent}</td>
                     <td className="py-1" width="88px">{d.keterangan}</td>
                     <td className="py-1" width="202px">{d.account_name}</td>
-                    <td className="py-1" width="90px">{formatter.format(d.debit)}</td>
-                    <td className="py-1" width="90px">{formatter.format(d.credit)}</td>
+                    <td className="py-1" width="90px">{formatter2.format(d.debit)}</td>
+                    <td className="py-1" width="90px">{formatter2.format(d.credit)}</td>
                     {account_col}
                 </tr>
             )
