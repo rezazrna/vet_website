@@ -139,6 +139,8 @@ def get_quantity_product(name, adjustment_name):
 	try:
 		adjustment = frappe.get_doc('VetAdjustment', adjustment_name)
 		in_operation_search = frappe.get_list('VetOperation', filters={'to': adjustment.warehouse}, fields=['name'])
+		print('in operation search')
+		print(len(in_operation_search))
 		in_operation = []
 		for io in in_operation_search:
 			if io.date:
@@ -147,10 +149,16 @@ def get_quantity_product(name, adjustment_name):
 			elif io.creation:
 				if io.creation >= dt.combine(adjustment.inventory_date, dt.min.time()):
 					in_operation.append(io)
-		
+		print('in operation')
+		print(len(in_operation))
+
 		in_moves = frappe.get_list('VetOperationMove', filters={'parent': ['in', list(map(lambda o: o.name, in_operation))], 'product': name}, fields=['quantity_done'])
+		print('in moves')
+		print(len(in_moves))
 		
 		out_operation_search = frappe.get_list('VetOperation', filters={'from': adjustment.warehouse}, fields=['name'])
+		print('out operation search')
+		print(len(out_operation_search))
 		out_operation = []
 		for oo in out_operation_search:
 			if oo.date:
@@ -159,12 +167,20 @@ def get_quantity_product(name, adjustment_name):
 			elif oo.creation:
 				if oo.creation >= dt.combine(adjustment.inventory_date, dt.min.time()):
 					out_operation.append(oo)
+		print('out operation')
+		print(len(out_operation))
 		
 		out_moves = frappe.get_list('VetOperationMove', filters={'parent': ['in', list(map(lambda o: o.name, out_operation))], 'product': name}, fields=['quantity_done'])
+		print('in moves')
+		print(len(out_moves))
 		
 		theoretical_quantity = sum(i.quantity_done for i in in_moves) - sum(o.quantity_done for o in out_moves)
+		print('theoretical quantity')
+		print(len(theoretical_quantity))
 		
 		quantity = frappe.get_list('VetProductQuantity', filters={'product': name, 'gudang': adjustment.warehouse}, fields=['quantity'])
+		print('quantity')
+		print(len(quantity))
 		
 		return sum(q.quantity for q in quantity) - theoretical_quantity
 	except PermissionError as e:

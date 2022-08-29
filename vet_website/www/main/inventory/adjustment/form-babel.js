@@ -144,6 +144,7 @@ class Adjustment extends React.Component {
                 		method:"vet_website.vet_website.doctype.vetadjustment.vetadjustment.get_quantity_product",
                 		args: {name: realValue.name, adjustment_name: new_data.name},
                 		callback: function(r){
+                            console.log(r.message)
                 			if (r.message !== false) {
                 			    new_data.inventory_details[i][name] = realValue.name
                 				new_data.inventory_details[i]['theoritical_quantity'] = r.message
