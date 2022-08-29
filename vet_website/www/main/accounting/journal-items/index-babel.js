@@ -685,6 +685,8 @@ class JournalItemsList extends React.Component {
                     saldo_awal = data[0].total + data[0].debit
                 } else if (data.length > 0 && data[0].credit > 0) {
                     saldo_awal = data[0].total - data[0].credit
+                } else if (data.length > 0) {
+                    saldo_awal = data[0].total
                 }
 
                 item_rows.push(
@@ -970,6 +972,8 @@ class PDF extends React.Component {
                 saldo_awal = data[0].total + data[0].debit
             } else if (data.length > 0 && data[0].credit > 0) {
                 saldo_awal = data[0].total - data[0].credit
+            } else if (data.length > 0) {
+                saldo_awal = data[0].total
             }
 
             table_rows.push(
