@@ -11,7 +11,8 @@ class JournalEntry extends React.Component {
                 'journal_items': [{}],
             },
             'edit': false,
-            'currentUser': {}
+            'currentUser': {},
+            'loading_simpan': false
         }
         
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -164,6 +165,9 @@ class JournalEntry extends React.Component {
     
     formSubmit(e) {
         e.preventDefault()
+        if (this.state.edit) {
+            this.setState({'loading_simpan': true})
+        }
         var new_data = this.state.data
         var th = this
         var method
@@ -178,8 +182,8 @@ class JournalEntry extends React.Component {
             args = {name: new_data.name}
         }
         
-        var total_debit = new_data.journal_items.reduce((total, j) => total+=parseFloat(j.debit||'0'),0)
-        var total_credit = new_data.journal_items.reduce((total, j) => total+=parseFloat(j.credit||'0'),0)
+        var total_debit = new_data.journal_items.filter(a => !a.delete).reduce((total, j) => total+=parseFloat(j.debit||'0'),0)
+        var total_credit = new_data.journal_items.filter(a => !a.delete).reduce((total, j) => total+=parseFloat(j.credit||'0'),0)
         console.log(total_debit)
         console.log(total_credit)
         if(total_debit!=total_credit){
@@ -192,7 +196,7 @@ class JournalEntry extends React.Component {
         		callback: function(r){
         			if (r.message) {
         			    if (th.state.edit) {
-        			        var update = {'accounts': r.message.account_list, 'journals': r.message.journal_list, 'edit': false}
+        			        var update = {'accounts': r.message.account_list, 'journals': r.message.journal_list, 'edit': false, 'loading_simpan': false}
                             if (r.message.journal_entry != undefined) {
                                 update.data = r.message.journal_entry
                             }
@@ -244,7 +248,12 @@ class JournalEntry extends React.Component {
             } else if (this.state.data.status == 'Posted' && !this.state.edit && write) {
                 submit_button = <button type="button" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} onClick={this.toggleEdit}>Edit</button>
             } else if (this.state.edit) {
-                submit_button = <button type="submit" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14}>Simpan</button>
+                submit_button = <button type="submit" className={
+                    this.state.loading_simpan
+                    ? "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2 disabled"
+                    : "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2"} style={lh14}>{this.state.loading_simpan
+                    ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                    : "Simpan"}</button>
                 batal_button = <button type="button" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} onClick={e => this.toggleEdit(e, true)}>Batalkan</button>
             }
         	
