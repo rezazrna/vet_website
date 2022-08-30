@@ -165,9 +165,6 @@ class JournalEntry extends React.Component {
     
     formSubmit(e) {
         e.preventDefault()
-        if (this.state.edit) {
-            this.setState({'loading_simpan': true})
-        }
         var new_data = this.state.data
         var th = this
         var method
@@ -189,6 +186,9 @@ class JournalEntry extends React.Component {
         if(total_debit!=total_credit){
             frappe.msgprint("Total debit tidak sama dengan total credit")
         } else {
+            if (this.state.edit) {
+                this.setState({'loading_simpan': true})
+            }
             frappe.call({
         		type: "POST",
         		method:method,
