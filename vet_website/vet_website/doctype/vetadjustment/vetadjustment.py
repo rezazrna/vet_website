@@ -138,7 +138,7 @@ def get_adjustment(name=None):
 def get_quantity_product(name, adjustment_name):
 	try:
 		adjustment = frappe.get_doc('VetAdjustment', adjustment_name)
-		in_operation_search = frappe.get_list('VetOperation', filters={'to': adjustment.warehouse}, fields=['name'])
+		in_operation_search = frappe.get_list('VetOperation', filters={'to': adjustment.warehouse}, fields=['name', 'date'])
 		print('in operation search')
 		print(len(in_operation_search))
 		in_operation = []
@@ -156,7 +156,7 @@ def get_quantity_product(name, adjustment_name):
 		print('in moves')
 		print(len(in_moves))
 		
-		out_operation_search = frappe.get_list('VetOperation', filters={'from': adjustment.warehouse, 'reference': ['not like', '%Retur%']}, fields=['name'])
+		out_operation_search = frappe.get_list('VetOperation', filters={'from': adjustment.warehouse, 'reference': ['not like', '%Retur%']}, fields=['name', 'date'])
 		print('out operation search')
 		print(len(out_operation_search))
 		out_operation = []
