@@ -156,7 +156,7 @@ def get_quantity_product(name, adjustment_name):
 		print('in moves')
 		print(len(in_moves))
 		
-		out_operation_search = frappe.get_list('VetOperation', filters={'from': adjustment.warehouse}, fields=['name'])
+		out_operation_search = frappe.get_list('VetOperation', filters={'from': adjustment.warehouse, 'reference': ['not like', '%Retur%']}, fields=['name'])
 		print('out operation search')
 		print(len(out_operation_search))
 		out_operation = []
