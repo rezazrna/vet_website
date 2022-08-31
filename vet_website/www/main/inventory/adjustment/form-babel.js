@@ -145,9 +145,9 @@ class Adjustment extends React.Component {
                 		args: {name: realValue.name, adjustment_name: new_data.name},
                 		callback: function(r){
                             console.log(r.message)
-                			if (r.message !== false) {
+                			if (r.message.result !== false) {
                 			    new_data.inventory_details[i][name] = realValue.name
-                				new_data.inventory_details[i]['theoritical_quantity'] = r.message
+                				new_data.inventory_details[i]['theoritical_quantity'] = r.message.result
                 				
                 				th.setState({data: new_data})
                 			}

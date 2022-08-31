@@ -138,7 +138,7 @@ def get_adjustment(name=None):
 def get_quantity_product(name, adjustment_name):
 	try:
 		adjustment = frappe.get_doc('VetAdjustment', adjustment_name)
-		in_operation_search = frappe.get_list('VetOperation', filters={'to': adjustment.warehouse}, fields=['name', 'date'])
+		in_operation_search = frappe.get_list('VetOperation', filters={'to': adjustment.warehouse}, fields=['name'])
 		print('in operation search')
 		print(len(in_operation_search))
 		in_operation = []
@@ -156,7 +156,7 @@ def get_quantity_product(name, adjustment_name):
 		print('in moves')
 		print(len(in_moves))
 		
-		out_operation_search = frappe.get_list('VetOperation', filters={'from': adjustment.warehouse, 'reference': ['not like', '%Retur%']}, fields=['name', 'date'])
+		out_operation_search = frappe.get_list('VetOperation', filters={'from': adjustment.warehouse}, fields=['name'])
 		print('out operation search')
 		print(len(out_operation_search))
 		out_operation = []
@@ -182,7 +182,7 @@ def get_quantity_product(name, adjustment_name):
 		print('quantity')
 		print(quantity)
 		
-		return sum(q.quantity for q in quantity) - theoretical_quantity
+		return {'result' : sum(q.quantity for q in quantity) - theoretical_quantity, 'quantity': quantity, 'theoretical_quantity': theoretical_quantity, 'in_operation': in_operation, 'in_moves': in_moves, 'out_operation': out_operation, 'out_moves': out_moves, 'in_operation_search': in_operation_search, 'out_operation_search': out_operation_search}
 	except PermissionError as e:
 		return {'error': e}
 		
