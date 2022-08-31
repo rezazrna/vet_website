@@ -176,11 +176,11 @@ def get_quantity_product(name, adjustment_name):
 		
 		theoretical_quantity = sum(i.quantity_done for i in in_moves) - sum(o.quantity_done for o in out_moves)
 		print('theoretical quantity')
-		print(len(theoretical_quantity))
+		print(theoretical_quantity)
 		
 		quantity = frappe.get_list('VetProductQuantity', filters={'product': name, 'gudang': adjustment.warehouse}, fields=['quantity'])
 		print('quantity')
-		print(len(quantity))
+		print(quantity)
 		
 		return sum(q.quantity for q in quantity) - theoretical_quantity
 	except PermissionError as e:
