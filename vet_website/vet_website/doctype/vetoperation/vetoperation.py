@@ -265,7 +265,7 @@ def action_send(name):
 		return {'error': e}
 		
 @frappe.whitelist()
-def action_receive(name, moves):
+def action_receive(name, moves, change_product_quantity=True):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		data_check = frappe.get_list('VetOperation', filters={'name': name}, fields=['name'])
@@ -285,43 +285,45 @@ def action_receive(name, moves):
 					})
 					move.save()
 					frappe.db.commit()
+
+					if change_product_quantity:
 					
-					qty = float(m.get('product_quantity_add', False) or m.get('quantity_done', False))
-					product_uom = frappe.db.get_value('VetProduct', move.product, 'product_uom')
-					if(product_uom != move.product_uom):
-						ratio = frappe.db.get_value('VetUOM', move.product_uom, 'ratio')
-						target_ratio = frappe.db.get_value('VetUOM', product_uom, 'ratio')
-						qty = qty * (float(ratio or 1)/float(target_ratio or 1))
-					
-					if operation.get('from', False):
-						product_quantity_search_from = frappe.get_list('VetProductQuantity', filters={'product': move.product, 'gudang': operation.get('from')}, fields=['name'])
-						if len(product_quantity_search_from) != 0:
-							product_quantity = frappe.get_doc('VetProductQuantity', product_quantity_search_from[0].name)
-							product_quantity.quantity = float(product_quantity.quantity) - float(qty)
-							product_quantity.save()
-							frappe.db.commit()
-						else:
-							product_quantity = frappe.new_doc('VetProductQuantity')
-							product_quantity.product = move.product
-							product_quantity.quantity = float(-qty)
-							product_quantity.gudang = operation.get('from')
-							product_quantity.insert()
-							frappe.db.commit()
-					
-					if operation.get('to', False):
-						product_quantity_search_to = frappe.get_list('VetProductQuantity', filters={'product': move.product, 'gudang': operation.to}, fields=['name'])
-						if len(product_quantity_search_to) != 0:
-							product_quantity = frappe.get_doc('VetProductQuantity', product_quantity_search_to[0].name)
-							product_quantity.quantity = float(product_quantity.quantity) + float(qty)
-							product_quantity.save()
-							frappe.db.commit()
-						else:
-							product_quantity = frappe.new_doc('VetProductQuantity')
-							product_quantity.product = move.product
-							product_quantity.quantity = float(qty)
-							product_quantity.gudang = operation.to
-							product_quantity.insert()
-							frappe.db.commit()
+						qty = float(m.get('product_quantity_add', False) or m.get('quantity_done', False))
+						product_uom = frappe.db.get_value('VetProduct', move.product, 'product_uom')
+						if(product_uom != move.product_uom):
+							ratio = frappe.db.get_value('VetUOM', move.product_uom, 'ratio')
+							target_ratio = frappe.db.get_value('VetUOM', product_uom, 'ratio')
+							qty = qty * (float(ratio or 1)/float(target_ratio or 1))
+						
+						if operation.get('from', False):
+							product_quantity_search_from = frappe.get_list('VetProductQuantity', filters={'product': move.product, 'gudang': operation.get('from')}, fields=['name'])
+							if len(product_quantity_search_from) != 0:
+								product_quantity = frappe.get_doc('VetProductQuantity', product_quantity_search_from[0].name)
+								product_quantity.quantity = float(product_quantity.quantity) - float(qty)
+								product_quantity.save()
+								frappe.db.commit()
+							else:
+								product_quantity = frappe.new_doc('VetProductQuantity')
+								product_quantity.product = move.product
+								product_quantity.quantity = float(-qty)
+								product_quantity.gudang = operation.get('from')
+								product_quantity.insert()
+								frappe.db.commit()
+						
+						if operation.get('to', False):
+							product_quantity_search_to = frappe.get_list('VetProductQuantity', filters={'product': move.product, 'gudang': operation.to}, fields=['name'])
+							if len(product_quantity_search_to) != 0:
+								product_quantity = frappe.get_doc('VetProductQuantity', product_quantity_search_to[0].name)
+								product_quantity.quantity = float(product_quantity.quantity) + float(qty)
+								product_quantity.save()
+								frappe.db.commit()
+							else:
+								product_quantity = frappe.new_doc('VetProductQuantity')
+								product_quantity.product = move.product
+								product_quantity.quantity = float(qty)
+								product_quantity.gudang = operation.to
+								product_quantity.insert()
+								frappe.db.commit()
 
 			operation.reload()
 			purchase_name_search = frappe.db.get_value('VetPurchaseProducts', operation.reference) or False

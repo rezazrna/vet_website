@@ -748,8 +748,11 @@ def retur_purchase(name, products, jumlah=False, payment_method=False):
 			purchase_product = next((p for p in purchase.products if p.product == m.product), False)
 			if purchase_product:
 				m.quantity_done = purchase_product.quantity_receive
+
+		print('moves')
+		print(moves)
 		
-		action_receive(operation.name, json.dumps(moves))
+		action_receive(operation.name, json.dumps(moves), False)
 
 		operation_retur = frappe.new_doc("VetOperation")
 		operation_retur.update({
@@ -782,6 +785,9 @@ def retur_purchase(name, products, jumlah=False, payment_method=False):
 			if retur_product:
 				m.quantity_done = retur_product.get('quantity_retur')
 		
+		print('moves retur')
+		print(moves)
+
 		action_receive(operation_retur.name, json.dumps(moves))
 
 		if jumlah and payment_method:
