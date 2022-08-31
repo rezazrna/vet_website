@@ -62,7 +62,7 @@
   },
   {
    "fieldname": "description",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Catatan"
   },
   {
@@ -83,122 +83,122 @@
   },
   {
    "fieldname": "vaccine_history",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Riwayat Vaksin"
   },
   {
    "fieldname": "food_history",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Riwayat Makanan"
   },
   {
    "fieldname": "anamnese",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Anamnese"
   },
   {
    "fieldname": "diagnosa_utama",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Diagnosa Utama"
   },
   {
    "fieldname": "prognosa",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Prognosa"
   },
   {
    "fieldname": "bcs",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "BCS"
   },
   {
    "fieldname": "vomit",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Vomit"
   },
   {
    "fieldname": "auscl",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Ausc. L"
   },
   {
    "fieldname": "ausch",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Ausc. H"
   },
   {
    "fieldname": "pulse",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "pulsus"
   },
   {
    "fieldname": "respiration",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "respirasi"
   },
   {
    "fieldname": "abdominal_palpas_pain",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Abdominal Palpasi Pain"
   },
   {
    "fieldname": "abdominal_palpasi_tension",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Abdominal Palpasi Tension"
   },
   {
    "fieldname": "limfonodule",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Limfonodule"
   },
   {
    "fieldname": "mukosa",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Mukosa"
   },
   {
    "fieldname": "mata",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Mata"
   },
   {
    "fieldname": "hidung",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Hidung"
   },
   {
    "fieldname": "mulut",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Mulut"
   },
   {
    "fieldname": "telinga",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Telinga"
   },
   {
    "fieldname": "kulit",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Kulit"
   },
   {
    "fieldname": "ekstremitas",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Ekstrmitas"
   },
   {
    "fieldname": "reflex",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Sensasi Refleks"
   },
   {
    "fieldname": "other",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Lainnya"
   },
   {
    "fieldname": "action",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Tindakan"
   },
   {
@@ -290,21 +290,21 @@
   },
   {
    "fieldname": "diagnosa_banding",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Diagnosa Banding"
   },
   {
    "fieldname": "other_diagnosa",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Lainnya Diagnosa"
   },
   {
    "fieldname": "other_pemeriksaan",
-   "fieldtype": "Data",
+   "fieldtype": "Text",
    "label": "Lainnya Pemeriksaan"
   }
  ],
- "modified": "2021-09-18 16:51:21.005808",
+ "modified": "2022-08-31 19:59:01.392710",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetTindakanDokter",
