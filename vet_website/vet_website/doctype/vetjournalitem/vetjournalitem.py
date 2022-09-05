@@ -24,6 +24,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		default_sort = "date asc, reference asc"
 		order_by = 'creation asc'
 	je_filters = []
+	je_filters_if_empty = []
 	je_or_filters = []
 	filter_json = False
 	ji_account = False
@@ -50,6 +51,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		if filters_json:
 			for fj in filters_json:
 				je_filters.append(fj)
+				je_filters_if_empty.append(fj)
 
 		if search:
 			je_or_filters.append({'reference': ['like', '%'+search+'%']})
@@ -79,6 +81,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			print(max_date)
 			print(mode)
 			je_filters.append({'date': ['between', [min_date, max_date]]})
+			je_filters_if_empty.append({'date': ['<', min_date]})
 	try:
 		journals = []
 		if not all_page:
@@ -100,9 +103,21 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by)
 		else:
 			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by, start=(page - 1) * 10, page_length= 10)
+
 		datalength = 0
 		if not all_page:
 			datalength = len(frappe.get_list("VetJournalItem", filters=journal_items_filters, as_list=True))
+
+		if not journal_items and is_gl == '1':
+			journal_items_filters_if_empty = []
+			journal_entry_search = frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters_if_empty, fields=["name"], order_by=default_sort)
+			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+			journal_items_filters_if_empty.append({'parent': ['in', journal_entry_names]})
+			if ji_account:
+				journal_items_filters_if_empty.append({'account': ji_account})
+
+			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters_if_empty, fields=["*"], order_by="creation desc", page_length=1)
+
 		for ji in journal_items:
 			ji['period'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'period')
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')

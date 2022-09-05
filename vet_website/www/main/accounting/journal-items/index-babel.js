@@ -619,7 +619,7 @@ class JournalItems extends React.Component {
                         </div>
                     </div>
                     <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} changeRemoveStorage={(value) => this.changeRemoveStorage(value)}/>
-                    <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year}/>
+                    <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength}/>
                 </div>
             )
         }
@@ -733,15 +733,19 @@ class JournalItemsList extends React.Component {
                 )
             }
 
-            data.forEach(function (item, index) {
-                // if (item.debit != 0 || item.credit != 0) {
-                    // if (currentItems.includes(item)){
-                    item_rows.push(
-                        <JournalItemsListRow account={ji.props.account} key={item.name} item={item} checkRow={() => ji.props.checkRow(index)} changeRemoveStorage={(value) => ji.props.changeRemoveStorage(value)} />
-                    )
+            console.log(this.props.datalength)
+
+            if (this.props.datalength > 0) {
+                data.forEach(function (item, index) {
+                    // if (item.debit != 0 || item.credit != 0) {
+                        // if (currentItems.includes(item)){
+                        item_rows.push(
+                            <JournalItemsListRow account={ji.props.account} key={item.name} item={item} checkRow={() => ji.props.checkRow(index)} changeRemoveStorage={(value) => ji.props.changeRemoveStorage(value)} />
+                        )
+                        // }
                     // }
-                // }
-            })
+                })
+            }
 
             return (
                 <div style={panel_style}>
@@ -1004,27 +1008,29 @@ class PDF extends React.Component {
             )
         }
 
-        data.forEach((d, index) => {
-            var account_col
-            if (this.props.account != undefined) {
-                account_col = (
-                    <td className="py-1" width="90px">{formatter2.format(d.total || d.computed_total || 0)}</td>
+        if (this.props.datalength > 0) {
+            data.forEach((d, index) => {
+                var account_col
+                if (this.props.account != undefined) {
+                    account_col = (
+                        <td className="py-1" width="90px">{formatter2.format(d.total || d.computed_total || 0)}</td>
+                    )
+                }
+    
+                table_rows.push(
+                    <tr key={d.name} style={fs9}>
+                        <td className="py-1" width="89px">{moment(d.date).format('DD-MM-YYYY')}</td>
+                        <td className="py-1" width="88px">{d.reference}</td>
+                        <td className="py-1" width="88px">{d.parent}</td>
+                        <td className="py-1" width="88px">{d.keterangan}</td>
+                        <td className="py-1" width="202px">{d.account_name}</td>
+                        <td className="py-1" width="90px">{formatter2.format(d.debit)}</td>
+                        <td className="py-1" width="90px">{formatter2.format(d.credit)}</td>
+                        {account_col}
+                    </tr>
                 )
-            }
-
-            table_rows.push(
-                <tr key={d.name} style={fs9}>
-                    <td className="py-1" width="89px">{moment(d.date).format('DD-MM-YYYY')}</td>
-                    <td className="py-1" width="88px">{d.reference}</td>
-                    <td className="py-1" width="88px">{d.parent}</td>
-                    <td className="py-1" width="88px">{d.keterangan}</td>
-                    <td className="py-1" width="202px">{d.account_name}</td>
-                    <td className="py-1" width="90px">{formatter2.format(d.debit)}</td>
-                    <td className="py-1" width="90px">{formatter2.format(d.credit)}</td>
-                    {account_col}
-                </tr>
-            )
-        })
+            })
+        }
 
         var account_name
 
