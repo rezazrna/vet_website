@@ -681,13 +681,20 @@ class JournalItemsList extends React.Component {
 
                 var saldo_awal = 0
 
-                if (data.length > 0 && data[0].debit > 0) {
-                    saldo_awal = data[0].total + data[0].debit
-                } else if (data.length > 0 && data[0].credit > 0) {
-                    saldo_awal = data[0].total - data[0].credit
-                } else if (data.length > 0) {
-                    saldo_awal = data[0].total
+                if(['Asset','Expense'].includes(data[0].account_type)){
+                    saldo_awal = data[0].total + (data[0].credit - data[0].debit)
                 }
+                else{
+                    saldo_awal = data[0].total + (data[0].debit - data[0].credit)
+                }
+
+                // if (data.length > 0 && data[0].debit > 0) {
+                //     saldo_awal = data[0].total - data[0].debit
+                // } else if (data.length > 0 && data[0].credit > 0) {
+                //     saldo_awal = data[0].total + data[0].credit
+                // } else if (data.length > 0) {
+                //     saldo_awal = data[0].total
+                // }
 
                 item_rows.push(
                     <div className="row mx-0">
@@ -965,16 +972,23 @@ class PDF extends React.Component {
         // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
         // // currentItems = data.slice(0,30)
 
-        if (this.props.account != undefined) {
+        if (this.props.account != undefined && data.length != 0) {
             var saldo_awal = 0
 
-            if (data.length > 0 && data[0].debit > 0) {
-                saldo_awal = data[0].total + data[0].debit
-            } else if (data.length > 0 && data[0].credit > 0) {
-                saldo_awal = data[0].total - data[0].credit
-            } else if (data.length > 0) {
-                saldo_awal = data[0].total
+            if(['Asset','Expense'].includes(data[0].account_type)){
+                saldo_awal = data[0].total + (data[0].credit - data[0].debit)
             }
+            else{
+                saldo_awal = data[0].total + (data[0].debit - data[0].credit)
+            }
+
+            // if (data.length > 0 && data[0].debit > 0) {
+            //     saldo_awal = data[0].total + data[0].debit
+            // } else if (data.length > 0 && data[0].credit > 0) {
+            //     saldo_awal = data[0].total - data[0].credit
+            // } else if (data.length > 0) {
+            //     saldo_awal = data[0].total
+            // }
 
             table_rows.push(
                 <tr key='999999' style={fs9}>
