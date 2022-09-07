@@ -12,7 +12,7 @@ class Coa extends React.Component {
             'month': moment().format('MM'),
             'year': moment().format('YYYY'),
             'accounting_date': moment().add(1,'month').format('YYYY-MM-DD'),
-            'mode': 'monthly',
+            'mode': '',
             'print_loading': false,
             'currentUser': {}
         }
@@ -27,7 +27,7 @@ class Coa extends React.Component {
         var filters = {}
         var dc_mode = this.props.dc_mode
         if(dc_mode == '1'){
-            this.setState({dc_mode: true, loaded: true})
+            this.setState({dc_mode: true, loaded: true, month: '', year: '', accounting_date: undefined})
             filters.dc_mode = 1
         }
         // frappe.call({
@@ -330,7 +330,7 @@ class Coa extends React.Component {
             return(
                 <div className="position-relative">
                     <div className="row mx-0" style={row_style2}>
-                        <div className="col-6 my-auto">
+                        <div className="col-4 my-auto">
                         	{add_button}
                         	{edit_button}
                         	{delete_button}
@@ -656,6 +656,7 @@ class CoaListRow extends React.Component {
                 args.min_date = this.props.accounting_min_date
                 args.mode = this.props.mode
             }
+            console.log(args)
             var td = this
             frappe.call({
                 type: "GET",
@@ -685,7 +686,7 @@ class CoaListRow extends React.Component {
                     var cl = this
                     this.state.children.forEach(function(value, index){
                         children_row.push(
-                            <CoaListRow key={value.account_name} item={value} selected={cl.props.selected} selectRow={cl.props.selectRow} dc_mode={cl.props.dc_mode} month={cl.props.month} year={cl.props.year}/>
+                            <CoaListRow key={value.account_name} item={value} selected={cl.props.selected} selectRow={cl.props.selectRow} dc_mode={cl.props.dc_mode} month={cl.props.month} year={cl.props.year} accounting_date={cl.props.accounting_date} accounting_min_date={cl.props.accounting_min_date} mode={cl.props.mode}/>
                         )
                     })
                 }

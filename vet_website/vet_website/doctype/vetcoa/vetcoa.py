@@ -99,12 +99,18 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 			if limit_date and min_trans_date:
 				je_filters = {}
 				je_filters.update({'date': ['between', [min_trans_date, limit_date]]})
+				print('je filters')
+				print(je_filters)
 				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)
+			print('journal entry names')
+			print(len(journal_entry_names))
 			journal_items = []
 			if journal_entry_names:
 				journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account'])
+			print('journal items')
+			print(len(journal_items))
 
 			for c in coa_list:
 				# tdc = get_coa_total_debit_credit(c.name, journal_entry_names=journal_entry_names)
@@ -171,10 +177,19 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 			for c in children:
 				c['total'] = get_coa_last_total(c.name, max_date=max_date, mode=mode)
 		else:
+			if mode == 'monthly' or mode == 'period':
+				limit_date_dt = dt.strptime(max_date, '%Y-%m-%d') - rd(days=1)
+				limit_date = limit_date_dt.strftime('%Y-%m-%d')
+
+			if mode == 'monthly':
+				min_date = (limit_date_dt).strftime('%Y-%m-01')
+
 			journal_entry_names = []
 			if max_date and min_date:
 				je_filters = {}
 				je_filters.update({'date': ['between', [min_date, max_date]]})
+				print('je filters')
+				print(je_filters)
 				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)
