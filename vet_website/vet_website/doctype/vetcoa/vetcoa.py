@@ -60,7 +60,17 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 			max_trans_date = max_date
 			
 		if accounting_date:
-			limit_date = accounting_date
+			if mode == 'monthly' or mode == 'period':
+				limit_date_dt = dt.strptime(accounting_date, '%Y-%m-%d') - rd(days=1)
+				limit_date = limit_date_dt.strftime('%Y-%m-%d')
+			else:
+				limit_date = accounting_date
+
+			if accounting_min_date:
+				min_trans_date = accounting_min_date
+			elif mode == 'monthly':
+				min_trans_date = (limit_date_dt).strftime('%Y-%m-01')
+
 		if dc:
 			dc_mode = True
 	
@@ -85,9 +95,9 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 			print('selesai get_coa_last_total')
 		else:
 			journal_entry_names = []
-			if limit_date:
+			if limit_date and min_trans_date:
 				je_filters = {}
-				je_filters.update({'date': ['<', limit_date]})
+				je_filters.update({'date': ['between', [min_trans_date, limit_date]]})
 				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)
@@ -161,9 +171,9 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 				c['total'] = get_coa_last_total(c.name, max_date=max_date, mode=mode)
 		else:
 			journal_entry_names = []
-			if max_date:
+			if max_date and min_date:
 				je_filters = {}
-				je_filters.update({'date': ['<', max_date]})
+				je_filters.update({'date': ['between', [min_date, max_date]]})
 				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)

@@ -12,6 +12,7 @@ class Coa extends React.Component {
             'month': moment().format('MM'),
             'year': moment().format('YYYY'),
             'accounting_date': moment().add(1,'month').format('YYYY-MM-DD'),
+            'mode': 'monthly',
             'print_loading': false,
             'currentUser': {}
         }
@@ -62,7 +63,10 @@ class Coa extends React.Component {
         var value = e.target.value
         // var filters = {}
         // this.setState({loaded: false})
-        if(name == 'month'){
+        if (name == 'min_month') {
+            var accounting_min_date = moment(this.state.year + '-' + value + '-01', 'YYYY-MM-DD').format('YYYY-MM-DD')
+            th.setState({ min_month: value, accounting_min_date: accounting_min_date })
+        } else if(name == 'month'){
             var accounting_date = moment(this.state.year+'-'+value, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             this.setState({month: value, accounting_date: accounting_date})
         }
@@ -84,16 +88,40 @@ class Coa extends React.Component {
         // });
     }
 
+    setMode(e) {
+        var th = this
+        var mode = e.target.value
+        th.setState({ 'mode': mode, 'month': '', 'min_month': '', 'year': '', 'accounting_date': undefined, 'accounting_min_date': undefined})
+    }
+
     setFilter() {
-        var filters = {accounting_date: this.state.accounting_date}
-        this.setState({loaded: false})
-        this.coaSearch(filters)
+        if (((this.state.mode == 'monthly' && this.state.month != '') ||
+         (this.state.mode == 'period' && this.state.month != '' && this.state.min_month != ''))
+          && this.state.year != '') {
+            var filters = {accounting_date: this.state.accounting_date, accounting_min_date: this.state.accounting_min_date}
+            this.setState({loaded: false})
+            this.coaSearch(filters)
+            // frappe.call({
+            //     type: "GET",
+            //     method: "vet_website.vet_website.doctype.vetjournalitem.vetjournalitem.get_journal_item_list",
+            //     args: { filters: filters, mode: td.state.mode, },
+            //     callback: function (r) {
+            //         if (r.message) {
+            //             console.log(r.message)
+            //             td.setState({'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coaAll});
+            //         }
+            //     }
+            // });
+        } else {
+            frappe.msgprint(('Month or Year must be selected'));
+        }
     }
     
     getPrintData(){
         var th = this
         var filters = {
-            accounting_date: this.state.accounting_date
+            accounting_date: this.state.accounting_date,
+            accounting_min_date: this.state.accounting_min_date,
         }
         if(this.state.dc_mode){
             filters.dc_mode = 1
@@ -103,7 +131,7 @@ class Coa extends React.Component {
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                args: {filters: filters, all_children: true},
+                args: {filters: filters, all_children: true, mode: th.state.mode,},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message)
@@ -153,6 +181,7 @@ class Coa extends React.Component {
         }
         var args = {filters: filters}
         if (all) { args.all_children = true }
+        if (this.state.mode) {args.mode = this.state.mode}
         console.log(args)
 
         frappe.call({
@@ -208,7 +237,7 @@ class Coa extends React.Component {
     
     render() {
 		var row_style2 = {'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '2px', 'marginBottom': '18px', 'height': '72px'}
-		var popup_add, delete_button, edit_button, gl_button, print_button, pdf
+		var popup_add, delete_button, edit_button, gl_button, print_button, pdf, mode_options, sd_period, min_month_select;
 		var write = checkPermission('VetCoa', this.state.currentUser, 'write')
         
         if (this.state.loaded){
@@ -247,14 +276,44 @@ class Coa extends React.Component {
         		
         		print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
         		pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year} dc_mode={true}/>
+
+                if (this.state.mode == 'monthly' || this.state.mode == 'period') {
+
+                    if (this.state.mode == 'period') {
+                        sd_period = <div className="col-auto my-auto mx-auto">
+                            s/d
+                        </div>
+
+                        min_month_select = <div className="col-2 my-auto">
+                            <select name="min_month" placeholder="Month" className="form-control" value={this.state.min_month} onChange={e => this.handleInputOnChange(e)}>
+                                {month_options}
+                            </select>
+                        </div>
+                    }
+    
+                    month_select = <div className="col-2 my-auto">
+                        <select name="month" placeholder="Month" className="form-control" value={this.state.month} onChange={e => this.handleInputOnChange(e)}>
+                            {month_options}
+                        </select>
+                    </div>
+                }
                 
-                month_select = (
-                <div className="col-2 my-auto ml-auto">
-                    <select name="month" className="form-control" value={this.state.month} onChange={e => this.handleInputOnChange(e)}>
-                        {month_options}
-                    </select>
-                </div>
-                )
+                // month_select = (
+                // <div className="col-2 my-auto ml-auto">
+                //     <select name="month" className="form-control" value={this.state.month} onChange={e => this.handleInputOnChange(e)}>
+                //         {month_options}
+                //     </select>
+                // </div>
+                // )
+
+                mode_options = <div className="col-2 my-auto">
+                                    <select name="mode" placeholder="Periode" className="form-control" value={this.state.mode} onChange={e => this.setMode(e)}>
+                                        <option className="d-none" key="99999"></option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="period">Period</option>
+                                    </select>
+                                </div>
+
                 year_select = (
                 <div className="col-2 my-auto">
                     <select name="year" className="form-control" value={this.state.year} onChange={e => this.handleInputOnChange(e)}>
@@ -278,12 +337,15 @@ class Coa extends React.Component {
                         	{gl_button}
                         	{print_button}
                         </div>
-                        {month_select}
+                        {mode_options}
                         {year_select}
+                        {min_month_select}
+                        {sd_period}
+                        {month_select}
                         {set_button}
                     </div>
                     {pdf}
-                    <CoaList items={this.state.data} selected={this.state.selected} selectRow={this.selectRow} dc_mode={this.state.dc_mode} month={this.state.month} year={this.state.year}/>
+                    <CoaList items={this.state.data} selected={this.state.selected} selectRow={this.selectRow} dc_mode={this.state.dc_mode} month={this.state.month} year={this.state.year} accounting_date={this.state.accounting_date} accounting_min_date={this.state.accounting_min_date} mode={this.state.mode}/>
                     {popup_add}
                 </div>
             )
@@ -521,7 +583,7 @@ class CoaList extends React.Component {
             var cl = this
             items.forEach(function(value, index){
                 rows.push(
-                    <CoaListRow key={value.account_name} item={value} selected={cl.props.selected} selectRow={cl.props.selectRow} dc_mode={cl.props.dc_mode} month={cl.props.month} year={cl.props.year}/>
+                    <CoaListRow key={value.account_name} item={value} selected={cl.props.selected} selectRow={cl.props.selectRow} dc_mode={cl.props.dc_mode} month={cl.props.month} year={cl.props.year} accounting_date={cl.props.accounting_date} accounting_min_date={cl.props.accounting_min_date} mode={cl.props.mode}/>
                 )
             })
             
@@ -590,7 +652,9 @@ class CoaListRow extends React.Component {
             var args = {name: this.props.item.name}
             if(this.props.dc_mode){
                 args.dc_mode = '1'
-                args.max_date = moment(this.props.year+'-'+this.props.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+                args.max_date = this.props.accounting_date
+                args.min_date = this.props.accounting_min_date
+                args.mode = this.props.mode
             }
             var td = this
             frappe.call({
