@@ -265,8 +265,8 @@ class Coa extends React.Component {
             }
             else{
                 var i
-                var month_options = []
-		        var year_options = []
+                var month_options = [<option className="d-none" key="99999"></option>]
+		        var year_options = [<option className="d-none" key="99999"></option>]
         		for(i = 0; i <= 11; i++){
         		    var moment_month = moment(i+1, 'M')
         		    var moment_year = moment().add(-i, 'year')
