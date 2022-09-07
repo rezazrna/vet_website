@@ -280,7 +280,7 @@ def new_pet_owner(data, pets):
 @frappe.whitelist(allow_guest=True)
 def create_from_api(data):
 	tz = pytz.timezone("Asia/Jakarta")
-	now = datetime.datetime.now(pytz)
+	now = datetime.datetime.now(tz)
 	now_str = datetime.datetime.strftime(now, "%d%m%Y%H%M%S")
 	data_json = json.loads(data)
 	doc_data = {}
@@ -311,7 +311,7 @@ def create_from_api(data):
 @frappe.whitelist()
 def edit_pet_owner(data, pets):
 	tz = pytz.timezone("Asia/Jakarta")
-	now = datetime.datetime.now(pytz)
+	now = datetime.datetime.now(tz)
 	now_str = datetime.datetime.strftime(now, "%d%m%Y%H%M%S")
 	try:
 		data_json = json.loads(data)
