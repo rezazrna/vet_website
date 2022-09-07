@@ -45,6 +45,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 		min_date = filter_json.get('min_date', False)
 		max_date = filter_json.get('max_date', False)
 		accounting_date = filter_json.get('accounting_date', False)
+		accounting_min_date = filter_json.get('accounting_min_date', False)
 		dc = filter_json.get('dc_mode', False)
 		
 		if search:
