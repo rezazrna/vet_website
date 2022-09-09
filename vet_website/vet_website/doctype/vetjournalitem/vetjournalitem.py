@@ -138,9 +138,9 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		saldo_awal = 0
 
 		if journal_items and is_gl == '1' and ji_account:
-			if ['4-', '5-', '6-', '7-', '8-'] in journal_items[0]['account_code']:
+			if journal_items[0]['account_code'] in ['4-', '5-', '6-', '7-', '8-']:
 				saldo_awal = hitung_saldo_awal_gl(min_date, ji_account)
-			elif ['1-'] in journal_items[0]['account_code']:
+			elif journal_items[0]['account_code'] in ['1-']:
 				saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
 			else:
 				saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
