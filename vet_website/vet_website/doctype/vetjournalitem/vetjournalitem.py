@@ -193,7 +193,7 @@ def hitung_saldo_awal_gl(min_date, account):
 	print(len(journal_items))
 
 	total = 0
-	for j in journal_items
+	for j in journal_items:
 		account_type = frappe.db.get_value('VetCoa', j.account, 'account_type')
 		if account_type in ['Asset', 'Expense']:
 			total = total + (j.debit - j.credit)
