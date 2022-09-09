@@ -138,12 +138,17 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		saldo_awal = 0
 
 		if journal_items and is_gl == '1' and ji_account:
-			if journal_items[0]['account_code'] in ['4-', '5-', '6-', '7-', '8-']:
-				saldo_awal = hitung_saldo_awal_gl(min_date, ji_account)
-			elif journal_items[0]['account_code'] in ['1-']:
+			# if journal_items[0]['account_code'] in ['4-', '5-', '6-', '7-', '8-']:
+			# 	saldo_awal = hitung_saldo_awal_gl(min_date, ji_account)
+			# elif journal_items[0]['account_code'] in ['1-']:
+			# 	saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
+			# else:
+			# 	saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
+
+			if journal_items[0]['account_type'] in ['Asset', 'Expense']:
 				saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
 			else:
-				saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
+				saldo_awal = journal_items[0]['total'] + (journal_items[0]['debit'] - journal_items[0]['credit'])
 
 		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength, 'coaAll': coaAll, 'saldo_awal': saldo_awal}
 		
@@ -173,37 +178,37 @@ def delete_journal_item(data):
 		
 	return {'success': True}
 
-def hitung_saldo_awal_gl(min_date, account):
-	default_sort = "date asc, reference asc"
-	order_by = 'creation asc'
+# def hitung_saldo_awal_gl(min_date, account):
+# 	default_sort = "date asc, reference asc"
+# 	order_by = 'creation asc'
 
-	max_date_dt = dt.strptime(min_date, '%Y-%m-%d') - rd(days=1)
-	max_date = max_date_dt.strftime('%Y-%m-%d')
-	min_date = max_date_dt.strftime('%Y-01-01')
+# 	max_date_dt = dt.strptime(min_date, '%Y-%m-%d') - rd(days=1)
+# 	max_date = max_date_dt.strftime('%Y-%m-%d')
+# 	min_date = max_date_dt.strftime('%Y-01-01')
 
-	journal_items_filters = [{'account': account}]
-	journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['between', [min_date, max_date]]}, fields=["name"], order_by=default_sort)
-	journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
-	journal_items_filters.append({'parent': ['in', journal_entry_names]})
-	print('journal entry names')
-	print(len(journal_entry_names))
+# 	journal_items_filters = [{'account': account}]
+# 	journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['between', [min_date, max_date]]}, fields=["name"], order_by=default_sort)
+# 	journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+# 	journal_items_filters.append({'parent': ['in', journal_entry_names]})
+# 	print('journal entry names')
+# 	print(len(journal_entry_names))
 
-	journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by)
-	print('journal items')
-	print(len(journal_items))
+# 	journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by)
+# 	print('journal items')
+# 	print(len(journal_items))
 
-	total = 0
-	for j in journal_items:
-		account_type = frappe.db.get_value('VetCoa', j.account, 'account_type')
-		if account_type in ['Asset', 'Expense']:
-			total = total + (j.debit - j.credit)
-		else:
-			total = total + (j.credit - j.debit)
+# 	total = 0
+# 	for j in journal_items:
+# 		account_type = frappe.db.get_value('VetCoa', j.account, 'account_type')
+# 		if account_type in ['Asset', 'Expense']:
+# 			total = total + (j.debit - j.credit)
+# 		else:
+# 			total = total + (j.credit - j.debit)
 
-	print('total')
-	print(total)
+# 	print('total')
+# 	print(total)
 	
-	return total
+# 	return total
 	
 # def set_journal_item_total(name):
 # 	ji = frappe.get_doc('VetJournalItem', name)
