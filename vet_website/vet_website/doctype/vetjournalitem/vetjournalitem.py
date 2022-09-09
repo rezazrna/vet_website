@@ -110,6 +110,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			datalength = len(frappe.get_list("VetJournalItem", filters=journal_items_filters, as_list=True))
 
 		if not journal_items and is_gl == '1':
+			
 			journal_items_filters_if_empty = []
 			journal_entry_search = frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters_if_empty, fields=["name"], order_by=default_sort)
 			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
@@ -145,7 +146,9 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			# else:
 			# 	saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
 
-			if journal_items[0]['account_type'] in ['Asset', 'Expense']:
+			if datalength == 0:
+				saldo_awal = journal_items[0]['total']
+			elif journal_items[0]['account_type'] in ['Asset', 'Expense']:
 				saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
 			else:
 				saldo_awal = journal_items[0]['total'] + (journal_items[0]['debit'] - journal_items[0]['credit'])
