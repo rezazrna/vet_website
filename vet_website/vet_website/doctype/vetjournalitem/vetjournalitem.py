@@ -29,6 +29,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 	filter_json = False
 	ji_account = False
 	page = 1
+	min_date = False
 	
 	if filters:
 		try:
@@ -125,6 +126,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			ji['reference'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'reference')
 			ji['account_name'] = "%s %s"%(frappe.db.get_value('VetCoa', ji.account, 'account_code'), frappe.db.get_value('VetCoa', ji.account, 'account_name'))
 			ji['account_type'] = frappe.db.get_value('VetCoa', ji.account, 'account_type')
+			ji['account_code'] = frappe.db.get_value('VetCoa', ji.account, 'account_code')
 		reverse = True
 		if is_gl == '1':
 			reverse = False
@@ -136,7 +138,9 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		saldo_awal = 0
 
 		if journal_items and is_gl == '1' and ji_account:
-			if journal_items[0]['account_type'] in ['Asset','Expense']:
+			if ['4-', '5-', '6-', '7-', '8-'] in journal_items[0]['account_code']:
+				saldo_awal = hitung_saldo_awal_gl(min_date, ji_account)
+			elif ['1-'] in journal_items[0]['account_code']:
 				saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
 			else:
 				saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
@@ -168,6 +172,38 @@ def delete_journal_item(data):
 		frappe.db.commit()
 		
 	return {'success': True}
+
+def hitung_saldo_awal_gl(min_date, account):
+	default_sort = "date asc, reference asc"
+	order_by = 'creation asc'
+
+	max_date_dt = dt.strptime(min_date, '%Y-%m-%d') - rd(days=1)
+	max_date = max_date_dt.strftime('%Y-%m-%d')
+	min_date = max_date_dt.strftime('%Y-01-01')
+
+	journal_items_filters = [{'account': account}]
+	journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['between', [min_date, max_date]]}, fields=["name"], order_by=default_sort)
+	journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+	journal_items_filters.append({'parent': ['in', journal_entry_names]})
+	print('journal entry names')
+	print(len(journal_entry_names))
+
+	journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by)
+	print('journal items')
+	print(len(journal_items))
+
+	total = 0
+	for j in journal_items
+		account_type = frappe.db.get_value('VetCoa', j.account, 'account_type')
+		if account_type in ['Asset', 'Expense']:
+			total = total + (j.debit - j.credit)
+		else:
+			total = total + (j.credit - j.debit)
+
+	print('total')
+	print(total)
+	
+	return total
 	
 # def set_journal_item_total(name):
 # 	ji = frappe.get_doc('VetJournalItem', name)
