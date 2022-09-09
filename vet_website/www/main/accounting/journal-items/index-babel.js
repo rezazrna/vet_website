@@ -25,7 +25,8 @@ class JournalItems extends React.Component {
             'min_date': '',
             'max_date': '',
             'journal_date': '',
-            'remove_storage': true
+            'remove_storage': true,
+            'saldo_awal': 0,
         }
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -107,7 +108,7 @@ class JournalItems extends React.Component {
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coaAll});
+                        po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coaAll, 'saldo_awal': r.message.saldo_awal});
                     }
                 }
             });
@@ -147,7 +148,7 @@ class JournalItems extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coaAll});
+                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coaAll, 'saldo_awal': r.message.saldo_awal});
                 }
             }
         });
@@ -184,7 +185,7 @@ class JournalItems extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message)
-                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coaAll });
+                    po.setState({ 'data': r.message.journal_items, 'journals': r.message.journals, 'loaded': true, 'datalength': r.message.datalength, 'coaAll': r.message.coaAll, 'saldo_awal': r.message.saldo_awal});
                 }
             }
         });
@@ -387,7 +388,7 @@ class JournalItems extends React.Component {
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({print_data: r.message.journal_items});
+                        po.setState({print_data: r.message.journal_items, saldo_awal: r.message.saldo_awal});
                         po.printPDF()
                     }
                 }
@@ -618,8 +619,8 @@ class JournalItems extends React.Component {
                             <Filter sorts={[]} searchAction={this.itemSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))} />
                         </div>
                     </div>
-                    <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} changeRemoveStorage={(value) => this.changeRemoveStorage(value)}/>
-                    <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength}/>
+                    <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} changeRemoveStorage={(value) => this.changeRemoveStorage(value)} saldo_awal={this.state.saldo_awal}/>
+                    <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
                 </div>
             )
         }
@@ -679,14 +680,14 @@ class JournalItemsList extends React.Component {
                     </div>
                 )
 
-                var saldo_awal = 0
+                // var saldo_awal = 0
 
-                if(['Asset','Expense'].includes(data[0].account_type)){
-                    saldo_awal = data[0].total + (data[0].credit - data[0].debit)
-                }
-                else{
-                    saldo_awal = data[0].total + (data[0].debit - data[0].credit)
-                }
+                // if(['Asset','Expense'].includes(data[0].account_type)){
+                //     saldo_awal = data[0].total + (data[0].credit - data[0].debit)
+                // }
+                // else{
+                //     saldo_awal = data[0].total + (data[0].debit - data[0].credit)
+                // }
 
                 // if (data.length > 0 && data[0].debit > 0) {
                 //     saldo_awal = data[0].total - data[0].debit
@@ -725,7 +726,7 @@ class JournalItemsList extends React.Component {
                                     <span className="my-auto"></span>
                                 </div>
                                 <div className="col d-flex">
-                                    <span className="my-auto">{formatter2.format(saldo_awal)}</span>
+                                    <span className="my-auto">{formatter2.format(this.props.saldo_awal)}</span>
                                 </div>
                             </div>
                         </div>
@@ -977,14 +978,14 @@ class PDF extends React.Component {
         // // currentItems = data.slice(0,30)
 
         if (this.props.account != undefined && data.length != 0) {
-            var saldo_awal = 0
+            // var saldo_awal = 0
 
-            if(['Asset','Expense'].includes(data[0].account_type)){
-                saldo_awal = data[0].total + (data[0].credit - data[0].debit)
-            }
-            else{
-                saldo_awal = data[0].total + (data[0].debit - data[0].credit)
-            }
+            // if(['Asset','Expense'].includes(data[0].account_type)){
+            //     saldo_awal = data[0].total + (data[0].credit - data[0].debit)
+            // }
+            // else{
+            //     saldo_awal = data[0].total + (data[0].debit - data[0].credit)
+            // }
 
             // if (data.length > 0 && data[0].debit > 0) {
             //     saldo_awal = data[0].total + data[0].debit
@@ -1003,7 +1004,7 @@ class PDF extends React.Component {
                     <td className="py-1" width="202px"></td>
                     <td className="py-1" width="90px"></td>
                     <td className="py-1" width="90px"></td>
-                    <td className="py-1" width="90px">{formatter2.format(saldo_awal)}</td>
+                    <td className="py-1" width="90px">{formatter2.format(this.props.saldo_awal)}</td>
                 </tr>
             )
         }

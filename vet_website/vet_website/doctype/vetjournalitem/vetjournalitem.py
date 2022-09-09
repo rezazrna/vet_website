@@ -133,7 +133,15 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		if not all_page:
 			coaAll = frappe.get_list("VetCoa", fields=["name","account_name", "account_code"])
 
-		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength, 'coaAll': coaAll}
+		saldo_awal = 0
+
+		if journal_items and is_gl == '1' and ji_account:
+			if account_type in ['Asset','Expense']:
+				saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
+			else:
+				saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
+
+		return {'journal_items': journal_items, 'journals': journals, 'datalength': datalength, 'coaAll': coaAll, 'saldo_awal': saldo_awal}
 		
 	except PermissionError as e:
 		return {'error': e}
