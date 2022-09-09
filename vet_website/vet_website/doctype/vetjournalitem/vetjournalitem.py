@@ -136,7 +136,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		saldo_awal = 0
 
 		if journal_items and is_gl == '1' and ji_account:
-			if account_type in ['Asset','Expense']:
+			if journal_items[0]['account_type'] in ['Asset','Expense']:
 				saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
 			else:
 				saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
