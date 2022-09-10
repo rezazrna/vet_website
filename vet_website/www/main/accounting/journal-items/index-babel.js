@@ -155,6 +155,19 @@ class JournalItems extends React.Component {
         // }
     }
 
+    close_book() {
+        frappe.call({
+            type: "GET",
+            method: "vet_website.vet_website.doctype.vetcoa.vetcoa.close_book",
+            args: { min_date: '2022-01-01', max_date: '2022-12-31'},
+            callback: function (r) {
+                if (r.message) {
+                    console.log(r.message);
+                }
+            }
+        });
+    }
+
     itemSearch(filters) {
         if (filters.sort != undefined) {
             filters.journal = filters.sort
@@ -602,6 +615,7 @@ class JournalItems extends React.Component {
                             {back_button}
                             {delete_button}
                             {print_button}
+                            <button className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => this.close_book()}>Close Book</button>
                         </div>
                         <div className="col">
                             <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.itemSearch(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />

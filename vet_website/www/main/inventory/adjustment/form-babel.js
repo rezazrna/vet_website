@@ -7,7 +7,8 @@ class Adjustment extends React.Component {
             'loaded': false,
             'data': {'status': 'Draft'},
             'edit_mode': false,
-            'currentUser': {}
+            'currentUser': {},
+            'loading_validate': false
         }
         
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -65,31 +66,35 @@ class Adjustment extends React.Component {
     
     formSubmit(e) {
         e.preventDefault()
-        var new_data = this.state.data
-        var th = this
-        
-        if (!new_data.status || new_data.status == 'Draft') {
-            var selected_gudang = this.state.gudang.find(i => i.gudang_name == new_data.warehouse)
-            new_data.warehouse = selected_gudang.name
+        if (!this.state.loading_validate) {
+            this.setState({'loading_validate': true})
+            var new_data = this.state.data
+            var th = this
+            
+            if (!new_data.status || new_data.status == 'Draft') {
+                var selected_gudang = this.state.gudang.find(i => i.gudang_name == new_data.warehouse)
+                new_data.warehouse = selected_gudang.name
+            }
+            
+            new_data.inventory_details = new_data.inventory_details.filter(i => i.product)
+            
+            console.log(new_data)
+            
+            frappe.call({
+                type: "POST",
+                method:"vet_website.vet_website.doctype.vetadjustment.vetadjustment.submit_adjustment",
+                args: {data: new_data},
+                callback: function(r){
+                    th.setState({'loading_validate': false})
+                    if (r.message.adjustment) {
+                        window.location.href = "/main/inventory/adjustment/edit?n=" + r.message.adjustment.name
+                    }
+                    if (r.message.error) {
+                        frappe.msgprint(r.message.error);
+                    }
+                }
+            });
         }
-        
-        new_data.inventory_details = new_data.inventory_details.filter(i => i.product)
-        
-        console.log(new_data)
-        
-        frappe.call({
-    		type: "POST",
-    		method:"vet_website.vet_website.doctype.vetadjustment.vetadjustment.submit_adjustment",
-    		args: {data: new_data},
-    		callback: function(r){
-    			if (r.message.adjustment) {
-    				window.location.href = "/main/inventory/adjustment/edit?n=" + r.message.adjustment.name
-    			}
-    			if (r.message.error) {
-    				frappe.msgprint(r.message.error);
-    			}
-    		}
-    	});
     }
     
     saveAdjustment() {
@@ -301,7 +306,11 @@ class Adjustment extends React.Component {
         	    //     edit_button = <div className="col-auto my-auto"><button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.toggleEditMode()}>Edit</button></div>
                 if(validate){
                     validate_button = <div className="col-auto my-auto">
-                        <button type="submit" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14}>Validate</button>
+                        <button type="submit" className={this.state.loading_validate
+                            ? "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2 disabled"
+                            : "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2"} style={lh14}>{this.state.loading_validate
+                                ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                : "Validate"}</button>
                     </div>
                 }
                 if(cancel){
