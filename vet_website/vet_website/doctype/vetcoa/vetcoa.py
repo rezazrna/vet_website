@@ -596,72 +596,153 @@ def get_annual_balance_sheet(name=False, year=False, get_all=False):
 @frappe.whitelist()
 def close_book(min_date, max_date):
 	try:
-		print('masuk')
-		print(min_date)
-		print(max_date)
-		tz = pytz.timezone("Asia/Jakarta")
 		journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['between', [min_date, max_date]]}, fields=["name"], order_by='date desc, reference desc')
-		print('journal_entry_search')
-		print(len(journal_entry_search))
 		journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
-		jis = []
-		total_credit_clearing = 0
-		total_debit_clearing = 0
-		print('check_clearing_account')
-		print(check_clearing_account())
 		if check_clearing_account():
 			clearing_account = frappe.db.get_value('VetCoa', {'name': '3-99998'}, 'name')
 		else:
 			clearing_account = create_clearing_account()
+
+		if check_laba_rugi_ditahan_account():
+			laba_rugi_ditahan_account = frappe.db.get_value('VetCoa', {'name': '3-99998'}, 'name')
+		else:
+			laba_rugi_ditahan_account = create_laba_rugi_ditahan_account()
 
 		if check_closing_journal():
 			closing_journal = frappe.db.get_value('VetJournal', {'name': 'CLS'}, 'name')
 		else:
 			closing_journal = create_closing_journal()
 		
-		pendapatan_accounts = frappe.get_list("VetCoa", filters={'account_code': ['like', '4-%']}) + frappe.get_list("VetCoa", filters={'account_code': ['like', '7-%']})
-		hpp_biaya_accounts = frappe.get_list("VetCoa", filters={'account_code': ['like', '5-%']}) + frappe.get_list("VetCoa", filters={'account_code': ['like', '6-%']}) + frappe.get_list("VetCoa", filters={'account_code': ['like', '8-%']})
-
-		print('pendapatan_accounts')
-		print(len(pendapatan_accounts))
-		print('hpp_biaya_accounts')
-		print(len(hpp_biaya_accounts))
-
-		for p in pendapatan_accounts:
-			journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': p['name']}, fields=["total"], order_by="creation desc", page_length=1)
-			if journal_items:
-				jis.append({'account': p['name'], 'debit': journal_items[0]['total']})
-				total_credit_clearing += journal_items[0]['total']
-
-		for h in hpp_biaya_accounts:
-			journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, fields=["total"], order_by="creation desc", page_length=1)
-			if journal_items:
-				jis.append({'account': h['name'], 'credit': journal_items[0]['total']})
-				total_debit_clearing += journal_items[0]['total']
-
-		if total_credit_clearing > 0:
-			jis.append({'account': clearing_account, 'credit': total_credit_clearing})
-
-		if total_debit_clearing:
-			jis.append({'account': clearing_account, 'debit': total_debit_clearing})
-
-		je_data = {
-			'journal': closing_journal,
-			'period': dt.now(tz).strftime('%m/%Y'),
-			'date': dt.now(tz).date().strftime('%Y-%m-%d'),
-			'reference': '',
-			'journal_items': jis,
-			'keterangan': ''
-		}
-
-		print('je_data')
-		print(je_data)
-		
-		# new_journal_entry(json.dumps(je_data))
+		total_pendapatan = closing_pendapatan(journal_entry_names, clearing_account, closing_journal)
+		total_hpp = closing_hpp(journal_entry_names, clearing_account, closing_journal)
+		total_biaya = closing_biaya(journal_entry_names, clearing_account, closing_journal)
+		total = total_pendapatan + total_hpp + total_biaya
+		print(total_pendapatan)
+		print(total_hpp)
+		print(total_biaya)
+		print(total)
+		closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closing_journal, total)
 
 		return True
 	except:
 		return {'error': "Kesalahan Server"}
+
+def closing_pendapatan(journal_entry_names, clearing_account, closing_journal):
+	tz = pytz.timezone("Asia/Jakarta")
+	jis = []
+	total_credit_clearing = 0
+	pendapatan_accounts = frappe.get_list("VetCoa", filters={'account_code': ['like', '4-%']}) + frappe.get_list("VetCoa", filters={'account_code': ['like', '7-%']})
+
+	for p in pendapatan_accounts:
+		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': p['name']}, fields=["total"], order_by="creation desc", page_length=1)
+		if journal_items:
+			jis.append({'account': p['name'], 'debit': journal_items[0]['total']})
+			total_credit_clearing += journal_items[0]['total']
+
+	if total_credit_clearing > 0:
+		jis.append({'account': clearing_account, 'credit': total_credit_clearing})
+
+	je_data = {
+		'journal': closing_journal,
+		'period': dt.now(tz).strftime('%m/%Y'),
+		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
+		'reference': '',
+		'journal_items': jis,
+		'keterangan': ''
+	}
+
+	print('je_data pendapatan')
+	print(je_data)
+
+	new_journal_entry(json.dumps(je_data))
+
+	return total_credit_clearing
+
+def closing_hpp(journal_entry_names, clearing_account, closing_journal):
+	tz = pytz.timezone("Asia/Jakarta")
+	jis = []
+	total_debit_clearing = 0
+	hpp_biaya_accounts = frappe.get_list("VetCoa", filters={'account_code': ['like', '5-%']})
+
+	for h in hpp_biaya_accounts:
+		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, fields=["total"], order_by="creation desc", page_length=1)
+		if journal_items:
+			jis.append({'account': h['name'], 'credit': journal_items[0]['total']})
+			total_debit_clearing += journal_items[0]['total']
+
+	if total_debit_clearing:
+		jis.append({'account': clearing_account, 'debit': total_debit_clearing})
+
+	je_data = {
+		'journal': closing_journal,
+		'period': dt.now(tz).strftime('%m/%Y'),
+		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
+		'reference': '',
+		'journal_items': jis,
+		'keterangan': ''
+	}
+
+	print('je_data hpp')
+	print(je_data)
+
+	new_journal_entry(json.dumps(je_data))
+
+	return total_debit_clearing
+
+def closing_biaya(journal_entry_names, clearing_account, closing_journal):
+	tz = pytz.timezone("Asia/Jakarta")
+	jis = []
+	total_debit_clearing = 0
+	hpp_biaya_accounts = frappe.get_list("VetCoa", filters={'account_code': ['like', '6-%']}) + frappe.get_list("VetCoa", filters={'account_code': ['like', '8-%']})
+
+	for h in hpp_biaya_accounts:
+		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, fields=["total"], order_by="creation desc", page_length=1)
+		if journal_items:
+			jis.append({'account': h['name'], 'credit': journal_items[0]['total']})
+			total_debit_clearing += journal_items[0]['total']
+
+	if total_debit_clearing:
+		jis.append({'account': clearing_account, 'debit': total_debit_clearing})
+
+	je_data = {
+		'journal': closing_journal,
+		'period': dt.now(tz).strftime('%m/%Y'),
+		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
+		'reference': '',
+		'journal_items': jis,
+		'keterangan': ''
+	}
+
+	print('je_data biaya')
+	print(je_data)
+	
+	new_journal_entry(json.dumps(je_data))
+
+	return total_debit_clearing
+
+def closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closing_journal, total):
+	tz = pytz.timezone("Asia/Jakarta")
+	jis = [
+		{'account': clearing_account, 'debit': total},
+		{'account': laba_rugi_ditahan_account, 'credit': total}
+	]
+
+	je_data = {
+		'journal': closing_journal,
+		'period': dt.now(tz).strftime('%m/%Y'),
+		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
+		'reference': '',
+		'journal_items': jis,
+		'keterangan': ''
+	}
+
+	print('je_data clearing account')
+	print(je_data)
+	
+	new_journal_entry(json.dumps(je_data))
+
+	return True
+
 
 def check_clearing_account():
 	clearing_account = frappe.get_list('VetCoa', filters={'name': '3-99998'})
@@ -680,6 +761,24 @@ def create_clearing_account():
 	frappe.db.commit()
 	
 	return clearing_account.name
+
+def check_laba_rugi_ditahan_account():
+	laba_rugi_ditahan_account = frappe.get_list('VetCoa', filters={'name': '3-90000'})
+	return len(laba_rugi_ditahan_account) > 0
+
+def create_laba_rugi_ditahan_account():
+	laba_rugi_ditahan_account = frappe.new_doc('VetCoa')
+	laba_rugi_ditahan_account.update({
+		'account_code': '3-90000',
+		'account_name': 'LABA / (RUGI) DITAHAN',
+		'account_type': 'Equity',
+		'is_parent': 0,
+		'account_parent': '3-10000',
+	})
+	laba_rugi_ditahan_account.insert()
+	frappe.db.commit()
+	
+	return laba_rugi_ditahan_account.name
 
 def check_closing_journal():
 	closing_journal = frappe.get_list('VetJournal', filters={'name': 'CLS'}, fields=['name'])
