@@ -109,8 +109,8 @@ class TindakanDokter extends React.Component {
                         {'label': 'Sensasi Refleks', 'name': 'reflex'},
                         {'label': 'Lainnya', 'name': 'other'},
                         {'label': 'Tindakan', 'name': 'action'},
-                        {'label': 'Lainnya', 'name': 'other_pemeriksaan'},
-                        {'label': 'Lainnya', 'name': 'other_diagnosa'},
+                        {'label': 'Lainnya Pemeriksaan', 'name': 'other_pemeriksaan'},
+                        {'label': 'Lainnya Diagnosa', 'name': 'other_diagnosa'},
                     ]
                     var new_checks = []
                     
@@ -1795,8 +1795,8 @@ class TindakanDokterRekamMedis extends React.Component {
                 {'label': 'Sensasi Refleks', 'name': 'reflex'},
                 {'label': 'Lainnya', 'name': 'other'},
                 {'label': 'Tindakan', 'name': 'action'},
-                {'label': 'Lainnya', 'name': 'other_pemeriksaan'},
-                {'label': 'Lainnya', 'name': 'other_diagnosa'},
+                {'label': 'Lainnya Pemeriksaan', 'name': 'other_pemeriksaan'},
+                {'label': 'Lainnya Diagnosa', 'name': 'other_diagnosa'},
             ],
             'selected_check': false
         }

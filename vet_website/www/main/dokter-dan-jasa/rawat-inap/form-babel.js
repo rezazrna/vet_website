@@ -37,8 +37,8 @@ var checks = [
         {'label': 'Tindakan', 'name': 'action'},
         {'label': 'Suhu', 'name': 'temperature'},
         {'label': 'Berat', 'name': 'weight'},
-        {'label': 'Lainnya', 'name': 'other_pemeriksaan'},
-        {'label': 'Lainnya', 'name': 'other_diagnosa'},
+        {'label': 'Lainnya Pemeriksaan', 'name': 'other_pemeriksaan'},
+        {'label': 'Lainnya Diagnosa', 'name': 'other_diagnosa'},
     ]
 
 class RawatInap extends React.Component {
@@ -1111,8 +1111,8 @@ class Pemeriksaan extends React.Component {
                 {'label': 'Tindakan', 'name': 'action'},
                 {'label': 'Suhu', 'name': 'temperature'},
                 {'label': 'Berat', 'name': 'weight'},
-                {'label': 'Lainnya', 'name': 'other_pemeriksaan'},
-                {'label': 'Lainnya', 'name': 'other_diagnosa'},
+                {'label': 'Lainnya Pemeriksaan', 'name': 'other_pemeriksaan'},
+                {'label': 'Lainnya Diagnosa', 'name': 'other_diagnosa'},
             ],
             'selected_check': false
         }
