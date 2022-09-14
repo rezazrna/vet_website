@@ -604,7 +604,7 @@ def close_book(min_date, max_date):
 			clearing_account = create_clearing_account()
 
 		if check_laba_rugi_ditahan_account():
-			laba_rugi_ditahan_account = frappe.db.get_value('VetCoa', {'name': '3-99998'}, 'name')
+			laba_rugi_ditahan_account = frappe.db.get_value('VetCoa', {'name': '3-90000'}, 'name')
 		else:
 			laba_rugi_ditahan_account = create_laba_rugi_ditahan_account()
 
