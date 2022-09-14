@@ -417,7 +417,8 @@ class JournalItems extends React.Component {
             } else if (this.state.mode == 'annual') {
                 title += 'Annual-' + moment(filters.journal_date).format('YYYY')
             } else if (this.state.mode == 'period') {
-                title += 'Periode-' + moment(filters.journal_min_date).format('MM-YYYY') + '-' + moment(filters.journal_date).format('MM-YYYY') 
+                var sampai_bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                title += 'Periode-' + moment(filters.journal_min_date).format('MM-YYYY') + '-' + sampai_bulan
             } else if (this.state.mode == 'daily') {
                 title += 'Tanggal-' + moment(filters.journal_min_date).format('DD-MM-YYYY') + '-' + moment(filters.journal_date).format('DD-MM-YYYY')
             }
@@ -931,7 +932,8 @@ class PDF extends React.Component {
                 } else if (this.props.mode == 'annual') {
                     subtitle = 'Annual ' + moment(filters.journal_date).format('YYYY')
                 } else if (this.state.mode == 'period') {
-                    subtitle = 'Periode ' + moment(filters.journal_min_date).format('MM-YYYY') + '-' + moment(filters.journal_date).format('MM-YYYY') 
+                    var sampai_bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                    subtitle = 'Periode ' + moment(filters.journal_min_date).format('MM-YYYY') + '-' + sampai_bulan
                 } else if (this.state.mode == 'daily') {
                     subtitle = 'Tanggal ' + moment(filters.journal_min_date).format('DD-MM-YYYY') + '-' + moment(filters.journal_date).format('DD-MM-YYYY')
                 }
