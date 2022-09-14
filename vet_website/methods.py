@@ -20,6 +20,7 @@ try:
 except ModuleNotFoundError:
 	beta = False
 	from frappe.core.doctype.data_import.data_import import start_import
+	
 
 def get_home_page(context):
     print("########## Boot Session ##########")
@@ -1048,5 +1049,22 @@ def toggle_roles(data, enable=False):
 			frappe.db.commit()
 	except:
 		return {'error': "Gagal mengubah Roles"}
+		
+	return {'success': True}
+
+@frappe.whitelist()
+def get_list_year():
+	try:
+		tz = pytz.timezone("Asia/Jakarta")
+		first_year = '2010'
+		first_je = frappe.get_list("VetJournalEntry", field=["date"], order_by="date asc", page_length=1)
+		if first_je:
+			first_je_dt = dt.strptime(first_je[0]['date'], '%Y-%m-%d')
+			first_year = first_je_dt.strftime('%Y'),
+		now_year = dt.now.today(tz).year
+
+		return range(now_year + 1, first_year, -1)
+	except:
+		return {'error': "Gagal mengambil list tahun"}
 		
 	return {'success': True}

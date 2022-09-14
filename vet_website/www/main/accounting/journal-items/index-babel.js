@@ -27,6 +27,7 @@ class JournalItems extends React.Component {
             'journal_date': '',
             'remove_storage': true,
             'saldo_awal': 0,
+            'list_year': []
         }
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -118,6 +119,18 @@ class JournalItems extends React.Component {
             console.log('before unload')
             if (this.state.remove_storage) {
                 sessionStorage.removeItem(window.location.pathname)
+            }
+        });
+
+        frappe.call({
+            type: "GET",
+            method: "vet_website.methods",
+            args: { },
+            callback: function (r) {
+                if (r.message) {
+                    console.log(r.message);
+                    po.setState({ 'list_year': r.message });
+                }
             }
         });
     }
@@ -520,6 +533,10 @@ class JournalItems extends React.Component {
             month_options.push(<option key={moment_month.format('MM')} value={moment_month.format('MM')}>{moment_month.format('MMMM')}</option>)
             year_options.push(<option key={moment_year.format('YYYY')}>{moment_year.format('YYYY')}</option>)
         }
+
+        // this.state.list_year.forEach((e) => {
+        //     year_options.push(<option key={e}>{e}</option>)
+        // })
 
         if (this.state.loaded) {
             if (this.state.account != undefined) {
