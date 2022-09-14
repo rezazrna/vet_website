@@ -1055,15 +1055,24 @@ def toggle_roles(data, enable=False):
 @frappe.whitelist()
 def get_list_year():
 	try:
+		print('masuk list year')
 		tz = pytz.timezone("Asia/Jakarta")
-		first_year = '2010'
-		first_je = frappe.get_list("VetJournalEntry", field=["date"], order_by="date asc", page_length=1)
+		first_year = 2010
+		first_je = frappe.get_list("VetJournalEntry", fields=["date"], order_by="date asc", page_length=1)
+		print('first je')
+		print(first_je)
 		if first_je:
-			first_je_dt = dt.strptime(first_je[0]['date'], '%Y-%m-%d')
-			first_year = first_je_dt.strftime('%Y'),
-		now_year = dt.now.today(tz).year
+			# first_je_dt = dt.strptime(first_je[0]['date'], '%Y-%m-%d')
+			# print('first_je_dt')
+			# print(first_je_dt)
+			first_year_dt = first_je[0]['date'].strftime('%Y'),
+			first_year = int(first_year_dt[0])
+			print(first_year)
+		now_year = dt.now(tz).today().year
+		print('now year')
+		print(now_year)
 
-		return range(now_year + 1, first_year, -1)
+		return range(now_year + 1, now_year - ((now_year - first_year) + 1), -1)
 	except:
 		return {'error': "Gagal mengambil list tahun"}
 		

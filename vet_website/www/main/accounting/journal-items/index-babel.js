@@ -124,8 +124,7 @@ class JournalItems extends React.Component {
 
         frappe.call({
             type: "GET",
-            method: "vet_website.methods",
-            args: { },
+            method: "vet_website.methods.get_list_year",
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
@@ -529,14 +528,14 @@ class JournalItems extends React.Component {
         var i
         for (i = 0; i <= 11; i++) {
             var moment_month = moment(i + 1, 'M')
-            var moment_year = moment().add(-i, 'year')
+            // var moment_year = moment().add(-i, 'year')
             month_options.push(<option key={moment_month.format('MM')} value={moment_month.format('MM')}>{moment_month.format('MMMM')}</option>)
-            year_options.push(<option key={moment_year.format('YYYY')}>{moment_year.format('YYYY')}</option>)
+            // year_options.push(<option key={moment_year.format('YYYY')}>{moment_year.format('YYYY')}</option>)
         }
 
-        // this.state.list_year.forEach((e) => {
-        //     year_options.push(<option key={e}>{e}</option>)
-        // })
+        this.state.list_year.forEach(function(e, index) {
+            year_options.push(<option key={e}>{e}</option>)
+        })
 
         if (this.state.loaded) {
             if (this.state.account != undefined) {
