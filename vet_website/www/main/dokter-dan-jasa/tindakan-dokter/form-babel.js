@@ -629,6 +629,7 @@ class TindakanDokter extends React.Component {
     addCheck(data){
         var checks = this.state.checks.slice()
         checks.push(data)
+        console.log(data)
         this.setState({checks: checks})
         
         frappe.call({
