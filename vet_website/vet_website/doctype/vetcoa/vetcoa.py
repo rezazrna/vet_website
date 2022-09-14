@@ -612,22 +612,24 @@ def close_book(min_date, max_date):
 			closing_journal = frappe.db.get_value('VetJournal', {'name': 'CLS'}, 'name')
 		else:
 			closing_journal = create_closing_journal()
+
+		journal_date_dt = dt.strptime(max_date, '%Y-%m-%d')
 		
-		total_pendapatan = closing_pendapatan(journal_entry_names, clearing_account, closing_journal)
-		total_hpp = closing_hpp(journal_entry_names, clearing_account, closing_journal)
-		total_biaya = closing_biaya(journal_entry_names, clearing_account, closing_journal)
+		total_pendapatan = closing_pendapatan(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
+		total_hpp = closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
+		total_biaya = closing_biaya(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
 		total = total_pendapatan + total_hpp + total_biaya
 		print(total_pendapatan)
 		print(total_hpp)
 		print(total_biaya)
 		print(total)
-		closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closing_journal, total)
+		closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closing_journal, total, journal_date_dt)
 
 		return True
 	except:
 		return {'error': "Kesalahan Server"}
 
-def closing_pendapatan(journal_entry_names, clearing_account, closing_journal):
+def closing_pendapatan(journal_entry_names, clearing_account, closing_journal, journal_date_dt):
 	tz = pytz.timezone("Asia/Jakarta")
 	jis = []
 	total_credit_clearing = 0
@@ -644,8 +646,8 @@ def closing_pendapatan(journal_entry_names, clearing_account, closing_journal):
 
 	je_data = {
 		'journal': closing_journal,
-		'period': dt.now(tz).strftime('%m/%Y'),
-		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
+		'period': journal_date_dt.strftime('%m/%Y'),
+		'date': journal_date_dt.strftime('%Y-%m-%d'),
 		'reference': '',
 		'journal_items': jis,
 		'keterangan': ''
@@ -658,7 +660,7 @@ def closing_pendapatan(journal_entry_names, clearing_account, closing_journal):
 
 	return total_credit_clearing
 
-def closing_hpp(journal_entry_names, clearing_account, closing_journal):
+def closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_date_dt):
 	tz = pytz.timezone("Asia/Jakarta")
 	jis = []
 	total_debit_clearing = 0
@@ -675,8 +677,8 @@ def closing_hpp(journal_entry_names, clearing_account, closing_journal):
 
 	je_data = {
 		'journal': closing_journal,
-		'period': dt.now(tz).strftime('%m/%Y'),
-		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
+		'period': journal_date_dt.strftime('%m/%Y'),
+		'date': journal_date_dt.strftime('%Y-%m-%d'),
 		'reference': '',
 		'journal_items': jis,
 		'keterangan': ''
@@ -689,7 +691,7 @@ def closing_hpp(journal_entry_names, clearing_account, closing_journal):
 
 	return total_debit_clearing
 
-def closing_biaya(journal_entry_names, clearing_account, closing_journal):
+def closing_biaya(journal_entry_names, clearing_account, closing_journal, journal_date_dt):
 	tz = pytz.timezone("Asia/Jakarta")
 	jis = []
 	total_debit_clearing = 0
@@ -706,8 +708,8 @@ def closing_biaya(journal_entry_names, clearing_account, closing_journal):
 
 	je_data = {
 		'journal': closing_journal,
-		'period': dt.now(tz).strftime('%m/%Y'),
-		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
+		'period': journal_date_dt.strftime('%m/%Y'),
+		'date': journal_date_dt.strftime('%Y-%m-%d'),
 		'reference': '',
 		'journal_items': jis,
 		'keterangan': ''
@@ -720,7 +722,7 @@ def closing_biaya(journal_entry_names, clearing_account, closing_journal):
 
 	return total_debit_clearing
 
-def closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closing_journal, total):
+def closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closing_journal, total, journal_date_dt):
 	tz = pytz.timezone("Asia/Jakarta")
 	jis = [
 		{'account': clearing_account, 'debit': total},
@@ -729,8 +731,8 @@ def closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closin
 
 	je_data = {
 		'journal': closing_journal,
-		'period': dt.now(tz).strftime('%m/%Y'),
-		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
+		'period': journal_date_dt.strftime('%m/%Y'),
+		'date': journal_date_dt.strftime('%Y-%m-%d'),
 		'reference': '',
 		'journal_items': jis,
 		'keterangan': ''
