@@ -64,7 +64,8 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			ji_account =  account
 
 		if journal_date:
-			if mode == 'daily':
+			if mode == 'daily' or mode == 'annual':
+				max_date_dt = dt.strptime(journal_date, '%Y-%m-%d')
 				max_date = journal_date
 			else:
 				max_date_dt = dt.strptime(journal_date, '%Y-%m-%d') - rd(days=1)
@@ -95,7 +96,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
 			journal_items_filters.append({'parent': ['in', journal_entry_names]})
 			print('journal entry names')
-			print(journal_entry_names)
+			print(len(journal_entry_names))
 		# datalength = len(frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, as_list=True))
 		# if len(journal_entry_search):
 		if ji_account:
