@@ -121,6 +121,8 @@ def new_journal_entry(data, reset=False):
 			je = frappe.new_doc('VetJournalEntry')
 			je.update(je_data)
 			je.insert()
+			frappe.db.commit()
+
 						
 			for s in data_json.get("journal_items"):
 				if s.get('account', False):
@@ -134,6 +136,7 @@ def new_journal_entry(data, reset=False):
 						'parentfield': 'journal_items'
 					})
 					new_ji.insert()
+					frappe.db.commit()
 					
 					set_journal_item_total(new_ji.name, new_ji.account, reset)
 					

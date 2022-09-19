@@ -1075,9 +1075,8 @@ def get_list_year():
 		return range(now_year + 1, now_year - ((now_year - first_year) + 1), -1)
 	except:
 		return {'error': "Gagal mengambil list tahun"}
-		
-	return {'success': True}
 
+@frappe.whitelist()
 def run_every_two_mins():
 	try:
 		print('udah lima menit nih')
@@ -1085,5 +1084,3 @@ def run_every_two_mins():
 		return True
 	except:
 		return {'error': "Gagal mengambil list tahun"}
-		
-	return {'success': True}

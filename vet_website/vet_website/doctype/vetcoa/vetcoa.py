@@ -771,10 +771,10 @@ def reset_account_company_results(year):
 		'keterangan': ''
 	}
 
-	print('je_data reset account')
-	print(je_data)
+	# print('je_data reset account')
+	# print(je_data)
 
-	# new_journal_entry(json.dumps(je_data))
+	new_journal_entry(json.dumps(je_data), True)
 
 	return True
 

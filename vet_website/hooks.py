@@ -117,9 +117,9 @@ web_include_js = [
 # ---------------
 
 scheduler_events = {
-	# "all": [
-	# 	"vet_website.tasks.all"
-	# ],
+	"all": [
+		"vet_website.methods.run_every_two_mins"
+	],
 	# "daily": [
 	# 	"vet_website.tasks.daily"
 	# ],
