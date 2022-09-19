@@ -116,23 +116,28 @@ web_include_js = [
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"vet_website.tasks.all"
-# 	],
-# 	"daily": [
-# 		"vet_website.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"vet_website.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"vet_website.tasks.weekly"
-# 	]
-# 	"monthly": [
-# 		"vet_website.tasks.monthly"
-# 	]
-# }
+scheduler_events = {
+	# "all": [
+	# 	"vet_website.tasks.all"
+	# ],
+	# "daily": [
+	# 	"vet_website.tasks.daily"
+	# ],
+	# "hourly": [
+	# 	"vet_website.tasks.hourly"
+	# ],
+	# "weekly": [
+	# 	"vet_website.tasks.weekly"
+	# ]
+	# "monthly": [
+	# 	"vet_website.tasks.monthly"
+	# ]
+	"cron": {
+		"0/2 * * * *": [
+			"vet_website.methods.run_every_two_mins"
+		],
+	}
+}
 
 # Testing
 # -------

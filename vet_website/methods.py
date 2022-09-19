@@ -1077,3 +1077,13 @@ def get_list_year():
 		return {'error': "Gagal mengambil list tahun"}
 		
 	return {'success': True}
+
+def run_every_two_mins():
+	try:
+		print('udah lima menit nih')
+		
+		return True
+	except:
+		return {'error': "Gagal mengambil list tahun"}
+		
+	return {'success': True}
