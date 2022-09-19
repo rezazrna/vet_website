@@ -774,7 +774,8 @@ def reset_account_company_results(year):
 	# print('je_data reset account')
 	# print(je_data)
 
-	new_journal_entry(json.dumps(je_data), True)
+	# new_journal_entry(json.dumps(je_data), True)
+	new_journal_entry(json.dumps(je_data))
 
 	return True
 

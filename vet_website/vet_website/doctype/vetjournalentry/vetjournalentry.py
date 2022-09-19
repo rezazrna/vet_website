@@ -108,7 +108,7 @@ def get_journal_entry_form(name=False):
 		return {'error': e}
 		
 @frappe.whitelist()
-def new_journal_entry(data, reset=False):
+def new_journal_entry(data):
 	try:
 		data_json = json.loads(data)
 		
@@ -138,7 +138,7 @@ def new_journal_entry(data, reset=False):
 					new_ji.insert()
 					frappe.db.commit()
 					
-					set_journal_item_total(new_ji.name, new_ji.account, reset)
+					set_journal_item_total(new_ji.name, new_ji.account)
 					
 			# post_journal_entry(je.name)
 			
@@ -181,7 +181,7 @@ def new_journal_entry(data, reset=False):
 								})
 								new_ji.insert()
 								
-								set_journal_item_total(new_ji.name, new_ji.account, reset)
+								set_journal_item_total(new_ji.name, new_ji.account)
 								
 							else:
 								ji.update({
@@ -191,7 +191,7 @@ def new_journal_entry(data, reset=False):
 								})
 								ji.save()
 						
-						set_journal_item_total(ji.name, ji.account, reset)
+						set_journal_item_total(ji.name, ji.account)
 					else :
 						new_ji = frappe.new_doc('VetJournalItem')
 						new_ji.update({
@@ -204,7 +204,7 @@ def new_journal_entry(data, reset=False):
 						})
 						new_ji.insert()
 						
-						set_journal_item_total(new_ji.name, new_ji.account, reset)
+						set_journal_item_total(new_ji.name, new_ji.account)
 		
 		return get_journal_entry_form(je.name)
 		
@@ -241,7 +241,7 @@ def get_journal_entry_detail(name):
 	except:
 		return {'error': "Gagal mendapatkan children"}
 		
-def set_journal_item_total(name, account, reset=False):
+def set_journal_item_total(name, account):
 	filters = [{'account': account}]
 
 	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by='creation desc')
@@ -255,7 +255,7 @@ def set_journal_item_total(name, account, reset=False):
 	
 	for l in range(len(last_ji) + 1):
 		total_add = 0
-		if len(last_ji) - l < int(index[0]) or (len(last_ji) - l == int(index[0]) and not reset):
+		if len(last_ji) - l <= int(index[0]):
 			ji = frappe.get_doc('VetJournalItem', last_ji[len(last_ji) - l]['name'])
 			
 			account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
