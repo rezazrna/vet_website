@@ -462,7 +462,11 @@ def get_kartu_stok_list(filters=None, mode=False):
 			gudang_or_filters.append({'to': gudang})
 
 		if stock_date:
-			max_date_dt = dt.strptime(stock_date, '%Y-%m-%d') - rd(days=1)
+			if mode == 'monthly' or mode == 'period':
+				max_date_dt = dt.strptime(stock_date, '%Y-%m-%d') - rd(days=1)
+			else:
+				max_date_dt = dt.strptime(stock_date, '%Y-%m-%d')
+
 			if mode == 'monthly':
 				min_date = (max_date_dt).strftime('%Y-%m-01')
 			else:
@@ -597,7 +601,11 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			gudang_or_filters.append({'to': gudang})
 
 		if stock_date:
-			max_date_dt = dt.strptime(stock_date, '%Y-%m-%d') - rd(days=1)
+			if mode == 'monthly' or mode == 'period':
+				max_date_dt = dt.strptime(stock_date, '%Y-%m-%d') - rd(days=1)
+			else:
+				max_date_dt = dt.strptime(stock_date, '%Y-%m-%d')
+
 			if mode == 'monthly':
 				min_date = (max_date_dt).strftime('%Y-%m-01')
 			else:
