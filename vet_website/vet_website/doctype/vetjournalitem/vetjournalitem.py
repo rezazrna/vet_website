@@ -110,7 +110,12 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		if not all_page:
 			datalength = len(frappe.get_list("VetJournalItem", filters=journal_items_filters, as_list=True))
 
+		ubah_saldo = True
+
 		if not journal_items and is_gl == '1':
+
+			if ji_account and ('4-' in ji_account or '5-' in ji_account or '6-' in ji_account or '7-' in ji_account or '8-' in ji_account):
+				ubah_saldo = False
 			
 			journal_items_filters_if_empty = []
 			journal_entry_search = frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters_if_empty, fields=["name"], order_by=default_sort)
@@ -139,7 +144,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 
 		saldo_awal = 0
 
-		if journal_items and is_gl == '1' and ji_account:
+		if journal_items and is_gl == '1' and ji_account and ubah_saldo:
 			# if journal_items[0]['account_code'] in ['4-', '5-', '6-', '7-', '8-']:
 			# 	saldo_awal = hitung_saldo_awal_gl(min_date, ji_account)
 			# elif journal_items[0]['account_code'] in ['1-']:
