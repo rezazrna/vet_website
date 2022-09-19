@@ -745,6 +745,39 @@ def closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closin
 
 	return True
 
+@frappe.whitelist()
+def reset_account_company_results(year):
+	if check_closing_journal():
+		closing_journal = frappe.db.get_value('VetJournal', {'name': 'CLS'}, 'name')
+	else:
+		closing_journal = create_closing_journal()
+
+	jis = []
+	or_filters = [{'account_code': ['like', '4-%']}, {'account_code': ['like', '5-%']}, {'account_code': ['like', '6-%']}, {'account_code': ['like', '7-%']}, {'account_code': ['like', '8-%']}]
+	accounts = frappe.get_list('VetCoa', or_filters=or_filters, fields=['name'], order_by='creation desc')
+
+	print('accounts')
+	print(len(accounts))
+
+	for a in accounts:
+		jis.append({'account': a['name'], 'debit': 0, 'credit': 0, 'total': 0})
+
+	je_data = {
+		'journal': closing_journal,
+		'period': '12/{}'.format(year),
+		'date': '{}-12-31'.format(year),
+		'reference': '',
+		'journal_items': jis,
+		'keterangan': ''
+	}
+
+	print('je_data reset account')
+	print(je_data)
+
+	# new_journal_entry(json.dumps(je_data))
+
+	return True
+
 
 def check_clearing_account():
 	clearing_account = frappe.get_list('VetCoa', filters={'name': '3-99998'})

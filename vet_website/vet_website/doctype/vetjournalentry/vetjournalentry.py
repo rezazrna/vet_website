@@ -241,17 +241,6 @@ def get_journal_entry_detail(name):
 def set_journal_item_total(name, account):
 	filters = [{'account': account}]
 
-	if account in ['4-', '5-', '6-', '7-', '8-']:
-		je_name = frappe.db.get_value('VetJournalItem', name, 'parent')
-		je_date = frappe.db.get_value('VetJournalEntry', je_name, 'date')
-		year_dt = je_date.strftime('%Y'),
-		year = year_dt[0]
-		min_date = '{}-01-01'.format(year)
-		max_date = '{}-12-31'.format(year)
-		journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['between', [min_date, max_date]]}, fields=["name"], order_by='date asc')
-		journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
-		filters.append({'parent': ['in', journal_entry_names]})
-
 	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by='creation desc')
 	
 	for lj in last_ji:

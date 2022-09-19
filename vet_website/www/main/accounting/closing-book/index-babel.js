@@ -37,6 +37,34 @@ class ClosingBook extends React.Component {
         }
     }
 
+    resetAccount() {
+        var th = this
+        if (!this.state.loading) {
+            if(this.state.year != ''){
+                this.setState({'loading': true})
+                console.log(this.state.year)
+                frappe.call({
+                    type: "GET",
+                    method:"vet_website.vet_website.doctype.vetcoa.vetcoa.reset_account_company_results",
+                    args: {year: this.state.year},
+                    callback: function(r){
+                        if (r.message) {
+                            console.log(r.message)
+                            if (r.message.error) {
+                                frappe.msgprint(r.message.error);
+                            } else {
+                                th.setState({'loading': false})
+                                frappe.msgprint('Berhasil')
+                            }
+                        }
+                    }
+                });
+            } else{
+                frappe.msgprint('Pilih tahun terlebih dahulu');
+            }
+        }
+    }
+
     handleInputOnChange(e) {
         var th = this
         var name = e.target.name
@@ -83,6 +111,11 @@ class ClosingBook extends React.Component {
                                 : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={e => this.closingBook(e)}>{this.state.loading
                                 ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                                 : "Proses"}</button>
+                            <button className={this.state.loading
+                                ? "btn btn-outline-danger text-uppercase fs12 fwbold mx-2 disabled"
+                                : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={e => this.resetAccount(e)}>{this.state.loading
+                                ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                : "Reset Akun Tanpa Closing"}</button>
                         </div>
                     </div>
                 </div>
