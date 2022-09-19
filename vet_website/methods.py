@@ -1076,11 +1076,11 @@ def get_list_year():
 	except:
 		return {'error': "Gagal mengambil list tahun"}
 
-@frappe.whitelist()
-def run_every_two_mins():
-	try:
-		print('udah lima menit nih')
+# @frappe.whitelist()
+# def run_every_two_mins():
+# 	try:
+# 		print('udah lima menit nih')
 		
-		return True
-	except:
-		return {'error': "Gagal mengambil list tahun"}
+# 		return True
+# 	except:
+# 		return {'error': "Gagal mengambil list tahun"}
