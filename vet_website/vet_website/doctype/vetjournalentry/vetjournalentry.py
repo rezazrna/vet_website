@@ -108,7 +108,7 @@ def get_journal_entry_form(name=False):
 		return {'error': e}
 		
 @frappe.whitelist()
-def new_journal_entry(data):
+def new_journal_entry(data, reset=False):
 	try:
 		data_json = json.loads(data)
 		
@@ -135,7 +135,7 @@ def new_journal_entry(data):
 					})
 					new_ji.insert()
 					
-					set_journal_item_total(new_ji.name, new_ji.account)
+					set_journal_item_total(new_ji.name, new_ji.account, reset)
 					
 			# post_journal_entry(je.name)
 			
@@ -178,7 +178,7 @@ def new_journal_entry(data):
 								})
 								new_ji.insert()
 								
-								set_journal_item_total(new_ji.name, new_ji.account)
+								set_journal_item_total(new_ji.name, new_ji.account, reset)
 								
 							else:
 								ji.update({
@@ -188,7 +188,7 @@ def new_journal_entry(data):
 								})
 								ji.save()
 						
-						set_journal_item_total(ji.name, ji.account)
+						set_journal_item_total(ji.name, ji.account, reset)
 					else :
 						new_ji = frappe.new_doc('VetJournalItem')
 						new_ji.update({
@@ -201,7 +201,7 @@ def new_journal_entry(data):
 						})
 						new_ji.insert()
 						
-						set_journal_item_total(new_ji.name, new_ji.account)
+						set_journal_item_total(new_ji.name, new_ji.account, reset)
 		
 		return get_journal_entry_form(je.name)
 		
@@ -238,7 +238,7 @@ def get_journal_entry_detail(name):
 	except:
 		return {'error': "Gagal mendapatkan children"}
 		
-def set_journal_item_total(name, account):
+def set_journal_item_total(name, account, reset=False):
 	filters = [{'account': account}]
 
 	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by='creation desc')
@@ -252,7 +252,7 @@ def set_journal_item_total(name, account):
 	
 	for l in range(len(last_ji) + 1):
 		total_add = 0
-		if len(last_ji) - l <= int(index[0]):
+		if len(last_ji) - l < int(index[0]) or (len(last_ji) - l == int(index[0]) and not reset):
 			ji = frappe.get_doc('VetJournalItem', last_ji[len(last_ji) - l]['name'])
 			
 			account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
