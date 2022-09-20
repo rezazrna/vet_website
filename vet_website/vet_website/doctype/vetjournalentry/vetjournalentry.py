@@ -265,17 +265,25 @@ def set_journal_item_total(name, account):
 			elif account_type in ['Equity','Income','Liability']:
 				total_add = ji.credit - ji.debit
 
-			if ('4-' in ji.account or '5-' in ji.account or '6-' in ji.account or '7-' in ji.account or '8-' in ji.account) and is_first_transaction(ji.name, ji.account, last_ji[len(last_ji) - l]['date']):
-				print('masuk first transaction')
-				print(ji.account)
-				ji.total = total_add
+			# if ('4-' in ji.account or '5-' in ji.account or '6-' in ji.account or '7-' in ji.account or '8-' in ji.account) and is_first_transaction(ji.name, ji.account, last_ji[len(last_ji) - l]['date']):
+			# 	print('masuk first transaction')
+			# 	print(ji.account)
+			# 	ji.total = total_add
 
-				ji.save()
-				frappe.db.commit()
-			elif len(last_ji) != 0 and (len(last_ji) - 1) > (len(last_ji) - l):
+			# 	ji.save()
+			# 	frappe.db.commit()
+			if len(last_ji) != 0 and (len(last_ji) - 1) > (len(last_ji) - l):
 				name_ji2 = last_ji[(len(last_ji) - l) + 1]['name']
-				ji2 = frappe.get_doc('VetJournalItem', name_ji2)
-				ji.total = ji2.total + total_add
+				ji1_date = last_ji[len(last_ji) - l]['date']
+				ji2_date = last_ji[(len(last_ji) - l) + 1]['date']
+				different_year = ji1_date.strftime('%Y') != ji2_date.strftime('%Y')
+				if ('4-' in ji.account or '5-' in ji.account or '6-' in ji.account or '7-' in ji.account or '8-' in ji.account) and different_year:
+					print('masuk first transaction')
+					print(ji.account)
+					ji.total = total_add
+				else:
+					ji2 = frappe.get_doc('VetJournalItem', name_ji2)
+					ji.total = ji2.total + total_add
 
 				ji.save()
 				frappe.db.commit()
