@@ -111,11 +111,11 @@ class ClosingBook extends React.Component {
                                 : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={e => this.closingBook(e)}>{this.state.loading
                                 ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                                 : "Proses"}</button>
-                            <button className={this.state.loading
+                            {/* <button className={this.state.loading
                                 ? "btn btn-outline-danger text-uppercase fs12 fwbold mx-2 disabled"
                                 : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={e => this.resetAccount(e)}>{this.state.loading
                                 ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
-                                : "Reset Akun Tanpa Closing"}</button>
+                                : "Reset Akun Tanpa Closing"}</button> */}
                         </div>
                     </div>
                 </div>
