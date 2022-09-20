@@ -258,27 +258,29 @@ def set_journal_item_total(name, account):
 		if len(last_ji) - l <= int(index[0]):
 			ji = frappe.get_doc('VetJournalItem', last_ji[len(last_ji) - l]['name'])
 
+			account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
+			
+			if account_type in ['Asset','Expense']:
+				total_add = ji.debit - ji.credit
+			elif account_type in ['Equity','Income','Liability']:
+				total_add = ji.credit - ji.debit
+
 			if ('4-' in ji.account or '5-' in ji.account or '6-' in ji.account or '7-' in ji.account or '8-' in ji.account) and is_first_transaction(ji.name, ji.account, last_ji[len(last_ji) - l]['date']):
 				print('masuk first transaction')
-				ji.total = 0
+				print(ji.account)
+				ji.total = total_add
+
+				ji.save()
+				frappe.db.commit()
+			elif len(last_ji) != 0 and (len(last_ji) - 1) > (len(last_ji) - l):
+				name_ji2 = last_ji[(len(last_ji) - l) + 1]['name']
+				ji2 = frappe.get_doc('VetJournalItem', name_ji2)
+				ji.total = ji2.total + total_add
 
 				ji.save()
 				frappe.db.commit()
 			else:
-				account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
-			
-				if account_type in ['Asset','Expense']:
-					total_add = ji.debit - ji.credit
-				elif account_type in ['Equity','Income','Liability']:
-					total_add = ji.credit - ji.debit
-				
-				if len(last_ji) != 0 and (len(last_ji) - 1) > (len(last_ji) - l):
-					name_ji2 = last_ji[(len(last_ji) - l) + 1]['name']
-					ji2 = frappe.get_doc('VetJournalItem', name_ji2)
-					ji.total = ji2.total + total_add
-				else:
-					ji.total = total_add
-
+				ji.total = total_add
 				ji.save()
 				frappe.db.commit()
 
@@ -288,17 +290,12 @@ def is_first_transaction(ji_name, account, date):
 	year_dt = date.strftime('%Y'),
 	year = year_dt[0]
 
-	print('year')
-	print(year)
-
 	max_date = '{}-12-31'.format(year)
 	min_date = '{}-01-01'.format(year)
-	je_search = frappe.get_list('VetJournalEntry', filters={'date': ['between', [min_date, max_date]]}, fields=['name'], order_by='date asc, reference asc', page_length=1)
+	je_search = frappe.get_list('VetJournalEntry', filters={'date': ['between', [min_date, max_date]]}, fields=['name'], order_by='date asc, reference asc')
 	je_names = list(map(lambda j: j.name, je_search))
 	ji_filters.append({'parent': ['in', je_names]})
 
 	first = frappe.get_list("VetJournalItem", filters=ji_filters, fields=["name"], order_by="creation asc", page_length=1)
-	print('first')
-	print(first)
 
 	return first and first[0]['name'] == ji_name
