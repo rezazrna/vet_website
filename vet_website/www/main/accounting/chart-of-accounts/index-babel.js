@@ -14,7 +14,8 @@ class Coa extends React.Component {
             'accounting_date': moment().add(1,'month').format('YYYY-MM-DD'),
             'mode': '',
             'print_loading': false,
-            'currentUser': {}
+            'currentUser': {},
+            'list_year': []
         }
         this.coaSearch = this.coaSearch.bind(this)
         this.toggleAdd = this.toggleAdd.bind(this)
@@ -55,6 +56,17 @@ class Coa extends React.Component {
         if (!dc_mode) {
             this.coaSearch(filters)
         }
+
+        frappe.call({
+            type: "GET",
+            method: "vet_website.methods.get_list_year",
+            callback: function (r) {
+                if (r.message) {
+                    console.log(r.message);
+                    po.setState({ 'list_year': r.message });
+                }
+            }
+        });
     }
     
     handleInputOnChange(e) {
@@ -269,10 +281,14 @@ class Coa extends React.Component {
 		        var year_options = [<option className="d-none" key="99999"></option>]
         		for(i = 0; i <= 11; i++){
         		    var moment_month = moment(i+1, 'M')
-        		    var moment_year = moment().add(-i, 'year')
+        		    // var moment_year = moment().add(-i, 'year')
         		    month_options.push(<option key={moment_month.format('MM')} value={moment_month.format('MM')}>{moment_month.format('MMMM')}</option>)
-        		    year_options.push(<option key={moment_year.format('YYYY')}>{moment_year.format('YYYY')}</option>)
+        		    // year_options.push(<option key={moment_year.format('YYYY')}>{moment_year.format('YYYY')}</option>)
         		}
+
+                this.state.list_year.forEach(function(e, index) {
+                    year_options.push(<option key={e}>{e}</option>)
+                })
         		
         		print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
         		pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year} dc_mode={true}/>

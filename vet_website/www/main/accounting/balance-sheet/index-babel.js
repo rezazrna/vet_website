@@ -10,23 +10,35 @@ class BalanceSheet extends React.Component {
             'month': '',
             'year': '',
             'print_loading': false,
+            'list_year': []
         }
     }
     
-    // componentDidMount() {
-    //     var td = this
-    //     frappe.call({
-    //         type: "GET",
-    //         method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-    //         args: {filters: {accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')}},
-    //         callback: function(r){
-    //             if (r.message) {
-    //                 console.log(r.message)
-    //                 td.setState({'data': r.message, 'loaded': true});
-    //             }
-    //         }
-    //     });
-    // }
+    componentDidMount() {
+        frappe.call({
+            type: "GET",
+            method: "vet_website.methods.get_list_year",
+            callback: function (r) {
+                if (r.message) {
+                    console.log(r.message);
+                    po.setState({ 'list_year': r.message });
+                }
+            }
+        });
+
+        // var td = this
+        // frappe.call({
+        //     type: "GET",
+        //     method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
+        //     args: {filters: {accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')}},
+        //     callback: function(r){
+        //         if (r.message) {
+        //             console.log(r.message)
+        //             td.setState({'data': r.message, 'loaded': true});
+        //         }
+        //     }
+        // });
+    }
     
     filterChange(e){
         // this.setState({loaded: false})
@@ -198,10 +210,14 @@ class BalanceSheet extends React.Component {
 		var i
 		for(i = 0; i <= 11; i++){
 		    var moment_month = moment(i+1, 'M')
-		    var moment_year = moment().add(-i, 'year')
+		    // var moment_year = moment().add(-i, 'year')
 		    month_options.push(<option key={moment_month.format('MM')} value={moment_month.format('MM')}>{moment_month.format('MMMM')}</option>)
-		    year_options.push(<option key={moment_year.format('YYYY')}>{moment_year.format('YYYY')}</option>)
+		    // year_options.push(<option key={moment_year.format('YYYY')}>{moment_year.format('YYYY')}</option>)
 		}
+
+        this.state.list_year.forEach(function(e, index) {
+            year_options.push(<option key={e}>{e}</option>)
+        })
         
         if (this.state.loaded){
             console.log(this.state)

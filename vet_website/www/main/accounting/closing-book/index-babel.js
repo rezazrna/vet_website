@@ -6,6 +6,7 @@ class ClosingBook extends React.Component {
             'min_date': moment(moment().format('YYYY') + '-01' + '-01', 'YYYY-MM-DD').format('YYYY-MM-DD'),
             'max_date': moment(moment().format('YYYY') + '-12' + '-31', 'YYYY-MM-DD').format('YYYY-MM-DD'),
             'loading': false,
+            'list_year': []
         }
     }
     
@@ -35,6 +36,17 @@ class ClosingBook extends React.Component {
                 frappe.msgprint('Pilih tahun terlebih dahulu');
             }
         }
+
+        frappe.call({
+            type: "GET",
+            method: "vet_website.methods.get_list_year",
+            callback: function (r) {
+                if (r.message) {
+                    console.log(r.message);
+                    po.setState({ 'list_year': r.message });
+                }
+            }
+        });
     }
 
     resetAccount() {
@@ -81,10 +93,14 @@ class ClosingBook extends React.Component {
 		var box_style = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '80px 0'}
         var width_style = {width: '450px'}
         var year_options = []
-        for(var i = 0; i <= 11; i++){
-            var moment_year = moment().add(-i, 'year')
-            year_options.push(<option key={moment_year.format('YYYY')}>{moment_year.format('YYYY')}</option>)
-        }
+        // for(var i = 0; i <= 11; i++){
+        //     var moment_year = moment().add(-i, 'year')
+        //     year_options.push(<option key={moment_year.format('YYYY')}>{moment_year.format('YYYY')}</option>)
+        // }
+
+        this.state.list_year.forEach(function(e, index) {
+            year_options.push(<option key={e}>{e}</option>)
+        })
 
         return(
             <div style={box_style}>

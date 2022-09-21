@@ -15,33 +15,45 @@ class KartuStok extends React.Component {
             'product_list': [],
             'gudang_list': [],
             'print_loading': false,
+            'list_year': []
         }
 
         // this.kartuStokSearch = this.stockMoveSearch.bind(this);
         // this.paginationClick = this.paginationClick.bind(this);
     }
 
-    // componentDidMount() {
-    //     var td = this
-    //     var args = { filters: [] }
-    //     if (product) {
-    //         args.product = product
+    componentDidMount() {
+        // var td = this
+        // var args = { filters: [] }
+        // if (product) {
+        //     args.product = product
 
-    //         frappe.call({
-    //             type: "GET",
-    //             method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_kartu_stok_list",
-    //             args: { filters: args },
-    //             callback: function (r) {
-    //                 if (r.message) {
-    //                     console.log(r.message)
-    //                     td.setState({ 'data': r.message.operation, 'loaded': true, 'datalength': r.message.datalength });
-    //                 }
-    //             }
-    //         });
-    //     }
+        //     frappe.call({
+        //         type: "GET",
+        //         method: "vet_website.vet_website.doctype.vetoperation.vetoperation.get_kartu_stok_list",
+        //         args: { filters: args },
+        //         callback: function (r) {
+        //             if (r.message) {
+        //                 console.log(r.message)
+        //                 td.setState({ 'data': r.message.operation, 'loaded': true, 'datalength': r.message.datalength });
+        //             }
+        //         }
+        //     });
+        // }
 
-    //     sessionStorage.setItem(window.location.pathname, JSON.stringify(args))
-    // }
+        // sessionStorage.setItem(window.location.pathname, JSON.stringify(args))
+
+        frappe.call({
+            type: "GET",
+            method: "vet_website.methods.get_list_year",
+            callback: function (r) {
+                if (r.message) {
+                    console.log(r.message);
+                    po.setState({ 'list_year': r.message });
+                }
+            }
+        });
+    }
 
     // kartuStokSearch(filters) {
     //     var td = this
@@ -262,10 +274,15 @@ class KartuStok extends React.Component {
         var i
         for (i = 0; i <= 11; i++) {
             var moment_month = moment(i + 1, 'M')
-            var moment_year = moment().add(-i, 'year')
+            // var moment_year = moment().add(-i, 'year')
             month_options.push(<option key={moment_month.format('MM')} value={moment_month.format('MM')}>{moment_month.format('MMMM')}</option>)
-            year_options.push(<option key={moment_year.format('YYYY')}>{moment_year.format('YYYY')}</option>)
+            // year_options.push(<option key={moment_year.format('YYYY')}>{moment_year.format('YYYY')}</option>)
         }
+
+        this.state.list_year.forEach(function(e, index) {
+            year_options.push(<option key={e}>{e}</option>)
+        })
+
         // var formStyle = { border: '1px solid #397DA6', color: '#397DA6' }
         // var back_button = false
         // var color = { color: '#056EAD', cursor: 'pointer' }
