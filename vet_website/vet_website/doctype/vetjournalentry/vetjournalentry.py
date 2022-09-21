@@ -251,7 +251,7 @@ def set_journal_item_total(name, account):
 		
 	last_ji.sort(key=lambda x: x.date, reverse=True)
 	
-	index = [i for i in range(len(last_ji)) if last_ji[i]['name'] == name]
+	index = [i for i in last_ji if i['name'] == name]
 	
 	for l in range(len(last_ji) + 1):
 		total_add = 0
@@ -265,17 +265,11 @@ def set_journal_item_total(name, account):
 			elif account_type in ['Equity','Income','Liability']:
 				total_add = ji.credit - ji.debit
 
-			# if ('4-' in ji.account or '5-' in ji.account or '6-' in ji.account or '7-' in ji.account or '8-' in ji.account) and is_first_transaction(ji.name, ji.account, last_ji[len(last_ji) - l]['date']):
-			# 	print('masuk first transaction')
-			# 	print(ji.account)
-			# 	ji.total = total_add
-
-			# 	ji.save()
-			# 	frappe.db.commit()
 			if len(last_ji) != 0 and (len(last_ji) - 1) > (len(last_ji) - l):
-				name_ji2 = last_ji[(len(last_ji) - l) + 1]['name']
+				ji2 = last_ji[(len(last_ji) - l) + 1]
+				name_ji2 = ji2['name']
 				ji1_date = last_ji[len(last_ji) - l]['date']
-				ji2_date = last_ji[(len(last_ji) - l) + 1]['date']
+				ji2_date = ji2['date']
 				different_year = ji1_date.strftime('%Y') != ji2_date.strftime('%Y')
 				if ('4-' in ji.account or '5-' in ji.account or '6-' in ji.account or '7-' in ji.account or '8-' in ji.account) and different_year:
 					print('masuk first transaction')
@@ -291,19 +285,3 @@ def set_journal_item_total(name, account):
 				ji.total = total_add
 				ji.save()
 				frappe.db.commit()
-
-def is_first_transaction(ji_name, account, date):
-	ji_filters = [{'account': account}]
-
-	year_dt = date.strftime('%Y'),
-	year = year_dt[0]
-
-	max_date = '{}-12-31'.format(year)
-	min_date = '{}-01-01'.format(year)
-	je_search = frappe.get_list('VetJournalEntry', filters={'date': ['between', [min_date, max_date]]}, fields=['name'], order_by='date asc, reference asc')
-	je_names = list(map(lambda j: j.name, je_search))
-	ji_filters.append({'parent': ['in', je_names]})
-
-	first = frappe.get_list("VetJournalItem", filters=ji_filters, fields=["name"], order_by="creation asc", page_length=1)
-
-	return first and first[0]['name'] == ji_name
