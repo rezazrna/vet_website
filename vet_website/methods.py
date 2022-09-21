@@ -1059,9 +1059,6 @@ def get_list_year():
 		first_year = 2010
 		first_je = frappe.get_list("VetJournalEntry", fields=["date"], order_by="date asc", page_length=1)
 		if first_je:
-			# first_je_dt = dt.strptime(first_je[0]['date'], '%Y-%m-%d')
-			# print('first_je_dt')
-			# print(first_je_dt)
 			first_year_dt = first_je[0]['date'].strftime('%Y'),
 			first_year = int(first_year_dt[0])
 			print(first_year)

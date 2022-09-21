@@ -251,7 +251,7 @@ def set_journal_item_total(name, account):
 		
 	last_ji.sort(key=lambda x: x.date, reverse=True)
 	
-	index = [i for i in last_ji if i['name'] == name]
+	index = [i for i in range(len(last_ji)) if last_ji[i]['name'] == name]
 	
 	for l in range(len(last_ji) + 1):
 		total_add = 0

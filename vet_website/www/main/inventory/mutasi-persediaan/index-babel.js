@@ -24,7 +24,7 @@ class MutasiPersediaan extends React.Component {
     }
 
     componentDidMount() {
-        //     var td = this
+            var td = this
         //     var args = { filters: [] }
         //     // if (product) {
         //     //     args.product = product
@@ -48,7 +48,7 @@ class MutasiPersediaan extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'list_year': r.message });
+                    td.setState({ 'list_year': r.message });
                 }
             }
         });

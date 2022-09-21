@@ -15,6 +15,7 @@ class BalanceSheet extends React.Component {
     }
     
     componentDidMount() {
+        var po = this
         frappe.call({
             type: "GET",
             method: "vet_website.methods.get_list_year",

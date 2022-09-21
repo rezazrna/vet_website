@@ -15,7 +15,7 @@ class ProfitAndLoss extends React.Component {
     }
     
     componentDidMount() {
-        // var td = this
+        var td = this
         // frappe.call({
         //     type: "GET",
         //     method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
@@ -34,7 +34,7 @@ class ProfitAndLoss extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'list_year': r.message });
+                    td.setState({ 'list_year': r.message });
                 }
             }
         });

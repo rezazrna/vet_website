@@ -401,7 +401,10 @@ class JournalItems extends React.Component {
                     if (r.message) {
                         console.log(r.message);
                         po.setState({print_data: r.message.journal_items, saldo_awal: r.message.saldo_awal});
-                        po.printPDF()
+                        setTimeout(function() {
+                            po.printPDF()
+                        }, 3000);
+                        
                     }
                 }
             });
@@ -477,7 +480,9 @@ class JournalItems extends React.Component {
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
         }
 
-        let worker = html2pdf()
+        console.log(elements)
+
+        var worker = html2pdf()
             .set(opt)
             .from(elements[0])
 
@@ -489,7 +494,9 @@ class JournalItems extends React.Component {
             worker = worker
                 .get('pdf')
                 .then(pdf => {
-                pdf.addPage()
+                    console.log('masuk pak eko')
+                    console.log(index)
+                    pdf.addPage()
                 })
                 .from(element)
                 .toContainer()
@@ -498,11 +505,11 @@ class JournalItems extends React.Component {
             })
         }
 
-        worker = worker.save()
-
+        worker = worker.save().then(e => {
+            this.setState({print_loading: false})
+        })
 
         // html2pdf().set(opt).from(source).save()
-        this.setState({print_loading: false})
         // doc.html(source, {
         //   callback: function (doc) {
         //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
@@ -638,21 +645,24 @@ class JournalItems extends React.Component {
                         </div>
             }
 
-            item_pdf = []
+            var item_pdf = []
 
             if (this.state.print_data.length > 0) {
-                chunk = []
-                for (i = 0; i < this.state.print_data.length; i += 10) {
-                    chunk = array.slice(i, i + chunkSize);
+                var chunk = []
+                for (i = 0; i < this.state.print_data.length; i += (i == 0 ? 12 : 33)) {
+                    chunk.push(this.state.print_data.slice(i, i + (i == 0 ? 12 : 33)));
                 }
 
-                for (i = 0; i < chunk.length; i ++) {
+                console.log(chunk)
+
+                for (i = 0; i < chunk.length; i++) {
                     if (i == 0) {
-                        item_pdf.add(
+                        console.log('masuk pdf page pertama')
+                        item_pdf.push(
                             <PDF data={chunk[i]} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
                         )
                     } else {
-                        item_pdf.add(
+                        item_pdf.push(
                             <PDFListPage data={chunk[i]} account={this.state.account} datalength={this.state.datalength} pdfPage={i + 1}/>
                         )
                     }
@@ -684,6 +694,7 @@ class JournalItems extends React.Component {
                         </div>
                     </div>
                     <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} changeRemoveStorage={(value) => this.changeRemoveStorage(value)} saldo_awal={this.state.saldo_awal}/>
+                    {item_pdf}
                 </div>
             )
         }
@@ -970,7 +981,7 @@ class PDF extends React.Component {
         var data = this.props.data
         var profile = this.state.profile
         console.log(data)
-        var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
+        var page_dimension = { width: 559, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
         var borderStyle = { border: '1px solid #000', margin: '15px 0' }
         var row2 = { margin: '0 -14px' }
         var th = { border: '1px solid #000' }
@@ -1177,7 +1188,7 @@ class PDFListPage extends React.Component {
 
     render() {
         var data = this.props.data
-        var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
+        var page_dimension = { width: 559, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
         var row2 = { margin: '0 -14px' }
         var fs9 = { fontSize: 9 }
         var table_rows = []
