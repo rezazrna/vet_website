@@ -467,7 +467,8 @@ class JournalItems extends React.Component {
             title += 'Tanggal-' + tanggal
         }
 
-        var source = document.getElementById(pdfid)
+        // var source = document.getElementById(pdfid)
+        var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
         var opt = {
             margin: [10, 0, 10, 0],
             filename: title + ".pdf",
@@ -475,7 +476,32 @@ class JournalItems extends React.Component {
             html2canvas: { scale: 3 },
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
         }
-        html2pdf().set(opt).from(source).save()
+
+        let worker = html2pdf()
+            .set(opt)
+            .from(elements[0])
+
+        if (elements.length > 1) {
+            worker = worker.toPdf() // worker is now a jsPDF instance
+
+            // add each element/page individually to the PDF render process
+            elements.slice(1).forEach((element, index) => {
+            worker = worker
+                .get('pdf')
+                .then(pdf => {
+                pdf.addPage()
+                })
+                .from(element)
+                .toContainer()
+                .toCanvas()
+                .toPdf()
+            })
+        }
+
+        worker = worker.save()
+
+
+        // html2pdf().set(opt).from(source).save()
         this.setState({print_loading: false})
         // doc.html(source, {
         //   callback: function (doc) {
@@ -612,6 +638,27 @@ class JournalItems extends React.Component {
                         </div>
             }
 
+            item_pdf = []
+
+            if (this.state.print_data.length > 0) {
+                chunk = []
+                for (i = 0; i < this.state.print_data.length; i += 10) {
+                    chunk = array.slice(i, i + chunkSize);
+                }
+
+                for (i = 0; i < chunk.length; i ++) {
+                    if (i == 0) {
+                        item_pdf.add(
+                            <PDF data={chunk[i]} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
+                        )
+                    } else {
+                        item_pdf.add(
+                            <PDFListPage data={chunk[i]} account={this.state.account} datalength={this.state.datalength} pdfPage={i + 1}/>
+                        )
+                    }
+                }
+            }
+
             return (
                 <div>
                     <div className="row mx-0" style={row_style}>
@@ -637,7 +684,6 @@ class JournalItems extends React.Component {
                         </div>
                     </div>
                     <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} changeRemoveStorage={(value) => this.changeRemoveStorage(value)} saldo_awal={this.state.saldo_awal}/>
-                    <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
                 </div>
             )
         }
@@ -1074,7 +1120,7 @@ class PDF extends React.Component {
 
             return (
                 <div className="position-absolute d-none" style={page_dimension}>
-                    <div id="pdf" className="px-4" style={page_dimension}>
+                    <div id="pdf-1" className="px-4" style={page_dimension}>
                         <div className="row">
                             <div className="col-2 px-0">
                                 {image}
@@ -1121,6 +1167,56 @@ class PDF extends React.Component {
                 </div>
             </div>
         }
+    }
+}
+
+class PDFListPage extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        var data = this.props.data
+        var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
+        var row2 = { margin: '0 -14px' }
+        var fs9 = { fontSize: 9 }
+        var table_rows = []
+
+        if (this.props.datalength > 0) {
+            data.forEach((d, index) => {
+                var account_col
+                if (this.props.account != undefined) {
+                    account_col = (
+                        <td className="py-1" width="90px">{formatter2.format(d.total || d.computed_total || 0)}</td>
+                    )
+                }
+    
+                table_rows.push(
+                    <tr key={d.name} style={fs9}>
+                        <td className="py-1" width="89px">{moment(d.date).format('DD-MM-YYYY')}</td>
+                        <td className="py-1" width="88px">{d.reference}</td>
+                        <td className="py-1" width="88px">{d.parent}</td>
+                        <td className="py-1" width="88px">{d.keterangan}</td>
+                        <td className="py-1" width="202px">{d.account_name}</td>
+                        <td className="py-1" width="90px">{formatter2.format(d.debit)}</td>
+                        <td className="py-1" width="90px">{formatter2.format(d.credit)}</td>
+                        {account_col}
+                    </tr>
+                )
+            })
+        }
+
+        return (
+            <div className="position-absolute d-none" style={page_dimension}>
+                <div id={"pdf-"+this.props.pdfPage} className="px-4" style={page_dimension}>
+                    <table className="fs12" style={row2}>
+                        <tbody>
+                            {table_rows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        )
     }
 }
 
