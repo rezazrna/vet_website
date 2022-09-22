@@ -412,14 +412,7 @@ class JournalItems extends React.Component {
     }
 
     async printPDF() {
-        // var pdfid = 'pdf-1'
-        // var format = [559, 794]
-        // var th = this
-        // var doc = new jsPDF({
-        //     orientation: 'p',
-        //     unit: 'pt',
-        //     format: format,
-        // });
+        // var pdfid = 'pdf-1
         var title = gl != undefined ? 'GeneralLedger-' : 'JournalItem-'
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
@@ -470,72 +463,82 @@ class JournalItems extends React.Component {
             title += 'Tanggal-' + tanggal
         }
 
-        // var source = document.getElementById(pdfid)
-        var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
-        var opt = {
-            margin: [10, 0, 10, 0],
-            filename: title + ".pdf",
-            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-            html2canvas: { scale: 3 },
-            jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
-        }
-
-        console.log(elements)
-
-        // const doc = new jsPDF(opt.jsPDF);
-        // for(let i = 0; i < elements.length; i++){
-        //     console.log('berhasil')
-        //     console.log(i)
-        //     const page = elements[i];
-        //     const pageImage = await html2pdf().from(page).set(opt).outputImg();
-        //     if(i != 0) {
-        //         doc.addPage();
-        //     }
-        //     doc.addImage(pageImage.src, 'jpeg');
+        // // var source = document.getElementById(pdfid)
+        // var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
+        // var opt = {
+        //     margin: [10, 0, 10, 0],
+        //     filename: title + ".pdf",
+        //     pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
+        //     html2canvas: { scale: 3 },
+        //     jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
         // }
-        // doc.save().then(e => {
+
+        // console.log(elements)
+
+        // // const doc = new jsPDF(opt.jsPDF);
+        // // for(let i = 0; i < elements.length; i++){
+        // //     console.log('berhasil')
+        // //     console.log(i)
+        // //     const page = elements[i];
+        // //     const pageImage = await html2pdf().from(page).set(opt).outputImg();
+        // //     if(i != 0) {
+        // //         doc.addPage();
+        // //     }
+        // //     doc.addImage(pageImage.src, 'jpeg');
+        // // }
+        // // doc.save().then(e => {
+        // //     this.setState({print_loading: false})
+        // // });
+
+        // var worker = html2pdf()
+        //     .set(opt)
+        //     .from(elements[0])
+
+        // if (elements.length > 1) {
+        //     worker = worker.toPdf()
+
+        //     elements.slice(1).forEach((element, index) => {
+        //     worker = worker
+        //         .get('pdf')
+        //         .then(pdf => {
+        //             console.log('masuk pak eko')
+        //             console.log(index)
+        //             pdf.addPage()
+        //         })
+        //         .set(opt)
+        //         .from(element)
+        //         // .toContainer()
+        //         .toCanvas()
+        //         .toPdf()
+        //     })
+        // }
+
+        // worker = worker.save().then(e => {
         //     this.setState({print_loading: false})
-        // });
-
-        var worker = html2pdf()
-            .set(opt)
-            .from(elements[0])
-
-        if (elements.length > 1) {
-            worker = worker.toPdf() // worker is now a jsPDF instance
-
-            // add each element/page individually to the PDF render process
-            elements.slice(1).forEach((element, index) => {
-            worker = worker
-                .get('pdf')
-                .then(pdf => {
-                    console.log('masuk pak eko')
-                    console.log(index)
-                    pdf.addPage()
-                })
-                .set(opt)
-                .from(element)
-                // .toContainer()
-                .toCanvas()
-                .toPdf()
-            })
-        }
-
-        worker = worker.save().then(e => {
-            this.setState({print_loading: false})
-        })
+        // })
 
         // html2pdf().set(opt).from(source).save()
-        // doc.html(source, {
-        //   callback: function (doc) {
-        //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
-        //   },
-        //   x: 0,
-        //   y: 0,
-        //   html2canvas: {
-        //       scale: 1,
-        //   }
-        // });
+
+        var source = document.getElementById('pdf-1')
+        var format = [559, 794]
+        var th = this
+        var doc = new jsPDF({
+            orientation: 'p',
+            unit: 'pt',
+            format: format,
+        });
+
+        doc.html(source, {
+          callback: function (doc) {
+             doc.save(title + ".pdf")
+             th.setState({print_loading: false})
+          },
+          x: 0,
+          y: 0,
+          html2canvas: {
+              scale: 1,
+          }
+        });
     }
 
     render() {
@@ -661,29 +664,29 @@ class JournalItems extends React.Component {
                         </div>
             }
 
-            var item_pdf = []
+            // var item_pdf = []
 
-            if (this.state.print_data.length > 0) {
-                var chunk = []
-                for (i = 0; i < this.state.print_data.length; i += (i == 0 ? 255 : 285)) {
-                    chunk.push(this.state.print_data.slice(i, i + (i == 0 ? 255 : 285)));
-                }
+            // if (this.state.print_data.length > 0) {
+            //     var chunk = []
+            //     for (i = 0; i < this.state.print_data.length; i += (i == 0 ? 255 : 285)) {
+            //         chunk.push(this.state.print_data.slice(i, i + (i == 0 ? 255 : 285)));
+            //     }
 
-                console.log(chunk)
+            //     console.log(chunk)
 
-                for (i = 0; i < chunk.length; i++) {
-                    if (i == 0) {
-                        console.log('masuk pdf page pertama')
-                        item_pdf.push(
-                            <PDF data={chunk[i]} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
-                        )
-                    } else {
-                        item_pdf.push(
-                            <PDFListPage data={chunk[i]} account={this.state.account} datalength={this.state.datalength} pdfPage={i + 1}/>
-                        )
-                    }
-                }
-            }
+            //     for (i = 0; i < chunk.length; i++) {
+            //         if (i == 0) {
+            //             console.log('masuk pdf page pertama')
+            //             item_pdf.push(
+            //                 <PDF data={chunk[i]} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
+            //             )
+            //         } else {
+            //             item_pdf.push(
+            //                 <PDFListPage data={chunk[i]} account={this.state.account} datalength={this.state.datalength} pdfPage={i + 1}/>
+            //             )
+            //         }
+            //     }
+            // }
 
             return (
                 <div>
@@ -710,8 +713,8 @@ class JournalItems extends React.Component {
                         </div>
                     </div>
                     <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} changeRemoveStorage={(value) => this.changeRemoveStorage(value)} saldo_awal={this.state.saldo_awal}/>
-                    {item_pdf}
-                    {/* <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/> */}
+                    {/* {item_pdf} */}
+                    <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
                 </div>
             )
         }
