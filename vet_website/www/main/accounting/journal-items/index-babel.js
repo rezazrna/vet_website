@@ -483,7 +483,6 @@ class JournalItems extends React.Component {
         console.log(elements)
 
         const doc = new jsPDF(opt.jsPDF);
-        const pageSize = jsPDF.getPageSize(opt.jsPDF);
         for(let i = 0; i < elements.length; i++){
             console.log('berhasil')
             console.log(i)
@@ -492,9 +491,11 @@ class JournalItems extends React.Component {
             if(i != 0) {
                 doc.addPage();
             }
-            doc.addImage(pageImage.src, 'jpeg', opt.margin[0], opt.margin[1], pageSize.width, pageSize.height);
+            doc.addImage(pageImage.src, 'jpeg');
         }
-        doc.save();
+        doc.save().then(e => {
+            this.setState({print_loading: false})
+        });
 
         // var worker = html2pdf()
         //     .set(opt)
