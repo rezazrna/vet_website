@@ -411,7 +411,7 @@ class JournalItems extends React.Component {
         }
     }
 
-    printPDF() {
+    async printPDF() {
         var pdfid = 'pdf'
         var format = [559, 794]
         var th = this
@@ -485,15 +485,14 @@ class JournalItems extends React.Component {
         const doc = new jsPDF(opt.jsPDF);
         const pageSize = jsPDF.getPageSize(opt.jsPDF);
         for(let i = 0; i < elements.length; i++){
+            console.log('berhasil')
+            console.log(i)
             const page = elements[i];
-            html2pdf().from(page).set(opt).outputImg().then(e => {
-                console.log('berhasil')
-                console.log(e)
-                if(i != 0) {
-                    doc.addPage();
-                }
-                doc.addImage(e.src, 'jpeg', opt.margin[0], opt.margin[1], pageSize.width, pageSize.height);
-            });
+            const pageImage = await html2pdf().from(page).set(opt).outputImg();
+            if(i != 0) {
+                doc.addPage();
+            }
+            doc.addImage(pageImage.src, 'jpeg', opt.margin[0], opt.margin[1], pageSize.width, pageSize.height);
         }
         doc.save();
 
