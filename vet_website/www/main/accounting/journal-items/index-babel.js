@@ -482,43 +482,43 @@ class JournalItems extends React.Component {
 
         console.log(elements)
 
-        const doc = new jsPDF(opt.jsPDF);
-        for(let i = 0; i < elements.length; i++){
-            console.log('berhasil')
-            console.log(i)
-            const page = elements[i];
-            const pageImage = await html2pdf().from(page).set(opt).outputImg();
-            if(i != 0) {
-                doc.addPage();
-            }
-            doc.addImage(pageImage.src, 'jpeg');
-        }
-        doc.save().then(e => {
-            this.setState({print_loading: false})
-        });
-
-        // var worker = html2pdf()
-        //     .set(opt)
-        //     .from(elements[0])
-
-        // if (elements.length > 1) {
-        //     worker = worker.toPdf() // worker is now a jsPDF instance
-
-        //     // add each element/page individually to the PDF render process
-        //     elements.slice(1).forEach((element, index) => {
-        //     worker = worker
-        //         .get('pdf')
-        //         .then(pdf => {
-        //             console.log('masuk pak eko')
-        //             console.log(index)
-        //             pdf.addPage()
-        //         })
-        //         .from(element)
-        //         .toContainer()
-        //         .toCanvas()
-        //         .toPdf()
-        //     })
+        // const doc = new jsPDF(opt.jsPDF);
+        // for(let i = 0; i < elements.length; i++){
+        //     console.log('berhasil')
+        //     console.log(i)
+        //     const page = elements[i];
+        //     const pageImage = await html2pdf().from(page).set(opt).outputImg();
+        //     if(i != 0) {
+        //         doc.addPage();
+        //     }
+        //     doc.addImage(pageImage.src, 'jpeg');
         // }
+        // doc.save().then(e => {
+        //     this.setState({print_loading: false})
+        // });
+
+        var worker = html2pdf()
+            .set(opt)
+            .from(elements[0])
+
+        if (elements.length > 1) {
+            worker = worker.toPdf() // worker is now a jsPDF instance
+
+            // add each element/page individually to the PDF render process
+            elements.slice(1).forEach((element, index) => {
+            worker = worker
+                .get('pdf')
+                .then(pdf => {
+                    console.log('masuk pak eko')
+                    console.log(index)
+                    pdf.addPage()
+                })
+                .from(element)
+                // .toContainer()
+                // .toCanvas()
+                .toPdf()
+            })
+        }
 
         // worker = worker.save().then(e => {
         //     this.setState({print_loading: false})
