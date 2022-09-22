@@ -514,7 +514,7 @@ class JournalItems extends React.Component {
                     pdf.addPage()
                 })
                 .from(element)
-                // .toContainer()
+                .toContainer()
                 // .toCanvas()
                 .toPdf()
             })
