@@ -482,32 +482,45 @@ class JournalItems extends React.Component {
 
         console.log(elements)
 
-        var worker = html2pdf()
-            .set(opt)
-            .from(elements[0])
-
-        if (elements.length > 1) {
-            worker = worker.toPdf() // worker is now a jsPDF instance
-
-            // add each element/page individually to the PDF render process
-            elements.slice(1).forEach((element, index) => {
-            worker = worker
-                .get('pdf')
-                .then(pdf => {
-                    console.log('masuk pak eko')
-                    console.log(index)
-                    pdf.addPage()
-                })
-                .from(element)
-                .toContainer()
-                .toCanvas()
-                .toPdf()
-            })
+        const doc = new jsPDF(opt.jsPDF);
+        const pageSize = jsPDF.getPageSize(opt.jsPDF);
+        for(let i = 0; i < elements.length; i++){
+            const page = elements[i];
+            html2pdf().from(page).set(opt).outputImg().then(e => {
+                if(i != 0) {
+                    doc.addPage();
+                }
+                doc.addImage(e.src, 'jpeg', opt.margin[0], opt.margin[1], pageSize.width, pageSize.height);
+            });
         }
+        doc.save();
 
-        worker = worker.save().then(e => {
-            this.setState({print_loading: false})
-        })
+        // var worker = html2pdf()
+        //     .set(opt)
+        //     .from(elements[0])
+
+        // if (elements.length > 1) {
+        //     worker = worker.toPdf() // worker is now a jsPDF instance
+
+        //     // add each element/page individually to the PDF render process
+        //     elements.slice(1).forEach((element, index) => {
+        //     worker = worker
+        //         .get('pdf')
+        //         .then(pdf => {
+        //             console.log('masuk pak eko')
+        //             console.log(index)
+        //             pdf.addPage()
+        //         })
+        //         .from(element)
+        //         .toContainer()
+        //         .toCanvas()
+        //         .toPdf()
+        //     })
+        // }
+
+        // worker = worker.save().then(e => {
+        //     this.setState({print_loading: false})
+        // })
 
         // html2pdf().set(opt).from(source).save()
         // doc.html(source, {
