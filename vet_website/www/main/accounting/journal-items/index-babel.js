@@ -412,9 +412,9 @@ class JournalItems extends React.Component {
     }
 
     async printPDF() {
-        var pdfid = 'pdf'
-        var format = [559, 794]
-        var th = this
+        // var pdfid = 'pdf-1'
+        // var format = [559, 794]
+        // var th = this
         // var doc = new jsPDF({
         //     orientation: 'p',
         //     unit: 'pt',
@@ -513,8 +513,9 @@ class JournalItems extends React.Component {
                     console.log(index)
                     pdf.addPage()
                 })
+                .set(opt)
                 .from(element)
-                .toContainer()
+                // .toContainer()
                 .toCanvas()
                 .toPdf()
             })
@@ -664,8 +665,8 @@ class JournalItems extends React.Component {
 
             if (this.state.print_data.length > 0) {
                 var chunk = []
-                for (i = 0; i < this.state.print_data.length; i += (i == 0 ? 12 : 33)) {
-                    chunk.push(this.state.print_data.slice(i, i + (i == 0 ? 12 : 33)));
+                for (i = 0; i < this.state.print_data.length; i += (i == 0 ? 255 : 285)) {
+                    chunk.push(this.state.print_data.slice(i, i + (i == 0 ? 255 : 285)));
                 }
 
                 console.log(chunk)
@@ -710,6 +711,7 @@ class JournalItems extends React.Component {
                     </div>
                     <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} changeRemoveStorage={(value) => this.changeRemoveStorage(value)} saldo_awal={this.state.saldo_awal}/>
                     {item_pdf}
+                    {/* <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/> */}
                 </div>
             )
         }
