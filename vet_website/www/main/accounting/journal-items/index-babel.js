@@ -520,9 +520,9 @@ class JournalItems extends React.Component {
             })
         }
 
-        // worker = worker.save().then(e => {
-        //     this.setState({print_loading: false})
-        // })
+        worker = worker.save().then(e => {
+            this.setState({print_loading: false})
+        })
 
         // html2pdf().set(opt).from(source).save()
         // doc.html(source, {
