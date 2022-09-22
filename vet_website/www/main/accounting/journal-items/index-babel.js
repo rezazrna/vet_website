@@ -487,6 +487,8 @@ class JournalItems extends React.Component {
         for(let i = 0; i < elements.length; i++){
             const page = elements[i];
             html2pdf().from(page).set(opt).outputImg().then(e => {
+                console.log('berhasil')
+                console.log(e)
                 if(i != 0) {
                     doc.addPage();
                 }
