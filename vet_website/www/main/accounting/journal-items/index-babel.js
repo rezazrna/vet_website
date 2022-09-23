@@ -523,10 +523,9 @@ class JournalItems extends React.Component {
         var format = [559, 794]
         var th = this
         var doc = new jsPDF({
-            // orientation: 'p',
-            // unit: 'pt',
-            // format: format,
-            orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754],
+            orientation: 'p',
+            unit: 'pt',
+            format: format,
         });
 
         doc.html(source, {
@@ -538,7 +537,7 @@ class JournalItems extends React.Component {
         //   x: 0,
         //   y: 0,
           html2canvas: {
-              scale: 3,
+              scale: 1,
           }
         });
     }
