@@ -668,8 +668,8 @@ class JournalItems extends React.Component {
 
             if (this.state.print_data.length > 0) {
                 var chunk = []
-                for (i = 0; i < this.state.print_data.length; i += (i == 0 ? 255 : 285)) {
-                    chunk.push(this.state.print_data.slice(i, i + (i == 0 ? 255 : 285)));
+                for (i = 0; i < this.state.print_data.length; i += (i == 0 ? 255 : 275)) {
+                    chunk.push(this.state.print_data.slice(i, i + (i == 0 ? 255 : 275)));
                 }
 
                 console.log(chunk)
