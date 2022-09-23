@@ -412,7 +412,7 @@ class JournalItems extends React.Component {
     }
 
     async printPDF() {
-        // var pdfid = 'pdf-1
+        var pdfid = 'pdf-1'
         var title = gl != undefined ? 'GeneralLedger-' : 'JournalItem-'
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
@@ -463,15 +463,15 @@ class JournalItems extends React.Component {
             title += 'Tanggal-' + tanggal
         }
 
-        // // var source = document.getElementById(pdfid)
+        var source = document.getElementById(pdfid)
         // var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
-        // var opt = {
-        //     margin: [10, 0, 10, 0],
-        //     filename: title + ".pdf",
-        //     pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-        //     html2canvas: { scale: 3 },
-        //     jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
-        // }
+        var opt = {
+            margin: [10, 0, 10, 0],
+            filename: title + ".pdf",
+            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
+            html2canvas: { scale: 3 },
+            jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
+        }
 
         // console.log(elements)
 
@@ -517,28 +517,28 @@ class JournalItems extends React.Component {
         //     this.setState({print_loading: false})
         // })
 
-        // html2pdf().set(opt).from(source).save()
+        html2pdf().set(opt).from(source).save()
 
-        var source = document.getElementById('pdf-1')
-        var format = [559, 794]
-        var th = this
-        var doc = new jsPDF({
-            orientation: 'p',
-            unit: 'pt',
-            format: format,
-        });
+        // var source = document.getElementById('pdf-1')
+        // var format = [559, 794]
+        // var th = this
+        // var doc = new jsPDF({
+        //     orientation: 'p',
+        //     unit: 'pt',
+        //     format: format,
+        // });
 
-        doc.html(source, {
-          callback: function (doc) {
-             doc.save(title + ".pdf")
-             th.setState({print_loading: false})
-          },
-          x: 0,
-          y: 0,
-          html2canvas: {
-              scale: 1,
-          }
-        });
+        // doc.html(source, {
+        //   callback: function (doc) {
+        //      doc.save(title + ".pdf")
+        //      th.setState({print_loading: false})
+        //   },
+        //   x: 0,
+        //   y: 0,
+        //   html2canvas: {
+        //       scale: 1,
+        //   }
+        // });
     }
 
     render() {
