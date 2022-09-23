@@ -520,25 +520,44 @@ class JournalItems extends React.Component {
         // html2pdf().set(opt).from(source).save()
 
         var source = document.getElementById('pdf-1')
-        var format = [559, 794]
-        var th = this
-        var doc = new jsPDF({
-            orientation: 'p',
-            unit: 'pt',
-            format: format,
-        });
+        // var format = [559, 794]
+        // var th = this
+        // var doc = new jsPDF({
+        //     orientation: 'p',
+        //     unit: 'pt',
+        //     format: format,
+        // });
 
-        doc.html(source, {
-          callback: function (doc) {
-             doc.save(title + ".pdf")
-             th.setState({print_loading: false})
-          },
+        // doc.html(source, {
+        //   callback: function (doc) {
+        //      doc.save(title + ".pdf")
+        //      th.setState({print_loading: false})
+        //   },
         //   x: 0,
         //   y: 0,
-          autoPaging: 'text',
-          html2canvas: {
-              scale: 0.9,
-          }
+        //   html2canvas: {
+        //       scale: 1,
+        //   }
+        // });
+
+        html2canvas(source).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 559;
+            const pageHeight = 794;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            const doc = new jsPDF('pt', 'mm');
+            let position = 0;
+            doc.addImage(imgData, 'PNG', 10, 0, imgWidth, imgHeight + 25);
+            heightLeft -= pageHeight;
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                doc.addPage();
+                doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight + 25);
+                heightLeft -= pageHeight;
+            }
+            doc.save(title + ".pdf");
+            th.setState({print_loading: false})
         });
     }
 
