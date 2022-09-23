@@ -684,29 +684,29 @@ class JournalItems extends React.Component {
                         </div>
             }
 
-            // var item_pdf = []
+            var item_pdf = []
 
-            // if (this.state.print_data.length > 0) {
-            //     var chunk = []
-            //     for (i = 0; i < this.state.print_data.length; i += (i == 0 ? 255 : 275)) {
-            //         chunk.push(this.state.print_data.slice(i, i + (i == 0 ? 255 : 275)));
-            //     }
+            if (this.state.print_data.length > 0) {
+                var chunk = []
+                for (i = 0; i < this.state.print_data.length; i += (i == 0 ? 255 : 275)) {
+                    chunk.push(this.state.print_data.slice(i, i + (i == 0 ? 255 : 275)));
+                }
 
-            //     console.log(chunk)
+                console.log(chunk)
 
-            //     for (i = 0; i < chunk.length; i++) {
-            //         if (i == 0) {
-            //             console.log('masuk pdf page pertama')
-            //             item_pdf.push(
-            //                 <PDF data={chunk[i]} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
-            //             )
-            //         } else {
-            //             item_pdf.push(
-            //                 <PDFListPage data={chunk[i]} account={this.state.account} datalength={this.state.datalength} pdfPage={i + 1}/>
-            //             )
-            //         }
-            //     }
-            // }
+                for (i = 0; i < chunk.length; i++) {
+                    if (i == 0) {
+                        console.log('masuk pdf page pertama')
+                        item_pdf.push(
+                            <PDF data={chunk[i]} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
+                        )
+                    } else {
+                        item_pdf.push(
+                            <PDFListPage data={chunk[i]} account={this.state.account} datalength={this.state.datalength} pdfPage={i + 1}/>
+                        )
+                    }
+                }
+            }
 
             return (
                 <div>
@@ -733,8 +733,8 @@ class JournalItems extends React.Component {
                         </div>
                     </div>
                     <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} changeRemoveStorage={(value) => this.changeRemoveStorage(value)} saldo_awal={this.state.saldo_awal}/>
-                    {/* {item_pdf} */}
-                    <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
+                    {item_pdf}
+                    {/* <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/> */}
                 </div>
             )
         }
