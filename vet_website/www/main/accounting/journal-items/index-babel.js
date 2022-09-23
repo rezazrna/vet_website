@@ -533,7 +533,7 @@ class JournalItems extends React.Component {
              doc.save(title + ".pdf")
              th.setState({print_loading: false})
           },
-          margin: [10, 0, 10, 0],
+          margin: [10, 5, 10, 5],
         //   x: 0,
         //   y: 0,
           html2canvas: {
