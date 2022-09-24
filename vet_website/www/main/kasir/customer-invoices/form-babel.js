@@ -539,7 +539,7 @@ class CustomerInvoice extends React.Component {
                     }
                 })
             } else if (id == undefined) {
-                old_data['invoice_date'] = moment().format("YYYY-MM-DD HH:mm:ss")
+                old_data['invoice_date'] = old_data['invoice_date'] + moment().format(" HH:mm:ss")
                 console.log(old_data)
                 
                 frappe.call({

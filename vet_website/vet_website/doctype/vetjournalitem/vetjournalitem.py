@@ -102,8 +102,12 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		if ji_account:
 			journal_items_filters.append({'account': ji_account})
 		if all_page:
+			if any(x for x in journal_items_filters if x['parent'] != None):
+				order_by = ''
 			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by)
 		else:
+			if any(x for x in journal_items_filters if x['parent'] != None):
+				order_by = ''
 			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by, start=(page - 1) * 10, page_length= 10)
 
 		datalength = 0
@@ -114,7 +118,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 
 		if not journal_items and is_gl == '1':
 
-			if ji_account and ('4-' in ji_account or '5-' in ji_account or '6-' in ji_account or '7-' in ji_account or '8-' in ji_account):
+			if ji_account and ('4-' in ji_account or '5-' in ji_account or '6-' in ji_account or '7-' in ji_account or '8-' in ji_account) and '-01-01' in min_date:
 				ubah_saldo = False
 			
 			journal_items_filters_if_empty = []
@@ -124,7 +128,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			if ji_account:
 				journal_items_filters_if_empty.append({'account': ji_account})
 
-			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters_if_empty, fields=["*"], order_by="creation desc", page_length=1)
+			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters_if_empty, fields=["*"], page_length=1)
 
 		for ji in journal_items:
 			ji['period'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'period')
