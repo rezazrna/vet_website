@@ -244,7 +244,7 @@ def get_journal_entry_detail(name):
 def set_journal_item_total(name, account):
 	filters = [{'account': account}]
 
-	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'])
+	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by="creation desc")
 	
 	for lj in last_ji:
 		lj['date'] = frappe.db.get_value('VetJournalEntry', lj['parent'], 'date')
