@@ -98,7 +98,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 		else:
 			journal_entry_names = []
 			if limit_date and min_trans_date:
-				je_filters = {}
+				je_filters = {'journal': ['!=', 'CLS']}
 				je_filters.update({'date': ['between', [min_trans_date, limit_date]]})
 				print('je filters')
 				print(je_filters)
@@ -187,7 +187,7 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 
 			journal_entry_names = []
 			if max_date and min_date:
-				je_filters = {}
+				je_filters = {'journal': ['!=', 'CLS']}
 				je_filters.update({'date': ['between', [min_date, max_date]]})
 				print('je filters')
 				print(je_filters)
@@ -355,6 +355,7 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode=False):
 			je_filters.update({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 			
 	if je_filters:
+		je_filters.update({'journal': ['!=', 'CLS']})
 		journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
 		print('je length')
 		print(len(journal_entry_search))
