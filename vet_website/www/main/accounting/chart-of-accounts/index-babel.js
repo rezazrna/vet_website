@@ -296,7 +296,7 @@ class Coa extends React.Component {
                 if (this.state.mode == 'monthly' || this.state.mode == 'period') {
 
                     if (this.state.mode == 'period') {
-                        sd_period = <div className="col-auto my-auto mx-auto">
+                        sd_period = <div className="col-1 my-auto mx-auto">
                             s/d
                         </div>
 
@@ -338,7 +338,7 @@ class Coa extends React.Component {
                 </div>
                 )
 
-                set_button =<div className="col-2 my-auto">
+                set_button =<div className="col-1 my-auto">
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
                         </div>
             }
@@ -346,7 +346,7 @@ class Coa extends React.Component {
             return(
                 <div className="position-relative">
                     <div className="row mx-0" style={row_style2}>
-                        <div className="col-4 my-auto">
+                        <div className="col-auto my-auto">
                         	{add_button}
                         	{edit_button}
                         	{delete_button}
