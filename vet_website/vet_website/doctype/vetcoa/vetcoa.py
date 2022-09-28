@@ -534,10 +534,12 @@ def get_coa_total_debit_credit(name, journal_items=False, journal_items_if_empty
 	# for ji in journal_items:
 	# 	ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 	# journal_items.sort(key=lambda x: x.date, reverse=True)
+	journal_item = False
 	
 	if journal_items:
 		journal_item = next(filter(lambda item: item.account == name, journal_items), None)
-	elif journal_items_if_empty:
+
+	if not journal_item:
 		journal_item = next(filter(lambda item: item.account == name, journal_items_if_empty), None)
 
 	if journal_item:
