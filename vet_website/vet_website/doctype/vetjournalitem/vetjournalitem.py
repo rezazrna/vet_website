@@ -20,10 +20,12 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 	print(is_gl)
 	default_sort = "date desc, reference desc"
 	order_by = 'creation desc'
+	je_filters = []
 	if is_gl == '1':
 		default_sort = "date asc, reference asc"
 		order_by = 'creation asc'
-	je_filters = []
+		je_filters = [{'journal': ['!=', 'CLS']}]
+	
 	je_filters_if_empty = []
 	je_or_filters = []
 	filter_json = False
