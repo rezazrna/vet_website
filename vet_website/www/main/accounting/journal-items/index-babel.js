@@ -767,7 +767,7 @@ class JournalItemsList extends React.Component {
         var panel_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '40px 32px 40px 12px' }
         var data = this.props.data
         var account_col
-        if (data.length != 0) {
+        if (data.length != 0 || gl != undefined) {
             var ji = this
             // var total = 0
             // data.sort((a, b) => a.creation > b.creation).forEach(d => {
@@ -850,17 +850,15 @@ class JournalItemsList extends React.Component {
 
             console.log(this.props.datalength)
 
-            if (this.props.datalength > 0) {
-                data.forEach(function (item, index) {
-                    // if (item.debit != 0 || item.credit != 0) {
-                        // if (currentItems.includes(item)){
-                        item_rows.push(
-                            <JournalItemsListRow account={ji.props.account} key={item.name} item={item} checkRow={() => ji.props.checkRow(index)} changeRemoveStorage={(value) => ji.props.changeRemoveStorage(value)} />
-                        )
-                        // }
+            data.forEach(function (item, index) {
+                // if (item.debit != 0 || item.credit != 0) {
+                    // if (currentItems.includes(item)){
+                    item_rows.push(
+                        <JournalItemsListRow account={ji.props.account} key={item.name} item={item} checkRow={() => ji.props.checkRow(index)} changeRemoveStorage={(value) => ji.props.changeRemoveStorage(value)} />
+                    )
                     // }
-                })
-            }
+                // }
+            })
 
             return (
                 <div style={panel_style}>
