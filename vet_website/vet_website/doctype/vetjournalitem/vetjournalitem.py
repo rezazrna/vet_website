@@ -115,22 +115,25 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		if not all_page:
 			datalength = len(frappe.get_list("VetJournalItem", filters=journal_items_filters, as_list=True))
 
-		if not journal_items and is_gl == '1' and ji_account and ('4-' in ji_account or '5-' in ji_account or '6-' in ji_account or '7-' in ji_account or '8-' in ji_account) and '-01-01' in min_date:
-			journal_items_filters_if_empty = []
-			journal_entry_search = frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters_if_empty, fields=["name"], order_by=default_sort)
-			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
-			journal_items_filters_if_empty.append({'parent': ['in', journal_entry_names]})
-			if ji_account:
-				journal_items_filters_if_empty.append({'account': ji_account})
+		if not journal_items and is_gl == '1':
+			if ji_account and ('4-' in ji_account or '5-' in ji_account or '6-' in ji_account or '7-' in ji_account or '8-' in ji_account) and '-01-01' in min_date:
+				saldo_awal = 0
+			else:
+				journal_items_filters_if_empty = []
+				journal_entry_search = frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters_if_empty, fields=["name"], order_by=default_sort)
+				journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+				journal_items_filters_if_empty.append({'parent': ['in', journal_entry_names]})
+				if ji_account:
+					journal_items_filters_if_empty.append({'account': ji_account})
 
-			journal_items_saldo = frappe.get_list("VetJournalItem", filters=journal_items_filters_if_empty, fields=["name", 'parent', 'total'], order_by="creation desc")
+				journal_items_saldo = frappe.get_list("VetJournalItem", filters=journal_items_filters_if_empty, fields=["name", 'parent', 'total'], order_by="creation desc")
 
-			for ji in journal_items_saldo:
-				ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+				for ji in journal_items_saldo:
+					ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 
-			journal_items_saldo.sort(key=lambda x: x.date, reverse=True)
-			
-			saldo_awal = journal_items_saldo[0]['total']
+				journal_items_saldo.sort(key=lambda x: x.date, reverse=True)
+				if journal_items_saldo:
+					saldo_awal = journal_items_saldo[0]['total']
 		else:
 			for ji in journal_items:
 				ji['period'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'period')
