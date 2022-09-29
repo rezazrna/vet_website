@@ -87,7 +87,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			je_filters.append({'date': ['between', [min_date, max_date]]})
 			je_filters_if_empty.append({'date': ['<', min_date]})
 	try:
-		if is_gl == '1' and ('4-' in ji_account or '5-' in ji_account or '6-' in ji_account or '7-' in ji_account or '8-' in ji_account):
+		if is_gl == '1' and ji_account and ('4-' in ji_account or '5-' in ji_account or '6-' in ji_account or '7-' in ji_account or '8-' in ji_account):
 			je_filters.append({'journal': ['!=', 'CLS']})
 		journals = []
 		if not all_page:
