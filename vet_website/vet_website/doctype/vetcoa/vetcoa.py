@@ -684,7 +684,7 @@ def close_book(min_date, max_date):
 		total_pendapatan = closing_pendapatan(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
 		total_hpp = closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
 		total_biaya = closing_biaya(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
-		total = total_pendapatan + total_hpp + total_biaya
+		total = total_pendapatan - (total_hpp + total_biaya)
 		print(total_pendapatan)
 		print(total_hpp)
 		print(total_biaya)
