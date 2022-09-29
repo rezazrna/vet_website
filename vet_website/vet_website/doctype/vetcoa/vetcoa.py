@@ -99,7 +99,8 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 			journal_entry_names = []
 			journal_entry_names_if_empty = []
 			if limit_date and min_trans_date:
-				je_filters = {'journal': ['!=', 'CLS']}
+				# je_filters = {'journal': ['!=', 'CLS']}
+				je_filters = {}
 				je_filters.update({'date': ['between', [min_trans_date, limit_date]]})
 				print('je filters')
 				print(je_filters)
@@ -107,7 +108,8 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)
 
-				je_filters_if_empty = {'journal': ['!=', 'CLS']}
+				# je_filters_if_empty = {'journal': ['!=', 'CLS']}
+				je_filters_if_empty = {}
 				je_filters_if_empty.update({'date': ['<', min_trans_date]})
 				print('je filters if empty')
 				print(je_filters_if_empty)
@@ -124,6 +126,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 
 				for ji in journal_items:
 					ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+					ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
 
 				journal_items.sort(key=lambda x: x.date, reverse=True)
 			print('journal items')
@@ -135,6 +138,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 
 				for ji in journal_items_if_empty:
 					ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+					ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
 
 				journal_items_if_empty.sort(key=lambda x: x.date, reverse=True)
 			print('journal items if empty')
@@ -215,7 +219,8 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 			journal_entry_names = []
 			journal_entry_names_if_empty = []
 			if max_date and min_date:
-				je_filters = {'journal': ['!=', 'CLS']}
+				# je_filters = {'journal': ['!=', 'CLS']}
+				je_filters = {}
 				je_filters.update({'date': ['between', [min_date, max_date]]})
 				print('je filters')
 				print(je_filters)
@@ -223,7 +228,8 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)
 
-				je_filters_if_empty = {'journal': ['!=', 'CLS']}
+				# je_filters_if_empty = {'journal': ['!=', 'CLS']}
+				je_filters_if_empty = {}
 				je_filters_if_empty.update({'date': ['<', min_date]})
 				print('je filters if empty')
 				print(je_filters_if_empty)
@@ -236,6 +242,7 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 
 				for ji in journal_items:
 					ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+					ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
 
 				journal_items.sort(key=lambda x: x.date, reverse=True)
 
@@ -245,6 +252,7 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 
 				for ji in journal_items_if_empty:
 					ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+					ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
 
 				journal_items_if_empty.sort(key=lambda x: x.date, reverse=True)
 
@@ -405,7 +413,7 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode=False):
 			je_filters.update({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 			
 	if je_filters:
-		je_filters.update({'journal': ['!=', 'CLS']})
+		# je_filters.update({'journal': ['!=', 'CLS']})
 		journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
 		print('je length')
 		print(len(journal_entry_search))
@@ -418,15 +426,18 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode=False):
 		ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by='creation desc')
 	for ji in ji_list:
 		ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+		ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
 		
 	ji_list.sort(key=lambda x: x.date, reverse=True)
 	if len(ji_list) != 0:
 		if coa.account_type in ['Asset','Expense']:
 			for ji in ji_list:
-				total += ji.debit - ji.credit
+				if (('4-' in coa.name or '5-' in coa.name or '6-' in coa.name or '7-' in coa.name or '8-' in coa.name) and ji.journal != 'CLS') or ('1-' in coa.name '2-' in coa.name '3-' in coa.name):
+					total += ji.debit - ji.credit
 		elif coa.account_type in ['Equity','Income','Liability']:
 			for ji in ji_list:
-				total += ji.credit - ji.debit
+				if (('4-' in coa.name or '5-' in coa.name or '6-' in coa.name or '7-' in coa.name or '8-' in coa.name) and ji.journal != 'CLS') or ('1-' in coa.name '2-' in coa.name '3-' in coa.name):
+					total += ji.credit - ji.debit
 		# total = total + ji_list[0].total
 		
 	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields="name", order_by="account_code asc")
@@ -537,10 +548,10 @@ def get_coa_total_debit_credit(name, journal_items=False, journal_items_if_empty
 	journal_item = False
 	
 	if journal_items:
-		journal_item = next(filter(lambda item: item.account == name, journal_items), None)
+		journal_item = next(filter(lambda item: item.account == name and ((('4-' in coa.name or '5-' in coa.name or '6-' in coa.name or '7-' in coa.name or '8-' in coa.name) and ji.journal != 'CLS') or ('1-' in coa.name '2-' in coa.name '3-' in coa.name)), journal_items), None)
 
 	if not journal_item:
-		journal_item = next(filter(lambda item: item.account == name, journal_items_if_empty), None)
+		journal_item = next(filter(lambda item: item.account == name and ((('4-' in coa.name or '5-' in coa.name or '6-' in coa.name or '7-' in coa.name or '8-' in coa.name) and ji.journal != 'CLS') or ('1-' in coa.name '2-' in coa.name '3-' in coa.name)), journal_items_if_empty), None)
 
 	if journal_item:
 		if coa.account_type in ['Asset','Expense']:
