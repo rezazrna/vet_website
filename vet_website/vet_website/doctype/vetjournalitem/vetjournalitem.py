@@ -24,7 +24,6 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 	if is_gl == '1':
 		default_sort = "date asc, reference asc"
 		order_by = 'creation asc'
-		je_filters = [{'journal': ['!=', 'CLS']}]
 	
 	je_filters_if_empty = []
 	je_or_filters = []
@@ -88,6 +87,8 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			je_filters.append({'date': ['between', [min_date, max_date]]})
 			je_filters_if_empty.append({'date': ['<', min_date]})
 	try:
+		if is_gl == '1' and ('4-' in ji_account or '5-' in ji_account or '6-' in ji_account or '7-' in ji_account or '8-' in ji_account):
+			je_filters.append({'journal': ['!=', 'CLS']})
 		journals = []
 		if not all_page:
 			journals = frappe.get_list("VetJournal", fields=["name","journal_name"])
