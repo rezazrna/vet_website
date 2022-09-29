@@ -548,10 +548,10 @@ def get_coa_total_debit_credit(name, journal_items=False, journal_items_if_empty
 	journal_item = False
 	
 	if journal_items:
-		journal_item = next(filter(lambda item: item.account == name and ((('4-' in coa.name or '5-' in coa.name or '6-' in coa.name or '7-' in coa.name or '8-' in coa.name) and ji.journal != 'CLS') or ('1-' in coa.name or '2-' in coa.name or '3-' in coa.name)), journal_items), None)
+		journal_item = next(filter(lambda item: item.account == name and ((('4-' in name or '5-' in name or '6-' in name or '7-' in name or '8-' in name) and item.journal != 'CLS') or ('1-' in name or '2-' in name or '3-' in name)), journal_items), None)
 
 	if not journal_item:
-		journal_item = next(filter(lambda item: item.account == name and ((('4-' in coa.name or '5-' in coa.name or '6-' in coa.name or '7-' in coa.name or '8-' in coa.name) and ji.journal != 'CLS') or ('1-' in coa.name or '2-' in coa.name or '3-' in coa.name)), journal_items_if_empty), None)
+		journal_item = next(filter(lambda item: item.account == name and ((('4-' in name or '5-' in name or '6-' in name or '7-' in name or '8-' in name) and item.journal != 'CLS') or ('1-' in name or '2-' in name or '3-' in name)), journal_items_if_empty), None)
 
 	if journal_item:
 		if coa.account_type in ['Asset','Expense']:
