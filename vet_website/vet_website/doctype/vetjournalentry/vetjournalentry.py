@@ -108,7 +108,7 @@ def get_journal_entry_form(name=False):
 		return {'error': e}
 		
 @frappe.whitelist()
-def new_journal_entry(data):
+def new_journal_entry(data, je_names=False):
 	try:
 		data_json = json.loads(data)
 		
@@ -138,7 +138,7 @@ def new_journal_entry(data):
 					new_ji.insert()
 					frappe.db.commit()
 					
-					set_journal_item_total(new_ji.name, new_ji.account)
+					set_journal_item_total(new_ji.name, new_ji.account, je_names)
 					
 			# post_journal_entry(je.name)
 			
@@ -181,7 +181,7 @@ def new_journal_entry(data):
 								})
 								new_ji.insert()
 								
-								set_journal_item_total(new_ji.name, new_ji.account)
+								set_journal_item_total(new_ji.name, new_ji.account, je_names)
 								
 							else:
 								ji.update({
@@ -191,7 +191,7 @@ def new_journal_entry(data):
 								})
 								ji.save()
 						
-						set_journal_item_total(ji.name, ji.account)
+						set_journal_item_total(ji.name, ji.account, je_names)
 					else :
 						new_ji = frappe.new_doc('VetJournalItem')
 						new_ji.update({
@@ -204,7 +204,7 @@ def new_journal_entry(data):
 						})
 						new_ji.insert()
 						
-						set_journal_item_total(new_ji.name, new_ji.account)
+						set_journal_item_total(new_ji.name, new_ji.account, je_names)
 		
 		return get_journal_entry_form(je.name)
 		
@@ -241,8 +241,18 @@ def get_journal_entry_detail(name):
 	except:
 		return {'error': "Gagal mendapatkan children"}
 		
-def set_journal_item_total(name, account):
+def set_journal_item_total(name, account, je_names=False):
 	filters = [{'account': account}]
+	
+	if je_names:
+		filters.append({'parent': ['in', je_names]})
+	else:
+		journal_entry_name = frappe.db.get_value('VetJournalItem', name, 'parent')
+		min_date = frappe.db.get_value('VetJournalEntry', journal_entry_name, 'date')
+		if min_date:
+			journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', min_date]}, fields=["name"], order_by="date desc")
+			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+			filters.append({'parent': ['in', journal_entry_names]})
 
 	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by="creation desc")
 	

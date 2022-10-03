@@ -719,10 +719,13 @@ def closing_pendapatan(journal_entry_names, clearing_account, closing_journal, j
 		'keterangan': ''
 	}
 
+	journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', journal_date_dt.strftime('%Y-%m-%d')]}, fields=["name"], order_by="date desc")
+	journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+
 	print('je_data pendapatan')
 	print(je_data)
 
-	new_journal_entry(json.dumps(je_data))
+	new_journal_entry(json.dumps(je_data), journal_entry_names)
 
 	return total_credit_clearing
 
@@ -750,10 +753,13 @@ def closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_
 		'keterangan': ''
 	}
 
+	journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', journal_date_dt.strftime('%Y-%m-%d')]}, fields=["name"], order_by="date desc")
+	journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+
 	print('je_data hpp')
 	print(je_data)
 
-	new_journal_entry(json.dumps(je_data))
+	new_journal_entry(json.dumps(je_data), journal_entry_names)
 
 	return total_debit_clearing
 
@@ -781,10 +787,13 @@ def closing_biaya(journal_entry_names, clearing_account, closing_journal, journa
 		'keterangan': ''
 	}
 
+	journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', journal_date_dt.strftime('%Y-%m-%d')]}, fields=["name"], order_by="date desc")
+	journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+
 	print('je_data biaya')
 	print(je_data)
 	
-	new_journal_entry(json.dumps(je_data))
+	new_journal_entry(json.dumps(je_data), journal_entry_names)
 
 	return total_debit_clearing
 
@@ -804,10 +813,13 @@ def closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closin
 		'keterangan': ''
 	}
 
+	journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', journal_date_dt.strftime('%Y-%m-%d')]}, fields=["name"], order_by="date desc")
+	journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+
 	print('je_data clearing account')
 	print(je_data)
 	
-	new_journal_entry(json.dumps(je_data))
+	new_journal_entry(json.dumps(je_data), journal_entry_names)
 
 	return True
 
