@@ -252,7 +252,7 @@ def set_journal_item_total(name, account, je_names=False):
 			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
 			if journal_entry_names:
 				filters.append({'parent': ['in', journal_entry_names]})
-	elif je_names:
+	elif len(je_names) < 0:
 		filters.append({'parent': ['in', je_names]})
 
 	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by="creation desc")
@@ -266,7 +266,7 @@ def set_journal_item_total(name, account, je_names=False):
 	
 	for l in range(len(last_ji) + 1):
 		total_add = 0
-		if len(last_ji) - l <= int(index[0]):
+		if index and len(last_ji) - l <= int(index[0]):
 			ji = frappe.get_doc('VetJournalItem', last_ji[len(last_ji) - l]['name'])
 
 			account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
