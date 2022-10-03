@@ -661,39 +661,39 @@ def get_annual_balance_sheet(name=False, year=False, get_all=False):
 
 @frappe.whitelist()
 def close_book(min_date, max_date):
-	try:
-		journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['between', [min_date, max_date]]}, fields=["name"], order_by='date desc, reference desc')
-		journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
-		if check_clearing_account():
-			clearing_account = frappe.db.get_value('VetCoa', {'name': '3-99998'}, 'name')
-		else:
-			clearing_account = create_clearing_account()
+	# try:
+	journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['between', [min_date, max_date]]}, fields=["name"], order_by='date desc, reference desc')
+	journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+	if check_clearing_account():
+		clearing_account = frappe.db.get_value('VetCoa', {'name': '3-99998'}, 'name')
+	else:
+		clearing_account = create_clearing_account()
 
-		if check_laba_rugi_ditahan_account():
-			laba_rugi_ditahan_account = frappe.db.get_value('VetCoa', {'name': '3-90000'}, 'name')
-		else:
-			laba_rugi_ditahan_account = create_laba_rugi_ditahan_account()
+	if check_laba_rugi_ditahan_account():
+		laba_rugi_ditahan_account = frappe.db.get_value('VetCoa', {'name': '3-90000'}, 'name')
+	else:
+		laba_rugi_ditahan_account = create_laba_rugi_ditahan_account()
 
-		if check_closing_journal():
-			closing_journal = frappe.db.get_value('VetJournal', {'name': 'CLS'}, 'name')
-		else:
-			closing_journal = create_closing_journal()
+	if check_closing_journal():
+		closing_journal = frappe.db.get_value('VetJournal', {'name': 'CLS'}, 'name')
+	else:
+		closing_journal = create_closing_journal()
 
-		journal_date_dt = dt.strptime(max_date, '%Y-%m-%d')
-		
-		total_pendapatan = closing_pendapatan(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
-		total_hpp = closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
-		total_biaya = closing_biaya(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
-		total = total_pendapatan - (total_hpp + total_biaya)
-		print(total_pendapatan)
-		print(total_hpp)
-		print(total_biaya)
-		print(total)
-		closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closing_journal, total, journal_date_dt)
+	journal_date_dt = dt.strptime(max_date, '%Y-%m-%d')
+	
+	total_pendapatan = closing_pendapatan(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
+	total_hpp = closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
+	total_biaya = closing_biaya(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
+	total = total_pendapatan - (total_hpp + total_biaya)
+	print(total_pendapatan)
+	print(total_hpp)
+	print(total_biaya)
+	print(total)
+	closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closing_journal, total, journal_date_dt)
 
-		return True
-	except:
-		return {'error': "Kesalahan Server"}
+	return True
+	# except:
+	# 	return {'error': "Kesalahan Server"}
 
 def closing_pendapatan(journal_entry_names, clearing_account, closing_journal, journal_date_dt):
 	tz = pytz.timezone("Asia/Jakarta")
