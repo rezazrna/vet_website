@@ -680,6 +680,12 @@ def close_book(min_date, max_date):
 		closing_journal = create_closing_journal()
 
 	journal_date_dt = dt.strptime(max_date, '%Y-%m-%d')
+
+	closing_je = frappe.get_list("VetJournalEntry", filters={'date': ['between', [min_date, max_date]], 'journal': closing_journal}, fields=["name"])
+
+	for cj in closing_je:
+		frappe.delete_doc('VetJournalEntry', cj['name'])
+		frappe.db.commit()
 	
 	total_pendapatan = closing_pendapatan(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
 	total_hpp = closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
