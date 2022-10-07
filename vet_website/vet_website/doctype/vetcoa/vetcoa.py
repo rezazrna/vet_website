@@ -789,6 +789,8 @@ def closing_biaya(journal_entry_names, clearing_account, closing_journal, journa
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
 			
 		journal_items.sort(key=lambda x: x['date'], reverse=True)
+		print(len(journal_items))
+		print(journal_items[0])
 		if journal_items:
 			jis.append({'account': h['name'], 'credit': journal_items[0]['total']})
 			total_debit_clearing += journal_items[0]['total']
