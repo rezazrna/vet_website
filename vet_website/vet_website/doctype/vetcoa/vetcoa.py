@@ -708,7 +708,7 @@ def closing_pendapatan(journal_entry_names, clearing_account, closing_journal, j
 	pendapatan_accounts = frappe.get_list("VetCoa", filters={'account_code': ['like', '4-%']}) + frappe.get_list("VetCoa", filters={'account_code': ['like', '7-%']})
 
 	for p in pendapatan_accounts:
-		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': p['name']}, order_by="creation desc", fields=["total", "parent"], page_length=1)
+		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': p['name']}, order_by="creation desc", fields=["total", "parent"])
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
 			
@@ -746,7 +746,7 @@ def closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_
 	hpp_biaya_accounts = frappe.get_list("VetCoa", filters={'account_code': ['like', '5-%']})
 
 	for h in hpp_biaya_accounts:
-		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["total", "parent"], page_length=1)
+		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["total", "parent"])
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
 			
@@ -784,13 +784,11 @@ def closing_biaya(journal_entry_names, clearing_account, closing_journal, journa
 	hpp_biaya_accounts = frappe.get_list("VetCoa", filters={'account_code': ['like', '6-%']}) + frappe.get_list("VetCoa", filters={'account_code': ['like', '8-%']})
 
 	for h in hpp_biaya_accounts:
-		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["total", "parent"], page_length=1)
+		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["total", "parent"])
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
 			
 		journal_items.sort(key=lambda x: x['date'], reverse=True)
-		print(len(journal_items))
-		print(journal_items[0])
 		if journal_items:
 			jis.append({'account': h['name'], 'credit': journal_items[0]['total']})
 			total_debit_clearing += journal_items[0]['total']
