@@ -3,6 +3,7 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
+from traceback import print_tb
 import frappe
 import json
 from datetime import datetime as dt
@@ -247,8 +248,12 @@ def set_journal_item_total(name, account, je_names=False):
 	if je_names == False:
 		journal_entry_name = frappe.db.get_value('VetJournalItem', name, 'parent')
 		min_date = frappe.db.get_value('VetJournalEntry', journal_entry_name, 'date')
+		print('min_date')
+		print(min_date)
 		if min_date:
 			journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', min_date]}, fields=["name"], order_by="date desc")
+			print('len je search')
+			print(len(journal_entry_search))
 			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
 			if journal_entry_names:
 				filters.append({'parent': ['in', journal_entry_names]})
@@ -256,13 +261,23 @@ def set_journal_item_total(name, account, je_names=False):
 		filters.append({'parent': ['in', je_names]})
 
 	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by="creation desc")
+
+	print('len ji')
+	print(len(last_ji))
 	
 	for lj in last_ji:
 		lj['date'] = frappe.db.get_value('VetJournalEntry', lj['parent'], 'date')
+	
+	print('selesai tambah date')
 		
 	last_ji.sort(key=lambda x: x.date, reverse=True)
+
+	print('selesai sort')
 	
 	index = [i for i in range(len(last_ji)) if last_ji[i]['name'] == name]
+
+	print('index')
+	print(index)
 	
 	for l in range(len(last_ji) + 1):
 		total_add = 0

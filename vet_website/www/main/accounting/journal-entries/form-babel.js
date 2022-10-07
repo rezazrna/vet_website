@@ -12,7 +12,8 @@ class JournalEntry extends React.Component {
             },
             'edit': false,
             'currentUser': {},
-            'loading_simpan': false
+            'loading_simpan': false,
+            'loading_post': false,
         }
         
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -188,6 +189,8 @@ class JournalEntry extends React.Component {
         } else {
             if (this.state.edit) {
                 this.setState({'loading_simpan': true})
+            } else {
+                this.setState({'loading_post': true})
             }
             frappe.call({
         		type: "POST",
@@ -203,6 +206,7 @@ class JournalEntry extends React.Component {
                             }
                             th.setState(update);
         			    } else {
+                            th.setState({'loading_post': false})
         			        window.location.href = "/main/accounting/journal-entries/edit?n=" + r.message.journal_entry.name
         			    }
         			}
@@ -245,7 +249,13 @@ class JournalEntry extends React.Component {
             console.log(this.state)
             
             if(this.state.data.status != 'Posted'){
-                submit_button = <button type="submit" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14}>Post</button>
+                submit_button = <button type="submit" className={
+                    this.state.loading_post
+                    ? "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2 disabled"
+                    : "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2"} style={lh14}>
+                        {this.state.loading_post
+                        ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                        : "Post"}</button>
             } else if (this.state.data.status == 'Posted' && !this.state.edit && write) {
                 submit_button = <button type="button" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} onClick={this.toggleEdit}>Edit</button>
             } else if (this.state.edit) {
