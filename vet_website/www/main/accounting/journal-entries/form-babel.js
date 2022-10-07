@@ -194,6 +194,7 @@ class JournalEntry extends React.Component {
         		method:method,
         		args: args,
         		callback: function(r){
+                    console.log(r.message)
         			if (r.message) {
         			    if (th.state.edit) {
         			        var update = {'accounts': r.message.account_list, 'journals': r.message.journal_list, 'edit': false, 'loading_simpan': false}
