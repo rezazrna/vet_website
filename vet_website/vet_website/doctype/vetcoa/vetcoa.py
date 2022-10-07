@@ -712,7 +712,7 @@ def closing_pendapatan(journal_entry_names, clearing_account, closing_journal, j
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
 			
-		journal_items.sort(key=lambda x: x.date, reverse=True)
+		journal_items.sort(key=lambda x: x['date'], reverse=True)
 		if journal_items:
 			jis.append({'account': p['name'], 'debit': journal_items[0]['total']})
 			total_credit_clearing += journal_items[0]['total']
@@ -750,7 +750,7 @@ def closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
 			
-		journal_items.sort(key=lambda x: x.date, reverse=True)
+		journal_items.sort(key=lambda x: x['date'], reverse=True)
 		if journal_items:
 			jis.append({'account': h['name'], 'credit': journal_items[0]['total']})
 			total_debit_clearing += journal_items[0]['total']
@@ -788,7 +788,7 @@ def closing_biaya(journal_entry_names, clearing_account, closing_journal, journa
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
 			
-		journal_items.sort(key=lambda x: x.date, reverse=True)
+		journal_items.sort(key=lambda x: x['date'], reverse=True)
 		if journal_items:
 			jis.append({'account': h['name'], 'credit': journal_items[0]['total']})
 			total_debit_clearing += journal_items[0]['total']
