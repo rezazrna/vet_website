@@ -302,8 +302,8 @@ def set_journal_item_total(name, account, je_names=False):
 					print(ji.account)
 					ji.total = total_add
 				else:
-					ji2 = frappe.get_doc('VetJournalItem', name_ji2)
-					ji.total = ji2.total + total_add
+					# ji2 = frappe.get_doc('VetJournalItem', name_ji2)
+					ji.total = ji2['total'] + total_add
 
 				ji.save()
 				frappe.db.commit()
