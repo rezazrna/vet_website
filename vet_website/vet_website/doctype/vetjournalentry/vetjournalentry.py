@@ -109,7 +109,7 @@ def get_journal_entry_form(name=False):
 		return {'error': e}
 		
 @frappe.whitelist()
-def new_journal_entry(data, je_names=False):
+def new_journal_entry(data):
 	try:
 		data_json = json.loads(data)
 		
@@ -139,7 +139,7 @@ def new_journal_entry(data, je_names=False):
 					new_ji.insert()
 					frappe.db.commit()
 					
-					set_journal_item_total(new_ji.name, new_ji.account, je_names)
+					set_journal_item_total(new_ji.name, new_ji.account)
 					
 			# post_journal_entry(je.name)
 			
@@ -182,7 +182,7 @@ def new_journal_entry(data, je_names=False):
 								})
 								new_ji.insert()
 								
-								set_journal_item_total(new_ji.name, new_ji.account, je_names)
+								set_journal_item_total(new_ji.name, new_ji.account)
 								
 							else:
 								ji.update({
@@ -192,7 +192,7 @@ def new_journal_entry(data, je_names=False):
 								})
 								ji.save()
 						
-						set_journal_item_total(ji.name, ji.account, je_names)
+						set_journal_item_total(ji.name, ji.account)
 					else :
 						new_ji = frappe.new_doc('VetJournalItem')
 						new_ji.update({
@@ -205,7 +205,7 @@ def new_journal_entry(data, je_names=False):
 						})
 						new_ji.insert()
 						
-						set_journal_item_total(new_ji.name, new_ji.account, je_names)
+						set_journal_item_total(new_ji.name, new_ji.account)
 		
 		return get_journal_entry_form(je.name)
 		
@@ -242,136 +242,137 @@ def get_journal_entry_detail(name):
 	except:
 		return {'error': "Gagal mendapatkan children"}
 		
-def set_journal_item_total(name, account, je_names=False):
-	filters = [{'account': account}]
-
-	# if je_names == False:
-	# 	journal_entry_name = frappe.db.get_value('VetJournalItem', name, 'parent')
-	# 	min_date = frappe.db.get_value('VetJournalEntry', journal_entry_name, 'date')
-	# 	# print('min_date')
-	# 	# print(min_date)
-	# 	if min_date:
-	# 		journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', min_date]}, fields=["name"], order_by="date desc")
-	# 		# print('len je search')
-	# 		# print(len(journal_entry_search))
-	# 		journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
-	# 		if journal_entry_names:
-	# 			filters.append({'parent': ['in', journal_entry_names]})
-	# elif len(je_names) > 0:
-	# 	filters.append({'parent': ['in', je_names]})
-
-	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by="creation desc")
-
-	# print('len ji')
-	# print(len(last_ji))
-	# print([x['name'] for x in last_ji])
-	
-	for lj in last_ji:
-		lj['date'] = frappe.db.get_value('VetJournalEntry', lj['parent'], 'date')
-	
-	# print('selesai tambah date')
-		
-	last_ji.sort(key=lambda x: x.date, reverse=True)
-
-	# print('selesai sort')
-	# print([x['name'] for x in last_ji])
-	
-	index = [i for i in range(len(last_ji)) if last_ji[i]['name'] == name]
-
-	# print('index')
-	# print(index)
-
-	# if index:
-	# 	last_ji = last_ji[-(int(index[0]) + 1):]
-	# else:
-	# 	last_ji = []
-	
-	for l in range(len(last_ji) + 1):
-		total_add = 0
-		# print('for')
-		# print(l)
-		# print(len(last_ji) - l)
-		if index and len(last_ji) - l <= int(index[0]):
-			ji = frappe.get_doc('VetJournalItem', last_ji[len(last_ji) - l]['name'])
-			# print('ji name')
-			# print(ji.name)
-
-			account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
-			
-			if account_type in ['Asset','Expense']:
-				total_add = ji.debit - ji.credit
-			elif account_type in ['Equity','Income','Liability']:
-				total_add = ji.credit - ji.debit
-
-			if len(last_ji) != 0 and (len(last_ji) - 1) > (len(last_ji) - l):
-				ji2 = last_ji[(len(last_ji) - l) + 1]
-				name_ji2 = ji2['name']
-				ji1_date = last_ji[len(last_ji) - l]['date']
-				ji2_date = ji2['date']
-				different_year = ji1_date.strftime('%Y') != ji2_date.strftime('%Y')
-				if ('4-' in ji.account or '5-' in ji.account or '6-' in ji.account or '7-' in ji.account or '8-' in ji.account) and different_year:
-					# print('masuk first transaction')
-					# print(ji.account)
-					ji.total = total_add
-				else:
-					ji2 = frappe.get_doc('VetJournalItem', name_ji2)
-					ji.total = ji2.total + total_add
-
-				ji.save()
-				frappe.db.commit()
-			else:
-				ji.total = total_add
-				ji.save()
-				frappe.db.commit()
-
 # def set_journal_item_total(name, account, je_names=False):
 # 	filters = [{'account': account}]
 
-# 	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by="creation asc")
+# 	# if je_names == False:
+# 	# 	journal_entry_name = frappe.db.get_value('VetJournalItem', name, 'parent')
+# 	# 	min_date = frappe.db.get_value('VetJournalEntry', journal_entry_name, 'date')
+# 	# 	# print('min_date')
+# 	# 	# print(min_date)
+# 	# 	if min_date:
+# 	# 		journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', min_date]}, fields=["name"], order_by="date desc")
+# 	# 		# print('len je search')
+# 	# 		# print(len(journal_entry_search))
+# 	# 		journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
+# 	# 		if journal_entry_names:
+# 	# 			filters.append({'parent': ['in', journal_entry_names]})
+# 	# elif len(je_names) > 0:
+# 	# 	filters.append({'parent': ['in', je_names]})
+
+# 	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by="creation desc")
+
+# 	# print('len ji')
+# 	# print(len(last_ji))
+# 	# print([x['name'] for x in last_ji])
 	
 # 	for lj in last_ji:
 # 		lj['date'] = frappe.db.get_value('VetJournalEntry', lj['parent'], 'date')
-		
-# 	last_ji.sort(key=lambda x: x.date)
 	
-# 	indexElement = [i for i in range(len(last_ji)) if last_ji[i]['name'] == name]
+# 	# print('selesai tambah date')
+		
+# 	last_ji.sort(key=lambda x: x.date, reverse=True)
 
-# 	if indexElement:
-# 		if int(indexElement[0]) == 0:
-# 			last_ji = last_ji[int(indexElement[0]):]
-# 		else:
-# 			last_ji = last_ji[(int(indexElement[0]) - 1):]
-# 	else:
-# 		last_ji = []
+# 	# print('selesai sort')
+# 	# print([x['name'] for x in last_ji])
+	
+# 	index = [i for i in range(len(last_ji)) if last_ji[i]['name'] == name]
 
-# 	for index, value in enumerate(last_ji):
+# 	# print('index')
+# 	# print(index)
+
+# 	# if index:
+# 	# 	last_ji = last_ji[-(int(index[0]) + 1):]
+# 	# else:
+# 	# 	last_ji = []
+	
+# 	for l in range(len(last_ji) + 1):
 # 		total_add = 0
+# 		# print('for')
+# 		# print(l)
+# 		# print(len(last_ji) - l)
+# 		if index and len(last_ji) - l <= int(index[0]):
+# 			ji = frappe.get_doc('VetJournalItem', last_ji[len(last_ji) - l]['name'])
+# 			# print('ji name')
+# 			# print(ji.name)
+
+# 			account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
+			
+# 			if account_type in ['Asset','Expense']:
+# 				total_add = ji.debit - ji.credit
+# 			elif account_type in ['Equity','Income','Liability']:
+# 				total_add = ji.credit - ji.debit
+
+# 			if len(last_ji) != 0 and (len(last_ji) - 1) > (len(last_ji) - l):
+# 				ji2 = last_ji[(len(last_ji) - l) + 1]
+# 				name_ji2 = ji2['name']
+# 				ji1_date = last_ji[len(last_ji) - l]['date']
+# 				ji2_date = ji2['date']
+# 				different_year = ji1_date.strftime('%Y') != ji2_date.strftime('%Y')
+# 				if ('4-' in ji.account or '5-' in ji.account or '6-' in ji.account or '7-' in ji.account or '8-' in ji.account) and different_year:
+# 					# print('masuk first transaction')
+# 					# print(ji.account)
+# 					ji.total = total_add
+# 				else:
+# 					ji2 = frappe.get_doc('VetJournalItem', name_ji2)
+# 					ji.total = ji2.total + total_add
+
+# 				ji.save()
+# 				frappe.db.commit()
+# 			else:
+# 				ji.total = total_add
+# 				ji.save()
+# 				frappe.db.commit()
+
+def set_journal_item_total(name, account):
+	filters = [{'account': account}]
+
+	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by="creation asc")
+	
+	for lj in last_ji:
+		lj['date'] = frappe.db.get_value('VetJournalEntry', lj['parent'], 'date')
+		
+	last_ji.sort(key=lambda x: x.date)
+	
+	indexElement = [i for i in range(len(last_ji)) if last_ji[i]['name'] == name]
+
+	if indexElement:
+		if int(indexElement[0]) == 0:
+			last_ji = last_ji[int(indexElement[0]):]
+		else:
+			last_ji = last_ji[(int(indexElement[0]) - 1):]
+	else:
+		last_ji = []
+
+	for index, value in enumerate(last_ji):
+		total_add = 0
 
 		
-# 		ji = frappe.get_doc('VetJournalItem', value['name'])
+		ji = frappe.get_doc('VetJournalItem', value['name'])
 
-# 		account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
-# 		if account_type in ['Asset','Expense']:
-# 			total_add = ji.debit - ji.credit
-# 		elif account_type in ['Equity','Income','Liability']:
-# 			total_add = ji.credit - ji.debit
+		account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
+		if account_type in ['Asset','Expense']:
+			total_add = ji.debit - ji.credit
+		elif account_type in ['Equity','Income','Liability']:
+			total_add = ji.credit - ji.debit
 
-# 		if index > 0:
-# 			ji2 = last_ji[index - 1]
-# 			ji1_date = value['date']
-# 			ji2_date = ji2['date']
-# 			different_year = ji1_date.strftime('%Y') != ji2_date.strftime('%Y')
-# 			if ('4-' in ji.account or '5-' in ji.account or '6-' in ji.account or '7-' in ji.account or '8-' in ji.account) and different_year:
-# 				# print('masuk first transaction')
-# 				# print(ji.account)
-# 				ji.total = total_add
-# 			else:
-# 				ji2 = frappe.get_doc('VetJournalItem', name_ji2)
-# 				ji.total = ji2.total + total_add
+		if index > 0:
+			ji2 = last_ji[index - 1]
+			name_ji2 = ji2['name']
+			ji1_date = value['date']
+			ji2_date = ji2['date']
+			different_year = ji1_date.strftime('%Y') != ji2_date.strftime('%Y')
+			if ('4-' in ji.account or '5-' in ji.account or '6-' in ji.account or '7-' in ji.account or '8-' in ji.account) and different_year:
+				# print('masuk first transaction')
+				# print(ji.account)
+				ji.total = total_add
+			else:
+				ji2 = frappe.get_doc('VetJournalItem', name_ji2)
+				ji.total = ji2.total + total_add
 
-# 			ji.save()
-# 			frappe.db.commit()
-# 		elif int(indexElement[0]) == 0:
-# 			ji.total = total_add
-# 			ji.save()
-# 			frappe.db.commit()
+			ji.save()
+			frappe.db.commit()
+		elif int(indexElement[0]) == 0:
+			ji.total = total_add
+			ji.save()
+			frappe.db.commit()
