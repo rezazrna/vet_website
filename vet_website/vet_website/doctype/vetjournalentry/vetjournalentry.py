@@ -323,3 +323,47 @@ def set_journal_item_total(name, account, je_names=False):
 				ji.total = total_add
 				ji.save()
 				frappe.db.commit()
+
+# def set_journal_item_total(name, account, je_names=False):
+# 	filters = [{'account': account}]
+
+# 	last_ji = frappe.get_list('VetJournalItem', filters=filters, fields=['name', 'total', 'parent'], order_by="creation asc")
+	
+# 	for lj in last_ji:
+# 		lj['date'] = frappe.db.get_value('VetJournalEntry', lj['parent'], 'date')
+		
+# 	last_ji.sort(key=lambda x: x.date)
+	
+# 	indexElement = [i for i in range(len(last_ji)) if last_ji[i]['name'] == name]
+
+# 	if indexElement:
+# 		last_ji = last_ji[(int(indexElement[0]) - 1):]
+# 	else:
+# 		last_ji = []
+
+# 	for index, value in enumerate(last_ji):
+# 		total_add = 0
+
+# 		if index > 0:
+# 			ji = frappe.get_doc('VetJournalItem', value['name'])
+
+# 			account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
+# 			if account_type in ['Asset','Expense']:
+# 				total_add = ji.debit - ji.credit
+# 			elif account_type in ['Equity','Income','Liability']:
+# 				total_add = ji.credit - ji.debit
+
+# 			ji2 = last_ji[index - 1]
+# 			ji1_date = value['date']
+# 			ji2_date = ji2['date']
+# 			different_year = ji1_date.strftime('%Y') != ji2_date.strftime('%Y')
+# 			if ('4-' in ji.account or '5-' in ji.account or '6-' in ji.account or '7-' in ji.account or '8-' in ji.account) and different_year:
+# 				# print('masuk first transaction')
+# 				# print(ji.account)
+# 				ji.total = total_add
+# 			else:
+# 				ji2 = frappe.get_doc('VetJournalItem', name_ji2)
+# 				ji.total = ji2.total + total_add
+
+# 			ji.save()
+# 			frappe.db.commit()
