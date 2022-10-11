@@ -337,22 +337,26 @@ def set_journal_item_total(name, account, je_names=False):
 # 	indexElement = [i for i in range(len(last_ji)) if last_ji[i]['name'] == name]
 
 # 	if indexElement:
-# 		last_ji = last_ji[(int(indexElement[0]) - 1):]
+# 		if int(indexElement[0]) == 0:
+# 			last_ji = last_ji[int(indexElement[0]):]
+# 		else:
+# 			last_ji = last_ji[(int(indexElement[0]) - 1):]
 # 	else:
 # 		last_ji = []
 
 # 	for index, value in enumerate(last_ji):
 # 		total_add = 0
 
+		
+# 		ji = frappe.get_doc('VetJournalItem', value['name'])
+
+# 		account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
+# 		if account_type in ['Asset','Expense']:
+# 			total_add = ji.debit - ji.credit
+# 		elif account_type in ['Equity','Income','Liability']:
+# 			total_add = ji.credit - ji.debit
+
 # 		if index > 0:
-# 			ji = frappe.get_doc('VetJournalItem', value['name'])
-
-# 			account_type = frappe.db.get_value('VetCoa', ji.account, 'account_type')
-# 			if account_type in ['Asset','Expense']:
-# 				total_add = ji.debit - ji.credit
-# 			elif account_type in ['Equity','Income','Liability']:
-# 				total_add = ji.credit - ji.debit
-
 # 			ji2 = last_ji[index - 1]
 # 			ji1_date = value['date']
 # 			ji2_date = ji2['date']
@@ -365,5 +369,9 @@ def set_journal_item_total(name, account, je_names=False):
 # 				ji2 = frappe.get_doc('VetJournalItem', name_ji2)
 # 				ji.total = ji2.total + total_add
 
+# 			ji.save()
+# 			frappe.db.commit()
+# 		elif int(indexElement[0]) == 0:
+# 			ji.total = total_add
 # 			ji.save()
 # 			frappe.db.commit()
