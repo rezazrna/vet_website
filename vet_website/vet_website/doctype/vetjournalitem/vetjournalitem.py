@@ -99,18 +99,27 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			journal_entry_search = frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, fields=["name"], order_by=default_sort)
 			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
 			journal_items_filters.append({'parent': ['in', journal_entry_names]})
-			print('journal entry names')
-			print(journal_entry_names)
 		# datalength = len(frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, as_list=True))
 		# if len(journal_entry_search):
 		if ji_account:
 			journal_items_filters.append({'account': ji_account})
-		if all_page:
-			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by)
-		else:
-			journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by, start=(page - 1) * 10, page_length= 10)
-			print('journal items')
-			print(journal_items)
+
+		journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by)
+		for ji in journal_items:
+			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+
+		reverse = True
+		if is_gl == '1':
+			reverse = False
+		journal_items.sort(key=lambda x: x.date, reverse=reverse)
+		if all_page == False:
+			journal_items = journal_items[(page - 1) * 10 : page * 10]
+		# else:
+		# 	journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by, start=, page_length= 10)
+		# 	for ji in journal_items:
+		# 		ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+
+		# 	journal_items.sort(key=lambda x: x.date, reverse=True)
 
 		datalength = 0
 		if not all_page:
@@ -144,10 +153,6 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 				ji['account_name'] = "%s %s"%(frappe.db.get_value('VetCoa', ji.account, 'account_code'), frappe.db.get_value('VetCoa', ji.account, 'account_name'))
 				ji['account_type'] = frappe.db.get_value('VetCoa', ji.account, 'account_type')
 				ji['account_code'] = frappe.db.get_value('VetCoa', ji.account, 'account_code')
-			reverse = True
-			if is_gl == '1':
-				reverse = False
-			journal_items.sort(key=lambda x: x.date, reverse=reverse)
 
 			if journal_items and is_gl == '1' and ji_account:
 				# if journal_items[0]['account_code'] in ['4-', '5-', '6-', '7-', '8-']:
