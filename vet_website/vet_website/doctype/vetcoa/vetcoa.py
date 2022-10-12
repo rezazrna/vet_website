@@ -79,22 +79,14 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 	try:
 		if not search_mode:
 			td_filters.update({'account_parent': ''})
-		print('mulai get_list')
 		coa_list = frappe.get_list("VetCoa", filters=td_filters, fields=["*"], order_by='account_code asc')
-		print('selesai get_list')
 		if not dc_mode:
-			print('mulai get_coa_last_total')
 			for c in coa_list:
-				print('get_coa_last_total')
-				print(c.name)
 				# if mode != False:
 				# 	c['children'] =  get_coa_children(c.name, max_date=limit_date, all_children=True, mode=mode)
 				# else:
 					
 				c['total'] = get_coa_last_total(c.name, max_date=limit_date, mode=mode)
-				print('dapat')
-				print(c.name)
-			print('selesai get_coa_last_total')
 		else:
 			journal_entry_names = []
 			journal_entry_names_if_empty = []
@@ -102,8 +94,6 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 				# je_filters = {'journal': ['!=', 'CLS']}
 				je_filters = {}
 				je_filters.update({'date': ['between', [min_trans_date, limit_date]]})
-				print('je filters')
-				print(je_filters)
 				journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
 				if len(journal_entry_search):
 					journal_entry_names = list(j.name for j in journal_entry_search)
@@ -111,15 +101,9 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 				# je_filters_if_empty = {'journal': ['!=', 'CLS']}
 				je_filters_if_empty = {}
 				je_filters_if_empty.update({'date': ['<', min_trans_date]})
-				print('je filters if empty')
-				print(je_filters_if_empty)
 				journal_entry_search_if_empty = frappe.get_list("VetJournalEntry", filters=je_filters_if_empty, fields=["name"], order_by='date desc, reference desc')
 				if len(journal_entry_search_if_empty):
 					journal_entry_names_if_empty = list(j.name for j in journal_entry_search_if_empty)
-			print('journal entry names')
-			print(len(journal_entry_names))
-			print('journal entry names if empty')
-			print(len(journal_entry_names_if_empty))
 			journal_items = []
 			if journal_entry_names:
 				journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account', 'parent'])
@@ -129,8 +113,6 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 					ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
 
 				journal_items.sort(key=lambda x: x.date, reverse=True)
-			print('journal items')
-			print(len(journal_items))
 
 			journal_items_if_empty = []
 			if journal_entry_names_if_empty:
@@ -141,8 +123,6 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 					ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
 
 				journal_items_if_empty.sort(key=lambda x: x.date, reverse=True)
-			print('journal items if empty')
-			print(len(journal_items_if_empty))
 
 			for c in coa_list:
 				# tdc = get_coa_total_debit_credit(c.name, journal_entry_names=journal_entry_names)
@@ -163,7 +143,6 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 		
 		# list_coa = []
 		
-		print(all_children)
 		if all_children:
 			if max_trans_date:
 				for c in coa_list:
