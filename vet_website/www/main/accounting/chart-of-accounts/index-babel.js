@@ -258,7 +258,7 @@ class Coa extends React.Component {
             if(!this.state.dc_mode){
                 add_button = <a href="#" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={this.toggleAdd}><i className="fa fa-plus mr-2"/>Tambah</a>
                 if (this.state.show_add) {
-                    popup_add = <PopupAdd toggleAdd={this.toggleAdd}/>
+                    popup_add = <PopupAdd write={write} toggleAdd={this.toggleAdd}/>
                 }
                 else if (this.state.show_edit) {
                     popup_add = <PopupAdd write={write} toggleAdd={this.toggleEdit} data={this.state.edit_data}/>
