@@ -103,14 +103,23 @@ class JournalEntry extends React.Component {
     	        new_data.journal_items[i].account_code = value
     	    }
     	    this.setState({data: new_data})
-    	}
-    	else if(['debit','credit'].includes(name)){
-    	    if (Object.keys(new_data.journal_items[i]).length === 0) {
-                new_data.journal_items.push({})
+    	} else if(['debit','credit'].includes(name)){
+            console.log(value)
+            var filtered = value.replace(/(?!,)\D/g,'').replace(/,$/g,'.01').replace(',','.')
+            console.log(filtered)
+            if(filtered != ''){
+                if (Object.keys(new_data.journal_items[i]).length === 0) {
+                    new_data.journal_items.push({})
+                }
+                var formatted = parseFloat(filtered).toLocaleString('id-ID')
+                console.log(formatted)
+                new_data.journal_items[i][name] = formatted
+	            this.setState({data: new_data})
+            } else {
+                new_data.journal_items[i][name] = value
+	            this.setState({data: new_data})
             }
-    	    new_data.journal_items[i][name] = value
-	        this.setState({data: new_data})
-    	} else if (name == 'date') {
+        } else if (name == 'date') {
             new_data[name] = value
             new_data.period = moment(value).format("MM-YYYY")
 	        this.setState({data: new_data})
@@ -179,6 +188,11 @@ class JournalEntry extends React.Component {
             method = "vet_website.vet_website.doctype.vetjournalentry.vetjournalentry.post_journal_entry"
             args = {name: new_data.name}
         }
+
+        new_data.journal_items.forEach((e) => {
+            e.debit = parseFloat(String(e.debit || 0).replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
+            e.credit = parseFloat(String(e.credit || 0).replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
+        })
         
         var total_debit = new_data.journal_items.filter(a => !a.delete).reduce((total, j) => total+=parseFloat(j.debit||'0'),0)
         var total_credit = new_data.journal_items.filter(a => !a.delete).reduce((total, j) => total+=parseFloat(j.credit||'0'),0)
@@ -230,6 +244,11 @@ class JournalEntry extends React.Component {
                 
             this.setState({edit: false, data: new_data})
         } else {
+            new_data.journal_items.forEach((e, index) => {
+                e.debit = formatter2.format(e.debit || 0)
+                e.credit = formatter2.format(e.credit || 0)
+            })
+            console.log(new_data.journal_items)
             new_data.journal_items.push({})
             this.setState({edit: true, data: new_data})
         }
@@ -427,6 +446,8 @@ class JournalEntryItems extends React.Component {
         var items = this.props.items || []
         var rows = []
         var divStyle = {width: '11px'}
+        var totalRow
+        var bgStyle = {background: '#F5FBFF'}
         
         if (items.length != 0){
             var ji = this
@@ -438,6 +459,32 @@ class JournalEntryItems extends React.Component {
                 }
             })
         }
+
+        var total_debit = items.filter(a => !a.delete).reduce((total, j) => {
+            var newDebit = parseFloat(String(j.debit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
+            return total += parseFloat(newDebit||'0')
+        },0)
+        var total_credit = items.filter(a => !a.delete).reduce((total, j) => {
+            var newCredit = parseFloat(String(j.credit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
+            return total += parseFloat(newCredit||'0')
+        },0)
+
+        totalRow = <div className="row mx-0">
+            <div className="col row-list" style={bgStyle}>
+                <div className="row mx-0 fs14 fw600">
+                    <div className="col-7">Total</div>
+                    <div className="col text-center my-auto">
+                        {formatter2.format(total_debit || 0)}
+                    </div>
+                    <div className="col text-center my-auto">
+                        {formatter2.format(total_credit || 0)}
+                    </div>
+                    <div className="col-auto text-center my-auto">
+                        <div style={divStyle}/>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         return(
             <div>
@@ -457,6 +504,7 @@ class JournalEntryItems extends React.Component {
         				</div>
         			</div>
         			{rows}
+                    {totalRow}
 	        	</div>
     		</div>
         )
