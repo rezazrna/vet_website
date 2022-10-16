@@ -57,7 +57,7 @@ class BalanceSheet extends React.Component {
             this.setState({year: value})
             // filters.accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             if (this.state.mode == 'annual') {
-                accounting_date = moment(value+'-12-31', 'YYYY-MM-DD')
+                accounting_date = moment(value+'-12-31', 'YYYY-MM-DD').format('YYYY-MM-DD')
             } else {
                 accounting_date = moment(value+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             }
