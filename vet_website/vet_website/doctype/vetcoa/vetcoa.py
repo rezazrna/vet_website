@@ -391,7 +391,8 @@ def get_coa_last_total(coa_name, max_date=False, no_min_date=False, mode=False):
 	je_filters = {}
 	
 	if max_date:
-		max_date_dt = dt.strptime(max_date, '%Y-%m-%d') - rd(days=1)
+		# max_date_dt = dt.strptime(max_date, '%Y-%m-%d') - rd(days=1)
+		max_date_dt = dt.strptime(max_date, '%Y-%m-%d')
 		if no_min_date:
 			je_filters.update({'date': ['<', max_date]})
 		else:
