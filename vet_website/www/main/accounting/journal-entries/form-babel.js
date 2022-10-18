@@ -105,7 +105,7 @@ class JournalEntry extends React.Component {
     	    this.setState({data: new_data})
     	} else if(['debit','credit'].includes(name)){
             console.log(value)
-            var filtered = value.replace(/(?!,)\D/g,'').replace(/,$/g,'.01').replace(',','.')
+            var filtered = value.replace(/(?!)\D/g,'').replace(/,$/g,'.01').replace(',','.')
             console.log(filtered)
             if(filtered != ''){
                 if (Object.keys(new_data.journal_items[i]).length === 0) {
@@ -190,8 +190,8 @@ class JournalEntry extends React.Component {
         }
 
         new_data.journal_items.forEach((e) => {
-            e.debit = parseFloat(String(e.debit || 0).replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
-            e.credit = parseFloat(String(e.credit || 0).replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
+            e.debit = parseFloat(String(e.debit || 0).replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+            e.credit = parseFloat(String(e.credit || 0).replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
         })
         
         var total_debit = new_data.journal_items.filter(a => !a.delete).reduce((total, j) => total+=parseFloat(j.debit||'0'),0)
@@ -238,8 +238,8 @@ class JournalEntry extends React.Component {
         
         if (this.state.edit) {
             new_data.journal_items.forEach((e, index) => {
-                e.debit = parseFloat(String(e.debit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
-                e.credit = parseFloat(String(e.credit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                e.debit = parseFloat(String(e.debit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                e.credit = parseFloat(String(e.credit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
             })
 
             if (!new_data.journal_items[new_data.journal_items.length - 1].account) {
