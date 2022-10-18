@@ -448,6 +448,8 @@ class JournalEntryItems extends React.Component {
         var divStyle = {width: '11px'}
         var totalRow
         var bgStyle = {background: '#F5FBFF'}
+        var total_debit = 0
+        var total_credit = 0
         
         if (items.length != 0){
             var ji = this
@@ -456,18 +458,12 @@ class JournalEntryItems extends React.Component {
                     rows.push(
                         <JournalEntryItemsRow edit={ji.props.edit} key={index.toString()} accounts={ji.props.accounts} item={item} status={ji.props.status} handleInputBlur={ji.props.handleInputBlur} handleInputChange={ji.props.handleInputChange} index={index.toString()} deleteRow={() => ji.props.deleteRow(index.toString())}/>
                     )
+
+                    total_debit += parseFloat(String(item.debit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                    total_credit += parseFloat(String(item.credit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
                 }
             })
         }
-
-        var total_debit = items.filter(a => !a.delete).reduce((total, j) => {
-            var newDebit = parseFloat(String(j.debit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
-            return total += parseFloat(newDebit||'0')
-        },0)
-        var total_credit = items.filter(a => !a.delete).reduce((total, j) => {
-            var newCredit = parseFloat(String(j.credit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
-            return total += parseFloat(newCredit||'0')
-        },0)
 
         totalRow = <div className="row mx-0">
             <div className="col row-list" style={bgStyle}>
