@@ -463,9 +463,13 @@ class JournalEntryItems extends React.Component {
                     rows.push(
                         <JournalEntryItemsRow edit={ji.props.edit} key={index.toString()} accounts={ji.props.accounts} item={item} status={ji.props.status} handleInputBlur={ji.props.handleInputBlur} handleInputChange={ji.props.handleInputChange} index={index.toString()} deleteRow={() => ji.props.deleteRow(index.toString())}/>
                     )
+                    var new_debit = parseFloat(String(item.debit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                    var new_credit = parseFloat(String(item.credit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
 
-                    total_debit += parseFloat(String(item.debit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
-                    total_credit += parseFloat(String(item.credit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                    console.log(new_debit)
+
+                    total_debit += new_debit
+                    total_credit += new_credit
                 }
             })
         }
