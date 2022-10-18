@@ -237,6 +237,11 @@ class JournalEntry extends React.Component {
         var new_data = this.state.data
         
         if (this.state.edit) {
+            new_data.journal_items.forEach((e, index) => {
+                e.debit = parseFloat(String(e.debit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                e.credit = parseFloat(String(e.credit || '0').replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
+            })
+
             if (!new_data.journal_items[new_data.journal_items.length - 1].account) {
                 var i = new_data.journal_items.length - 1
                 new_data.journal_items.splice(i, 1)
