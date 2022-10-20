@@ -223,7 +223,7 @@ class BalanceSheet extends React.Component {
         if (this.state.loaded){
             console.log(this.state)
             var content, pdf, print_button, month_select, sd_period
-            content = <BalanceSheetList items={this.state.data} month={this.state.month} year={this.state.year}/>
+            content = <BalanceSheetList items={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode}/>
             pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year}/>
             print_button = <button type="button" 
                 className={this.state.print_loading
@@ -344,13 +344,13 @@ class BalanceSheetList extends React.Component {
             
             items.forEach((i, index) => {
                 if(i.account_type == 'Asset' && i.total != 0){
-                    asset_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
+                    asset_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year} mode={this.props.mode}/>)
                 }
                 else if(i.account_type == 'Liability' && i.total != 0){
-                    liability_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
+                    liability_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year} mode={this.props.mode}/>)
                 }
                 else if(i.account_type == 'Equity' && i.total != 0){
-                    equity_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year}/>)
+                    equity_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year} mode={this.props.mode}/>)
                 }
             })
             
@@ -458,7 +458,8 @@ class BalanceSheetListRow extends React.Component {
         super(props)
         this.state = {
             'show': false,
-            'loaded': false
+            'loaded': false,
+            'onLoading': false,
         }
         
         this.toggleShow = this.toggleShow.bind(this)
@@ -468,16 +469,17 @@ class BalanceSheetListRow extends React.Component {
         e.stopPropagation();
         this.setState({show: !this.state.show})
         if (!this.state.loaded) {
+            this.setState({onLoading: true})
             var td = this
             var accounting_date = moment(this.props.year+'-'+this.props.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_children",
-                args: {name: this.props.item.name, max_date: accounting_date},
+                args: {name: this.props.item.name, max_date: accounting_date, mode: this.props.mode},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message)
-                        td.setState({children: r.message, loaded: true})
+                        td.setState({children: r.message, loaded: true, onLoading: false})
                     }
                 }
             });
@@ -492,6 +494,7 @@ class BalanceSheetListRow extends React.Component {
         var children_row = []
         var color = {color: '#056EAD', background: '#F5FBFF', borderBottom: '1px solid #C4C4C4'}
         var transparent = {opacity: 0}
+        var iconRow
         
         if (this.state.show && this.state.loaded) {
             if (this.state.children.length != 0) {
@@ -499,13 +502,19 @@ class BalanceSheetListRow extends React.Component {
                 this.state.children.forEach(function(value, index){
                     if (value.total != 0){
                         children_row.push(
-                            <BalanceSheetListRow key={value.account_name} item={value} month={cl.props.month} year={cl.props.year}/>
+                            <BalanceSheetListRow key={value.account_name} item={value} month={cl.props.month} year={cl.props.year} mode={cl.props.mode}/>
                         )
                     }
                 })
             }
             
             chevron_class = "fa fa-chevron-up my-auto"
+        }
+
+        if (this.state.onLoading) {
+            iconRow = <i className="fa fa-spin fa-circle-o-notch my-auto ml-auto" />
+        } else {
+            iconRow = <i className={chevron_class} style={cursor} onClick={e => this.toggleShow(e)}/>
         }
         
         if (item.is_parent) {
@@ -522,7 +531,7 @@ class BalanceSheetListRow extends React.Component {
         					<span>{formatter2.format(item.total)}</span>
         				</div>
         				<div className="col-auto d-flex">
-        				    <i className={chevron_class} style={cursor} onClick={e => this.toggleShow(e)}/>
+        				    {iconRow}
         				</div>
         			</div>
         			<div className="pl-2">

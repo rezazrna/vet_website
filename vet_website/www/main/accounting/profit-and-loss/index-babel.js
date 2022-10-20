@@ -603,7 +603,8 @@ class ProfitAndLossListRow extends React.Component {
         super(props)
         this.state = {
             'show': false,
-            'loaded': false
+            'loaded': false,
+            'onLoading': false,
         }
         
         this.toggleShow = this.toggleShow.bind(this)
@@ -615,6 +616,7 @@ class ProfitAndLossListRow extends React.Component {
         console.log(this.props.accounting_date)
         console.log(this.props.mode)
         if (!this.state.loaded) {
+            this.setState({onLoading: true})
             var td = this
             // var accounting_date = moment(this.props.year+'-'+this.props.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             frappe.call({
@@ -624,7 +626,7 @@ class ProfitAndLossListRow extends React.Component {
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message)
-                        td.setState({children: r.message, loaded: true})
+                        td.setState({children: r.message, loaded: true, onLoading: false})
                     }
                 }
             });
@@ -639,6 +641,7 @@ class ProfitAndLossListRow extends React.Component {
         var children_row = []
         var color = {color: '#056EAD', background: '#F5FBFF', borderBottom: '1px solid #C4C4C4'}
         var transparent = {opacity: 0}
+        var iconRow
         
         if (this.state.show && this.state.loaded) {
             if (this.state.children.length != 0) {
@@ -654,6 +657,12 @@ class ProfitAndLossListRow extends React.Component {
             
             chevron_class = "fa fa-chevron-up my-auto ml-auto"
         }
+
+        if (this.state.onLoading) {
+            iconRow = <i className="fa fa-spin fa-circle-o-notch my-auto ml-auto" />
+        } else {
+            iconRow = <i className={chevron_class} style={cursor} onClick={e => this.toggleShow(e)}/>
+        }
         
         if (item.is_parent) {
             return(
@@ -666,7 +675,7 @@ class ProfitAndLossListRow extends React.Component {
         					<span>{formatter3.format(item.total)}</span>
         				</div>
         				<div className="col-1 d-flex">
-        				    <i className={chevron_class} style={cursor} onClick={e => this.toggleShow(e)}/>
+        				    {iconRow}
         				</div>
         			</div>
         			<div className="pl-2">
