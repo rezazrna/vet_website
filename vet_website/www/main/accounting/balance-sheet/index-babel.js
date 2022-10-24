@@ -237,7 +237,7 @@ class BalanceSheet extends React.Component {
         if (this.state.loaded){
             console.log(this.state)
             var content, pdf, print_button, month_select, sd_period
-            content = <BalanceSheetList items={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode}/>
+            content = <BalanceSheetList items={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode} accounting_date={this.state.accounting_date}/>
             pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode}/>
             print_button = <button type="button" 
                 className={this.state.print_loading
@@ -358,13 +358,13 @@ class BalanceSheetList extends React.Component {
             
             items.forEach((i, index) => {
                 if(i.account_type == 'Asset' && i.total != 0){
-                    asset_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year} mode={this.props.mode}/>)
+                    asset_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year} mode={this.props.mode} accounting_date={this.props.accounting_date}/>)
                 }
                 else if(i.account_type == 'Liability' && i.total != 0){
-                    liability_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year} mode={this.props.mode}/>)
+                    liability_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year} mode={this.props.mode} accounting_date={this.props.accounting_date}/>)
                 }
                 else if(i.account_type == 'Equity' && i.total != 0){
-                    equity_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year} mode={this.props.mode}/>)
+                    equity_row.push(<BalanceSheetListRow key={i.account_name} item={i} month={this.props.month} year={this.props.year} mode={this.props.mode} accounting_date={this.props.accounting_date}/>)
                 }
             })
             
@@ -485,11 +485,10 @@ class BalanceSheetListRow extends React.Component {
         if (!this.state.loaded) {
             this.setState({onLoading: true})
             var td = this
-            var accounting_date = moment(this.props.year+'-'+this.props.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_children",
-                args: {name: this.props.item.name, max_date: accounting_date, mode: this.props.mode},
+                args: {name: this.props.item.name, max_date: this.props.accounting_date, mode: this.props.mode},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message)
