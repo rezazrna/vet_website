@@ -179,7 +179,6 @@ class BalanceSheet extends React.Component {
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         if (filters.accounting_date != undefined && this.state.mode != undefined) {
-            tanggal = ''
             if (this.state.mode == 'monthly') {
                 title += 'Monthly-' + moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
             } else if (this.state.mode == 'annual') {
@@ -847,7 +846,6 @@ class PDF extends React.Component{
 
         if (filters != undefined) {
             if (filters.accounting_date != undefined && this.props.mode != undefined) {
-                tanggal = ''
                 if (this.props.mode == 'monthly') {
                     subtitle = 'Monthly ' + moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
                 } else if (this.props.mode == 'annual') {

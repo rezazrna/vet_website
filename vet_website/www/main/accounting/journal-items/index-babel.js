@@ -416,7 +416,6 @@ class JournalItems extends React.Component {
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         if (filters.journal_date != undefined && this.state.mode != undefined) {
-            tanggal = ''
             if (this.state.mode == 'monthly') {
                 var bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
                 console.log(bulan)
@@ -1036,7 +1035,6 @@ class PDF extends React.Component {
 
         if (filters != undefined) {
             if (filters.journal_date != undefined && this.props.mode != undefined) {
-                tanggal = ''
                 if (this.props.mode == 'monthly') {
                     var bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
                     subtitle = 'Monthly ' + bulan
