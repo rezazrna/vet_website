@@ -1042,10 +1042,10 @@ class PDF extends React.Component {
                     subtitle = 'Monthly ' + bulan
                 } else if (this.props.mode == 'annual') {
                     subtitle = 'Annual ' + moment(filters.journal_date).format('YYYY')
-                } else if (this.state.mode == 'period') {
-                    var sampai_bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                } else if (this.props.mode == 'period') {
+                    var sampai_bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
                     subtitle = 'Periode ' + moment(filters.journal_min_date).format('MM-YYYY') + '-' + sampai_bulan
-                } else if (this.state.mode == 'daily') {
+                } else if (this.props.mode == 'daily') {
                     subtitle = 'Tanggal ' + moment(filters.journal_min_date).format('DD-MM-YYYY') + '-' + moment(filters.journal_date).format('DD-MM-YYYY')
                 }
             } else if (filters.filters.some((element) => element[0] == 'period')) {

@@ -151,8 +151,10 @@ class BalanceSheet extends React.Component {
         if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
             var th = this
             var filters = {
-                accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+                accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD'),
+                mode: this.state.mode
             }
+            console.log(filters)
             if(!this.state.print_loading){
                 this.setState({print_loading: true})
                 frappe.call({
@@ -174,9 +176,23 @@ class BalanceSheet extends React.Component {
     }
     
     printPDF() {
+        var title = 'BalanceSheet-';
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters.accounting_date != undefined && this.state.mode != undefined) {
+            tanggal = ''
+            if (this.state.mode == 'monthly') {
+                title += 'Monthly-' + moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+            } else if (this.state.mode == 'annual') {
+                title += 'Annual-' + moment(filters.accounting_date).format('YYYY')
+            } else if (this.state.mode == 'period') {
+                title += 'Periode-' + moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+            }
+        }
+
         var pdfid = 'pdf'
-        var format = [559,794]
-        var th = this
+        // var format = [559,794]
+        // var th = this
         // var doc = new jsPDF({
         //     orientation: 'p',
         //     unit: 'pt',
@@ -185,7 +201,7 @@ class BalanceSheet extends React.Component {
         var source = document.getElementById(pdfid)
         var opt = {
             margin: [10, 0, 10, 0],
-            filename: "BalanceSheet-"+th.state.month+"-"+th.state.year+".pdf",
+            filename: title + ".pdf",
             pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
             html2canvas: {scale: 3},
             jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
@@ -224,7 +240,7 @@ class BalanceSheet extends React.Component {
             console.log(this.state)
             var content, pdf, print_button, month_select, sd_period
             content = <BalanceSheetList items={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode}/>
-            pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year}/>
+            pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode}/>
             print_button = <button type="button" 
                 className={this.state.print_loading
                     ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2"
@@ -827,6 +843,21 @@ class PDF extends React.Component{
         var invoice = {letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18}
         var invoice2 = {letterSpacing: 0}
         var thead = {background: '#d9d9d9', fontSize: 11}
+        var subtitle = ''
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters != undefined) {
+            if (filters.accounting_date != undefined && this.props.mode != undefined) {
+                tanggal = ''
+                if (this.props.mode == 'monthly') {
+                    subtitle = 'Monthly ' + moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                } else if (this.props.mode == 'annual') {
+                    subtitle = 'Annual ' + moment(filters.accounting_date).format('YYYY')
+                } else if (this.props.mode == 'period') {
+                    subtitle = 'Periode ' + moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                }
+            }
+        }
         
         function addRow(data, initial_padding=0, padding_increment=0){
             var next_padding = initial_padding+padding_increment
@@ -910,7 +941,7 @@ class PDF extends React.Component{
                             </div>
                             <div className="col-4 px-0">
                                 <p className="fwbold text-right text-uppercase fs28" style={invoice}>Balance Sheet</p>
-                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.month+"/"+this.props.year}</p>
+                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{subtitle}</p>
                             </div>
                             <div className="col-12" style={borderStyle}/>
                         </div>
