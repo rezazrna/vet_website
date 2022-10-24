@@ -20,6 +20,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 	je_filters = {}
 	filter_json = False
 	limit_date = False
+	accounting_date = False
 	min_trans_date = False
 	max_trans_date = False
 	search_mode = False
@@ -77,6 +78,8 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 		coa_list = frappe.get_list("VetCoa", filters=td_filters, fields=["*"], order_by='account_code asc')
 
 		journal_entry_names = []
+		print('limit date')
+		print(limit_date)
 		if limit_date:
 			je_filters.update({'date': ['<=', limit_date]})
 
@@ -113,7 +116,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 					c['children'] = get_coa_children(c.name, max_trans_date, min_trans_date, dc_mode, True, mode)
 			else:
 				for c in coa_list:
-					c['children'] = get_coa_children(c.name, limit_date, min_trans_date, dc_mode, True, mode)
+					c['children'] = get_coa_children(c.name, accounting_date, min_trans_date, dc_mode, True, mode)
 		
 		return coa_list
 		
@@ -153,6 +156,9 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 	if mode == 'monthly' or mode == 'period':
 		limit_date_dt = dt.strptime(max_date, '%Y-%m-%d') - rd(days=1)
 		limit_date = limit_date_dt.strftime('%Y-%m-%d')
+	elif mode == 'annual':
+		limit_date_dt = dt.strptime(max_date, '%Y-%m-%d')
+		limit_date = limit_date_dt.strftime('%Y-%m-%d')
 
 	if mode == 'monthly':
 		min_date = (limit_date_dt).strftime('%Y-%m-01')
@@ -166,6 +172,11 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 		if len(journal_entry_search):
 			journal_entry_names = list(j.name for j in journal_entry_search)
 
+	print('journal entry names')
+	print(len(journal_entry_names))
+	print(mode)
+	print(limit_date)
+
 	journal_items = []
 	if journal_entry_names:
 		journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account', 'parent'])
@@ -177,6 +188,8 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 		journal_items.sort(key=lambda x: x.date, reverse=True)
 		
 	if not dc_mode:
+		print('journal items')
+		print(len(journal_items))
 		for c in children:
 			c['total'] = get_coa_last_total(c.name, journal_items=journal_items)
 	else:

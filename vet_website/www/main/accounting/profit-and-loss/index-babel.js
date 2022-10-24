@@ -647,7 +647,7 @@ class ProfitAndLossListRow extends React.Component {
             if (this.state.children.length != 0) {
                 var cl = this
                 this.state.children.forEach(function(value, index){
-                    if (value.total > 0){
+                    if (value.total != 0){
                         children_row.push(
                             <ProfitAndLossListRow key={value.account_name} item={value} accounting_date={cl.props.accounting_date} mode={cl.props.mode}/>
                         )

@@ -515,7 +515,7 @@ class BalanceSheetListRow extends React.Component {
                 this.state.children.forEach(function(value, index){
                     if (value.total != 0){
                         children_row.push(
-                            <BalanceSheetListRow key={value.account_name} item={value} month={cl.props.month} year={cl.props.year} mode={cl.props.mode}/>
+                            <BalanceSheetListRow key={value.account_name} item={value} month={cl.props.month} year={cl.props.year} mode={cl.props.mode} accounting_date={cl.props.accounting_date}/>
                         )
                     }
                 })
