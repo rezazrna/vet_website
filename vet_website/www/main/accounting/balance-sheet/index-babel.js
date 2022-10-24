@@ -130,11 +130,13 @@ class BalanceSheet extends React.Component {
         console.log(this.state.year)
         console.log(this.state.accounting_date)
         if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
+            var filters = {accounting_date: this.state.accounting_date}
+            sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             td.setState({'loaded': false})
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                args: {filters: {accounting_date: td.state.accounting_date}, mode: td.state.mode, is_balance_sheet: 1},
+                args: {filters: filters, mode: td.state.mode, is_balance_sheet: 1},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message)
@@ -150,9 +152,7 @@ class BalanceSheet extends React.Component {
     getPrintData(){
         if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
             var th = this
-            var filters = {
-                accounting_date: this.state.accounting_date,
-            }
+            var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
             console.log(filters)
             if(!this.state.print_loading){
                 this.setState({print_loading: true})
