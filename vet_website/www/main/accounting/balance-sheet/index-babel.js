@@ -151,8 +151,7 @@ class BalanceSheet extends React.Component {
         if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
             var th = this
             var filters = {
-                accounting_date: moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD'),
-                mode: this.state.mode
+                accounting_date: this.state.accounting_date,
             }
             console.log(filters)
             if(!this.state.print_loading){
@@ -160,7 +159,7 @@ class BalanceSheet extends React.Component {
                 frappe.call({
                     type: "GET",
                     method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                    args: {filters: filters, all_children: true, is_balance_sheet: 1},
+                    args: {filters: filters, all_children: true, is_balance_sheet: 1, mode: th.state.mode,},
                     callback: function(r){
                         if (r.message) {
                             console.log(r.message)
