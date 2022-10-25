@@ -156,7 +156,7 @@ class Coa extends React.Component {
     // }
     
     printPDF() {
-        var title = this.state.dc_mode ? 'TrialBalance-' : 'ChartOfAccount'
+        var title = this.state.dc_mode ? 'TrialBalance-' : 'ChartOfAccounts'
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         if (filters != undefined && filters.accounting_date != undefined && this.state.mode != undefined) {
@@ -975,7 +975,7 @@ class PDF extends React.Component{
                                 <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
                             </div>
                             <div className="col-4 px-0">
-                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Trial Balance</p>
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>{tbl != undefined ? 'Trial Balance' : 'Chart Of Accounts'}</p>
                                 <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{subtitle}</p>
                             </div>
                             <div className="col-12" style={borderStyle}/>
