@@ -514,7 +514,7 @@ def get_coa_total_debit_credit_children(name, journal_items=False):
 		elif coa.account_type in ['Equity','Income','Liability']:
 			total_credit = total_credit + journal_item.total
 	
-	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields="name", order_by="account_code asc")
+	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields=['*'], order_by="account_code asc")
 	if len(children) != 0:
 		for c in children:
 			tdc = get_coa_total_debit_credit_children(c.name, journal_items=journal_items)
