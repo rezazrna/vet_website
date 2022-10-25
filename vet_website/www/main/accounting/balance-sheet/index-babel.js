@@ -149,30 +149,30 @@ class BalanceSheet extends React.Component {
         }
     }
     
-    getPrintData(){
-        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
-            var th = this
-            var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
-            console.log(filters)
-            if(!this.state.print_loading){
-                this.setState({print_loading: true})
-                frappe.call({
-                    type: "GET",
-                    method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                    args: {filters: filters, all_children: true, is_balance_sheet: 1, mode: th.state.mode,},
-                    callback: function(r){
-                        if (r.message) {
-                            console.log(r.message)
-                            th.setState({data: r.message, loaded: true});
-                            th.printPDF()
-                        }
-                    }
-                });
-            }
-        } else {
-            frappe.msgprint(('Month or Year must be selected'));
-        }
-    }
+    // getPrintData(){
+    //     if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
+    //         var th = this
+    //         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+    //         console.log(filters)
+    //         if(!this.state.print_loading){
+    //             this.setState({print_loading: true})
+    //             frappe.call({
+    //                 type: "GET",
+    //                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
+    //                 args: {filters: filters, all_children: true, is_balance_sheet: 1, mode: th.state.mode,},
+    //                 callback: function(r){
+    //                     if (r.message) {
+    //                         console.log(r.message)
+    //                         th.setState({data: r.message, loaded: true});
+    //                         th.printPDF()
+    //                     }
+    //                 }
+    //             });
+    //         }
+    //     } else {
+    //         frappe.msgprint(('Month or Year must be selected'));
+    //     }
+    // }
     
     printPDF() {
         var title = 'BalanceSheet-';
@@ -243,7 +243,7 @@ class BalanceSheet extends React.Component {
                 className={this.state.print_loading
                     ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2"
                     : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} 
-                onClick={() => this.getPrintData()}>{this.state.print_loading
+                onClick={() => this.printPDF()}>{this.state.print_loading
                     ?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                     :"Print"}</button>
             

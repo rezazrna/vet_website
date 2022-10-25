@@ -131,11 +131,13 @@ class ProfitAndLoss extends React.Component {
         console.log(this.state.year)
         console.log(this.state.accounting_date)
         if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
+            var filters = {accounting_date: this.state.accounting_date}
+            sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             td.setState({'loaded': false})
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                args: {filters: {accounting_date: td.state.accounting_date}, mode: td.state.mode, is_profit_loss: 1},
+                args: {filters: filters, mode: td.state.mode, is_profit_loss: 1},
                 callback: function(r){
                     if (r.message) {
                         console.log(r.message)
@@ -148,39 +150,52 @@ class ProfitAndLoss extends React.Component {
         }
     }
     
-    getPrintData(){
-        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
-            var th = this
-            var filters = {
-                accounting_date: this.state.accounting_date
-                // moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
-            }
-            if(!this.state.print_loading){
-                this.setState({print_loading: true})
-                console.log(filters)
-                console.log(this.state.mode)
-                frappe.call({
-                    type: "GET",
-                    method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                    args: {filters: filters, mode: this.state.mode, all_children: true, is_profit_loss: 1},
-                    callback: function(r){
-                        if (r.message) {
-                            console.log(r.message)
-                            th.setState({data: r.message, loaded: true});
-                            th.printPDF()
-                        }
-                    }
-                });
-            }
-        } else {
-            frappe.msgprint(('Month or Year must be selected'));
-        }
-    }
+    // getPrintData(){
+    //     if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
+    //         var th = this
+    //         var filters = {
+    //             accounting_date: this.state.accounting_date
+    //             // moment(this.state.year+'-'+this.state.month, 'YYYY-MM').add(1,'month').format('YYYY-MM-DD')
+    //         }
+    //         if(!this.state.print_loading){
+    //             this.setState({print_loading: true})
+    //             console.log(filters)
+    //             console.log(this.state.mode)
+    //             frappe.call({
+    //                 type: "GET",
+    //                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
+    //                 args: {filters: filters, mode: this.state.mode, all_children: true, is_profit_loss: 1},
+    //                 callback: function(r){
+    //                     if (r.message) {
+    //                         console.log(r.message)
+    //                         th.setState({data: r.message, loaded: true});
+    //                         th.printPDF()
+    //                     }
+    //                 }
+    //             });
+    //         }
+    //     } else {
+    //         frappe.msgprint(('Month or Year must be selected'));
+    //     }
+    // }
     
     printPDF() {
+        var title = 'ProfitLoss-';
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters.accounting_date != undefined && this.state.mode != undefined) {
+            if (this.state.mode == 'monthly') {
+                title += 'Monthly-' + moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+            } else if (this.state.mode == 'annual') {
+                title += 'Annual-' + moment(filters.accounting_date).format('YYYY')
+            } else if (this.state.mode == 'period') {
+                title += 'Periode-' + moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+            }
+        }
+
         var pdfid = 'pdf'
-        var format = [559,794]
-        var th = this
+        // var format = [559,794]
+        // var th = this
         // var doc = new jsPDF({
         //     orientation: 'p',
         //     unit: 'pt',
@@ -189,7 +204,7 @@ class ProfitAndLoss extends React.Component {
         var source = document.getElementById(pdfid)
         var opt = {
             margin: [10, 0, 10, 0],
-            filename: "ProfitAndLoss-"+th.state.month+"-"+th.state.year+".pdf",
+            filename: title + ".pdf",
             pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
             html2canvas: {scale: 3},
             jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
@@ -228,8 +243,14 @@ class ProfitAndLoss extends React.Component {
             console.log(this.state)
             var content, pdf, print_button, month_select, sd_period
             content = <ProfitAndLossList items={this.state.data} accounting_date={this.state.accounting_date} mode={this.state.mode}/>
-            pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year}/>
-            print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
+            pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode}/>
+            print_button = <button type="button" 
+                className={this.state.print_loading
+                    ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2"
+                    : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"}
+                onClick={() => this.printPDF()}>{this.state.print_loading
+                    ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                    : "Print"}</button>
 
 
             if(this.state.mode == 'monthly' || this.state.mode == 'period'){
@@ -603,8 +624,9 @@ class ProfitAndLossListRow extends React.Component {
         super(props)
         this.state = {
             'show': false,
-            'loaded': false,
+            'loaded': this.props.item.children.length > 0,
             'onLoading': false,
+            'children': this.props.item.children,
         }
         
         this.toggleShow = this.toggleShow.bind(this)
@@ -1054,6 +1076,20 @@ class PDF extends React.Component{
         var invoice = {letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18}
         var invoice2 = {letterSpacing: 0}
         var thead = {background: '#d9d9d9', fontSize: 11}
+        var subtitle = ''
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters != undefined) {
+            if (filters.accounting_date != undefined && this.props.mode != undefined) {
+                if (this.props.mode == 'monthly') {
+                    subtitle = 'Monthly ' + moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                } else if (this.props.mode == 'annual') {
+                    subtitle = 'Annual ' + moment(filters.accounting_date).format('YYYY')
+                } else if (this.props.mode == 'period') {
+                    subtitle = 'Periode ' + moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                }
+            }
+        }
         
         function addRow(data, initial_padding=0, padding_increment=0){
             var next_padding = initial_padding+padding_increment
@@ -1189,7 +1225,7 @@ class PDF extends React.Component{
                             </div>
                             <div className="col-4 px-0">
                                 <p className="fwbold text-right text-uppercase fs28" style={invoice}>Profit & Loss</p>
-                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.month+"/"+this.props.year}</p>
+                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{subtitle}</p>
                             </div>
                             <div className="col-12" style={borderStyle}/>
                         </div>

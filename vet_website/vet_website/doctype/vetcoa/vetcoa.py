@@ -99,7 +99,6 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 
 		if not dc_mode:
 			for c in coa_list:
-				# c['total'] = get_coa_last_total(c.name, journal_items=journal_items)
 				total_children = get_coa_last_total_children(c.name, journal_items=journal_items)
 				c['total'] = total_children['total']
 				c['children'] = total_children['children']
@@ -194,7 +193,6 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 		print('journal items')
 		print(len(journal_items))
 		for c in children:
-			# c['total'] = get_coa_last_total(c.name, journal_items=journal_items)
 			total_children = get_coa_last_total_children(c.name, journal_items=journal_items)
 			c['total'] = total_children['total']
 			c['children'] = total_children['children']
