@@ -156,9 +156,21 @@ class Coa extends React.Component {
     // }
     
     printPDF() {
+        var title = this.state.dc_mode ? 'TrialBalance-' : 'ChartOfAccount'
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters != undefined && filters.accounting_date != undefined && this.state.mode != undefined) {
+            if (this.state.mode == 'monthly') {
+                var bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                console.log(bulan)
+                title += 'Monthly-' + bulan
+            } else if (this.state.mode == 'period') {
+                var sampai_bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                title += 'Periode-' + moment(filters.accounting_min_date).format('MM-YYYY') + '-' + sampai_bulan
+            }
+        }
+
         var pdfid = 'pdf'
-        var format = [559,794]
-        var th = this
         // var doc = new jsPDF({
         //     orientation: 'p',
         //     unit: 'pt',
@@ -167,7 +179,7 @@ class Coa extends React.Component {
         var source = document.getElementById(pdfid)
         var opt = {
             margin: [10, 0, 10, 0],
-            filename: "TrialBalance-"+th.state.month+"-"+th.state.year+".pdf",
+            filename: title + ".pdf",
             pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
             html2canvas: {scale: 3},
             jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
@@ -195,6 +207,7 @@ class Coa extends React.Component {
         if (all) { args.all_children = true }
         if (this.state.mode) {args.mode = this.state.mode}
         console.log(args)
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
         frappe.call({
             type: "GET",
@@ -881,6 +894,18 @@ class PDF extends React.Component{
         var invoice = {letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18}
         var invoice2 = {letterSpacing: 0}
         var thead = {background: '#d9d9d9', fontSize: 11}
+        var subtitle = ''
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters != undefined && filters.accounting_date != undefined && this.props.mode != undefined) {
+            if (this.props.mode == 'monthly') {
+                var bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                subtitle = 'Monthly ' + bulan
+            } else if (this.props.mode == 'period') {
+                var sampai_bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                subtitle = 'Periode ' + moment(filters.accounting_min_date).format('MM-YYYY') + '-' + sampai_bulan
+            } 
+        }
         
         function addRow(data, initial_padding=0, padding_increment=0, dc_mode=false){
             var next_padding = initial_padding+padding_increment
@@ -951,7 +976,7 @@ class PDF extends React.Component{
                             </div>
                             <div className="col-4 px-0">
                                 <p className="fwbold text-right text-uppercase fs28" style={invoice}>Trial Balance</p>
-                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.month+"/"+this.props.year}</p>
+                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{subtitle}</p>
                             </div>
                             <div className="col-12" style={borderStyle}/>
                         </div>
