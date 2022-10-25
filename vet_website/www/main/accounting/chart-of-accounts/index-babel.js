@@ -129,31 +129,31 @@ class Coa extends React.Component {
         }
     }
     
-    getPrintData(){
-        var th = this
-        var filters = {
-            accounting_date: this.state.accounting_date,
-            accounting_min_date: this.state.accounting_min_date,
-        }
-        if(this.state.dc_mode){
-            filters.dc_mode = 1
-        }
-        if(!this.state.print_loading){
-            this.setState({print_loading: true})
-            frappe.call({
-                type: "GET",
-                method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
-                args: {filters: filters, all_children: true, mode: th.state.mode,},
-                callback: function(r){
-                    if (r.message) {
-                        console.log(r.message)
-                        th.setState({data: r.message, loaded: true});
-                        th.printPDF()
-                    }
-                }
-            });
-        }
-    }
+    // getPrintData(){
+    //     var th = this
+    //     var filters = {
+    //         accounting_date: this.state.accounting_date,
+    //         accounting_min_date: this.state.accounting_min_date,
+    //     }
+    //     if(this.state.dc_mode){
+    //         filters.dc_mode = 1
+    //     }
+    //     if(!this.state.print_loading){
+    //         this.setState({print_loading: true})
+    //         frappe.call({
+    //             type: "GET",
+    //             method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
+    //             args: {filters: filters, all_children: true, mode: th.state.mode,},
+    //             callback: function(r){
+    //                 if (r.message) {
+    //                     console.log(r.message)
+    //                     th.setState({data: r.message, loaded: true});
+    //                     th.printPDF()
+    //                 }
+    //             }
+    //         });
+    //     }
+    // }
     
     printPDF() {
         var pdfid = 'pdf'
@@ -272,7 +272,7 @@ class Coa extends React.Component {
                     edit_button = <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={this.toggleEdit}>{write?"Edit":"Detail"}</button>
                 }
                 
-                print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
+                print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.printPDF()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
         		pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year}/>
             }
             else{
@@ -290,7 +290,7 @@ class Coa extends React.Component {
                     year_options.push(<option key={e}>{e}</option>)
                 })
         		
-        		print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
+        		print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.printPDF()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
         		pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year} dc_mode={true}/>
 
                 if (this.state.mode == 'monthly' || this.state.mode == 'period') {
@@ -655,7 +655,8 @@ class CoaListRow extends React.Component {
         super(props)
         this.state = {
             'show': false,
-            'loaded': false
+            'loaded': this.props.item.children.length > 0,
+            'children': this.props.item.children,
         }
         
         this.toggleShow = this.toggleShow.bind(this)

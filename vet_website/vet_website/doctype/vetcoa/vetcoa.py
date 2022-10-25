@@ -105,12 +105,14 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 		else:
 			for c in coa_list:
 				if journal_items:
-					tdc = get_coa_total_debit_credit(c.name, journal_items=journal_items)
+					tdc = get_coa_total_debit_credit_children(c.name, journal_items=journal_items)
 					c['total_debit'] = tdc.get('total_debit', 0)
 					c['total_credit'] = tdc.get('total_credit', 0)
+					c['children'] = tdc.get('children', [])
 				else:
 					c['total_debit'] = 0
 					c['total_credit'] = 0
+					c['children'] = []
 
 		if all_children:
 			if max_trans_date:
@@ -199,12 +201,14 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 	else:
 		for c in children:
 			if journal_items:
-				tdc = get_coa_total_debit_credit(c.name, journal_items=journal_items)
+				tdc = get_coa_total_debit_credit_children(c.name, journal_items=journal_items)
 				c['total_debit'] = tdc.get('total_debit', 0)
 				c['total_credit'] = tdc.get('total_credit', 0)
+				c['chldren'] = tdc.get('children', [])
 			else:
 				c['total_debit'] = 0
 				c['total_credit'] = 0
+				c['children'] = []
 	
 	if all_children:
 		for c in children:
@@ -484,6 +488,46 @@ def get_coa_total_debit_credit(name, journal_items=False):
 	return {
 		'total_debit': total_debit,
 		'total_credit': total_credit
+	}
+
+def get_coa_total_debit_credit_children(name, journal_items=False):
+	
+	total_debit = 0
+	total_credit = 0
+	
+	coa = frappe.get_doc('VetCoa', name)
+	
+	journal_item = False
+	
+	if journal_items:
+		journal_item = next(filter(lambda item: item.account == name and ((('4-' in name or '5-' in name or '6-' in name or '7-' in name or '8-' in name) and item.journal != 'CLS') or ('1-' in name or '2-' in name or '3-' in name)), journal_items), None)
+
+	if journal_item:
+		if coa.account_type in ['Asset','Expense']:
+			if '1-' in coa.account_code:
+				if journal_item.total < 0:
+					total_credit = total_credit + (-journal_item.total)
+				else:
+					total_debit = total_debit + journal_item.total
+			else:
+				total_debit = total_debit + journal_item.total
+		elif coa.account_type in ['Equity','Income','Liability']:
+			total_credit = total_credit + journal_item.total
+	
+	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields="name", order_by="account_code asc")
+	if len(children) != 0:
+		for c in children:
+			tdc = get_coa_total_debit_credit_children(c.name, journal_items=journal_items)
+			c['total_debit'] = tdc.get('total_debit', 0)
+			c['total_credit'] = tdc.get('total_credit', 0)
+			c['children'] = tdc.get('children', [])
+			total_debit = total_debit + c['total_debit']
+			total_credit = total_credit + c['total_credit']
+			
+	return {
+		'total_debit': total_debit,
+		'total_credit': total_credit,
+		'children': children,
 	}
 	
 	
