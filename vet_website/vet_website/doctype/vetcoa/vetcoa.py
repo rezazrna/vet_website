@@ -399,7 +399,7 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False):
 	ji_list = []
 	journal_item = False
 
-	if journal_items:
+	if journal_items and len(journal_items) > 0:
 		ji_list = journal_items
 		journal_item = next(filter(lambda item: item.account == coa_name and ((('4-' in coa_name or '5-' in coa_name or '6-' in coa_name or '7-' in coa_name or '8-' in coa_name) and item.journal != 'CLS') or ('1-' in coa_name or '2-' in coa_name or '3-' in coa_name)), journal_items), None)
 	else:
@@ -421,8 +421,8 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False):
 				filters.update({'parent': ['in', journal_entry_names]})
 
 		
-		if 'parent' in filters:
-			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by='creation desc')
+		# if 'parent' in filters:
+		ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by='creation desc')
 		for ji in ji_list:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 			ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
