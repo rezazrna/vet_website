@@ -99,7 +99,10 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 
 		if not dc_mode:
 			for c in coa_list:
-				c['total'] = get_coa_last_total(c.name, journal_items=journal_items)
+				# c['total'] = get_coa_last_total(c.name, journal_items=journal_items)
+				total_children = get_coa_last_total_children(c.name, journal_items=journal_items)
+				c['total'] = total_children['total']
+				c['children'] = total_children['children']
 		else:
 			for c in coa_list:
 				if journal_items:
@@ -114,9 +117,9 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 			if max_trans_date:
 				for c in coa_list:
 					c['children'] = get_coa_children(c.name, max_trans_date, min_trans_date, dc_mode, True, mode)
-			else:
-				for c in coa_list:
-					c['children'] = get_coa_children(c.name, accounting_date, min_trans_date, dc_mode, True, mode)
+			# else:
+			# 	for c in coa_list:
+			# 		c['children'] = get_coa_children(c.name, accounting_date, min_trans_date, dc_mode, True, mode)
 		
 		return coa_list
 		
@@ -191,7 +194,10 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 		print('journal items')
 		print(len(journal_items))
 		for c in children:
-			c['total'] = get_coa_last_total(c.name, journal_items=journal_items)
+			# c['total'] = get_coa_last_total(c.name, journal_items=journal_items)
+			total_children = get_coa_last_total_children(c.name, journal_items=journal_items)
+			c['total'] = total_children['total']
+			c['children'] = total_children['children']
 	else:
 		for c in children:
 			if journal_items:
@@ -380,6 +386,71 @@ def get_coa_last_total(coa_name, max_date=False, journal_items=False):
 		total = total + sum(get_coa_last_total(c.name, max_date=max_date, journal_items=journal_items) for c in children)
 		
 	return total
+
+def get_coa_last_total_children(coa_name, max_date=False, journal_items=False):
+	
+	total = 0
+	coa = frappe.get_doc('VetCoa', coa_name)
+	
+	filters = {'account': coa.name}
+	je_filters = {}
+	ji_list = []
+	journal_item = False
+
+	if journal_items:
+		ji_list = journal_items
+		journal_item = next(filter(lambda item: item.account == coa_name and ((('4-' in coa_name or '5-' in coa_name or '6-' in coa_name or '7-' in coa_name or '8-' in coa_name) and item.journal != 'CLS') or ('1-' in coa_name or '2-' in coa_name or '3-' in coa_name)), journal_items), None)
+	else:
+		if max_date:
+			max_date_dt = dt.strptime(max_date, '%Y-%m-%d') - rd(days=1)
+
+			if max_date_dt.day != 1:
+				min_date = max_date_dt.strftime('%Y-%m-01')
+			else:
+				min_date = (max_date_dt-rd(months=1)).strftime('%Y-%m-01')
+
+			je_filters.update({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+				
+		if je_filters:
+			journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
+
+			if len(journal_entry_search):
+				journal_entry_names = list(j.name for j in journal_entry_search)
+				filters.update({'parent': ['in', journal_entry_names]})
+
+		
+		if 'parent' in filters:
+			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by='creation desc')
+		for ji in ji_list:
+			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+			ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
+		
+		ji_list.sort(key=lambda x: x.date, reverse=True)
+		if len(ji_list) > 0:
+			journal_item = ji_list[0]
+
+
+	# if len(ji_list) != 0:
+	# 	if coa.account_type in ['Asset','Expense']:
+	# 		for ji in ji_list:
+	# 			if (('4-' in coa.name or '5-' in coa.name or '6-' in coa.name or '7-' in coa.name or '8-' in coa.name) and ji.journal != 'CLS') or ('1-' in coa.name or '2-' in coa.name or '3-' in coa.name):
+	# 				total += ji.debit - ji.credit
+	# 	elif coa.account_type in ['Equity','Income','Liability']:
+	# 		for ji in ji_list:
+	# 			if (('4-' in coa.name or '5-' in coa.name or '6-' in coa.name or '7-' in coa.name or '8-' in coa.name) and ji.journal != 'CLS') or ('1-' in coa.name or '2-' in coa.name or '3-' in coa.name):
+	# 				total += ji.credit - ji.debit
+
+	if journal_item:
+		total = total + journal_item.total
+		
+	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields=["*"], order_by="account_code asc")
+	for c in children:
+		total_children = get_coa_last_total_children(c.name, max_date=max_date, journal_items=journal_items)
+		c['total'] = total_children['total']
+		c['children'] = total_children['children']
+		total = total + c['total']
+		
+	return {'total': total, 'children': children}
 	
 def get_coa_total_debit_credit(name, journal_items=False):
 	

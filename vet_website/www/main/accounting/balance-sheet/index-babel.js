@@ -472,8 +472,9 @@ class BalanceSheetListRow extends React.Component {
         super(props)
         this.state = {
             'show': false,
-            'loaded': false,
+            'loaded': this.props.item.children.length > 0,
             'onLoading': false,
+            'children': this.props.item.children,
         }
         
         this.toggleShow = this.toggleShow.bind(this)
