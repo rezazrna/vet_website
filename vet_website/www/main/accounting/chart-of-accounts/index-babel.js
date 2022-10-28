@@ -286,7 +286,7 @@ class Coa extends React.Component {
                 }
                 
                 print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.printPDF()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
-        		pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year}/>
+        		pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode}/>
             }
             else{
                 var i
@@ -304,7 +304,7 @@ class Coa extends React.Component {
                 })
         		
         		print_button = <button type="button" className={this.state.print_loading?"btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2":"btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.printPDF()}>{this.state.print_loading?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>):"Print"}</button>
-        		pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year} dc_mode={true}/>
+        		pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year} dc_mode={true} mode={this.state.mode}/>
 
                 if (this.state.mode == 'monthly' || this.state.mode == 'period') {
 
@@ -911,15 +911,19 @@ class PDF extends React.Component{
             var next_padding = initial_padding+padding_increment
             var style = {paddingLeft: initial_padding}
             var table_rows = []
+            var total_debit = 0
+            var total_credit = 0
             data.forEach((d, index) => {
                 if(dc_mode){
                     table_rows.push(
                         <tr key={d.name} style={fs9}>
                             <td className="py-1" style={style}>{d.account_code+" "+d.account_name}</td>
                             <td className="py-1" >{formatter.format(d.total_debit)}</td>
-                            <td className="py-1" >{formatter.format(d.total_debit)}</td>
+                            <td className="py-1" >{formatter.format(d.total_credit)}</td>
                         </tr>
                     )
+                    total_debit += d.total_debit
+                    total_credit == d.total_credit
                 } else {
                     table_rows.push(
                         <tr key={d.name} style={fs9}>
@@ -933,6 +937,16 @@ class PDF extends React.Component{
                     table_rows = [...table_rows, ...d_children]
                 }
             })
+
+            if (dc_mode) {
+                table_rows.push(
+                    <tr key={d.name} style={fs9}>
+                        <td className="py-1" style={style}>Total</td>
+                        <td className="py-1" >{formatter.format(total_debit)}</td>
+                        <td className="py-1" >{formatter.format(total_credit)}</td>
+                    </tr>
+                )
+            }
             return table_rows
         }
         
