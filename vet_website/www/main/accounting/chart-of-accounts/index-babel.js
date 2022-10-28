@@ -923,7 +923,7 @@ class PDF extends React.Component{
                         </tr>
                     )
                     total_debit += d.total_debit
-                    total_credit == d.total_credit
+                    total_credit += d.total_credit
                 } else {
                     table_rows.push(
                         <tr key={d.name} style={fs9}>
@@ -938,7 +938,7 @@ class PDF extends React.Component{
                 }
             })
 
-            if (dc_mode) {
+            if (dc_mode && initial_padding == 5) {
                 table_rows.push(
                     <tr key='999999999' style={fs9}>
                         <td className="py-1" style={style}>Total</td>
