@@ -940,7 +940,7 @@ class PDF extends React.Component{
 
             if (dc_mode) {
                 table_rows.push(
-                    <tr key={d.name} style={fs9}>
+                    <tr key='999999999' style={fs9}>
                         <td className="py-1" style={style}>Total</td>
                         <td className="py-1" >{formatter.format(total_debit)}</td>
                         <td className="py-1" >{formatter.format(total_credit)}</td>
