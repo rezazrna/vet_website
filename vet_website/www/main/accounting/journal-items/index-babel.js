@@ -402,11 +402,7 @@ class JournalItems extends React.Component {
                         console.log(r.message);
                         po.setState({print_data: r.message.journal_items, saldo_awal: r.message.saldo_awal});
                         setTimeout(function() {
-                            if (is_excel) {
-                                po.printExcel()
-                            } else {
-                                po.printPDF()
-                            }
+                            po.print(is_excel)
                         }, 3000);
                         
                     }
@@ -415,7 +411,7 @@ class JournalItems extends React.Component {
         }
     }
 
-    async printPDF() {
+    async print(is_excel=false) {
         var title = gl != undefined ? 'GeneralLedger-' : 'JournalItem-'
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
@@ -465,118 +461,118 @@ class JournalItems extends React.Component {
             title += 'Tanggal-' + tanggal
         }
 
-        // var pdfid = 'pdf-1'
-        // var source = document.getElementById(pdfid)
-        var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
-        var opt = {
-            margin: [10, 0, 10, 0],
-            filename: title + ".pdf",
-            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-            html2canvas: { scale: 3 },
-            jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
-        }
+        if (is_excel) {
+            var elt = document.getElementById('excel_page');
+            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+            var sheet = wb.Sheets[wb.SheetNames[0]];
 
-        console.log(elements)
+            const format = '#,##0.00'
+            for (let col of [5, 6, 7]) {
+                this.formatColumn(sheet, col, format)
+            }
 
-        // const doc = new jsPDF(opt.jsPDF);
-        // for(let i = 0; i < elements.length; i++){
-        //     console.log('berhasil')
-        //     console.log(i)
-        //     const page = elements[i];
-        //     const pageImage = await html2pdf().from(page).set(opt).outputImg();
-        //     if(i != 0) {
-        //         doc.addPage();
-        //     }
-        //     doc.addImage(pageImage.src, 'jpeg');
-        // }
-        // doc.save().then(e => {
-        //     this.setState({print_loading: false})
-        // });
+            XLSX.writeFile(wb, title + '.xlsx');
+            this.setState({print_loading: false});
+        } else {
+            // var pdfid = 'pdf-1'
+            // var source = document.getElementById(pdfid)
+            var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
+            var opt = {
+                margin: [10, 0, 10, 0],
+                filename: title + ".pdf",
+                pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
+                html2canvas: { scale: 3 },
+                jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
+            }
 
-        var worker = html2pdf()
-            .set(opt)
-            .from(elements[0])
+            console.log(elements)
 
-        if (elements.length > 1) {
-            worker = worker.toPdf()
+            // const doc = new jsPDF(opt.jsPDF);
+            // for(let i = 0; i < elements.length; i++){
+            //     console.log('berhasil')
+            //     console.log(i)
+            //     const page = elements[i];
+            //     const pageImage = await html2pdf().from(page).set(opt).outputImg();
+            //     if(i != 0) {
+            //         doc.addPage();
+            //     }
+            //     doc.addImage(pageImage.src, 'jpeg');
+            // }
+            // doc.save().then(e => {
+            //     this.setState({print_loading: false})
+            // });
 
-            elements.slice(1).forEach((element, index) => {
-            worker = worker
-                .get('pdf')
-                .then(pdf => {
-                    console.log('masuk pak eko')
-                    console.log(index)
-                    pdf.addPage()
-                })
+            var worker = html2pdf()
                 .set(opt)
-                .from(element)
-                // .toContainer()
-                .toCanvas()
-                .toPdf()
+                .from(elements[0])
+
+            if (elements.length > 1) {
+                worker = worker.toPdf()
+
+                elements.slice(1).forEach((element, index) => {
+                worker = worker
+                    .get('pdf')
+                    .then(pdf => {
+                        console.log('masuk pak eko')
+                        console.log(index)
+                        pdf.addPage()
+                    })
+                    .set(opt)
+                    .from(element)
+                    // .toContainer()
+                    .toCanvas()
+                    .toPdf()
+                })
+            }
+
+            worker = worker.save().then(e => {
+                this.setState({print_loading: false})
             })
+
+            // html2pdf().set(opt).from(source).save()
+
+            // var source = document.getElementById('pdf-1')
+            // var format = [559, 794]
+            // var th = this
+            // var doc = new jsPDF({
+            //     orientation: 'p',
+            //     unit: 'pt',
+            //     format: format,
+            // });
+
+            // doc.html(source, {
+            //   callback: function (doc) {
+            //      doc.save(title + ".pdf")
+            //      th.setState({print_loading: false})
+            //   },
+            //   x: 0,
+            //   y: 0,
+            //   html2canvas: {
+            //       scale: 1,
+            //   }
+            // });
+
+            // html2canvas(source).then(canvas => {
+            //     const imgData = canvas.toDataURL('image/png');
+            //     const imgWidth = 190;
+            //     const pageHeight = 290;
+            //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            //     let heightLeft = imgHeight;
+            //     const doc = new jsPDF('pt', 'mm');
+            //     let position = 0;
+            //     doc.addImage(imgData, 'PNG', 10, 0, imgWidth, imgHeight + 25);
+            //     heightLeft -= pageHeight;
+            //     while (heightLeft >= 0) {
+            //         position = heightLeft - imgHeight;
+            //         doc.addPage();
+            //         doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight + 25);
+            //         heightLeft -= pageHeight;
+            //     }
+            //     doc.save(title + ".pdf");
+            //     th.setState({print_loading: false})
+            // });
         }
-
-        worker = worker.save().then(e => {
-            this.setState({print_loading: false})
-        })
-
-        // html2pdf().set(opt).from(source).save()
-
-        // var source = document.getElementById('pdf-1')
-        // var format = [559, 794]
-        // var th = this
-        // var doc = new jsPDF({
-        //     orientation: 'p',
-        //     unit: 'pt',
-        //     format: format,
-        // });
-
-        // doc.html(source, {
-        //   callback: function (doc) {
-        //      doc.save(title + ".pdf")
-        //      th.setState({print_loading: false})
-        //   },
-        //   x: 0,
-        //   y: 0,
-        //   html2canvas: {
-        //       scale: 1,
-        //   }
-        // });
-
-        // html2canvas(source).then(canvas => {
-        //     const imgData = canvas.toDataURL('image/png');
-        //     const imgWidth = 190;
-        //     const pageHeight = 290;
-        //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        //     let heightLeft = imgHeight;
-        //     const doc = new jsPDF('pt', 'mm');
-        //     let position = 0;
-        //     doc.addImage(imgData, 'PNG', 10, 0, imgWidth, imgHeight + 25);
-        //     heightLeft -= pageHeight;
-        //     while (heightLeft >= 0) {
-        //         position = heightLeft - imgHeight;
-        //         doc.addPage();
-        //         doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight + 25);
-        //         heightLeft -= pageHeight;
-        //     }
-        //     doc.save(title + ".pdf");
-        //     th.setState({print_loading: false})
-        // });
     }
-
-    printExcel() {
-        var elt = document.getElementById('tbl_exporttable_to_xls');
-        var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
-        var sheet = wb.Sheets[wb.SheetNames[0]];
-
-        const format = '#,##0.00'
-        for (let col of [5, 6, 7]) {
-            this.formatColumn(sheet, col, format)
-        }
-
-        XLSX.writeFile(wb, 'MySheetName.xlsx');
-        this.setState({print_loading: false});
-     }
 
      formatColumn(worksheet, col, fmt) {
         const range = XLSX.utils.decode_range(worksheet['!ref'])
@@ -1489,47 +1485,6 @@ class ExcelPage extends React.Component {
                     <th className="fw700 py-1" width="90px">Total</th>
                 )
             }
-
-            return (
-                <div className="position-absolute d-none" style={page_dimension}>
-                    <div id="tbl_exporttable_to_xls" className="px-4" style={page_dimension}>
-                        <div className="row">
-                            <div className="col-2 px-0">
-                                {image}
-                                {/* <img className="mt-3" src="/static/img/main/menu/naturevet_logo_2x.png"/> */}
-                            </div>
-                            <div className="col-6">
-                                <p className="my-3 fwbold text-uppercase" style={fs13}>{profile.clinic_name}</p>
-                                <p className="my-0" style={fs9}>{profile.address}</p>
-                                <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
-                            </div>
-                            <div className="col-4 px-0">
-                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>{this.props.account ? 'General Ledger' : 'Journal'}</p>
-                                {account_name}
-                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{subtitle}</p>
-                            </div>
-                            <div className="col-12" style={borderStyle} />
-                        </div>
-                        <table className="fs12" style={row2}>
-                            <thead className="text-uppercase" style={thead}>
-                                <tr className="text-center">
-                                    <th className="fw700 py-2" width="89px">Tanggal</th>
-                                    <th className="fw700 py-2" width="88px">Reference</th>
-                                    <th className="fw700 py-2" width="88px">Journal</th>
-                                    <th className="fw700 py-2" width="88px">Keterangan</th>
-                                    <th className="fw700 py-2" width="202px">Account</th>
-                                    <th className="fw700 py-2" width="90px">Debit</th>
-                                    <th className="fw700 py-2" width="90px">Credit</th>
-                                    {account_col}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {table_rows}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )
 
             return (
                 <table id="tbl_exporttable_to_xls" border="1" className="position-absolute d-none fs12" style={row2}>
