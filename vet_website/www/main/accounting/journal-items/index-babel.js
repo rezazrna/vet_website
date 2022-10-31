@@ -1440,7 +1440,7 @@ class ExcelPage extends React.Component {
                     <td className="py-1" width="202px"></td>
                     <td className="py-1" width="90px"></td>
                     <td className="py-1" width="90px"></td>
-                    <td className="py-1" width="90px">{formatter2.format(this.props.saldo_awal)}</td>
+                    <td className="py-1" width="90px">{this.props.saldo_awal}</td>
                 </tr>
             )
         }
@@ -1450,7 +1450,7 @@ class ExcelPage extends React.Component {
                 var account_col
                 if (this.props.account != undefined) {
                     account_col = (
-                        <td className="py-1" width="90px">{formatter2.format(d.total || d.computed_total || 0)}</td>
+                        <td className="py-1" width="90px">{d.total || d.computed_total || 0}</td>
                     )
                 }
     
@@ -1461,8 +1461,8 @@ class ExcelPage extends React.Component {
                         <td className="py-1" width="88px">{d.parent}</td>
                         <td className="py-1" width="88px">{d.keterangan}</td>
                         <td className="py-1" width="202px">{d.account_name}</td>
-                        <td className="py-1" width="90px">{formatter2.format(d.debit)}</td>
-                        <td className="py-1" width="90px">{formatter2.format(d.credit)}</td>
+                        <td className="py-1" width="90px">{d.debit}</td>
+                        <td className="py-1" width="90px">{d.credit}</td>
                         {account_col}
                     </tr>
                 )
