@@ -1491,6 +1491,47 @@ class ExcelPage extends React.Component {
             }
 
             return (
+                <div className="position-absolute d-none" style={page_dimension}>
+                    <div id="tbl_exporttable_to_xls" className="px-4" style={page_dimension}>
+                        <div className="row">
+                            <div className="col-2 px-0">
+                                {image}
+                                {/* <img className="mt-3" src="/static/img/main/menu/naturevet_logo_2x.png"/> */}
+                            </div>
+                            <div className="col-6">
+                                <p className="my-3 fwbold text-uppercase" style={fs13}>{profile.clinic_name}</p>
+                                <p className="my-0" style={fs9}>{profile.address}</p>
+                                <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
+                            </div>
+                            <div className="col-4 px-0">
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>{this.props.account ? 'General Ledger' : 'Journal'}</p>
+                                {account_name}
+                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{subtitle}</p>
+                            </div>
+                            <div className="col-12" style={borderStyle} />
+                        </div>
+                        <table className="fs12" style={row2}>
+                            <thead className="text-uppercase" style={thead}>
+                                <tr className="text-center">
+                                    <th className="fw700 py-2" width="89px">Tanggal</th>
+                                    <th className="fw700 py-2" width="88px">Reference</th>
+                                    <th className="fw700 py-2" width="88px">Journal</th>
+                                    <th className="fw700 py-2" width="88px">Keterangan</th>
+                                    <th className="fw700 py-2" width="202px">Account</th>
+                                    <th className="fw700 py-2" width="90px">Debit</th>
+                                    <th className="fw700 py-2" width="90px">Credit</th>
+                                    {account_col}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {table_rows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )
+
+            return (
                 <table id="tbl_exporttable_to_xls" border="1" className="position-absolute d-none fs12" style={row2}>
                     <thead className="text-uppercase" style={thead}>
                         <tr className="text-center">
