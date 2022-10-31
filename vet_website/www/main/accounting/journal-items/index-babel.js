@@ -1468,7 +1468,7 @@ class ExcelPage extends React.Component {
         var account_name
 
         if (this.props.account_name) {
-            account_name = <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.account_name}</p>
+            account_name = <tr className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.account_name}</tr>
         }
 
         if (this.state.loaded) {
@@ -1487,8 +1487,24 @@ class ExcelPage extends React.Component {
             }
 
             return (
-                <table id="tbl_exporttable_to_xls" border="1" className="position-absolute d-none fs12" style={row2}>
+                <table id="excel_page" border="1" className="position-absolute d-none">
                     <thead className="text-uppercase" style={thead}>
+                        <tr>
+                            <th colspan="2" rowspan="3">
+                                {image}
+                            </th>
+                            <th colspan="6">
+                                <tr>{profile.clinic_name}</tr>
+                                <tr>{profile.address}</tr>
+                                <tr>Telp. : {profile.phone}</tr>
+                            </th>
+                            <th colspan="4">
+                                <tr>{this.props.account ? 'General Ledger' : 'Journal'}</tr>
+                                {account_name}
+                                <tr>{subtitle}</tr>
+                            </th>
+                        </tr>
+                        <tr></tr>
                         <tr className="text-center">
                             <th className="fw700 py-2" width="89px">Tanggal</th>
                             <th className="fw700 py-2" width="88px">Reference</th>
@@ -1505,6 +1521,26 @@ class ExcelPage extends React.Component {
                     </tbody>
                 </table>
             )
+
+            // return (
+            //     <table id="excel_page" border="1" className="position-absolute d-none fs12" style={row2}>
+            //         <thead className="text-uppercase" style={thead}>
+            //             <tr className="text-center">
+            //                 <th className="fw700 py-2" width="89px">Tanggal</th>
+            //                 <th className="fw700 py-2" width="88px">Reference</th>
+            //                 <th className="fw700 py-2" width="88px">Journal</th>
+            //                 <th className="fw700 py-2" width="88px">Keterangan</th>
+            //                 <th className="fw700 py-2" width="202px">Account</th>
+            //                 <th className="fw700 py-2" width="90px">Debit</th>
+            //                 <th className="fw700 py-2" width="90px">Credit</th>
+            //                 {account_col}
+            //             </tr>
+            //         </thead>
+            //         <tbody>
+            //             {table_rows}
+            //         </tbody>
+            //     </table>
+            // )
         } else {
             return <div className="row justify-content-center" key='0'>
                 <div className="col-10 col-md-8 text-center border rounded-lg py-4">
