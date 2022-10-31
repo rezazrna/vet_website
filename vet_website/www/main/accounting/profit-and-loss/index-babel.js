@@ -179,7 +179,7 @@ class ProfitAndLoss extends React.Component {
     //     }
     // }
     
-    printPDF() {
+    print(is_excel=false) {
         var title = 'ProfitLoss-';
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
@@ -193,34 +193,66 @@ class ProfitAndLoss extends React.Component {
             }
         }
 
-        var pdfid = 'pdf'
-        // var format = [559,794]
-        // var th = this
-        // var doc = new jsPDF({
-        //     orientation: 'p',
-        //     unit: 'pt',
-        //     format: format,
-        // });
-        var source = document.getElementById(pdfid)
-        var opt = {
-            margin: [10, 0, 10, 0],
-            filename: title + ".pdf",
-            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-            html2canvas: {scale: 3},
-            jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
+        if (is_excel) {
+            var elt = document.getElementById('excel_page');
+            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+            var sheet = wb.Sheets[wb.SheetNames[0]];
+
+            const format = '#,##0.00'
+            for (let col of [1]) {
+                this.formatColumn(sheet, col, format)
+            }
+
+            var sheetcols = [
+                {wpx:419},
+                {wpx:140},
+            ];
+            
+            sheet['!cols'] = sheetcols;
+
+            XLSX.writeFile(wb, title + '.xlsx');
+            this.setState({print_loading: false});
+        } else {
+            var pdfid = 'pdf'
+            // var format = [559,794]
+            // var th = this
+            // var doc = new jsPDF({
+            //     orientation: 'p',
+            //     unit: 'pt',
+            //     format: format,
+            // });
+            var source = document.getElementById(pdfid)
+            var opt = {
+                margin: [10, 0, 10, 0],
+                filename: title + ".pdf",
+                pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
+                html2canvas: {scale: 3},
+                jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
+            }
+            html2pdf().set(opt).from(source).save()
+            this.setState({print_loading: false})
+            // doc.html(source, {
+            //   callback: function (doc) {
+            //      doc.save("ProfitAndLoss-"+th.state.month+"-"+th.state.year+".pdf");
+            //   },
+            //   x: 0,
+            //   y: 0,
+            //   html2canvas: {
+            //       scale: 1,
+            //   }
+            // });
         }
-        html2pdf().set(opt).from(source).save()
-        this.setState({print_loading: false})
-        // doc.html(source, {
-        //   callback: function (doc) {
-        //      doc.save("ProfitAndLoss-"+th.state.month+"-"+th.state.year+".pdf");
-        //   },
-        //   x: 0,
-        //   y: 0,
-        //   html2canvas: {
-        //       scale: 1,
-        //   }
-        // });
+    }
+
+    formatColumn(worksheet, col, fmt) {
+        const range = XLSX.utils.decode_range(worksheet['!ref'])
+        // note: range.s.r + 1 skips the header row
+        for (let row = range.s.r + 1; row <= range.e.r; ++row) {
+            const ref = XLSX.utils.encode_cell({ r: row, c: col })
+            if (worksheet[ref] && worksheet[ref].t === 'n') {
+            worksheet[ref].z = fmt
+            }
+        }
     }
     
     render() {
@@ -241,16 +273,25 @@ class ProfitAndLoss extends React.Component {
         
         if (this.state.loaded){
             console.log(this.state)
-            var content, pdf, print_button, month_select, sd_period
+            var content, pdf, print_button, month_select, sd_period, excel_page, print_excel
             content = <ProfitAndLossList items={this.state.data} accounting_date={this.state.accounting_date} mode={this.state.mode}/>
             pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode}/>
             print_button = <button type="button" 
                 className={this.state.print_loading
                     ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2"
                     : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"}
-                onClick={() => this.printPDF()}>{this.state.print_loading
+                onClick={() => this.print()}>{this.state.print_loading
                     ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                     : "Print"}</button>
+
+            excel_page = <ExcelPage data={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode}/>
+            print_excel = <button type="button" 
+                className={this.state.print_loading
+                    ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2"
+                    : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"}
+                onClick={() => this.print(true)}>{this.state.print_loading
+                    ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                    : "Print Excel"}</button>
 
 
             if(this.state.mode == 'monthly' || this.state.mode == 'period'){
@@ -275,6 +316,7 @@ class ProfitAndLoss extends React.Component {
                     <div className="row mx-0" style={row_style2}>
                         <div className="col-auto my-auto">
                             {print_button}
+                            {print_excel}
                         </div>
                         <div className="col-2 my-auto ml-auto">
                             <select name="mode" className="form-control" value={this.state.mode} onChange={e => this.setMode(e)}>
@@ -296,6 +338,7 @@ class ProfitAndLoss extends React.Component {
                         </div>
                     </div>
                     {pdf}
+                    {excel_page}
                     {content}
                 </div>
             )
@@ -1311,6 +1354,298 @@ class PDF extends React.Component{
                         </table>
                     </div>
                 </div>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                        </p>
+                    </div>
+                </div>
+        }
+        
+        
+    }
+}
+
+class ExcelPage extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+    
+    componentDidMount() {
+        var ci = this
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                }
+            }
+        });
+    }
+    
+    render(){
+        var data = this.props.data
+        var profile = this.state.profile
+        console.log(data)
+        var page_dimension = {width: 559, minHeight: 794, top:0, right: 0, background: '#FFF', color: '#000', zIndex: -1}
+        var borderStyle = {border: '1px solid #000', margin: '15px 0'}
+        var borderTop = {borderTop: '1px solid #000'}
+        var row2 = {margin: '0 -14px'}
+        var th = {border: '1px solid #000'}
+        var td = {borderLeft: '1px solid #000', borderRight: '1px solid #000'}
+        var fs11 = {fontSize: 11}
+        var fs13 = {fontSize: 13}
+        var fs9 = {fontSize: 9}
+        var invoice = {letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18}
+        var invoice2 = {letterSpacing: 0}
+        var thead = {background: '#d9d9d9', fontSize: 11}
+        var subtitle = ''
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters != undefined) {
+            if (filters.accounting_date != undefined && this.props.mode != undefined) {
+                if (this.props.mode == 'monthly') {
+                    subtitle = 'Monthly ' + moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                } else if (this.props.mode == 'annual') {
+                    subtitle = 'Annual ' + moment(filters.accounting_date).format('YYYY')
+                } else if (this.props.mode == 'period') {
+                    subtitle = 'Periode ' + moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                }
+            }
+        }
+        
+        function addRow(data, initial_padding=0, padding_increment=0){
+            var next_padding = initial_padding+padding_increment
+            var style = {paddingLeft: initial_padding}
+            var table_rows = []
+            data.forEach((d, index) => {
+                table_rows.push(
+                    <tr key={d.name} style={fs9}>
+                        <td className="py-1" style={style}>{d.account_code+" "+d.account_name}</td>
+                        <td className="py-1" >{d.total}</td>
+                    </tr>
+                )
+                if(d.children && d.children.length > 0){
+                    var d_children = addRow(d.children.filter(i => i.total != 0), next_padding, padding_increment)
+                    table_rows = [...table_rows, ...d_children]
+                }
+            })
+            return table_rows
+        }
+        
+        var revenue_total = data.filter(i => i.account_code.match(/^4-.*$/)).reduce((a,b) => a+b.total, 0)
+        var cogs_total = data.filter(i => i.account_code.match(/^5-.*$/)).reduce((a,b) => a+b.total, 0)
+        var operating_expense_total = data.filter(i => i.account_code.match(/^6-.*$/)).reduce((a,b) => a+b.total, 0)
+        var gross_profit = revenue_total - cogs_total
+        var net_operating_income = gross_profit - operating_expense_total
+        var other_income_total = data.filter(i => i.account_code.match(/^7-.*$/)).reduce((a,b) => a+b.total, 0)
+        var other_expense_total = data.filter(i => i.account_code.match(/^8-.*$/)).reduce((a,b) => a+b.total, 0)
+        
+        var revenue_rows = addRow(data.filter(i => i.account_code.match(/^4-.*$/) && i.total != 0), 5, 8)
+        revenue_rows.push(
+            <tr key='revenue_total_spacer'>
+                <td className="pb-1"/>
+            </tr>
+        )
+        revenue_rows.push(
+            <tr key='revenue_total' className="fs12" style={borderTop}>
+                <td className="py-1 text-center text-uppercase fw700">Total Revenue</td>
+                <td className="py-1">{revenue_total}</td>
+            </tr>
+        )
+        
+        var cogs_rows = addRow(data.filter(i => i.account_code.match(/^5-.*$/) && i.total != 0), 5, 8)
+        cogs_rows.push(
+            <tr key='cogs_total_spacer'>
+                <td className="pb-1"/>
+            </tr>
+        )
+        cogs_rows.push(
+            <tr key='cogs_total' className="fs12" style={borderTop}>
+                <td className="py-1 text-center text-uppercase fw700">Total Cost of Goods Sold</td>
+                <td className="py-1">{cogs_total}</td>
+            </tr>
+        )
+        cogs_rows.push(
+            <tr key="gross_profit" className="text-center" style={thead}>
+	            <td className="fw700 py-2">Gross Profit</td>
+	            <td className="fw700 py-2">{gross_profit}</td>
+	        </tr>
+        )
+        
+        var operating_expense_rows = addRow(data.filter(i => i.account_code.match(/^6-.*$/) && i.total != 0), 5, 8)
+        operating_expense_rows.push(
+            <tr key='operating_expense_total_spacer'>
+                <td className="pb-1"/>
+            </tr>
+        )
+        operating_expense_rows.push(
+            <tr key='operating_expense_total' className="fs12" style={borderTop}>
+                <td className="py-1 text-center text-uppercase fw700">Total Operating Expense</td>
+                <td className="py-1">{operating_expense_total}</td>
+            </tr>
+        )
+        operating_expense_rows.push(
+            <tr key="net_operating_income" className="text-center" style={thead}>
+	            <td className="fw700 py-2">Net Operating Income</td>
+	            <td className="fw700 py-2">{net_operating_income}</td>
+	        </tr>
+        )
+        
+        var other_income_rows = addRow(data.filter(i => i.account_code.match(/^7-.*$/) && i.total != 0), 5, 8)
+        other_income_rows.push(
+            <tr key='other_income_total_spacer'>
+                <td className="pb-1"/>
+            </tr>
+        )
+        other_income_rows.push(
+            <tr key='other_income_total' className="fs12" style={borderTop}>
+                <td className="py-1 text-center text-uppercase fw700">Total Other Income</td>
+                <td className="py-1">{other_income_total}</td>
+            </tr>
+        )
+        
+        var other_expense_rows = addRow(data.filter(i => i.account_code.match(/^8-.*$/) && i.total != 0), 5, 8)
+        other_expense_rows.push(
+            <tr key='other_expense_total_spacer'>
+                <td className="pb-1"/>
+            </tr>
+        )
+        other_expense_rows.push(
+            <tr key='other_expense_total' className="fs12" style={borderTop}>
+                <td className="py-1 text-center text-uppercase fw700">Total Other Expense</td>
+                <td className="py-1">{other_expense_total}</td>
+            </tr>
+        )
+        other_expense_rows.push(
+            <tr key="net_profit_loss" className="text-center" style={thead}>
+	            <td className="fw700 py-2">Net Profit (Loss)</td>
+	            <td className="fw700 py-2">{net_operating_income + other_income_total - other_expense_total}</td>
+	        </tr>
+        )
+
+        if (this.state.loaded) {
+            var image
+            if (profile.image != undefined){
+                var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
+                image = <img src={profile.temp_image || profile.image} style={image_style}/>
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            return(
+                <table id="excel_page" border="1" className="position-absolute d-none" style={page_dimension}>
+                    <thead className="text-uppercase" style={thead}>
+                        <tr>
+                            <td rowspan="3">{image}</td>
+                            <td colspan="3">{profile.clinic_name}</td>
+                            <td colspan="2">Profit & Loss</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">{profile.address}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">Telp. : {profile.phone}</td>
+                            <td colspan="2">{subtitle}</td>
+                        </tr>
+                        <tr></tr>
+                        <tr></tr>
+                    </thead>
+                    <tr>
+                        <th colspan="2">
+                            Revenue
+                        </th>
+                    </tr>
+                    <table className="fs12" style={row2}>
+                        <thead className="text-uppercase">
+                            <tr className="text-center" style={thead}>
+                                <th className="fw700 py-2" width="419px" >Account</th>
+                                <th className="fw700 py-2" width="140px" >Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {revenue_rows}
+                        </tbody>
+                    </table>
+                    <tr></tr>
+                    <tr>
+                        <th colspan="2">
+                            Cost of Goods Sold
+                        </th>
+                    </tr>
+                    <table className="fs12" style={row2}>
+                        <thead className="text-uppercase">
+                            <tr className="text-center" style={thead}>
+                                <th className="fw700 py-2" width="419px" >Account</th>
+                                <th className="fw700 py-2" width="140px" >Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {cogs_rows}
+                        </tbody>
+                    </table>
+                    <tr></tr>
+                    <tr>
+                        <th colspan="2">
+                            Operating Expense
+                        </th>
+                    </tr>
+                    <table className="fs12" style={row2}>
+                        <thead className="text-uppercase">
+                            <tr className="text-center" style={thead}>
+                                <th className="fw700 py-2" width="419px" >Account</th>
+                                <th className="fw700 py-2" width="140px" >Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {operating_expense_rows}
+                        </tbody>
+                    </table>
+                    <tr></tr>
+                    <tr>
+                        <th colspan="2">
+                            Other Income
+                        </th>
+                    </tr>
+                    <table className="fs12" style={row2}>
+                        <thead className="text-uppercase">
+                            <tr className="text-center" style={thead}>
+                                <th className="fw700 py-2" width="419px" >Account</th>
+                                <th className="fw700 py-2" width="140px" >Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {other_income_rows}
+                        </tbody>
+                    </table>
+                    <tr></tr>
+                    <tr>
+                        <th colspan="2">
+                            Other Expense
+                        </th>
+                    </tr>
+                    <table className="fs12" style={row2}>
+                        <thead className="text-uppercase">
+                            <tr className="text-center" style={thead}>
+                                <th className="fw700 py-2" width="419px" >Account</th>
+                                <th className="fw700 py-2" width="140px" >Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {other_expense_rows}
+                        </tbody>
+                    </table>
+                </table>
             )
         } else {
             return <div className="row justify-content-center" key='0'>
