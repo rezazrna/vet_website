@@ -381,7 +381,7 @@ class JournalItems extends React.Component {
         }
     }
 
-    getPrintData() {
+    getPrintData(is_excel=false) {
         var po = this
 
         if (!this.state.print_loading) {
@@ -402,7 +402,11 @@ class JournalItems extends React.Component {
                         console.log(r.message);
                         po.setState({print_data: r.message.journal_items, saldo_awal: r.message.saldo_awal});
                         setTimeout(function() {
-                            po.printPDF()
+                            if (is_excel) {
+                                po.printExcel()
+                            } else {
+                                po.printPDF()
+                            }
                         }, 3000);
                         
                     }
@@ -600,6 +604,14 @@ class JournalItems extends React.Component {
                 ?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                 :"Print"}</button>
 
+        var print_excel = <button type="button" 
+            className={this.state.print_loading
+                ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2"
+                : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} 
+            onClick={() => this.getPrintData(true)}>{this.state.print_loading
+                ?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                :"Print Excel"}</button>
+
         var month_options = [<option className="d-none" key="99999"></option>]
         var year_options = [<option className="d-none" key="99999"></option>]
         var i
@@ -720,6 +732,7 @@ class JournalItems extends React.Component {
                             {back_button}
                             {delete_button}
                             {print_button}
+                            {print_excel}
                         </div>
                         <div className="col">
                             <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.itemSearch(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
