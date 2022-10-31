@@ -1481,7 +1481,7 @@ class ExcelPage extends React.Component {
         var account_name
 
         if (this.props.account_name) {
-            account_name = <td className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.account_name}</td>
+            account_name = <td colspan="2" className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.account_name}</td>
         }
 
         if (this.state.loaded) {
@@ -1504,16 +1504,16 @@ class ExcelPage extends React.Component {
                     <thead className="text-uppercase" style={thead}>
                         <tr>
                             <td rowspan="3">{image}</td>
-                            <td>{profile.clinic_name}</td>
-                            <td>{this.props.account ? 'General Ledger' : 'Journal'}</td>
+                            <td colspan="3">{profile.clinic_name}</td>
+                            <td colspan="2">{this.props.account ? 'General Ledger' : 'Journal'}</td>
                         </tr>
                         <tr>
-                            <td>{profile.address}</td>
+                            <td colspan="3">{profile.address}</td>
                             {account_name}
                         </tr>
                         <tr>
-                            <td>Telp. : {profile.phone}</td>
-                            <td colspan="12">{subtitle}</td>
+                            <td colspan="3">Telp. : {profile.phone}</td>
+                            <td colspan="2">{subtitle}</td>
                         </tr>
                         <tr className="text-center">
                             <th className="fw700 py-2" width="89px">Tanggal</th>
