@@ -471,6 +471,19 @@ class JournalItems extends React.Component {
                 this.formatColumn(sheet, col, format)
             }
 
+            var sheetcols = [
+                {wpx:90},
+                {wpx:90},
+                {wpx:90},
+                {wpx:90},
+                {wpx:200},
+                {wpx:90},
+                {wpx:90},
+                {wpx:90},
+            ];
+            
+            sheet['!cols'] = sheetcols;
+
             XLSX.writeFile(wb, title + '.xlsx');
             this.setState({print_loading: false});
         } else {
