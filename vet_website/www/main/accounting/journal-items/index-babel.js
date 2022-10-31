@@ -571,7 +571,7 @@ class JournalItems extends React.Component {
 
         const format = '0.000'
         for (let col of [5, 6, 7]) {
-            formatColumn(sheet, col, format)
+            this.formatColumn(sheet, col, format)
         }
 
         XLSX.writeFile(wb, 'MySheetName.xlsx');
