@@ -182,13 +182,13 @@ class Coa extends React.Component {
 
             var sheetcols = this.state.dc_mode 
             ? [
-                {wpx:230},
-                {wpx:100},
-                {wpx:100},
+                {wpx:319},
+                {wpx:120},
+                {wpx:120},
             ]
             : [
-                {wpx:230},
-                {wpx:100},
+                {wpx:439},
+                {wpx:120},
             ];
             
             sheet['!cols'] = sheetcols;

@@ -174,7 +174,7 @@ class BalanceSheet extends React.Component {
     //     }
     // }
     
-    printPDF() {
+    print(is_excel=false) {
         var title = 'BalanceSheet-';
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
@@ -188,34 +188,66 @@ class BalanceSheet extends React.Component {
             }
         }
 
-        var pdfid = 'pdf'
-        // var format = [559,794]
-        // var th = this
-        // var doc = new jsPDF({
-        //     orientation: 'p',
-        //     unit: 'pt',
-        //     format: format,
-        // });
-        var source = document.getElementById(pdfid)
-        var opt = {
-            margin: [10, 0, 10, 0],
-            filename: title + ".pdf",
-            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-            html2canvas: {scale: 3},
-            jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
+        if (is_excel) {
+            var elt = document.getElementById('excel_page');
+            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+            var sheet = wb.Sheets[wb.SheetNames[0]];
+
+            const format = '#,##0.00'
+            for (let col of [1]) {
+                this.formatColumn(sheet, col, format)
+            }
+
+            var sheetcols = [
+                {wpx:419},
+                {wpx:140},
+            ];
+            
+            sheet['!cols'] = sheetcols;
+
+            XLSX.writeFile(wb, title + '.xlsx');
+            this.setState({print_loading: false});
+        } else {
+            var pdfid = 'pdf'
+            // var format = [559,794]
+            // var th = this
+            // var doc = new jsPDF({
+            //     orientation: 'p',
+            //     unit: 'pt',
+            //     format: format,
+            // });
+            var source = document.getElementById(pdfid)
+            var opt = {
+                margin: [10, 0, 10, 0],
+                filename: title + ".pdf",
+                pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
+                html2canvas: {scale: 3},
+                jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
+            }
+            html2pdf().set(opt).from(source).save()
+            this.setState({print_loading: false})
+            // doc.html(source, {
+            //   callback: function (doc) {
+            //      doc.save("BalanceSheet-"+th.state.month+"-"+th.state.year+".pdf");
+            //   },
+            //   x: 0,
+            //   y: 0,
+            //   html2canvas: {
+            //       scale: 1,
+            //   }
+            // });
         }
-        html2pdf().set(opt).from(source).save()
-        this.setState({print_loading: false})
-        // doc.html(source, {
-        //   callback: function (doc) {
-        //      doc.save("BalanceSheet-"+th.state.month+"-"+th.state.year+".pdf");
-        //   },
-        //   x: 0,
-        //   y: 0,
-        //   html2canvas: {
-        //       scale: 1,
-        //   }
-        // });
+    }
+
+    formatColumn(worksheet, col, fmt) {
+        const range = XLSX.utils.decode_range(worksheet['!ref'])
+        // note: range.s.r + 1 skips the header row
+        for (let row = range.s.r + 1; row <= range.e.r; ++row) {
+            const ref = XLSX.utils.encode_cell({ r: row, c: col })
+            if (worksheet[ref] && worksheet[ref].t === 'n') {
+            worksheet[ref].z = fmt
+            }
+        }
     }
     
     render() {
@@ -236,16 +268,24 @@ class BalanceSheet extends React.Component {
         
         if (this.state.loaded){
             console.log(this.state)
-            var content, pdf, print_button, month_select, sd_period
+            var content, pdf, print_button, month_select, sd_period, excel_page, print_excel
             content = <BalanceSheetList items={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode} accounting_date={this.state.accounting_date}/>
             pdf = <PDF data={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode}/>
             print_button = <button type="button" 
                 className={this.state.print_loading
                     ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2"
                     : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} 
-                onClick={() => this.printPDF()}>{this.state.print_loading
+                onClick={() => this.print()}>{this.state.print_loading
                     ?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                     :"Print"}</button>
+            excel_page = <ExcelPage data={this.state.data} month={this.state.month} year={this.state.year} mode={this.state.mode}/>
+            print_excel = <button type="button" 
+                className={this.state.print_loading
+                    ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2"
+                    : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} 
+                onClick={() => this.print(true)}>{this.state.print_loading
+                    ?(<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                    :"Print Excel"}</button>
             
             if(this.state.mode == 'monthly' || this.state.mode == 'period'){
                 if (this.state.mode == 'period') {
@@ -268,6 +308,7 @@ class BalanceSheet extends React.Component {
                     <div className="row mx-0" style={row_style2}>
                         <div className="col-auto my-auto">
                             {print_button}
+                            {print_excel}
                         </div>
                         <div className="col-2 my-auto ml-auto">
                             <select name="mode" className="form-control" value={this.state.mode} onChange={e => this.setMode(e)}>
@@ -294,6 +335,7 @@ class BalanceSheet extends React.Component {
                         </div>
                     </div>
                     {pdf}
+                    {excel_page}
                     {content}
                 </div>
             )
@@ -993,6 +1035,207 @@ class PDF extends React.Component{
                         </table>
                     </div>
                 </div>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                        </p>
+                    </div>
+                </div>
+        }
+    }
+}
+
+class ExcelPage extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+    
+    componentDidMount() {
+        var ci = this
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                }
+            }
+        });
+    }
+
+    render(){
+        var data = this.props.data
+        var profile = this.state.profile
+        console.log(data)
+        var page_dimension = {width: 559, minHeight: 794, top:0, right: 0, background: '#FFF', color: '#000', zIndex: -1}
+        var borderStyle = {border: '1px solid #000', margin: '15px 0'}
+        var borderTop = {borderTop: '1px solid #000'}
+        var row2 = {margin: '0 -14px'}
+        var th = {border: '1px solid #000'}
+        var td = {borderLeft: '1px solid #000', borderRight: '1px solid #000'}
+        var fs11 = {fontSize: 11}
+        var fs13 = {fontSize: 13}
+        var fs9 = {fontSize: 9}
+        var invoice = {letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18}
+        var invoice2 = {letterSpacing: 0}
+        var thead = {background: '#d9d9d9', fontSize: 11}
+        var subtitle = ''
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters != undefined) {
+            if (filters.accounting_date != undefined && this.props.mode != undefined) {
+                if (this.props.mode == 'monthly') {
+                    subtitle = 'Monthly ' + moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                } else if (this.props.mode == 'annual') {
+                    subtitle = 'Annual ' + moment(filters.accounting_date).format('YYYY')
+                } else if (this.props.mode == 'period') {
+                    subtitle = 'Periode ' + moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                }
+            }
+        }
+        
+        function addRow(data, initial_padding=0, padding_increment=0){
+            var next_padding = initial_padding+padding_increment
+            var style = {paddingLeft: initial_padding}
+            var table_rows = []
+            data.forEach((d, index) => {
+                table_rows.push(
+                    <tr key={d.name} style={fs9}>
+                        <td className="py-1" style={style}>{d.account_code+" "+d.account_name}</td>
+                        <td className="py-1" >{d.total}</td>
+                    </tr>
+                )
+                if(d.children && d.children.length > 0){
+                    var d_children = addRow(d.children.filter(i => i.total != 0), next_padding, padding_increment)
+                    table_rows = [...table_rows, ...d_children]
+                }
+            })
+            return table_rows
+        }
+        
+        var asset_rows = addRow(data.filter(i => i.account_type == 'Asset' && i.total != 0), 5, 8)
+        asset_rows.push(
+            <tr key='asset_total_spacer'>
+                <td className="pb-1"/>
+            </tr>
+        )
+        asset_rows.push(
+            <tr key='asset_total' className="fs12" style={borderTop}>
+                <td className="py-1 text-center text-uppercase fw700">Total Asset</td>
+                <td className="py-1">{data.filter(i => i.account_type == 'Asset').reduce((a,b) => a+b.total, 0)}</td>
+            </tr>
+        )
+        
+        var liability_rows = addRow(data.filter(i => i.account_type == 'Liability' && i.total != 0), 5, 8)
+        liability_rows.push(
+            <tr key='liability_total_spacer'>
+                <td className="pb-1"/>
+            </tr>
+        )
+        liability_rows.push(
+            <tr key='liability_total' className="fs12" style={borderTop}>
+                <td className="py-1 text-center text-uppercase fw700">Total Liability</td>
+                <td className="py-1">{data.filter(i => i.account_type == 'Liability').reduce((a,b) => a+b.total, 0)}</td>
+            </tr>
+        )
+        
+        var equity_rows = addRow(data.filter(i => i.account_type == 'Equity' && i.total != 0), 5, 8)
+        equity_rows.push(
+            <tr key='equity_total_spacer'>
+                <td className="pb-1"/>
+            </tr>
+        )
+        equity_rows.push(
+            <tr key='equity_total' className="fs12" style={borderTop}>
+                <td className="py-1 text-center text-uppercase fw700">Total Equity</td>
+                <td className="py-1">{data.filter(i => i.account_type == 'Equity').reduce((a,b) => a+b.total, 0)}</td>
+            </tr>
+        )
+
+        if (this.state.loaded) {
+            var image
+            if (profile.image != undefined){
+                var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
+                image = <img src={profile.temp_image || profile.image} style={image_style}/>
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            return(
+                <table id="excel_page" border="1" className="position-absolute d-none" style={page_dimension}>
+                    <thead className="text-uppercase" style={thead}>
+                        <tr>
+                            <td rowspan="3">{image}</td>
+                            <td colspan="3">{profile.clinic_name}</td>
+                            <td colspan="2">Balance Sheet</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">{profile.address}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">Telp. : {profile.phone}</td>
+                            <td colspan="2">{subtitle}</td>
+                        </tr>
+                        <tr></tr>
+                        <tr></tr>
+                    </thead>
+                    <tr>
+                        <th colspan="2">Asset</th>
+                    </tr>
+                    <table className="fs12" style={row2}>
+                        <thead className="text-uppercase">
+                            <tr className="text-center" style={thead}>
+                                <th className="fw700 py-2" width="419px" >Account</th>
+                                <th className="fw700 py-2" width="140px" >Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {asset_rows}
+                        </tbody>
+                    </table>
+                    <tr></tr>
+                    <tr>
+                        <th colspan="2">Liability & Equity</th>
+                    </tr>
+                    <table className="fs12" style={row2}>
+                        <thead className="text-uppercase">
+                            <tr className="text-center" style={thead}>
+                                <th className="fw700 py-2" width="419px" >Account</th>
+                                <th className="fw700 py-2" width="140px" >Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th colspan="2" className="fw700 py-2">Liability</th>
+                            </tr>
+                            {liability_rows}
+                        </tbody>
+                    </table>
+                    <tr></tr>
+                    <table className="fs12 mt-3" style={row2}>
+                        <thead className="text-uppercase">
+                            <tr className="text-center" style={thead}>
+                                <th className="fw700 py-2" width="419px" >Account</th>
+                                <th className="fw700 py-2" width="140px" >Nominal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th colspan="2" className="fw700 py-2">Equity</th>
+                            </tr>
+                            {equity_rows}
+                        </tbody>
+                    </table>
+                </table>
             )
         } else {
             return <div className="row justify-content-center" key='0'>
