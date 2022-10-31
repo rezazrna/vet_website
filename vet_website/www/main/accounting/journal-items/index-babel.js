@@ -1481,7 +1481,7 @@ class ExcelPage extends React.Component {
         var account_name
 
         if (this.props.account_name) {
-            account_name = <tr className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.account_name}</tr>
+            account_name = <td colspan="12" className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.account_name}</td>
         }
 
         if (this.state.loaded) {
@@ -1500,21 +1500,21 @@ class ExcelPage extends React.Component {
             }
 
             return (
-                <table id="excel_page" border="1" className="position-absolute d-none">
+                <table id="excel_page" border="1" className="position-absolute">
                     <thead className="text-uppercase" style={thead}>
                         <tr>
-                            <th colspan="2" rowspan="3">
+                            <th colspan="3" rowspan="3">
                                 {image}
                             </th>
                             <th colspan="6">
-                                <tr>{profile.clinic_name}</tr>
-                                <tr>{profile.address}</tr>
-                                <tr>Telp. : {profile.phone}</tr>
+                                <td colspan="12">{profile.clinic_name}</td>
+                                <td colspan="12">{profile.address}</td>
+                                <td colspan="12">Telp. : {profile.phone}</td>
                             </th>
                             <th colspan="4">
-                                <tr>{this.props.account ? 'General Ledger' : 'Journal'}</tr>
+                                <td colspan="12">{this.props.account ? 'General Ledger' : 'Journal'}</td>
                                 {account_name}
-                                <tr>{subtitle}</tr>
+                                <td colspan="12">{subtitle}</td>
                             </th>
                         </tr>
                         <tr></tr>
