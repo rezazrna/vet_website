@@ -569,7 +569,7 @@ class JournalItems extends React.Component {
         var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
         var sheet = wb.Sheets[wb.SheetNames[0]];
 
-        const format = '0.000'
+        const format = '#,##0.00'
         for (let col of [5, 6, 7]) {
             this.formatColumn(sheet, col, format)
         }
