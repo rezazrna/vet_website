@@ -1515,6 +1515,8 @@ class ExcelPage extends React.Component {
                             <td colspan="3">Telp. : {profile.phone}</td>
                             <td colspan="2">{subtitle}</td>
                         </tr>
+                        <tr></tr>
+                        <tr></tr>
                         <tr className="text-center">
                             <th className="fw700 py-2" width="89px">Tanggal</th>
                             <th className="fw700 py-2" width="88px">Reference</th>
