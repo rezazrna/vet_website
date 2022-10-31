@@ -567,8 +567,27 @@ class JournalItems extends React.Component {
     printExcel() {
         var elt = document.getElementById('tbl_exporttable_to_xls');
         var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
-        return XLSX.writeFile(wb, 'MySheetName.xlsx');
+        var sheet = wb.Sheets[wb.SheetNames[0]];
+
+        const format = '0.000'
+        for (let col of [5, 6, 7]) {
+            formatColumn(sheet, col, format)
+        }
+
+        XLSX.writeFile(wb, 'MySheetName.xlsx');
+        this.setState({print_loading: false});
      }
+
+     formatColumn(worksheet, col, fmt) {
+        const range = XLSX.utils.decode_range(worksheet['!ref'])
+        // note: range.s.r + 1 skips the header row
+        for (let row = range.s.r + 1; row <= range.e.r; ++row) {
+          const ref = XLSX.utils.encode_cell({ r: row, c: col })
+          if (worksheet[ref] && worksheet[ref].t === 'n') {
+            worksheet[ref].z = fmt
+          }
+        }
+      }
 
     render() {
 
