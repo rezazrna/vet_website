@@ -1481,7 +1481,7 @@ class ExcelPage extends React.Component {
         var account_name
 
         if (this.props.account_name) {
-            account_name = <td colspan="12" className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.account_name}</td>
+            account_name = <td className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.account_name}</td>
         }
 
         if (this.state.loaded) {
@@ -1503,21 +1503,18 @@ class ExcelPage extends React.Component {
                 <table id="excel_page" border="1" className="position-absolute">
                     <thead className="text-uppercase" style={thead}>
                         <tr>
-                            <th colspan="3" rowspan="3">
-                                {image}
-                            </th>
-                            <th colspan="6">
-                                <td colspan="12">{profile.clinic_name}</td>
-                                <td colspan="12">{profile.address}</td>
-                                <td colspan="12">Telp. : {profile.phone}</td>
-                            </th>
-                            <th colspan="4">
-                                <td colspan="12">{this.props.account ? 'General Ledger' : 'Journal'}</td>
-                                {account_name}
-                                <td colspan="12">{subtitle}</td>
-                            </th>
+                            <td rowspan="3">{image}</td>
+                            <td>{profile.clinic_name}</td>
+                            <td>{this.props.account ? 'General Ledger' : 'Journal'}</td>
                         </tr>
-                        <tr></tr>
+                        <tr>
+                            <td>{profile.address}</td>
+                            {account_name}
+                        </tr>
+                        <tr>
+                            <td>Telp. : {profile.phone}</td>
+                            <td colspan="12">{subtitle}</td>
+                        </tr>
                         <tr className="text-center">
                             <th className="fw700 py-2" width="89px">Tanggal</th>
                             <th className="fw700 py-2" width="88px">Reference</th>
