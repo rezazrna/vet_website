@@ -35,6 +35,7 @@ web_include_js = [
 					"https://unpkg.com/react@16/umd/react.development.js",
     				"https://unpkg.com/react-dom@16/umd/react-dom.development.js",
     				"https://unpkg.com/babel-standalone@6/babel.min.js",
+					"https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js",
 					"/assets/frappe/node_modules/moment/min/moment.min.js",
 					"https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js",
 					"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js",

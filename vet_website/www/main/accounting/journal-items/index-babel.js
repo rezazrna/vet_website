@@ -560,6 +560,12 @@ class JournalItems extends React.Component {
         // });
     }
 
+    printExcel() {
+        var elt = document.getElementById('tbl_exporttable_to_xls');
+        var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+        return XLSX.writeFile(wb, 'MySheetName.xlsx');
+     }
+
     render() {
 
         var row_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px' }
@@ -733,6 +739,7 @@ class JournalItems extends React.Component {
                     </div>
                     <JournalItemsList account={this.state.account} data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} changeRemoveStorage={(value) => this.changeRemoveStorage(value)} saldo_awal={this.state.saldo_awal}/>
                     {item_pdf}
+                    <ExcelPage data={chunk[i]} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
                     {/* <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/> */}
                 </div>
             )
@@ -1264,6 +1271,221 @@ class PDFListPage extends React.Component {
                 </div>
             </div>
         )
+    }
+}
+
+class ExcelPage extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+
+    componentDidMount() {
+        var ci = this
+
+        frappe.call({
+            type: "GET",
+            method: "vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function (r) {
+                if (r.message) {
+                    ci.setState({ 'profile': r.message.profile, 'loaded': true });
+                }
+            }
+        });
+    }
+
+    render() {
+        // var search = this.props.search
+        // function filterRow(row) {
+        //     function filterField(field) {
+        //         return field ? field.toString().includes(search) : false
+        //     }
+        //     var fields = [row.period, moment(row.date).format("DD-MM-YYYY"), row.account_name, row.reference, row.debit, row.credit]
+        //     return ![false, ''].includes(search) ? fields.some(filterField) : true
+        // }
+
+        var data = this.props.data
+        var profile = this.state.profile
+        console.log(data)
+        var page_dimension = { width: 559, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
+        var borderStyle = { border: '1px solid #000', margin: '15px 0' }
+        var row2 = { margin: '0 -14px' }
+        var th = { border: '1px solid #000' }
+        var td = { borderLeft: '1px solid #000', borderRight: '1px solid #000' }
+        var fs13 = { fontSize: 13 }
+        var fs9 = { fontSize: 9 }
+        var invoice = { letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18 }
+        var invoice2 = { letterSpacing: 0 }
+        var invoice3 = { letterSpacing: 0, marginBottom: 0 }
+        var thead = { background: '#d9d9d9', fontSize: 11 }
+        var table_rows = []
+        var subtitle = ''
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters != undefined) {
+            if (filters.journal_date != undefined && this.props.mode != undefined) {
+                if (this.props.mode == 'monthly') {
+                    var bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                    subtitle = 'Monthly ' + bulan
+                } else if (this.props.mode == 'annual') {
+                    subtitle = 'Annual ' + moment(filters.journal_date).format('YYYY')
+                } else if (this.props.mode == 'period') {
+                    var sampai_bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                    subtitle = 'Periode ' + moment(filters.journal_min_date).format('MM-YYYY') + '-' + sampai_bulan
+                } else if (this.props.mode == 'daily') {
+                    subtitle = 'Tanggal ' + moment(filters.journal_min_date).format('DD-MM-YYYY') + '-' + moment(filters.journal_date).format('DD-MM-YYYY')
+                }
+            } else if (filters.filters.some((element) => element[0] == 'period')) {
+                var period = filters.filters.find((e) => e[0] == 'period')
+                if (period[1] == '=') {
+                    tanggal = period[2]
+                } else if (period[1] == '!=') {
+                    tanggal = 'Tidak Sama Dengan ' + period[2]
+                } else if (period[1] == 'like') {
+                    tanggal = 'Seperti ' + period[2].replaceAll('%', '')
+                } else if (period[1] == 'not like') {
+                    tanggal = 'Tidak Seperti ' + period[2].replaceAll('%', '')
+                }
+                subtitle += 'Periode ' + period[2].replaceAll('%', '')
+            } else if (filters.filters.some((element) => element[0] == 'date')) {
+                var date = filters.filters.find((e) => e[0] == 'date')
+                var tanggal = ''
+                if (date[1] == 'between') {
+                    tanggal = date[2] + ' - ' + date[3]
+                } else if (date[1] == '=') {
+                    tanggal = date[2]
+                } else if (date[1] == '!=') {
+                    tanggal = 'Tidak Sama Dengan ' + date[2]
+                } else if (date[1] == '>') {
+                    tanggal = 'Lebih Dari ' + date[2]
+                } else if (date[1] == '>=') {
+                    tanggal = 'Lebih Dari Sama Dengan ' + date[2]
+                } else if (date[1] == '<') {
+                    tanggal = 'Kurang Dari ' + date[2]
+                } else if (date[1] == '<=') {
+                    tanggal = 'Kurang Dari Sama Dengan ' + date[2]
+                }
+                subtitle += 'Tanggal ' + tanggal
+            }
+        }
+
+        // const indexOfLastTodo = this.props.currentpage * 30;
+        // const indexOfFirstTodo = indexOfLastTodo - 30;
+        // var currentItems
+        // ![false,''].includes(search)?
+        // currentItems = data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
+        // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
+        // // currentItems = data.slice(0,30)
+
+        if (this.props.account != undefined && data.length != 0) {
+            // var saldo_awal = 0
+
+            // if(['Asset','Expense'].includes(data[0].account_type)){
+            //     saldo_awal = data[0].total + (data[0].credit - data[0].debit)
+            // }
+            // else{
+            //     saldo_awal = data[0].total + (data[0].debit - data[0].credit)
+            // }
+
+            // if (data.length > 0 && data[0].debit > 0) {
+            //     saldo_awal = data[0].total + data[0].debit
+            // } else if (data.length > 0 && data[0].credit > 0) {
+            //     saldo_awal = data[0].total - data[0].credit
+            // } else if (data.length > 0) {
+            //     saldo_awal = data[0].total
+            // }
+
+            table_rows.push(
+                <tr key='999999' style={fs9}>
+                    <td className="py-1" width="89px"></td>
+                    <td className="py-1" width="88px"></td>
+                    <td className="py-1" width="88px"></td>
+                    <td className="py-1" width="88px"></td>
+                    <td className="py-1" width="202px"></td>
+                    <td className="py-1" width="90px"></td>
+                    <td className="py-1" width="90px"></td>
+                    <td className="py-1" width="90px">{formatter2.format(this.props.saldo_awal)}</td>
+                </tr>
+            )
+        }
+
+        if (this.props.datalength > 0) {
+            data.forEach((d, index) => {
+                var account_col
+                if (this.props.account != undefined) {
+                    account_col = (
+                        <td className="py-1" width="90px">{formatter2.format(d.total || d.computed_total || 0)}</td>
+                    )
+                }
+    
+                table_rows.push(
+                    <tr key={d.name} style={fs9}>
+                        <td className="py-1" width="89px">{moment(d.date).format('DD-MM-YYYY')}</td>
+                        <td className="py-1" width="88px">{d.reference}</td>
+                        <td className="py-1" width="88px">{d.parent}</td>
+                        <td className="py-1" width="88px">{d.keterangan}</td>
+                        <td className="py-1" width="202px">{d.account_name}</td>
+                        <td className="py-1" width="90px">{formatter2.format(d.debit)}</td>
+                        <td className="py-1" width="90px">{formatter2.format(d.credit)}</td>
+                        {account_col}
+                    </tr>
+                )
+            })
+        }
+
+        var account_name
+
+        if (this.props.account_name) {
+            account_name = <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{this.props.account_name}</p>
+        }
+
+        if (this.state.loaded) {
+            var image, account_col
+            if (profile.image != undefined) {
+                var image_style = { position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%' }
+                image = <img src={profile.temp_image || profile.image} style={image_style} />
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            if (this.props.account != undefined) {
+                account_col = (
+                    <th className="fw700 py-1" width="90px">Total</th>
+                )
+            }
+
+            return (
+                <table id="tbl_exporttable_to_xls" border="1" className="position-absolute d-none fs12" style={row2}>
+                    <thead className="text-uppercase" style={thead}>
+                        <tr className="text-center">
+                            <th className="fw700 py-2" width="89px">Tanggal</th>
+                            <th className="fw700 py-2" width="88px">Reference</th>
+                            <th className="fw700 py-2" width="88px">Journal</th>
+                            <th className="fw700 py-2" width="88px">Keterangan</th>
+                            <th className="fw700 py-2" width="202px">Account</th>
+                            <th className="fw700 py-2" width="90px">Debit</th>
+                            <th className="fw700 py-2" width="90px">Credit</th>
+                            {account_col}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {table_rows}
+                    </tbody>
+                </table>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                    <p className="mb-0 fs24md fs16 fw600 text-muted">
+                        <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                    </p>
+                </div>
+            </div>
+        }
     }
 }
 
