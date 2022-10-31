@@ -1500,7 +1500,7 @@ class ExcelPage extends React.Component {
             }
 
             return (
-                <table id="excel_page" border="1" className="position-absolute">
+                <table id="excel_page" border="1" className="position-absolute d-none">
                     <thead className="text-uppercase" style={thead}>
                         <tr>
                             <td rowspan="3">{image}</td>
