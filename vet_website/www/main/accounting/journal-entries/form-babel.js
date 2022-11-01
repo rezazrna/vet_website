@@ -105,19 +105,28 @@ class JournalEntry extends React.Component {
     	    this.setState({data: new_data})
     	} else if(['debit','credit'].includes(name)){
             console.log(value)
-            var filtered = value.replace(/(?!)\D/g,'').replace(/,$/g,'.01').replace(',','.')
-            console.log(filtered)
-            if(filtered != ''){
+            if (new RegExp(/,$/g).test(value)) {
                 if (Object.keys(new_data.journal_items[i]).length === 0) {
                     new_data.journal_items.push({})
                 }
-                var formatted = parseFloat(filtered).toLocaleString('id-ID')
-                console.log(formatted)
-                new_data.journal_items[i][name] = formatted
-	            this.setState({data: new_data})
-            } else {
                 new_data.journal_items[i][name] = value
 	            this.setState({data: new_data})
+            } else {
+                // var filtered = value.replace(/(?!)\D/g,'').replace(/,$/g,'.01').replace(',','.')
+                var filtered = this.reverseFormatNumber(value, 'id')
+                console.log(filtered)
+                if(filtered != ''){
+                    if (Object.keys(new_data.journal_items[i]).length === 0) {
+                        new_data.journal_items.push({})
+                    }
+                    var formatted = parseFloat(filtered).toLocaleString('id-ID')
+                    console.log(formatted)
+                    new_data.journal_items[i][name] = formatted
+                    this.setState({data: new_data})
+                } else {
+                    new_data.journal_items[i][name] = value
+                    this.setState({data: new_data})
+                }
             }
         } else if (name == 'date') {
             new_data[name] = value
@@ -190,8 +199,10 @@ class JournalEntry extends React.Component {
         }
 
         new_data.journal_items.forEach((e) => {
-            e.debit = parseFloat(String(e.debit || 0).replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
-            e.credit = parseFloat(String(e.credit || 0).replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+            // e.debit = parseFloat(String(e.debit || 0).replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+            // e.credit = parseFloat(String(e.credit || 0).replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+            e.debit = parseFloat(this.reverseFormatNumber(String(e.debit || 0), 'id'))
+            e.credit = parseFloat(this.reverseFormatNumber(String(e.credit || 0), 'id'))
         })
         
         var total_debit = new_data.journal_items.filter(a => !a.delete).reduce((total, j) => total+=parseFloat(j.debit||'0'),0)
@@ -238,8 +249,10 @@ class JournalEntry extends React.Component {
         
         if (this.state.edit) {
             new_data.journal_items.forEach((e, index) => {
-                e.debit = parseFloat(String(e.debit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
-                e.credit = parseFloat(String(e.credit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                // e.debit = parseFloat(String(e.debit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                // e.credit = parseFloat(String(e.credit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                e.debit = parseFloat(this.reverseFormatNumber(String(e.debit || 0), 'id'))
+                e.credit = parseFloat(this.reverseFormatNumber(String(e.credit || 0), 'id'))
             })
 
             if (!new_data.journal_items[new_data.journal_items.length - 1].account) {
@@ -257,6 +270,14 @@ class JournalEntry extends React.Component {
             new_data.journal_items.push({})
             this.setState({edit: true, data: new_data})
         }
+    }
+
+    reverseFormatNumber(val,locale){
+        var group = new Intl.NumberFormat(locale).format(1111).replace(/1/g, '');
+        var decimal = new Intl.NumberFormat(locale).format(1.1).replace(/1/g, '');
+        var reversedVal = val.replace(new RegExp('\\' + group, 'g'), '');
+        reversedVal = reversedVal.replace(new RegExp('\\' + decimal, 'g'), '.');
+        return Number.isNaN(reversedVal) ? '' : reversedVal;
     }
     
     render() {
@@ -446,6 +467,14 @@ class JournalEntryMainForm extends React.Component {
 }
 
 class JournalEntryItems extends React.Component {
+    reverseFormatNumber(val,locale){
+        var group = new Intl.NumberFormat(locale).format(1111).replace(/1/g, '');
+        var decimal = new Intl.NumberFormat(locale).format(1.1).replace(/1/g, '');
+        var reversedVal = val.replace(new RegExp('\\' + group, 'g'), '');
+        reversedVal = reversedVal.replace(new RegExp('\\' + decimal, 'g'), '.');
+        return Number.isNaN(reversedVal) ? '' : reversedVal;
+    }
+    
     render() {
         var panel_style = {'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '40px 32px 40px 12px'}
         var items = this.props.items || []
@@ -463,8 +492,10 @@ class JournalEntryItems extends React.Component {
                     rows.push(
                         <JournalEntryItemsRow edit={ji.props.edit} key={index.toString()} accounts={ji.props.accounts} item={item} status={ji.props.status} handleInputBlur={ji.props.handleInputBlur} handleInputChange={ji.props.handleInputChange} index={index.toString()} deleteRow={() => ji.props.deleteRow(index.toString())}/>
                     )
-                    var new_debit = parseFloat(String(item.debit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
-                    var new_credit = parseFloat(String(item.credit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                    // var new_debit = parseFloat(String(item.debit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                    // var new_credit = parseFloat(String(item.credit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                    var new_debit = parseFloat(this.reverseFormatNumber(String(item.debit || 0), 'id'))
+                    var new_credit = parseFloat(this.reverseFormatNumber(String(item.credit || 0), 'id'))
 
                     console.log(new_debit)
 
