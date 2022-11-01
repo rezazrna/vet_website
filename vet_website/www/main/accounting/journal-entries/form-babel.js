@@ -494,10 +494,19 @@ class JournalEntryItems extends React.Component {
                     )
                     // var new_debit = parseFloat(String(item.debit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
                     // var new_credit = parseFloat(String(item.credit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
-                    var new_debit = parseFloat(this.reverseFormatNumber(String(item.debit || 0), 'id'))
-                    var new_credit = parseFloat(this.reverseFormatNumber(String(item.credit || 0), 'id'))
+
+                    var new_debit, new_credit
+
+                    if (ji.props.edit) {
+                        new_debit = parseFloat(ji.reverseFormatNumber(String(item.debit || 0), 'id'))
+                        new_credit = parseFloat(ji.reverseFormatNumber(String(item.credit || 0), 'id'))
+                    } else {
+                        new_debit = item.debit || 0
+                        new_credit = item.credit || 0
+                    }
 
                     console.log(new_debit)
+                    console.log(item.debit)
 
                     total_debit += new_debit
                     total_credit += new_credit
