@@ -2699,48 +2699,49 @@ class PopupPay extends React.Component {
             var method = "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.add_payment"
             var new_data = Object.assign({}, this.state.data)
             new_data.jumlah = parseFloat(new_data.jumlah.replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
-            typeof new_data.name == 'object'?method = "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.add_payment_multiple":false
-            if(new_data.payment_method.includes('Deposit')&&new_data.jumlah>this.props.total_credit){
-                frappe.msgprint('Nominal melebihi deposit, jumlah deposit tersedia '+formatter.format(this.props.total_credit))
-            } else {
-                frappe.call({
-                    type: "POST",
-                    method:method,
-                    args: {data: new_data},
-                    freeze: true,
-                    callback: function(r){
-                        if (r.message) {
-                            if(typeof new_data.name == 'object'){
-                                if (r.message.length > 0) {
-                                    var results = []
-                                    r.message.forEach(m => {
-                                        console.log(m)
-                                        if (m.error){
-                                            frappe.msgprint(m.error)
-                                            results.push(false)
-                                        } else if (m.name){
-                                            results.push(true)
-                                        }
-                                    })
-                                    if(results.every(e => e)){
-                                        window.location.reload()
-                                    } else {
-                                        th.props.getFormData()
-                                    }
-                                } else if (r.message.error){
-                                    frappe.msgprint(r.message.error)
-                                }
-                            } else {
-                                if(r.message.error){
-                                    frappe.msgprint(r.message.error)
-                                } else {
-                                    window.location.reload()
-                                }
-                            }
-                        }
-                    }
-                });
-            }
+            console.log(new_data.jumlah)
+            // typeof new_data.name == 'object'?method = "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.add_payment_multiple":false
+            // if(new_data.payment_method.includes('Deposit')&&new_data.jumlah>this.props.total_credit){
+            //     frappe.msgprint('Nominal melebihi deposit, jumlah deposit tersedia '+formatter.format(this.props.total_credit))
+            // } else {
+            //     frappe.call({
+            //         type: "POST",
+            //         method:method,
+            //         args: {data: new_data},
+            //         freeze: true,
+            //         callback: function(r){
+            //             if (r.message) {
+            //                 if(typeof new_data.name == 'object'){
+            //                     if (r.message.length > 0) {
+            //                         var results = []
+            //                         r.message.forEach(m => {
+            //                             console.log(m)
+            //                             if (m.error){
+            //                                 frappe.msgprint(m.error)
+            //                                 results.push(false)
+            //                             } else if (m.name){
+            //                                 results.push(true)
+            //                             }
+            //                         })
+            //                         if(results.every(e => e)){
+            //                             window.location.reload()
+            //                         } else {
+            //                             th.props.getFormData()
+            //                         }
+            //                     } else if (r.message.error){
+            //                         frappe.msgprint(r.message.error)
+            //                     }
+            //                 } else {
+            //                     if(r.message.error){
+            //                         frappe.msgprint(r.message.error)
+            //                     } else {
+            //                         window.location.reload()
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     });
+            // }
         }
     }
     
