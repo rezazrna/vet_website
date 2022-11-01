@@ -2663,7 +2663,7 @@ class PopupPay extends React.Component {
         var new_data = this.state.data
         if(name == 'jumlah' && value != ''){
             console.log(value)
-            var filtered = value.replace(/(?!)\D/g,'').replace(/,$/g,'.01').replace(',','.')
+            var filtered = value.replace(/(?!,)\D/g,'').replace(/,$/g,'.01').replace(',','.')
             console.log(filtered)
             if(filtered != ''){
                 var formatted = parseFloat(filtered).toLocaleString('id-ID')
@@ -2698,7 +2698,7 @@ class PopupPay extends React.Component {
         else if (this.state.data.payment_method != undefined){
             var method = "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.add_payment"
             var new_data = Object.assign({}, this.state.data)
-            new_data.jumlah = parseFloat(new_data.jumlah.replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+            new_data.jumlah = parseFloat(new_data.jumlah.replace(/(?!,)\D/g,'').replace(/,$/g,'').replace(',','.'))
             console.log(new_data.jumlah)
             // typeof new_data.name == 'object'?method = "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.add_payment_multiple":false
             // if(new_data.payment_method.includes('Deposit')&&new_data.jumlah>this.props.total_credit){
