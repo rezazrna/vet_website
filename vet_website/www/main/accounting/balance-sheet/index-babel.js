@@ -1206,32 +1206,33 @@ class ExcelPage extends React.Component{
                     <tr>
                         <th colspan="2">Liability & Equity</th>
                     </tr>
+                    <tr></tr>
                     <table className="fs12" style={row2}>
                         <thead className="text-uppercase">
+                            <tr>
+                                <th colspan="2" className="fw700 py-2">Liability</th>
+                            </tr>
                             <tr className="text-center" style={thead}>
                                 <th className="fw700 py-2" width="419px" >Account</th>
                                 <th className="fw700 py-2" width="140px" >Nominal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th colspan="2" className="fw700 py-2">Liability</th>
-                            </tr>
                             {liability_rows}
                         </tbody>
                     </table>
                     <tr></tr>
                     <table className="fs12 mt-3" style={row2}>
                         <thead className="text-uppercase">
+                            <tr>
+                                <th colspan="2" className="fw700 py-2">Equity</th>
+                            </tr>
                             <tr className="text-center" style={thead}>
                                 <th className="fw700 py-2" width="419px" >Account</th>
                                 <th className="fw700 py-2" width="140px" >Nominal</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th colspan="2" className="fw700 py-2">Equity</th>
-                            </tr>
                             {equity_rows}
                         </tbody>
                     </table>
