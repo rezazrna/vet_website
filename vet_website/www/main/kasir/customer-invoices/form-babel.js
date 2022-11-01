@@ -2664,7 +2664,7 @@ class PopupPay extends React.Component {
         if(name == 'jumlah' && value != ''){
             console.log(value)
             // var filtered = value.replace(/(?!,)\D/g,'').replace(/,$/g,'.01').replace(',','.')
-            value = value.replace(/,$/g,'.01')
+            value = value.replace(/,$/g,',01')
             var filtered = this.reverseFormatNumber(value, 'id')
             console.log(filtered)
             if(filtered != ''){
