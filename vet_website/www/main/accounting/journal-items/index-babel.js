@@ -471,6 +471,10 @@ class JournalItems extends React.Component {
                 this.formatColumn(sheet, col, format)
             }
 
+            for (let col of [0]) {
+                this.formatColumn(sheet, col, '@')
+            }
+
             var sheetcols = [
                 {wpx:90},
                 {wpx:90},
