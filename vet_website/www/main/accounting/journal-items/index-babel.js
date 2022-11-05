@@ -472,7 +472,7 @@ class JournalItems extends React.Component {
             }
 
             for (let col of [0]) {
-                this.formatColumn(sheet, col, '@')
+                this.formatColumn(sheet, col, 'dd-mm-yyyy')
             }
 
             var sheetcols = [
@@ -597,7 +597,7 @@ class JournalItems extends React.Component {
         for (let row = range.s.r + 1; row <= range.e.r; ++row) {
             const ref = XLSX.utils.encode_cell({ r: row, c: col })
             if (worksheet[ref] && worksheet[ref].t === 'n') {
-            worksheet[ref].z = fmt
+                worksheet[ref].z = fmt
             }
         }
     }
@@ -1469,7 +1469,7 @@ class ExcelPage extends React.Component {
     
                 table_rows.push(
                     <tr key={d.name} style={fs9}>
-                        <td className="py-1" width="89px">{moment(d.date).format('DD-MM-YYYY')}</td>
+                        <td className="py-1" width="89px">{d.date}</td>
                         <td className="py-1" width="88px">{d.reference}</td>
                         <td className="py-1" width="88px">{d.parent}</td>
                         <td className="py-1" width="88px">{d.keterangan}</td>
