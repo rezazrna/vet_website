@@ -87,7 +87,6 @@ def get_supplier_list(filters=None):
 			else:
 				credit = 0
 				debt = 0
-			print(str(last_credit) + ' ini credit')
 			for p in purchase:
 				purchaseproducts = frappe.get_list("VetPurchaseProducts", fields=["sum(price*quantity) as subtotal"], filters={'parent': p.name})
 				purchasepay = frappe.get_list("VetPurchasePay", fields=["sum(jumlah) as paid"], filters={'parent': p.name})

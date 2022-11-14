@@ -64,10 +64,8 @@ def get_operation_list(filters=None):
 			td_filters.append(('status', '!=', 'Done'))
 	
 	try:
-		print(td_filters)
 		operations = frappe.get_list("VetOperation", or_filters=td_or_filters, filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetOperation", or_filters=td_or_filters, filters=td_filters, as_list=True))
-		print(operations)
 			
 		return {'operation': operations,'datalength': datalength}
 		
@@ -112,7 +110,6 @@ def get_name_list(filters=None):
 			td_or_filters.append({'status': ['like', '%'+search+'%']})
 	
 	try:
-		print(td_filters)
 		namelist = frappe.get_all("VetOperation", or_filters=td_or_filters, filters=td_filters, as_list=True)
 			
 		return list(map(lambda item: item[0], namelist))
@@ -471,11 +468,6 @@ def get_kartu_stok_list(filters=None, mode=False):
 				min_date = (max_date_dt).strftime('%Y-%m-01')
 			else:
 				min_date = max_date_dt.strftime('%Y-01-01')
-			print('min date')
-			print(min_date)
-			print('max date')
-			print(max_date_dt.strftime('%Y-%m-%d'))
-			print(mode)
 			# td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 			# moves_filters.append({'date': ['<', min_date]})
 			td_filters.append({'receive_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
@@ -610,11 +602,6 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 				min_date = (max_date_dt).strftime('%Y-%m-01')
 			else:
 				min_date = max_date_dt.strftime('%Y-01-01')
-			print('min date')
-			print(min_date)
-			print('max date')
-			print(max_date_dt.strftime('%Y-%m-%d'))
-			print(mode)
 			# td_filters.append({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 			# moves_filters.append({'date': ['<', min_date]})
 			# nilai_akhir_filters.append({'date': ['<', max_date_dt.strftime('%Y-%m-%d')]})
@@ -673,8 +660,6 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 		return {'error': e}
 
 def count_nilai_awal(moves):
-	print('moves')
-	print(moves)
 	pembelian = []
 	penjualan = 0
 	nilai = 0
@@ -691,8 +676,6 @@ def count_nilai_awal(moves):
 
 		if 'VCI' in operation.reference:
 			invoice = frappe.get_doc("VetCustomerInvoice", operation.reference)
-			print('invoice refund')
-			print(invoice.is_refund)
 			if invoice.is_refund == 1 or operation.get('to', False):
 				penjualan -= m.quantity_done
 			else:
@@ -711,17 +694,8 @@ def count_nilai_awal(moves):
 					nilai += pa.adjustment_value
 				elif float(pa.diff_quantity) < 0:
 					nilai -= pa.adjustment_value
-			
-
-	print('pembelian')
-	print(pembelian)
-	print('penjualan')
-	print(penjualan)
 
 	nilai += sum(c['price'] * c['quantity'] for c in pembelian)
-
-	print('nilai')
-	print(nilai)
 
 	for pe in pembelian:
 		if penjualan > 0:

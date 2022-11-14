@@ -304,16 +304,12 @@ def join_invoice(name_list, datetime):
 	children_customer_invoice = []
 	for name in nl_json:
 		has_children = frappe.db.get_list('VetCustomerInvoiceChildren', filters={'parent': name}, fields=['customer_invoice'])
-		print('has_children')
-		print(has_children)
 		if has_children:
-			print('masuk')
 			for child in has_children:
 				children_customer_invoice.append({'customer_invoice': child.customer_invoice})
 		else:
 			children_customer_invoice.append({'customer_invoice': name})
 	
-	print(children_customer_invoice)
 	new_invoice_data = {
 		'pet': first_pet,
 		'user': frappe.session.user,
@@ -542,7 +538,6 @@ def get_name_list(filters=None):
 			# invoice_or_filters.append({'remaining': ['like', '%'+search+'%']})
 			invoice_or_filters.append({'status': ['like', '%'+search+'%']})
 			
-	print(invoice_filters)
 	
 	try:
 		namelist = frappe.get_all("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, as_list=True)
@@ -1008,10 +1003,6 @@ def decrease_product_valuation(product, quantity, uom=False, reverse=False):
 		
 	purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price'], order_by="creation asc")
 	purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
-	print('decrease product valuation')
-	print(quantity)
-	print('purchase with stock')
-	print(purchase_with_stock)
 	if len(purchase_with_stock):
 		
 		current_quantity = float(quantity)
@@ -1046,8 +1037,6 @@ def decrease_product_valuation(product, quantity, uom=False, reverse=False):
 					current_quantity = 0
 					purchase_product.save()
 					frappe.db.commit()
-	print('adjustment value')
-	print(adjustment_value)
 					
 	return adjustment_value
 
@@ -1372,24 +1361,13 @@ def create_sales_journal_entry(invoice_name, refund=False):
 			else:
 				purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.product}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price'], order_by="creation asc")
 				purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
-
-				print('purchase with stock')
-				print(purchase_with_stock)
-
-				print('temp stock')
-				print(temp_stock)
 				
 				for pws in purchase_with_stock:
 					if current_quantity != 0:
 						purchase_product = frappe.get_doc('VetPurchaseProducts', pws.name)
 						stok = next((x for x in temp_stock if x['name'] == pws.name), None)
-						print('stok')
-						print(stok)
 						if stok:
 							purchase_product.quantity_stocked = purchase_product.quantity_stocked - stok['stok_berkurang']
-
-						print('quantity stocked')
-						print(purchase_product.quantity_stocked) 
 						
 						if purchase_product.quantity_stocked > 0:
 
@@ -1398,9 +1376,6 @@ def create_sales_journal_entry(invoice_name, refund=False):
 								target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
 								current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
 								current_uom = purchase_product.uom
-
-							print('current qty')
-							print(current_quantity)
 
 							new_invoice_line_purchase = frappe.new_doc("VetCustomerInvoicePurchaseProducts")
 							
@@ -1435,9 +1410,6 @@ def create_sales_journal_entry(invoice_name, refund=False):
 								amount += purchase_product.price * current_quantity
 								temp_stock.append({'name': pws.name, 'stok_berkurang': current_quantity})
 								current_quantity = 0
-
-			print('amount')
-			print(amount)
 			
 			same_input_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_input_account), False)
 			same_output_ji = next((ji for ji in jis if ji.get('account') == product_category.stock_output_account), False)
@@ -1556,13 +1528,9 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 
 		if refund_from:
 			products = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': invoice_name}, fields=['*'])
-			print('products')
-			print(products)
 			for pp in products:
 				product = frappe.get_doc('VetProduct', pp.product)
 				product_category = frappe.get_doc('VetProductCategory', product.product_category)
-				print('category')
-				print(product_category.stockable)
 				if product_category.stockable:
 					invoice_line = frappe.get_doc('VetCustomerInvoiceLine', pp.name)
 					amount = 0
@@ -1570,8 +1538,6 @@ def create_sales_payment_journal_items(invoice_name, amount, refund=False, depos
 					line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': refund_from, 'product': invoice_line.product}, fields=['*'])
 					if line:
 						purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': line[0]['name']}, fields=['*'], order_by="name desc")
-						print('purchase products')
-						print(purchase_products)
 						for pws in purchase_products:
 							if current_quantity != 0:
 								purchase_product = frappe.get_doc('VetPurchaseProducts', pws.purchase_products_name)

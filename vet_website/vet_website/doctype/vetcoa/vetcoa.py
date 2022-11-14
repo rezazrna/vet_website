@@ -78,8 +78,6 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 		coa_list = frappe.get_list("VetCoa", filters=td_filters, fields=["*"], order_by='account_code asc')
 
 		journal_entry_names = []
-		print('limit date')
-		print(limit_date)
 		if limit_date:
 			je_filters.update({'date': ['<=', limit_date]})
 
@@ -176,11 +174,6 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 		if len(journal_entry_search):
 			journal_entry_names = list(j.name for j in journal_entry_search)
 
-	print('journal entry names')
-	print(len(journal_entry_names))
-	print(mode)
-	print(limit_date)
-
 	journal_items = []
 	if journal_entry_names:
 		journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account', 'parent'])
@@ -192,8 +185,6 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 		journal_items.sort(key=lambda x: x.date, reverse=True)
 		
 	if not dc_mode:
-		print('journal items')
-		print(len(journal_items))
 		for c in children:
 			total_children = get_coa_last_total_children(c.name, journal_items=journal_items)
 			c['total'] = total_children['total']
@@ -601,7 +592,6 @@ def get_annual_balance_sheet(name=False, year=False, get_all=False):
 					date = dt.now(tz) - rd(month=i) + rd(months=1) + rd(day=1)
 				else:
 					date = dt(int(year), 1, 1) - rd(month=i) + rd(months=1) + rd(day=1)
-				print(date)
 				limit_date = date.strftime('%Y-%m-%d')
 				totals.append({'month': i, 'total': get_coa_last_total(c.name, max_date=limit_date)})
 			totals.append({'month': 'Total', 'total': get_coa_last_total(c.name)})
@@ -644,10 +634,6 @@ def close_book(min_date, max_date):
 	total_hpp = closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
 	total_biaya = closing_biaya(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
 	total = total_pendapatan - (total_hpp + total_biaya)
-	print(total_pendapatan)
-	print(total_hpp)
-	print(total_biaya)
-	print(total)
 	closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closing_journal, total, journal_date_dt)
 
 	return True
@@ -685,9 +671,6 @@ def closing_pendapatan(journal_entry_names, clearing_account, closing_journal, j
 	# journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', journal_date_dt.strftime('%Y-%m-%d')]}, fields=["name"], order_by="date desc")
 	# journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
 
-	print('je_data pendapatan')
-	print(je_data)
-
 	new_journal_entry(json.dumps(je_data))
 
 	return total_credit_clearing
@@ -723,9 +706,6 @@ def closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_
 	# journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', journal_date_dt.strftime('%Y-%m-%d')]}, fields=["name"], order_by="date desc")
 	# journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
 
-	print('je_data hpp')
-	print(je_data)
-
 	new_journal_entry(json.dumps(je_data))
 
 	return total_debit_clearing
@@ -760,9 +740,6 @@ def closing_biaya(journal_entry_names, clearing_account, closing_journal, journa
 
 	# journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', journal_date_dt.strftime('%Y-%m-%d')]}, fields=["name"], order_by="date desc")
 	# journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
-
-	print('je_data biaya')
-	print(je_data)
 	
 	new_journal_entry(json.dumps(je_data))
 
@@ -786,9 +763,6 @@ def closing_clearing_account(clearing_account, laba_rugi_ditahan_account, closin
 
 	# journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', journal_date_dt.strftime('%Y-%m-%d')]}, fields=["name"], order_by="date desc")
 	# journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
-
-	print('je_data clearing account')
-	print(je_data)
 	
 	new_journal_entry(json.dumps(je_data))
 
@@ -804,9 +778,6 @@ def reset_account_company_results(year):
 	jis = []
 	or_filters = [{'account_code': ['like', '4-%']}, {'account_code': ['like', '5-%']}, {'account_code': ['like', '6-%']}, {'account_code': ['like', '7-%']}, {'account_code': ['like', '8-%']}]
 	accounts = frappe.get_list('VetCoa', or_filters=or_filters, fields=['name'], order_by='creation desc')
-
-	print('accounts')
-	print(len(accounts))
 
 	for a in accounts:
 		jis.append({'account': a['name'], 'debit': 0, 'credit': 0, 'total': 0})

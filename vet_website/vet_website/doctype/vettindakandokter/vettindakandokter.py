@@ -583,8 +583,6 @@ def confirm_tindakan_dokter(data):
 				new_scheduled_service = frappe.new_doc("VetScheduledService")
 				new_scheduled_service.update(scheduled_service_data)
 				new_scheduled_service.insert()
-				
-			print('tindak_lanjut ' + str(tindakan_dokter.tindak_lanjut))
 			
 			tindakan_dokter.reload()
 				

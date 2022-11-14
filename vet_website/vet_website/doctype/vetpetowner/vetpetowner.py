@@ -641,7 +641,6 @@ def reception_get_pet_owner(nik=False, nip=False, name=False):
 				return {'doc': owners[0]}
 
 			else:
-				print("Gagal 2")
 				not_found_render = frappe.render_template('templates/reception/alert_data_not_found.html', {})
 				pet_row_render = frappe.render_template('templates/reception/pet_new_row.html', {'search_nip': True})
 				return {'not_found_render': not_found_render, 'pet_row_render': pet_row_render}
@@ -670,7 +669,6 @@ def resize_image(file_url):
 
     try:
         image.save(path)
-        print(file_url+" oke")
     except IOError:
         print(_("Unable to write file format for {0}").format(path))
         return
@@ -716,9 +714,6 @@ def set_owner_credit_total(name, supplier=False):
 				print("Pengambilan atau Penyimpanan Deposit")
 				owner_credit.credit = 0
 				credit += o['nominal']
-				print(credit)
-				print(o['nominal'])
-				print(debt)
 				owner_credit.credit = credit
 				owner_credit.credit_mutation = o['nominal']
 				
@@ -733,14 +728,11 @@ def set_owner_credit_total(name, supplier=False):
 					purchase = frappe.get_doc('VetPurchase', owner_credit.purchase)
 					purchase_debt = get_purchase_debit_credit(owner_credit.name)
 					purchase_debt = -purchase_debt if purchase_debt < 0 else 0
-					print(purchase_debt)
 					excess = 0
 					if purchase_debt > 0:
 						excess = o['nominal'] - purchase_debt
 					excess = excess if excess > 0 else 0
-					print(excess)
 					debt_mutation = o['nominal'] - excess
-					print(debt_mutation)
 					
 					# print(excess)
 					# print(debt_mutation)
@@ -944,9 +936,6 @@ def get_supplier_true_credit(supplier_name):
 	# 	reduced_credit = (paid if paid <= total else total) - received_total
 	# 	reduced_credit = reduced_credit if reduced_credit > 0 else 0
 	# 	total_reduced_credit += reduced_credit
-		
-	print(credit)
-	print(total_reduced_credit)
 		
 	credit = credit - total_reduced_credit
 	credit = credit if credit > 0 else 0

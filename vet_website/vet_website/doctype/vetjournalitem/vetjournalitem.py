@@ -16,8 +16,6 @@ class VetJournalItem(Document):
 	
 @frappe.whitelist()
 def get_journal_item_list(filters=None, all_page=False, is_gl=False):
-	print('is_gl')
-	print(is_gl)
 	default_sort = "date desc, reference desc"
 	order_by = 'creation desc'
 	je_filters = []
@@ -79,11 +77,6 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 				min_date = (max_date_dt).strftime('%Y-%m-01')
 			else:
 				min_date = max_date_dt.strftime('%Y-01-01')
-			print('min date')
-			print(min_date)
-			print('max date')
-			print(max_date)
-			print(mode)
 			je_filters.append({'date': ['between', [min_date, max_date]]})
 			je_filters_if_empty.append({'date': ['<', min_date]})
 	try:

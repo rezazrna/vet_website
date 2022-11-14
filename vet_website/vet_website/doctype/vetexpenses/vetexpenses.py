@@ -139,7 +139,6 @@ def submit_expense(data, saveOnly=False):
 			for f in fields_list:
 				if data_json.get(f, False):
 					update_data.update({f: data_json.get(f)})
-			print(update_data)
 			expense = frappe.get_doc("VetExpenses", data_json['name'])
 			expense.update(update_data)
 			if not saveOnly:

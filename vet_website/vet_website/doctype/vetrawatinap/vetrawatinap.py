@@ -378,7 +378,6 @@ def add_tindakan(data):
 								rekam_medis.save()
 								
 					else:
-						print("Jasa Item WTF!")
 						new_jasa_doc = frappe.new_doc('VetRekamMedisJasa')
 						new_jasa_data = {
 							'product': jo.get('product', jo.get('name', False)),
@@ -415,9 +414,7 @@ def add_tindakan(data):
 			rawat_inap.save()
 			
 			if len(rekam_medis_json.get('tindak_lanjut', False)) != 0:
-				print("Ada tindak lanjut")
 				filtered_tindak_lanjut = [i for i in rekam_medis_json.get('tindak_lanjut', False) if i.get('product_category').get('is_rawat', 0) == 0]
-				print('filtered ' + str(filtered_tindak_lanjut))	
 				instalasi_medis = frappe.new_doc('VetInstalasiMedis')
 				instalasi_medis_data = {
 					'register_number': rawat_inap.register_number,

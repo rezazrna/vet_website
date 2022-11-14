@@ -545,7 +545,6 @@ def autosave(field, value, name):
 		elif field == 'products':
 			value_json = json.loads(value)
 			jasa = []
-			print(value_json)
 			for v in value_json:
 				json_data = {
 					'product': v['product'],

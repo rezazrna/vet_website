@@ -11,11 +11,7 @@ class VetProductPack(Document):
 	pass
 
 def get_pack_price(quantity, price, quantity_pack, price_pack):
-    print(quantity)
-    print(quantity_pack)
     if quantity < quantity_pack:
         return quantity*price
     else:
-        print(math.floor(quantity/quantity_pack))
-        print(quantity%quantity_pack)
         return (math.floor(quantity/quantity_pack)*price_pack)+((quantity%quantity_pack)*price)

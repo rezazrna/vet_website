@@ -333,9 +333,6 @@ def get_reception_list(filters=None):
 				
 		if pet_search:
 			reception_filters.append(('pet', '=', pet_search))
-	
-	print(reception_filters)
-	print(reception_or_filters)
 	try:
 		reception = frappe.get_list("VetReception", filters=reception_filters, or_filters=reception_or_filters, fields=["reception_date", "description", "name", "pet", "owner", "service", "queue", "register_number"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetReception", filters=reception_filters, or_filters=reception_or_filters, as_list=True))

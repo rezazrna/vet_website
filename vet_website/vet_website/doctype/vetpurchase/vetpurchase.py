@@ -748,9 +748,6 @@ def retur_purchase(name, products, jumlah=False, payment_method=False):
 			purchase_product = next((p for p in purchase.products if p.product == m.product), False)
 			if purchase_product:
 				m.quantity_done = purchase_product.quantity_receive
-
-		print('moves')
-		print(moves)
 		
 		action_receive(operation.name, json.dumps(moves), False)
 
@@ -784,9 +781,6 @@ def retur_purchase(name, products, jumlah=False, payment_method=False):
 			retur_product = next((p for p in json.loads(products) if p.get('product_id') == m.product), False)
 			if retur_product:
 				m.quantity_done = retur_product.get('quantity_retur')
-		
-		print('moves retur')
-		print(moves)
 
 		action_receive(operation_retur.name, json.dumps(moves))
 
@@ -1015,10 +1009,6 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 		})
 	else:
 		if paid > subtotal:
-			print("paid > subtotal")
-			print(paid)
-			print(subtotal)
-			print(total)
 			if (paid-subtotal) >= total:
 				jis.append({
 					'account': deposit_account,
@@ -1035,14 +1025,12 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 					'credit': paid - subtotal,
 				})
 		elif not purchase.pembayaran or purchase.first_action == 'Receive' or subtotal > paid:
-			print("not purchase.pembayaran or purchase.first_action == 'Receive' or subtotal > paid")
 			jis.append({
 					'account': purchase_journal_credit,
 					'credit': total,
 				})
 			
 		else:
-			print('else')
 			jis.append({
 				'account': deposit_account,
 				'credit': total,
@@ -1219,9 +1207,6 @@ def get_supplier_true_credit(supplier_name):
 	# 	reduced_credit = (paid if paid <= total else total) - received_total
 	# 	reduced_credit = reduced_credit if reduced_credit > 0 else 0
 	# 	total_reduced_credit += reduced_credit
-		
-	print(credit)
-	print(total_reduced_credit)
 		
 	credit = credit - total_reduced_credit
 	credit = credit if credit > 0 else 0

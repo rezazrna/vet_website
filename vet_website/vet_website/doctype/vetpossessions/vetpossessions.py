@@ -702,13 +702,9 @@ def create_sales_payment_journal_items(order_name, amount, refund=False, deposit
 
 		if refund_from:
 			products = frappe.get_list('VetPosOrderProduk', filters={'parent': order_name}, fields=['*'])
-			print('products')
-			print(products)
 			for pp in products:
 				product = frappe.get_doc('VetProduct', pp.produk)
 				product_category = frappe.get_doc('VetProductCategory', product.product_category)
-				print('category')
-				print(product_category.stockable)
 				if product_category.stockable:
 					order_produk = frappe.get_doc('VetPosOrderProduk', pp.name)
 					amount = 0
@@ -716,8 +712,6 @@ def create_sales_payment_journal_items(order_name, amount, refund=False, deposit
 					line = frappe.get_list('VetPosOrderProduk', filters={'parent': refund_from, 'produk': order_produk.produk}, fields=['*'])
 					if line:
 						purchase_products = frappe.get_list('VetPosOrderPurchaseProducts', filters={'order_produk_name': line[0]['name']}, fields=['*'], order_by="name desc")
-						print('purchase products')
-						print(purchase_products)
 						for pws in purchase_products:
 							if current_quantity != 0:
 								purchase_product = frappe.get_doc('VetPurchaseProducts', pws.purchase_products_name)
@@ -849,11 +843,6 @@ def create_pos_journal_entry(name, payment, refund=False):
 			current_quantity = pp.quantity
 			purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.produk}, fields=['*'], order_by="creation asc")
 			purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
-
-			print('purchase_with_stock')
-			print(purchase_with_stock)
-			print('current quantity')
-			print(current_quantity)
 			
 			for pws in purchase_with_stock:
 				if current_quantity != 0:
@@ -866,9 +855,6 @@ def create_pos_journal_entry(name, payment, refund=False):
 						current_uom = purchase_product.uom
 
 					new_order_produk_purchase = frappe.new_doc("VetPosOrderPurchaseProducts")
-
-					print('purchase_product')
-					print(purchase_product.quantity_stocked)
 					
 					if float(current_quantity) > purchase_product.quantity_stocked:
 						new_order_produk_purchase.update({

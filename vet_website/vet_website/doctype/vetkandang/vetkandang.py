@@ -221,7 +221,6 @@ def process_odd_filter(fj):
 			f[2] = "'%s'"%f[2]
 		
 		string = " ".join(f)
-		print(string)
 		
 		return lambda a: eval(string)
 	else:
