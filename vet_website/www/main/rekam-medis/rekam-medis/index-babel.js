@@ -139,6 +139,7 @@ class RekamMedis extends React.Component {
         filters['currentpage'] = 1
         filters['search'] = this.state.search
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+        console.log('filters', filters)
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rekam_medis_list",
@@ -524,7 +525,7 @@ class RekamMedisListExpandable extends React.Component {
                         {collapse_link}
                     </div>
                     {rekam_medis_rows}
-                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30' />
+                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10' />
                 </div>
             )
         }
