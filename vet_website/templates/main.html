@@ -153,6 +153,7 @@
 									class="sidebar-menu-list-item">Product Tags</a>
 							</div>
 						</div>
+						{% if frappe.session.user == "Administrator" %}
 						<div class="sidebar-menu-list-dropdown">
 							<a class="sidebar-menu-list-dropdown-link">
 								<img src="/static/img/main/menu-icon/accounting.png"
@@ -205,6 +206,7 @@
 							<a data-admin_only="true" href="/main/settings/profile"
 								class="sidebar-menu-list-item">Profile</a>
 						</div>
+						{% endif %}
 					</div>
 				</div>
 			</div>
