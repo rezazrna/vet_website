@@ -203,8 +203,8 @@ class RawatInap extends React.Component {
         ]
 
         var sorts = [
-            { 'label': 'Tanggal masuk DESC', 'value': 'reception_date desc' },
-            { 'label': 'Tanggal masuk ASC', 'value': 'reception_date asc' },
+            { 'label': 'Tanggal masuk DESC', 'value': 'creation desc' },
+            { 'label': 'Tanggal masuk ASC', 'value': 'creation asc' },
             { 'label': 'ID DESC', 'value': 'name desc' },
             { 'label': 'ID ASC', 'value': 'name asc' },
             { 'label': 'No Pendaftaran DESC', 'value': 'register_number desc' },

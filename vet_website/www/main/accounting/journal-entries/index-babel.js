@@ -396,7 +396,7 @@ class JournalEntriesListRow extends React.Component {
                         <span className="mx-auto">{formatter2.format(item.amount)}</span>
                     </div>
                     <div className="col-1 d-flex fs18md mr-auto my-auto px-1">
-                        <span className="ml-auto">{item.reference}</span>{item.reference.match(/(POSORDER-\d)|(PO\d)|(VCI-\d)|(VOC-\d)|(VE-\d)/g) ? link_reference : false}
+                        <span className="ml-auto">{item.reference || ''}</span>{(item.reference || '').match(/(POSORDER-\d)|(PO\d)|(VCI-\d)|(VOC-\d)|(VE-\d)/g) ? link_reference : false}
                     </div>
                     <div className="col-2 d-flex fs18md mr-auto my-auto px-1">
                         <span className="ml-auto">{item.keterangan}</span>

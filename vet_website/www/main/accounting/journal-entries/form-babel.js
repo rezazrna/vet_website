@@ -410,7 +410,7 @@ class JournalEntryMainForm extends React.Component {
             journal = <span className="fs16 px-0 d-block">{data.journal_name}</span>
             period = <span className="fs16 px-0 d-block">{data.period}</span>
             date = <span className="fs16 px-0 d-block">{moment(data.date).format("DD-MM-YYYY")}</span>
-            reference = <span className="fs16 px-0 d-block">{data.reference}{data.reference.match(/(POSORDER-\d)|(PO\d)|(VCI-\d)|(VOC-\d)|(VE-\d)|(VAS-\d)|(VAJ-\d)|(VO-\d)/g)?link_reference:false}</span>
+            reference = <span className="fs16 px-0 d-block">{data.reference || ''}{(data.reference || '').match(/(POSORDER-\d)|(PO\d)|(VCI-\d)|(VOC-\d)|(VE-\d)|(VAS-\d)|(VAJ-\d)|(VO-\d)/g)?link_reference:false}</span>
             keterangan = <span className="fs16 px-0 d-block">{data.keterangan}</span>
         }
         

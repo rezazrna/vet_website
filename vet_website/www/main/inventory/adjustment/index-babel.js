@@ -95,7 +95,7 @@ class Adjustment extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.adjustment, 'filter': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.adjustment, 'filter': true, 'loaded': true, 'datalength': r.message.datalength });
                 }
             }
         });
