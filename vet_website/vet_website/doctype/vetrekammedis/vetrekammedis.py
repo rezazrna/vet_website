@@ -100,7 +100,7 @@ def get_name_list(filters=None):
 			default_sort = sort
 	
 	try:
-		namelist = frappe.get_list("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, order_by=default_sort, as_list=True)
+		namelist = frappe.get_list("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, fields=["*"], order_by=default_sort, as_list=True)
 
 		return list(map(lambda item: item[0], namelist))
 		

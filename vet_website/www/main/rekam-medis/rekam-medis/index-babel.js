@@ -66,7 +66,7 @@ class RekamMedis extends React.Component {
         }
 
         if (new_filters.hasOwnProperty("search")) {
-            this.setState({ 'search': filters['search'] })
+            this.setState({ 'search': new_filters['search'] })
         }
 
         if (document.location.href.includes('?')) {
