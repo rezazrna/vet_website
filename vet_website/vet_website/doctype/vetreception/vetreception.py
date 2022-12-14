@@ -351,6 +351,7 @@ def get_reception_list(filters=None):
 		
 @frappe.whitelist()
 def get_name_list(filters=None):
+	default_sort = "creation desc"
 	reception_or_filters = []
 	reception_filters = []
 	filter_json = False
@@ -362,6 +363,7 @@ def get_name_list(filters=None):
 			filter_json = False
 		
 	if filter_json:
+		sort = filter_json.get('sort', False)
 		petOwner = filter_json.get('petOwner', False)
 		pet_search = filter_json.get('pet', False)
 		filters_json = filter_json.get('filters', False)
@@ -370,6 +372,9 @@ def get_name_list(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				reception_filters.append(fj)
+
+		if sort:
+			default_sort = sort
 			
 		if petOwner:
 			owner = frappe.get_doc("VetPetOwner", petOwner)
@@ -387,7 +392,7 @@ def get_name_list(filters=None):
 			reception_or_filters.append({'description': ['like', '%'+search+'%']})
 	
 	try:
-		namelist = frappe.get_all("VetReception", or_filters=reception_or_filters, filters=reception_filters, as_list=True)
+		namelist = frappe.get_all("VetReception", or_filters=reception_or_filters, filters=reception_filters, order_by=default_sort, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

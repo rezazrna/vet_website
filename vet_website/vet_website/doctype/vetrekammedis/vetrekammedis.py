@@ -65,6 +65,7 @@ def get_rekam_medis_list(filters=None):
 
 @frappe.whitelist()
 def get_name_list(filters=None):
+	default_sort = "creation desc"
 
 	rekam_medis_filters = []
 	rekam_medis_or_filters = []
@@ -77,6 +78,7 @@ def get_name_list(filters=None):
 			filter_json = False
 		
 	if filter_json:
+		sort = filter_json.get('sort', False)
 		pet = filter_json.get('pet', False)
 		filters_json = filter_json.get('filters', False)
 		search = filter_json.get('search', False)
@@ -94,9 +96,11 @@ def get_name_list(filters=None):
 			rekam_medis_or_filters.append({'pet_name': ['like', '%'+search+'%']})
 			rekam_medis_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
 			rekam_medis_or_filters.append({'nama_dokter': ['like', '%'+search+'%']})
+		if sort:
+			default_sort = sort
 	
 	try:
-		namelist = frappe.get_list("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, fields=["*"], as_list=True)
+		namelist = frappe.get_list("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, order_by=default_sort, as_list=True)
 
 		return list(map(lambda item: item[0], namelist))
 		

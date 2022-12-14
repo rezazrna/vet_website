@@ -479,6 +479,7 @@ def get_invoice_list(filters=None):
 		
 @frappe.whitelist()
 def get_name_list(filters=None):
+	default_sort = "creation desc"
 	invoice_filters = []
 	invoice_or_filters = []
 	odd_filters = []
@@ -492,6 +493,7 @@ def get_name_list(filters=None):
 	
 	if filter_json:
 		register_number_search = False
+		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		pet = filter_json.get('pet', False)
 		petOwner = filter_json.get('petOwner', False)
@@ -537,10 +539,17 @@ def get_name_list(filters=None):
 			invoice_or_filters.append({'total': ['like', '%'+search+'%']})
 			# invoice_or_filters.append({'remaining': ['like', '%'+search+'%']})
 			invoice_or_filters.append({'status': ['like', '%'+search+'%']})
+
+		if sort:
+			sorts = sort.split(',')
+			for i,s in enumerate(sorts):
+				if 'deposit' in s or 'remaining' in s:
+					sorts.pop(i)
+			default_sort = ','.join(sorts)
 			
 	
 	try:
-		namelist = frappe.get_all("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, as_list=True)
+		namelist = frappe.get_all("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, order_by=default_sort, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

@@ -111,6 +111,7 @@ def get_rawat_inap_list(filters=None):
 		
 @frappe.whitelist()
 def get_name_list(filters=None):
+	default_sort = "creation desc"
 	ri_filters = []
 	ri_or_filters = []
 	filter_json = False
@@ -122,6 +123,7 @@ def get_name_list(filters=None):
 			filter_json = False
 		
 	if filter_json:
+		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		search = filter_json.get('search', False)
 		
@@ -150,9 +152,12 @@ def get_name_list(filters=None):
 			ri_or_filters.append({'owner_name': ['like', '%'+search+'%']})
 			ri_or_filters.append({'dokter_reference': ['like', '%'+search+'%']})
 			ri_or_filters.append({'status': ['like', '%'+search+'%']})
+
+		if sort:
+			default_sort = sort
 		
 	try:
-		namelist = frappe.get_all("VetRawatInap", or_filters=ri_or_filters, filters=ri_filters, as_list=True)
+		namelist = frappe.get_all("VetRawatInap", or_filters=ri_or_filters, filters=ri_filters, order_by=default_sort, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

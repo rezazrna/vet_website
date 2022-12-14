@@ -391,6 +391,7 @@ def get_grooming_list(filters=None):
 		
 @frappe.whitelist()
 def get_name_list(filters=None):
+	default_sort = "creation desc"
 	grooming_filters = []
 	grooming_or_filters = []
 	filter_json = False
@@ -402,6 +403,7 @@ def get_name_list(filters=None):
 			filter_json = False
 		
 	if filter_json:
+		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		search = filter_json.get('search', False)
 		
@@ -415,9 +417,12 @@ def get_name_list(filters=None):
 			grooming_or_filters.append({'owner_name': ['like', '%'+search+'%']})
 			grooming_or_filters.append({'description': ['like', '%'+search+'%']})
 			grooming_or_filters.append({'status': ['like', '%'+search+'%']})
+
+		if sort:
+			default_sort = sort
 	
 	try:
-		namelist = frappe.get_all("VetGrooming", or_filters=grooming_or_filters, filters=grooming_filters, as_list=True)
+		namelist = frappe.get_all("VetGrooming", or_filters=grooming_or_filters, filters=grooming_filters, order_by=default_sort, as_list=True)
 			
 		return list(map(lambda item: item[0], namelist))
 		

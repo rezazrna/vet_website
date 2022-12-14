@@ -125,6 +125,7 @@ def get_product_list(filters=None):
 
 @frappe.whitelist()
 def get_name_list(filters=None):
+	default_sort = "creation desc"
 	td_filters = []
 	td_or_filters = []
 	filter_json = False
@@ -136,6 +137,7 @@ def get_name_list(filters=None):
 			filter_json = False
 		
 	if filter_json:
+		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		search = filter_json.get('search', False)
 
@@ -147,9 +149,12 @@ def get_name_list(filters=None):
 		if filters_json:
 			for fj in filters_json:
 				td_filters.append(fj)
+
+		if sort:
+			default_sort = sort
 			
 	try:
-		namelist = frappe.get_all("VetProduct", or_filters=td_or_filters, filters=td_filters, as_list=True)
+		namelist = frappe.get_all("VetProduct", or_filters=td_or_filters, filters=td_filters, order_by=default_sort, as_list=True)
 			
 		return list(map(lambda item: item[0], namelist))
 		

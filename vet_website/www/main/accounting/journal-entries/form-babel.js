@@ -39,12 +39,11 @@ class JournalEntry extends React.Component {
         });
         frappe.call({
             type: "GET",
-            method:"vet_website.vet_website.doctype.vetjournalentry.vetjournalentry.get_journal_entry_list",
+            method:"vet_website.vet_website.doctype.vetjournalentry.vetjournalentry.get_name_list",
             args: {filters: lastfilter},
             callback: function(r){
                 if (r.message) {
-                    var namelist = r.message.journal_entries.map(r => r.name)
-                    gr.setState({'namelist': namelist});
+                    gr.setState({'namelist': r.message});
                 }
             }
         })

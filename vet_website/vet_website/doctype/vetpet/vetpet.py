@@ -106,6 +106,7 @@ def get_pet(filters=None):
 		
 @frappe.whitelist()
 def get_name_list(filters=None):
+	default_sort = "creation desc"
 	pet_filters = []
 	pet_or_filters = []
 	pet_owner_filters = []
@@ -118,6 +119,7 @@ def get_name_list(filters=None):
 			filter_json = False
 		
 	if filter_json:
+		sort = filter_json.get('sort', False)
 		search = filter_json.get('search', False)
 		filters_json = filter_json.get('filters', False)
 
@@ -148,6 +150,9 @@ def get_name_list(filters=None):
 			pet_or_filters.append({'name': ['like', '%'+search+'%']})
 			pet_or_filters.append({'hewan_jenis_name': ['like', '%'+search+'%']})
 			pet_or_filters.append({'pet_description': ['like', '%'+search+'%']})
+
+		if sort:
+			default_sort = sort
 	
 	try:
 		if pet_owner_filters:
@@ -156,7 +161,7 @@ def get_name_list(filters=None):
 				pet_or_filters.append({'parent': ['in', list(map(lambda item: item['name'], pet_owner_names))]})
 			else:
 				pet_filters.append({'parent': ['in', list(map(lambda item: item['name'], pet_owner_names))]})
-		namelist = frappe.get_all("VetPet", or_filters=pet_or_filters, filters=pet_filters, as_list=True)
+		namelist = frappe.get_all("VetPet", or_filters=pet_or_filters, filters=pet_filters, order_by=default_sort, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

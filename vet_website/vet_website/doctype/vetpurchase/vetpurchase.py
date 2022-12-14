@@ -140,22 +140,11 @@ def get_purchase_order_list(filters=None):
 		
 @frappe.whitelist()
 def get_name_list(filters=None):
+	default_sort = "creation desc"
 	po_filters = []
 	po_or_filters = []
 	filter_json = False
-	unpaid_mode = False
-	product_detail_name = False
-	sort_filter = False
-	sort_filter_reverse = False
 	odd_filters = []
-	
-	def process_odd_filter(fj):
-		f = fj
-		if f[1] == "=":
-			f[1] = "=="
-		f[0] = "a.%s"%f[0]
-		string = " ".join(f)
-		return lambda a: eval(string)
 	
 	if filters:
 		try:
@@ -164,9 +153,9 @@ def get_name_list(filters=None):
 			filter_json = False
 		
 	if filter_json:
+		sort = filter_json.get('sort', False)
 		product = filter_json.get('product', False)
 		supplier = filter_json.get('supplier', False)
-		unpaid = filter_json.get('unpaid', 0)
 		filters_json = filter_json.get('filters', False)
 		search = filter_json.get('search', False)
 		
@@ -190,12 +179,12 @@ def get_name_list(filters=None):
 			po_or_filters.append({'name': ['like', '%'+search+'%']})
 			po_or_filters.append({'supplier_name': ['like', '%'+search+'%']})
 			po_or_filters.append({'status': ['like', '%'+search+'%']})
-			
-		if unpaid == 1:
-			unpaid_mode = True
+
+		if sort:
+			default_sort = sort
 	
 	try:
-		namelist = frappe.get_all("VetPurchase", or_filters=po_or_filters, filters=po_filters, as_list=True)
+		namelist = frappe.get_all("VetPurchase", or_filters=po_or_filters, filters=po_filters, order_by=default_sort, as_list=True)
 			
 		return list(map(lambda item: item[0], namelist))
 		

@@ -116,22 +116,11 @@ def get_supplier_list(filters=None):
 		
 @frappe.whitelist()
 def get_name_list(filters=None):
-	def process_odd_filter(fj):
-		f = fj
-		
-		if f[1] == "=":
-			f[1] = "=="
-		
-		f[0] = "a.%s"%f[0]
-		string = " ".join(f)
-		return lambda a: eval(string)
-
+	default_sort = "creation desc"
 	supplier_filters = []
 	supplier_or_filters = []
 	filter_json = False
-	result_filter = lambda a: a
 	odd_filters = []
-	odd_sorts = []
 	
 	if filters:
 		try:
@@ -140,6 +129,7 @@ def get_name_list(filters=None):
 			filter_json = False
 			
 	if filter_json:
+		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		search = filter_json.get('search', False)
 		
@@ -153,9 +143,12 @@ def get_name_list(filters=None):
 		if search:
 			supplier_or_filters.append({'supplier_name': ['like', '%'+search+'%']})
 			supplier_or_filters.append({'address': ['like', '%'+search+'%']})
+
+		if sort:
+			default_sort = sort
 			
 	try:
-		namelist = frappe.get_all("VetSupplier", or_filters=supplier_or_filters, filters=supplier_filters, as_list=True)
+		namelist = frappe.get_all("VetSupplier", or_filters=supplier_or_filters, filters=supplier_filters, order_by=default_sort, as_list=True)
 			
 		return list(map(lambda item: item[0], namelist))
 		

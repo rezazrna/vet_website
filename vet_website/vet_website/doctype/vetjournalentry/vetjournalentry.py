@@ -72,6 +72,46 @@ def get_journal_entry_list(filters=None):
 		
 	except PermissionError as e:
 		return {'error': e}
+
+@frappe.whitelist()
+def get_name_list(filters=None):
+	default_sort = "creation desc, date desc"
+	je_filters = []
+	je_or_filters = []
+	filter_json = False
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		filters_json = filter_json.get('filters', False)
+		reference = filter_json.get('reference', False)
+		search = filter_json.get('search', False)
+		
+		if filters_json:
+			for fj in filters_json:
+				je_filters.append(fj)
+
+		if search:
+			je_or_filters.append({'name': ['like', '%'+search+'%']})
+			je_or_filters.append({'period': ['like', '%'+search+'%']})
+			je_or_filters.append({'journal_name': ['like', '%'+search+'%']})
+			je_or_filters.append({'reference': ['like', '%'+search+'%']})
+			je_or_filters.append({'status': ['like', '%'+search+'%']})
+			
+		if reference:
+			je_filters.append({'reference': reference})
+	
+	try:
+		namelist = frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, order_by=default_sort, as_list=True)    
+
+		return list(map(lambda item: item[0], namelist))
+		
+	except PermissionError as e:
+		return {'error': e}
 		
 @frappe.whitelist()
 def delete_journal_entry(data):

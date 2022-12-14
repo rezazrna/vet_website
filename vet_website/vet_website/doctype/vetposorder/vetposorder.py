@@ -86,6 +86,7 @@ def get_order_list(filters=None):
 		
 @frappe.whitelist()
 def get_name_list(filters=None):
+	default_sort = "creation desc"
 	order_filters = []
 	order_or_filters = []
 	payment_filters = []
@@ -100,6 +101,7 @@ def get_name_list(filters=None):
 			filter_json = False
 		
 	if filter_json:
+		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		session = filter_json.get('session', False)
 		search = filter_json.get('search', False)
@@ -123,12 +125,15 @@ def get_name_list(filters=None):
 			order_or_filters.append({'pet_name': ['like', '%'+search+'%']})
 			order_or_filters.append({'responsible_name': ['like', '%'+search+'%']})
 			order_or_filters.append({'total': ['like', '%'+search+'%']})
+
+		if sort:
+			default_sort = sort
 	
 	try:
 		if payment_filters:
 			payment = frappe.get_list("VetPosOrderPayment", filters=payment_filters, fields=["parent"])
 			order_filters.append({'name': ['in', list(map(lambda item: item['parent'], payment))]})
-		namelist = frappe.get_all("VetPosOrder", or_filters=order_or_filters, filters=order_filters, as_list=True)
+		namelist = frappe.get_all("VetPosOrder", or_filters=order_or_filters, filters=order_filters, order_by=default_sort, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		

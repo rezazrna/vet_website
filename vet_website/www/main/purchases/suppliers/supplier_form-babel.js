@@ -34,8 +34,7 @@ class Suppliers extends React.Component {
             args: {filters: lastfilter},
             callback: function(r){
                 if (r.message) {
-                    var namelist = r.message
-                    gr.setState({'namelist': namelist});
+                    gr.setState({'namelist': r.message});
                 }
             }
         })

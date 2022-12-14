@@ -64,6 +64,49 @@ def get_asset_list(filters=None):
 		
 	except PermissionError as e:
 		return {'error': e}
+
+@frappe.whitelist()
+def get_name_list(filters=None):
+	default_sort = "creation desc"
+	asset_filters = []
+	asset_or_filters = []
+	filter_json = False
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		sort = filter_json.get('sort', False)
+		filters_json = filter_json.get('filters', False)
+		search = filter_json.get('search', False)
+		
+		if filters_json:
+			for fj in filters_json:
+				asset_filters.append(fj)
+		
+		if search:
+			asset_or_filters.append({'asset_name': ['like', '%'+search+'%']})
+			asset_or_filters.append({'period': ['like', '%'+search+'%']})
+			asset_or_filters.append({'method': ['like', '%'+search+'%']})
+			asset_or_filters.append({'book_value': ['like', '%'+search+'%']})
+			asset_or_filters.append({'original_value': ['like', '%'+search+'%']})
+			asset_or_filters.append({'residual_value': ['like', '%'+search+'%']})
+			asset_or_filters.append({'duration': ['like', '%'+search+'%']})
+			asset_or_filters.append({'status': ['like', '%'+search+'%']})
+		
+		if sort:
+			default_sort = sort
+	
+	try:
+		namelist = frappe.get_list("VetAsset", or_filters=asset_or_filters, filters=asset_filters, order_by=default_sort, as_list=True)
+		
+		return list(map(lambda item: item[0], namelist))
+		
+	except PermissionError as e:
+		return {'error': e}
 		
 @frappe.whitelist()
 def delete_asset(data):

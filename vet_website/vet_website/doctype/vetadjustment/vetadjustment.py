@@ -76,6 +76,7 @@ def get_name_list(filters=None):
 			filter_json = False
 		
 	if filter_json:
+		sort = filter_json.get('sort', False)
 		filters_json = filter_json.get('filters', False)
 		search = filter_json.get('search', False)
 		
@@ -87,9 +88,12 @@ def get_name_list(filters=None):
 			po_or_filters.append({'user_name': ['like', '%'+search+'%']})
 			po_or_filters.append({'warehouse_name': ['like', '%'+search+'%']})
 			po_or_filters.append({'status': ['like', '%'+search+'%']})
+
+		if sort:
+			default_sort = sort
 		
 	try:
-		namelist = frappe.get_all("VetAdjustment", or_filters=po_or_filters, filters=po_filters, as_list=True)
+		namelist = frappe.get_all("VetAdjustment", or_filters=po_or_filters, filters=po_filters, order_by=default_sort, as_list=True)
 		
 		return list(map(lambda item: item[0], namelist))
 		
