@@ -236,18 +236,35 @@ def create_session():
 			cash_transaction = 0
 			kas_masuk = 0
 			kas_keluar = 0
-		
-		balance = (last_session[0]['opening_balance']+cash_transaction+kas_masuk)-kas_keluar
-		setor = balance - last_session[0]['closing_balance']
+
+		setor = 0
+		opening_balance = 0
+		closing_balance = 0
+		current_balance = 0
+		difference = 0
+
+		if last_session:
+			balance = (last_session[0]['opening_balance']+cash_transaction+kas_masuk)-kas_keluar
+			setor = balance - last_session[0]['closing_balance']
+			closing_balance = last_session[0]['closing_balance']
+
+			if setor >= 0:
+				opening_balance = last_session[0]['closing_balance']
+				current_balance = setor
+				difference = setor
+			else:
+				opening_balance = last_session[0]['closing_balance'] + setor
+				current_balance = last_session[0]['closing_balance'] + setor
+				difference = last_session[0]['closing_balance'] + setor
 		
 		new_session = frappe.new_doc('VetPosSessions')
 		new_session.update({
 			'opening_session': datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S"),
 			'responsible': frappe.session.user,
-			'opening_balance': last_session[0]['closing_balance'] if setor >= 0 else last_session[0]['closing_balance']+setor,
-			'closing_balance': last_session[0]['closing_balance'],
-			'current_balance': setor if setor >= 0 else last_session[0]['closing_balance']+setor,
-			'difference': setor if setor >= 0 else last_session[0]['closing_balance']+setor,
+			'opening_balance': opening_balance,
+			'closing_balance': closing_balance,
+			'current_balance': current_balance,
+			'difference': difference,
 		})
 		new_session.insert()
 		frappe.db.commit()
