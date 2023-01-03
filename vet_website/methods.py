@@ -712,9 +712,39 @@ def new_initial_stock_from_stock_import(si_names):
 			po_names.append(new_si_purchase.name)
 		
 		for name in po_names:
+			purchase = frappe.get_doc('VetPurchase', name)
+
+			operation = frappe.new_doc("VetOperation")
+			operation.update({
+				'reference': purchase.name,
+				'to': purchase.deliver_to,
+				'date': purchase.order_date,
+				'status': 'Done',
+			})
+			operation.insert()
+			frappe.db.commit()
+			operation.reload()
+
 			gudang = frappe.db.get_value('VetPurchase', name, 'deliver_to')
 			purchase_products = frappe.get_list('VetPurchaseProducts', filters={'parent': name}, fields=['*'])
 			for product in purchase_products:
+				new_move = frappe.new_doc("VetOperationMove")
+				new_move.update({
+					'parent': operation.name,
+					'parenttype': 'VetOperation',
+					'parentfield': 'moves',
+					'product': product.product,
+					'product_uom': product.uom,
+					'quantity': product.quantity,
+					'quantity_done': product.quantity,
+					'date': purchase.order_date,
+					'receive_date': purchase.order_date,
+				})
+
+				operation.moves.append(new_move)
+				operation.save()
+				frappe.db.commit()
+
 				new_product_quantity = frappe.new_doc('VetProductQuantity')
 				new_product_quantity.update({
 					'product': product.product,
