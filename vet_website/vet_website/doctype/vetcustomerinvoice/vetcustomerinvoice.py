@@ -832,6 +832,7 @@ def deliver_to_customer(name, refund=False, refund_from=False):
 	try:
 		customer_invoice = frappe.get_doc("VetCustomerInvoice", name)
 		gudang = frappe.get_list("VetGudang", fields=["name"])
+		default_warehouse = frappe.get_list('VetGudang', filters={'is_default': '1'}, fields=['name', 'gudang_name'], limit=1)
 		customer_invoice_lines = frappe.get_list("VetCustomerInvoiceLine", filters={'parent': name}, fields=['*'])
 		if refund and customer_invoice.is_refund == 1:
 			date = customer_invoice.refund_date.strftime("%Y-%m-%d")
@@ -849,7 +850,10 @@ def deliver_to_customer(name, refund=False, refund_from=False):
 			stockable = frappe.db.get_value('VetProductCategory', product_category, 'stockable')
 			
 			if not line.warehouse and stockable == 1:
-				line.update({'warehouse': gudang[0].name})
+				if default_warehouse:
+					line.update({'warehouse': default_warehouse[0].name})
+				else:
+					line.update({'warehouse': gudang[0].name})
 			
 			if stockable == 1:
 				move_data = {

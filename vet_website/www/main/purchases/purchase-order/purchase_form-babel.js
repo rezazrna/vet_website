@@ -408,6 +408,7 @@ class PurchaseOrder extends React.Component {
             html2canvas: {scale: 3},
             jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
         }
+        console.log('masuk')
         html2pdf().set(opt).from(source).save()
         // doc.html(source, {
         //   callback: function (doc) {
@@ -540,14 +541,13 @@ class PurchaseOrder extends React.Component {
             	                            <button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={(e) => this.toggleReceive(e)}>Receive</button>
             	                       </div>
                 	}
-                	
-                	if (['Refund', 'Done'].includes(data.status)) {
-                	    print_button = <div className="col-auto my-auto">
-        	                            <button className="btn btn-sm btn-outline-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.printPDF()}>Print</button>
-        	                       </div>
-        	            pdf = <PDF data={data} subtotal={subtotal} paid={paid} payment_method_list={this.state.payment_method_list}/>
-                	}
         	    }
+
+                pdf = <PDF data={data} subtotal={subtotal} paid={paid} payment_method_list={this.state.payment_method_list}/>
+
+                print_button = <div className="col-auto my-auto">
+                                    <button className="btn btn-sm btn-outline-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.printPDF()}>Print</button>
+                                </div>
         	    
         	    headerButton = <div className="row mx-0 flex-row-reverse" style={rowMinHeight}>
 			            			{print_button}
