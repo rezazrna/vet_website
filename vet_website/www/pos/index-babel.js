@@ -132,7 +132,7 @@ class MainPOS extends React.Component {
             } else if(e.key == "Backspace"){
                 this.addPaymentValue(0, "delete")
             }
-        } else if (["quantity","discount"].includes(edit_item) && !this.state.selectCustomer && !this.state.historyTransaction && document.activeElement.id != 'product_search'){
+        } else if (["quantity","discount","price"].includes(edit_item) && !this.state.selectCustomer && !this.state.historyTransaction && document.activeElement.id != 'product_search'){
             var selectedItem = new_data.currentOrders[this.state.selectedOrder].items[new_data.currentOrders[this.state.selectedOrder].selectedItem]
             if(edit_item == "quantity" && selectedItem){
                 if(e.key.match(/\d/) != null){
@@ -161,7 +161,22 @@ class MainPOS extends React.Component {
                     console.log(valueString)
                     selectedItem.discount = parseInt(valueString)
                 }
+            } else if(edit_item == "price" && selectedItem){
+                if(e.key.match(/\d/) != null){
+                    console.log(selectedItem)
+                    if (selectedItem.price_edited){
+                        selectedItem.price = parseInt(selectedItem.price.toString().concat(e.key))
+                    } else {
+                        selectedItem.price = parseInt(e.key)
+                        selectedItem.price_edited = true
+                    }
+                    
+                } else if(e.key == "Backspace"){
+                    var valueString = selectedItem.price.toString()
+                    selectedItem.price = parseInt(valueString)
+                }
             }
+
             this.setState({data: new_data})
             this.saveSession(new_data.currentOrders)
         }
@@ -299,10 +314,12 @@ class MainPOS extends React.Component {
         
         product.discount = 0
         product.qty_edited = false
+        product.price_edited = false
         var sameproduct = new_data.currentOrders[this.state.selectedOrder].items.find(p => p.name == new_product.name)
         if(sameproduct){
             sameproduct.quantity += 1
             sameproduct.qty_edited = false
+            sameproduct.price_edited = false
             new_data.currentOrders[this.state.selectedOrder].selectedItem = new_data.currentOrders[this.state.selectedOrder].items.findIndex(a => a==sameproduct)
         } else {
             new_product.quantity = 1
@@ -447,6 +464,7 @@ class MainPOS extends React.Component {
         var new_data = Object.assign({}, this.state.data)
         new_data.currentOrders[this.state.selectedOrder].selectedItem = Number(index)
         new_data.currentOrders[this.state.selectedOrder].items[new_data.currentOrders[this.state.selectedOrder].selectedItem].qty_edited = false
+        new_data.currentOrders[this.state.selectedOrder].items[new_data.currentOrders[this.state.selectedOrder].selectedItem].price_edited = false
         this.setState({data: new_data})
     }
     
@@ -880,7 +898,7 @@ function MainPOSSidepanelControl(props){
                         </td>
                     </tr>
                     <tr>
-                        <td style={styles.mw40} className="pos-sidepanel-button disabled px-4">
+                        <td style={styles.mw40} className={props.edit_item=="price"?"pos-sidepanel-button active px-4":"pos-sidepanel-button px-4"} onClick={() => props.toggleEditItem("price")}>
                             <PriceIcon className="mr-2"/><span className="fs12 fw600">Price</span>
                         </td>
                     </tr>
