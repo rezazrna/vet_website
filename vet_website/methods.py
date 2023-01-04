@@ -482,7 +482,7 @@ def new_customer_invoice_from_piutang_import(piutang_import_name):
 			pet_name = pet[0].name
 			
 		product_name = False
-		product = frappe.get_list('VetProduct', filters={'name': '[HPA]Hutang-Piutang Awal'}, fields=['name'])
+		product = frappe.get_list('VetProduct', filters={'name': 'HPA'}, fields=['name'])
 		if len(product) == 0:
 			new_product_doc = new_product()
 			product_name = new_product_doc.name
@@ -523,7 +523,7 @@ def new_purchase_from_hutang_import(hutang_import_name):
 			
 		product_name = False
 		uom_name = False
-		product = frappe.get_list('VetProduct', filters={'name': '[HPA]Hutang-Piutang Awal'}, fields=['name', 'product_uom'])
+		product = frappe.get_list('VetProduct', filters={'name': 'HPA'}, fields=['name', 'product_uom'])
 		if len(product) == 0:
 			new_product_doc = new_product()
 			product_name = new_product_doc.name
