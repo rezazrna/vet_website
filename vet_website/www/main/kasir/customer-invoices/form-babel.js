@@ -1069,7 +1069,7 @@ class PDF extends React.Component{
                             table_rows.push(
                                 <tr key={k+"_"+data.name+"_"+index.toString()} style={fs9}>
                                     <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                    <td className="py-1 text-center" >{f.quantity}</td>
+                                    <td className="py-1 text-center" >{Math.ceil(f.quantity)}</td>
                                     <td className="py-1 text-center" >{f.discount||'-'}</td>
                                     <td className="py-1 text-center" >{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
                                     ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
@@ -1103,7 +1103,7 @@ class PDF extends React.Component{
                         table_rows.push(
                             <tr key={'instalasi_medis_'+data.name+"_"+index.toString()} style={fs9}>
                                 <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                <td className="py-1 text-center" >{f.quantity}</td>
+                                <td className="py-1 text-center" >{Math.ceil(f.quantity)}</td>
                                 <td className="py-1 text-center" >{f.discount||'-'}</td>
                                 <td className="py-1 text-center" >{formatter.format(f.unit_price)}</td>
                                 <td className="py-1 text-center" >{formatter.format(f.total)}</td>
@@ -1129,7 +1129,7 @@ class PDF extends React.Component{
                         table_rows.push(
                             <tr key={d.date+"_"+data.name+"_"+index.toString()} style={fs9}>
                                 <td className="px-2 py-1" >{r.product_name?r.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                <td className="py-1 text-center" >{r.quantity}</td>
+                                <td className="py-1 text-center" >{Math.ceil(r.quantity)}</td>
                                 <td className="py-1 text-center" >{r.discount||'-'}</td>
                                 <td className="py-1 text-center" >{formatter.format(r.unit_price)}</td>
                                 <td className="py-1 text-center" >{formatter.format(r.total)}</td>
@@ -1440,7 +1440,7 @@ class PDFMini extends React.Component{
                             table_rows.push(
                                 <tr key={k+""+data.name+""+index.toString()}>
                                     <td className="px-2 py-1">{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                    <td className="py-1">{f.quantity+" x "+(k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
+                                    <td className="py-1">{Math.ceil(f.quantity)+" x "+(k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
                                     ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
                                     : formatter.format(f.unit_price))}</td>
                                     <td className="py-1 text-right">{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)?formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
@@ -1468,7 +1468,7 @@ class PDFMini extends React.Component{
                         table_rows.push(
                             <tr key={'instalasi_medis'+data.name+"_"+index.toString()}>
                                 <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                <td className="py-1" >{f.quantity+" x "+formatter.format(f.unit_price)}</td>
+                                <td className="py-1" >{Math.ceil(f.quantity)+" x "+formatter.format(f.unit_price)}</td>
                                 <td className="py-1 text-right" >{formatter.format(f.total)}</td>
                             </tr>
                         )
@@ -1490,7 +1490,7 @@ class PDFMini extends React.Component{
                         table_rows.push(
                             <tr key={d.date+""+d.name+""+index.toString()}>
                                 <td className="px-2 py-1">{r.product_name?r.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                <td className="py-1">{r.quantity+" x "+formatter.format(r.unit_price)}</td>
+                                <td className="py-1">{Math.ceil(r.quantity)+" x "+formatter.format(r.unit_price)}</td>
                                 <td className="py-1 text-right">{formatter.format(r.total)}</td>
                             </tr>
                         )
