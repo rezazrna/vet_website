@@ -74,8 +74,8 @@ def get_sessions_list(filters=None):
 			
 			if order:
 				for o in order:
-					order_payment = frappe.get_list("VetPosOrderPayment", filters={'parent': o['name'], 'type': ['!=', 'Cash']}, fields=["*"])
-					order_payment_cash = frappe.get_list("VetPosOrderPayment", filters={'parent': o['name'], 'type': 'Cash'}, fields=["*"])
+					order_payment = frappe.get_list("VetPosOrderPayment", filters={'parent': o['name'], 'method_type': ['!=', 'Cash']}, fields=["*"])
+					order_payment_cash = frappe.get_list("VetPosOrderPayment", filters={'parent': o['name'], 'method_type': 'Cash'}, fields=["*"])
 					for r in order_payment:
 						berhasil = False
 						for n in non_cash_payment:
@@ -198,7 +198,7 @@ def create_session():
 			kas_keluar = sum(k.jumlah for k in kas_keluar_list)
 			order = frappe.get_list("VetPosOrder", filters={'session': last_session[0]['name']}, fields=["name"])
 			for o in order:
-				order_payment_cash = frappe.get_list("VetPosOrderPayment", filters={'parent': o['name'], 'type': 'Cash'}, fields=["*"])
+				order_payment_cash = frappe.get_list("VetPosOrderPayment", filters={'parent': o['name'], 'method_type': 'Cash'}, fields=["*"])
 				for r in order_payment_cash:
 					berhasil = False
 					for n in cash_payment:
@@ -989,7 +989,7 @@ def create_pos_journal_entry(name, payment, refund=False):
 		# 	jis.append({'account': uang_muka_lain, 'debit': deposit})
 		
 		data = {'account': debit_account, 'debit': y.value}
-		if y.type == 'Cash':
+		if y.method_type == 'Cash':
 			if y.value >= exchange:
 				data.update({'debit': y.value - exchange})
 			else:

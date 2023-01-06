@@ -522,7 +522,7 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 								pop['pet_owner_name'] = po.owner_name or ''
 								pop['invoice'] = po.name
 								pop['nominal'] = pop.value
-								pop['metode_pembayaran'] = pop.type
+								pop['metode_pembayaran'] = frappe.db.get_value('VetPaymentMethod', pop.type, 'method_name')
 								pop['type'] = 'Payment'
 								pos_order_payment_list.append(pop)
 					
