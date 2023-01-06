@@ -290,14 +290,19 @@ class Credit extends React.Component {
 
         var field_list = []
         var metode_pembayaran_options = []
-        this.state.data.forEach(d => {
-            if (!metode_pembayaran_options.map(o => o.value).includes(d.metode_pembayaran)) {
-                var label = d.metode_pebayaran
-                var label_find = th.state.payment_method_list.find(p => p.name == d.metode_pembayaran)
-                label_find ? label = label_find.method_name : false
-                metode_pembayaran_options.push({ label: label, value: d.metode_pembayaran })
-            }
+        // this.state.data.forEach(d => {
+        //     if (!metode_pembayaran_options.map(o => o.value).includes(d.metode_pembayaran)) {
+        //         var label = d.metode_pebayaran
+        //         var label_find = th.state.payment_method_list.find(p => p.name == d.metode_pembayaran)
+        //         label_find ? label = label_find.method_name : false
+        //         metode_pembayaran_options.push({ label: label, value: d.metode_pembayaran })
+        //     }
+        // })
+
+        this.state.payment_method_list.forEach(p => {
+            metode_pembayaran_options.push({ label: p.method_name, value: p.method_name })
         })
+
         var proses = checkPermission('VetOwnerCredit', this.state.currentUser, 'proses')
 
 
