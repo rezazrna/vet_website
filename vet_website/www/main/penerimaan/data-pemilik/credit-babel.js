@@ -299,15 +299,16 @@ class Credit extends React.Component {
         //     }
         // })
 
-        this.state.payment_method_list.forEach(p => {
-            metode_pembayaran_options.push({ label: p.method_name, value: p.method_name })
-        })
-
         var proses = checkPermission('VetOwnerCredit', this.state.currentUser, 'proses')
 
 
         if (this.state.loaded) {
             console.log(this.state)
+
+            this.state.payment_method_list.forEach(p => {
+                metode_pembayaran_options.push({ label: p.method_name, value: p.method_name })
+            })
+            
             var tipe
             this.state.supplier ? tipe = 'Purchase' : tipe = 'Invoice'
 
