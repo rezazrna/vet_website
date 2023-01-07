@@ -970,7 +970,7 @@ def create_pos_journal_entry(name, payment, refund=False):
 	
 	for y in payment:
 		if y.type:
-			debit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': y.type}, 'account')
+			debit_account = frappe.db.get_value('VetPaymentMethod', {'name': y.type}, 'account')
 		else:
 			debit_account = frappe.db.get_value('VetCoa', {'account_code': '1-11101'}, 'name')
 		# if refund:
