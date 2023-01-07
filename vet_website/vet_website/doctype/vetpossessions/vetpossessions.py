@@ -701,6 +701,8 @@ def create_sales_payment_journal_items(order_name, amount, refund=False, deposit
 
 	if method: 
 		debit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
+		if not debit_account:
+			frappe.db.get_value('VetPaymentMethod', method, 'account')
 	else:
 		debit_account = frappe.db.get_value('VetCoa', {'account_code': '1-11101'}, 'name')
 

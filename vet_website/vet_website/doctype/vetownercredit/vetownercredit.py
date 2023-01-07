@@ -629,6 +629,8 @@ def create_journal_entry(tipe, nominal, owner_credit, method=False, is_deposit=F
 	persediaan_account = frappe.db.get_value('VetCoa', {'account_code': '1-17002'}, 'name')
 	piutang_account = frappe.db.get_value('VetCoa', {'account_code': '1-13001'}, 'name')
 	debit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
+	if not debit_account:
+		frappe.db.get_value('VetPaymentMethod', method, 'account')
 	penjualan_account = frappe.db.get_value('VetCoa', {'account_code': '4-10001'}, 'name')
 	kas_account = frappe.db.get_value('VetCoa', {'account_code': '1-11101'}, 'name')
 	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Customer'}, 'account')
@@ -698,7 +700,11 @@ def create_journal_entry_payment(tipe, nominal, reference, method=False):
 	purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
 	piutang_account = frappe.db.get_value('VetCoa', {'account_code': '1-13001'}, 'name')
 	debit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
+	if not debit_account:
+		frappe.db.get_value('VetPaymentMethod', method, 'account')
 	credit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
+	if not credit_account:
+		frappe.db.get_value('VetPaymentMethod', method, 'account')
 	hut_dag_account = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'default_credit_account')
 	
 	if tipe == 'Sales':
