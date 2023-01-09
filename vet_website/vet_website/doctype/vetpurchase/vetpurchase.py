@@ -1085,6 +1085,8 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 
 	if method:
 		credit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
+		if not credit_account:
+			frappe.db.get_value('VetPaymentMethod', method, 'account')
 	else:
 		credit_account = frappe.db.get_value('VetCoa', {'account_code': '1-11102'}, 'name')
 

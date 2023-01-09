@@ -683,7 +683,8 @@ class CustomerInvoice extends React.Component {
         
         if(mini){
             pdfid = 'pdfmini'
-            format = [302*0.78,605*0.78]
+            // format = [302*0.78,605*0.78]
+            format = [361*0.78,605*0.78]
         }
         
         e.stopPropagation()
@@ -1407,7 +1408,7 @@ class PDFMini extends React.Component{
         var total = this.props.total
         var total_credit = this.props.total_credit
         console.log(data)
-        var page_dimension = {width: 302, minHeight: 525, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
+        var page_dimension = {width: 361, minHeight: 525, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
         var page_scale = {transform: 'scale(78%)', transformOrigin: 'top left'}
         var borderStyle = {border: '1px solid #000', margin: '15px 0'}
         var borderStyle2 = {borderBottom: '1px solid #000'}
@@ -1415,7 +1416,7 @@ class PDFMini extends React.Component{
         var row2 = {marginBottom: 10, width: '100%'}
         var total_border = {borderTop: '1px solid #000', marginBottom: 5}
         var fontSize = {fontSize: 12}
-        var fontSize2 = {fontSize: 9}
+        var fontSize2 = {fontSize: 12}
         var logo = {width: 72}
         
         function addProductRow(data){
@@ -1600,7 +1601,7 @@ class PDFMini extends React.Component{
         if (this.state.loaded) {
             var image
             if (profile.image != undefined){
-                var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
+                var image_style = {position: 'absolute', top: 0, left: 15, objectFit: 'cover', height: '100%'}
                 image = <img src={profile.temp_image || profile.image} style={image_style}/>
             } else {
                 image = <img src={profile.temp_image} style={image_style} />
@@ -1610,7 +1611,7 @@ class PDFMini extends React.Component{
                 <div className="position-absolute d-none" style={page_dimension}>
                     <div id="pdfmini" className="px-2 py-3" style={Object.assign({}, page_dimension, page_scale)}>
                         <div className="row">
-                            <div className="col-auto pr-0">
+                            <div className="col-auto mr-2">
                                 {image}
                                 {/* <img src="/static/img/main/menu/naturevet_logo.png" style={logo}/> */}
                             </div>
@@ -1702,7 +1703,7 @@ class PDFMini extends React.Component{
 class PDFMiniRow extends React.Component{
     render(){
         var lineHeight = {lineHeight: '24px'}
-        var fontSize = {fontSize: 9}
+        var fontSize = {fontSize: 12}
         
         return(
             <div className="row mx-0">
@@ -2594,7 +2595,7 @@ class CustomerInvoicePaymentRow extends React.Component {
         var payment_field, edit_button
         if(this.state.edit_mode){
             var payment_method_options = []
-            this.props.payment_method_list.forEach(p => !p.name,includes('Deposit') || !p.method_type.includes('Deposit') ? payment_method_options.push(<option key={p.name} value={p.name}>{p.method_name}</option>):false)
+            this.props.payment_method_list.forEach(p => !p.name.includes('Deposit') || !p.method_type.includes('Deposit') ? payment_method_options.push(<option key={p.name} value={p.name}>{p.method_name}</option>):false)
             payment_field = <select name="payment_method" className="form-control fs14 p-0 h-auto" value={this.state.payment_method} onChange={e => this.changePaymentMethod(e)}>
                 {payment_method_options}
             </select>
