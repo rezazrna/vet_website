@@ -678,6 +678,7 @@ def count_nilai_awal(moves):
 					pembelian.append({'purchase': purchase.name, 'quantity': -pp.quantity_receive, 'price': pp.price})
 				else:
 					pembelian.append({'purchase': purchase.name, 'quantity': pp.quantity_receive, 'price': pp.price})
+			continue
 
 		if 'VCI' in operation.reference:
 			invoice = frappe.get_doc("VetCustomerInvoice", operation.reference)
@@ -685,12 +686,14 @@ def count_nilai_awal(moves):
 				penjualan -= m.quantity_done
 			else:
 				penjualan += m.quantity_done
+			continue
 		elif 'POSORDER' in operation.reference:
 			order = frappe.get_doc("VetPosOrder", operation.reference)
 			if order.is_refund == 1 or operation.get('to', False):
 				penjualan -= m.quantity_done
 			else:
 				penjualan += m.quantity_done
+			continue
 
 		if 'VAJ' in operation.reference:
 			product_adjustment = frappe.get_list("VetAdjustmentInventoryDetails", filters={'parent': operation.reference, 'product': m.product}, fields=['diff_quantity', 'adjustment_value'])
@@ -699,6 +702,16 @@ def count_nilai_awal(moves):
 					nilai += pa.adjustment_value
 				elif float(pa.diff_quantity) < 0:
 					nilai -= pa.adjustment_value
+			continue
+
+		if operation.get('to', False):
+			pembelian.append({'quantity': m.quantity_done, 'price': m.price})
+			continue
+		
+		if operation.get('from', False):
+			penjualan += m.quantity_done
+			continue
+
 
 	nilai += sum(c['price'] * c['quantity'] for c in pembelian)
 
