@@ -108,7 +108,7 @@ def get_sessions_list(filters=None):
 							r['credit_mutation_return'] = 0
 							cash_payment.append(r)
 							
-			credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz)], ['type', '=', 'Payment']]
+			credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz)], ['type', 'in', ['Payment', 'Refund']]]
 			sales_credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz)], ['type', '=', 'Sales']]
 			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by='creation desc')
 			sales_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=sales_credit_filters, fields=['*'], order_by='creation desc')
@@ -123,7 +123,10 @@ def get_sessions_list(filters=None):
 					ada = False
 					for n in non_cash_payment:
 						if n['type'] == ow['metode_pembayaran']:
-							n['value'] += ow['nominal'] if ow['nominal'] > 0 else 0
+							if ow['type'] == 'Refund':
+								n['value'] -= ow['nominal'] if ow['nominal'] > 0 else 0
+							else:
+								n['value'] += ow['nominal'] if ow['nominal'] > 0 else 0
 							n['exchange'] += ow['exchange']
 							n['debt_mutation'] += ow['debt_mutation'] or 0
 							n['credit_mutation'] += ow['credit_mutation'] if ow['credit_mutation'] > 0 else 0
@@ -140,7 +143,10 @@ def get_sessions_list(filters=None):
 					ada = False
 					for n in cash_payment:
 						if n['type'] == ow['metode_pembayaran']:
-							n['value'] += ow['nominal'] if ow['nominal'] > 0 else 0
+							if ow['type'] == 'Refund':
+								n['value'] -= ow['nominal'] if ow['nominal'] > 0 else 0
+							else:
+								n['value'] += ow['nominal'] if ow['nominal'] > 0 else 0
 							n['exchange'] += ow['exchange']
 							n['debt_mutation'] += ow['debt_mutation'] or 0
 							n['credit_mutation'] += ow['credit_mutation'] if ow['credit_mutation'] > 0 else 0
@@ -702,7 +708,7 @@ def create_sales_payment_journal_items(order_name, amount, refund=False, deposit
 	if method: 
 		debit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
 		if not debit_account:
-			frappe.db.get_value('VetPaymentMethod', method, 'account')
+			debit_account = frappe.db.get_value('VetPaymentMethod', method, 'account')
 	else:
 		debit_account = frappe.db.get_value('VetCoa', {'account_code': '1-11101'}, 'name')
 

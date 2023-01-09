@@ -1648,7 +1648,7 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	credit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
 	if not credit_account:
-		frappe.db.get_value('VetPaymentMethod', method, 'account')
+		credit_account = frappe.db.get_value('VetPaymentMethod', method, 'account')
 	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Customer'}, 'account')
 	if not deposit_account:
 		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '2-16003'}, 'name')

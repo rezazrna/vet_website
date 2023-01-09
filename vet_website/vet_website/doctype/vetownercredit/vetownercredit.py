@@ -43,7 +43,7 @@ def submit_piutang(action, nominal, petOwner, method):
 			frappe.db.commit()
 			set_owner_credit_total(petOwner)
 			
-			create_journal_entry('Payment', -float(nominal), owner_credit.name)
+			create_journal_entry('Payment', -float(nominal), owner_credit.name, method)
 		elif action == 'Deposit':
 			session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
 			if len(session_search) < 1:
@@ -630,7 +630,7 @@ def create_journal_entry(tipe, nominal, owner_credit, method=False, is_deposit=F
 	piutang_account = frappe.db.get_value('VetCoa', {'account_code': '1-13001'}, 'name')
 	debit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
 	if not debit_account:
-		frappe.db.get_value('VetPaymentMethod', method, 'account')
+		debit_account = frappe.db.get_value('VetPaymentMethod', method, 'account')
 	penjualan_account = frappe.db.get_value('VetCoa', {'account_code': '4-10001'}, 'name')
 	kas_account = frappe.db.get_value('VetCoa', {'account_code': '1-11101'}, 'name')
 	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Customer'}, 'account')
@@ -701,10 +701,10 @@ def create_journal_entry_payment(tipe, nominal, reference, method=False):
 	piutang_account = frappe.db.get_value('VetCoa', {'account_code': '1-13001'}, 'name')
 	debit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
 	if not debit_account:
-		frappe.db.get_value('VetPaymentMethod', method, 'account')
+		debit_account = frappe.db.get_value('VetPaymentMethod', method, 'account')
 	credit_account = frappe.db.get_value('VetPaymentMethod', {'method_name': method}, 'account')
 	if not credit_account:
-		frappe.db.get_value('VetPaymentMethod', method, 'account')
+		credit_account = frappe.db.get_value('VetPaymentMethod', method, 'account')
 	hut_dag_account = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'default_credit_account')
 	
 	if tipe == 'Sales':
