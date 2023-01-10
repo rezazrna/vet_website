@@ -501,9 +501,9 @@ def get_kartu_stok_list(filters=None, mode=False):
 			k['from'] = operation.get('from')
 			k['to'] = operation.to
 			k['status'] = operation.status
-			if operation.get('from', False):
+			if operation.get('from', False) and operation.get('from', False) == gudang:
 				saldo -= k.quantity_done
-			elif operation.get('to', False):
+			elif operation.get('to', False) and operation.get('to', False) == gudang:
 				saldo += k.quantity_done
 			k['saldo'] = saldo
 			
