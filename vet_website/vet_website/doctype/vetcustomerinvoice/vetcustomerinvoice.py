@@ -1146,6 +1146,13 @@ def submit_refund(data):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		data_json = json.loads(data)
+		pos_session = False
+
+		session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
+		if len(session_search) < 1:
+			return {'error': "Belum ada POS Session yang dibuka, bukan POS Session terlebih dahulu"}
+		else:
+			pos_session = session_search[0].name
 		
 		if data_json.get('refund') :
 			invoice = frappe.get_doc('VetCustomerInvoice', data_json.get('name'))
@@ -1164,11 +1171,13 @@ def submit_refund(data):
 			# invoice.subtotal = sum(i.unit_price * i.quantity - ((i.discount or 0) / 100 * (i.unit_price * i.quantity)) for i in invoice.invoice_line)
 			invoice.total = invoice.subtotal - (float(invoice.potongan) or 0)
 			invoice.save()
+
 			pay = frappe.new_doc("VetCustomerInvoicePay")
 			pay.update({
 				'jumlah': data_json.get('refund'),
 				'tanggal': dt.strftime(dt.now(tz), "%Y-%m-%d"),
 				'metode_pembayaran': data_json.get('payment_method'),
+				'pos_session': pos_session,
 				'parent': invoice.name,
 				'parenttype': 'VetCustomerInvoice',
 				'parentfield': 'pembayaran'
