@@ -445,7 +445,7 @@ class PopupReceive extends React.Component {
                 if (item.quantity_receive_temp == undefined) {
                     item.quantity_done = item.quantity
                 } else {
-                    item.quantity_done = parseInt(item.quantity_receive_temp) + parseInt(item.quantity_done)
+                    item.quantity_done = parseFloat(item.quantity_receive_temp) + parseFloat(item.quantity_done)
                 }
                 
                 moves.push(item)
@@ -454,7 +454,7 @@ class PopupReceive extends React.Component {
             delete item.quantity_receive_temp
         })
         
-        var valid = new_data.moves.every(i => parseInt(i.quantity) >= parseInt(i.quantity_done))
+        var valid = new_data.moves.every(i => parseFloat(i.quantity) >= parseFloat(i.quantity_done))
         
         console.log(new_data.name, moves)
         
@@ -739,7 +739,7 @@ class OperationStockMove extends React.Component {
         
         var total_detail
         if(this.props.usage){
-            var total = list.reduce((total, l) => total += (l.price||0)*(parseInt(l.quantity)||0), 0)
+            var total = list.reduce((total, l) => total += (l.price||0)*(parseFloat(l.quantity)||0), 0)
             console.log(total)
             total_detail = (
             <div className="row flex-row-reverse mx-0 fs14 fw600 mt-4 mb-2" style={fontStyle}>
@@ -816,7 +816,7 @@ class OperationStockMoveListRow extends React.Component {
                                 <span className="my-auto">{item.price?formatter.format(item.price||0):''}</span>
                             </div>
             subtotal = <div className="col text-center">
-                                <span className="my-auto">{item.price?formatter.format(item.price*parseInt(item.quantity)||0):''}</span>
+                                <span className="my-auto">{item.price?formatter.format(item.price*parseFloat(item.quantity)||0):''}</span>
                             </div>
         }
         
