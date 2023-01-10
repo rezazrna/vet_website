@@ -348,7 +348,7 @@ class KartuStok extends React.Component {
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
                         </div>
                     </div>
-                    <KartuStokList items={this.state.data} saldo_awal={this.state.saldo_awal} />
+                    <KartuStokList items={this.state.data} saldo_awal={this.state.saldo_awal} gudang={this.state.gudang} />
                     <PDF data={this.state.data} saldo_awal={this.state.saldo_awal} />
                 </div>
             )
@@ -401,7 +401,7 @@ class KartuStokList extends React.Component {
         var items = this.props.items
 
         if (items.length != 0) {
-            var list = this
+            var th = this
             // const indexOfLastTodo = this.props.currentpage * 30;
             // const indexOfFirstTodo = indexOfLastTodo - 30;
             // var currentItems
@@ -446,7 +446,7 @@ class KartuStokList extends React.Component {
             items.forEach(function (item, index) {
                 // if (currentItems.includes(item)){
                 rows.push(
-                    <KartuStokListRow key={index.toString()} item={item} />
+                    <KartuStokListRow key={index.toString()} item={item} gudang={th.props.gudang}/>
                 )
                 // }
             })
@@ -516,6 +516,7 @@ class KartuStokListRow extends React.Component {
     render() {
 
         var item = this.props.item
+        var gudang = this.props.gudang
         var date = item.receive_date || item.date || item.creation
         var moment_date = moment(date)
 
@@ -539,10 +540,10 @@ class KartuStokListRow extends React.Component {
                             <span>{item.to_name || 'Customer'}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.from != null ? '0' : formatter2.format(item.quantity_done)}</span>
+                            <span>{item.from == null || item.to == gudang ? formatter2.format(item.quantity_done) : '0'}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.to != null ? '0' : formatter2.format(item.quantity_done)}</span>
+                            <span>{item.to == null || item.from == gudang ? formatter2.format(item.quantity_done) : '0'}</span>
                         </div>
                         <div className="col-1 text-center">
                             <span>{formatter2.format(item.saldo)}</span>
