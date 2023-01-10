@@ -1015,7 +1015,7 @@ def decrease_product_valuation(product, quantity, uom=False, reverse=False):
 	
 	product_uom = uom
 	if not product_uom:
-		product_uom = frappe.db.get_value('VetProduct', 'product_uom')
+		product_uom = frappe.db.get_value('VetProduct', product, 'product_uom')
 		
 	purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price'], order_by="creation asc")
 	purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)

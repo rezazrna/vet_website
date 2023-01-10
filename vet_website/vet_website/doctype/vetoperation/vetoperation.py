@@ -248,7 +248,7 @@ def usage_operation_submit(name):
 		om['quantity_done'] = om['quantity']
 	action_receive(operation.name, json.dumps(operation_moves))
 	for om in operation_moves:
-		decrease_product_valuation(om['product'], om['quantity'])
+		decrease_product_valuation(om['product'], om['quantity'], om['product_uom'])
 	create_usage_operation_journal_items(name)
 	
 @frappe.whitelist()
@@ -732,7 +732,7 @@ def decrease_product_valuation(product, quantity, uom=False, reverse=False):
 	
 	product_uom = uom
 	if not product_uom:
-		product_uom = frappe.db.get_value('VetProduct', 'product_uom')
+		product_uom = frappe.db.get_value('VetProduct', product, 'product_uom')
 		
 	purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product}, fields=['*'], order_by="creation asc")
 	purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
