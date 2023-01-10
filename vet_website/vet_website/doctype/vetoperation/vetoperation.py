@@ -629,9 +629,23 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			nilai_akhir_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 
 		for p in products:
-			td_filters.append({'product': p.name})
-			moves_filters.append({'product': p.name})
-			nilai_akhir_filters.append({'product': p.name})
+			td_product = next((i for i,d in enumerate(td_filters) if 'product' in d), False)
+			if td_product:
+				td_filters[td_product] = {'product': p.name}
+			else:
+				td_filters.append({'product': p.name})
+
+			moves_product = next((i for i,d in enumerate(moves_filters) if 'product' in d), False)
+			if moves_product:
+				moves_filters[moves_product] = {'product': p.name}
+			else:
+				moves_filters.append({'product': p.name})
+
+			nilai_akhir_product  = next((i for i,d in enumerate(nilai_akhir_filters) if 'product' in d), False)
+			if nilai_akhir_product:
+				nilai_akhir_filters[nilai_akhir_product] = {'product': p.name}
+			else:
+				nilai_akhir_filters.append({'product': p.name})
 
 			saldo_awal = {'saldo': 0, 'masuk': 0, 'keluar': 0}
 			nilai_awal = 0
