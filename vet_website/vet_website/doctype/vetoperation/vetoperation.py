@@ -7,6 +7,7 @@ from shutil import move
 import frappe
 import json
 import pytz
+import re 
 from datetime import datetime as dt
 from urllib.parse import unquote
 from frappe.model.document import Document
@@ -684,7 +685,7 @@ def count_nilai_awal(moves):
 	nilai = 0
 	for m in moves:
 		operation = frappe.get_doc("VetOperation", m.parent)
-		if 'PO' in operation.reference and 'POSORDER' not in operation.reference:
+		if re.search("^PO.*$", operation.reference):
 			purchase = frappe.get_doc("VetPurchase", operation.reference)
 			products_purchase = frappe.get_list("VetPurchaseProducts", filters={'parent': purchase.name, 'product': m.product}, fields=['quantity_receive', 'price'])
 			for pp in products_purchase:
@@ -694,14 +695,14 @@ def count_nilai_awal(moves):
 					pembelian.append({'purchase': purchase.name, 'quantity': pp.quantity_receive, 'price': pp.price})
 			continue
 
-		if 'VCI' in operation.reference:
+		if re.search("^VCI-.*$", operation.reference):
 			invoice = frappe.get_doc("VetCustomerInvoice", operation.reference)
 			if invoice.is_refund == 1 or operation.get('to', False):
 				penjualan -= m.quantity_done
 			else:
 				penjualan += m.quantity_done
 			continue
-		elif 'POSORDER' in operation.reference:
+		elif re.search("^POSORDER.*$", operation.reference):
 			order = frappe.get_doc("VetPosOrder", operation.reference)
 			if order.is_refund == 1 or operation.get('to', False):
 				penjualan -= m.quantity_done
@@ -709,7 +710,7 @@ def count_nilai_awal(moves):
 				penjualan += m.quantity_done
 			continue
 
-		if 'VAJ' in operation.reference:
+		if re.search('^VAJ-.*$', operation.reference):
 			product_adjustment = frappe.get_list("VetAdjustmentInventoryDetails", filters={'parent': operation.reference, 'product': m.product}, fields=['diff_quantity', 'adjustment_value'])
 			for pa in product_adjustment:
 				if float(pa.diff_quantity) > 0:
