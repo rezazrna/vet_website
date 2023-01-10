@@ -438,6 +438,7 @@ def get_kartu_stok_list(filters=None, mode=False):
 	operation_filters = [{'reference': ['not like', '%Retur%']}]
 	gudang_or_filters = []
 	filter_json = False
+	gudang = False
 	
 	if filters:
 		try:
@@ -501,9 +502,9 @@ def get_kartu_stok_list(filters=None, mode=False):
 			k['from'] = operation.get('from')
 			k['to'] = operation.to
 			k['status'] = operation.status
-			if operation.get('from', False) and operation.get('from', False) == gudang:
+			if operation.get('from', False) and (operation.get('from', False) == gudang or not gudang):
 				saldo -= k.quantity_done
-			elif operation.get('to', False) and operation.get('to', False) == gudang:
+			elif operation.get('to', False) and (operation.get('to', False) == gudang or not gudang):
 				saldo += k.quantity_done
 			k['saldo'] = saldo
 			
