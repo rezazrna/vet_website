@@ -296,7 +296,7 @@ class PosOrderProducts extends React.Component {
             data.produk.forEach(function(item, index){
                 if (!item.deleted) {
                     rows.push(
-                        <ProdukListRow key={index.toString()} item={item} index={index.toString()} isDone={sl.props.isDone} isRefund={sl.props.isRefund} deleteRow={() => sl.props.deleteRow(index)} changeInput={sl.props.changeInput}/>
+                        <ProdukListRow key={index.toString()} item={item} index={index.toString()} isDone={sl.props.isDone} isRefund={sl.props.isRefund} deleteRow={() => sl.props.deleteRow(index)} changeInput={(e) => sl.props.changeInput(e, index)}/>
                     )
                 }
             })

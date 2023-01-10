@@ -68,7 +68,7 @@ def get_sessions_list(filters=None):
 		for s in session:
 			kas_masuk = frappe.get_list("VetPosSessionsKasMasuk", filters={'parent': s['name']}, fields=["*"], order_by="kas_date desc")
 			kas_keluar = frappe.get_list("VetPosSessionsKasKeluar", filters={'parent': s['name']}, fields=["*"], order_by="kas_date desc")
-			order = frappe.get_list("VetPosOrder", filters={'session': s['name']}, fields=["name"])
+			order = frappe.get_list("VetPosOrder", filters={'session': s['name']}, fields=["name", "is_refund"])
 			non_cash_payment = []
 			cash_payment = []
 			
@@ -80,11 +80,16 @@ def get_sessions_list(filters=None):
 						berhasil = False
 						for n in non_cash_payment:
 							if n['type'] == r['type']:
-								n['value'] += r['value']
+								if o['is_refund']:
+									n['value'] -= r['value']
+								else:
+									n['value'] += r['value']
 								n['exchange'] += r['exchange']
 								berhasil = True
 						
 						if berhasil == False:
+							if o['is_refund']:
+								r['value'] = -r['value']
 							method_name = frappe.db.get_value('VetPaymentMethod', r.type, 'method_name')
 							r['method_name'] = method_name
 							r['debt_mutation'] = 0
@@ -96,11 +101,16 @@ def get_sessions_list(filters=None):
 						berhasil = False
 						for n in cash_payment:
 							if n['type'] == r['type']:
-								n['value'] += r['value']
+								if o['is_refund']:
+									n['value'] -= r['value']
+								else:
+									n['value'] += r['value']
 								n['exchange'] += r['exchange']
 								berhasil = True
 						
 						if berhasil == False:
+							if o['is_refund']:
+								r['value'] = -r['value']
 							method_name = frappe.db.get_value('VetPaymentMethod', r.type, 'method_name')
 							r['method_name'] = method_name
 							r['debt_mutation'] = 0
@@ -134,7 +144,10 @@ def get_sessions_list(filters=None):
 							ada = True
 					
 					if ada == False:
-						value = ow['nominal'] if ow['nominal'] > 0 else 0
+						if ow['type'] == 'Refund':
+							value = -ow['nominal']
+						else:
+							value = ow['nominal'] if ow['nominal'] > 0 else 0
 						credit_mutation = ow['credit_mutation'] if ow['credit_mutation'] > 0 else 0
 						credit_mutation_return = ow['credit_mutation'] if ow['credit_mutation'] < 0 else 0
 						ncp = {'type': ow['metode_pembayaran'], 'method_name': method_name, 'value': value, 'exchange': ow['exchange'], 'debt_mutation': ow['debt_mutation'], 'credit_mutation': credit_mutation, 'credit_mutation_return': credit_mutation_return}
@@ -154,7 +167,10 @@ def get_sessions_list(filters=None):
 							ada = True
 					
 					if ada == False:
-						value = ow['nominal'] if ow['nominal'] > 0 else 0
+						if ow['type'] == 'Refund':
+							value = -ow['nominal']
+						else:
+							value = ow['nominal'] if ow['nominal'] > 0 else 0
 						credit_mutation = ow['credit_mutation'] if ow['credit_mutation'] > 0 else 0
 						credit_mutation_return = ow['credit_mutation'] if ow['credit_mutation'] < 0 else 0
 						ncp = {'type': ow['metode_pembayaran'], 'method_name': method_name, 'value': value, 'exchange': ow['exchange'], 'debt_mutation': ow['debt_mutation'], 'credit_mutation': credit_mutation, 'credit_mutation_return': credit_mutation_return}
