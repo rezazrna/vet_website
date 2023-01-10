@@ -540,10 +540,10 @@ class KartuStokListRow extends React.Component {
                             <span>{item.to_name || 'Customer'}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.from == null || item.to == gudang ? formatter2.format(item.quantity_done) : '0'}</span>
+                            <span>{item.from == null || item.to == gudang['name'] ? formatter2.format(item.quantity_done) : '0'}</span>
                         </div>
                         <div className="col-1 text-center">
-                            <span>{item.to == null || item.from == gudang ? formatter2.format(item.quantity_done) : '0'}</span>
+                            <span>{item.to == null || item.from == gudang['name'] ? formatter2.format(item.quantity_done) : '0'}</span>
                         </div>
                         <div className="col-1 text-center">
                             <span>{formatter2.format(item.saldo)}</span>
