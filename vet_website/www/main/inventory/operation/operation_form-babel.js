@@ -201,81 +201,84 @@ class Operation extends React.Component {
         var op = this
         var method, args
         var new_data = this.state.data
-        
-        if(['Draft'].includes(this.state.data.status)){
-            if(this.props.usage){
-                if(!this.state.edit_mode){
+        if (!this.state.submit_loading) {
+            this.setState({submit_loading: true})
+
+            if(['Draft'].includes(this.state.data.status)){
+                if(this.props.usage){
+                    if(!this.state.edit_mode){
+                        frappe.call({
+                            type: "POST",
+                            method:"vet_website.vet_website.doctype.vetoperation.vetoperation.usage_operation_submit",
+                            args: {name: new_data.name},
+                            callback: function(r){
+                                console.log(r.message)
+                                window.location.reload()
+                                
+                            }
+                        })
+                    } else {
+                        new_data.from_name = new_data.from
+                        new_data.from = this.state.gudang_list.find(i => i.name == new_data['from'] || i.gudang_name == new_data['from']).name
+                        new_data.expense_account_name = new_data.expense_account
+                        new_data.expense_account = this.state.accounts.find(i => i.name == new_data['expense_account'] || i.account_name == new_data['expense_account']).name
+                        
+                        console.log(this.state.data)
+                        frappe.call({
+                            type: "POST",
+                            method:"vet_website.vet_website.doctype.vetoperation.vetoperation.edit_operation",
+                            args: {data: new_data},
+                            callback: function(r){
+                                if (r.message) {
+                                    window.location.reload()
+                                }
+                            }
+                        })
+                    }
+                } else {
                     frappe.call({
                         type: "POST",
-                        method:"vet_website.vet_website.doctype.vetoperation.vetoperation.usage_operation_submit",
+                        method:"vet_website.vet_website.doctype.vetoperation.vetoperation.action_send",
                         args: {name: new_data.name},
                         callback: function(r){
-                            console.log(r.message)
-                            window.location.reload()
-                            
-                        }
-                    })
-                } else {
-                    new_data.from_name = new_data.from
-                    new_data.from = this.state.gudang_list.find(i => i.name == new_data['from'] || i.gudang_name == new_data['from']).name
-                    new_data.expense_account_name = new_data.expense_account
-                    new_data.expense_account = this.state.accounts.find(i => i.name == new_data['expense_account'] || i.account_name == new_data['expense_account']).name
-                    
-                    console.log(this.state.data)
-                    frappe.call({
-                        type: "POST",
-                        method:"vet_website.vet_website.doctype.vetoperation.vetoperation.edit_operation",
-                        args: {data: new_data},
-                        callback: function(r){
                             if (r.message) {
-                                window.location.reload()
+                                var new_data = Object.assign({}, op.state.data)
+                                new_data.status = r.message.status
+                                op.setState({data: new_data})
                             }
                         }
                     })
                 }
-            } else {
+            } else if(id == undefined){
+                console.log('masuk')
+                console.log(new_data)
+                new_data.from = this.state.gudang_list.find(i => i.gudang_name == new_data['from']).name
+                if(this.props.usage){new_data.expense_account = this.state.accounts.find(i => i.account_name == new_data['expense_account']).name}
+                if(new_data.to == 'USAGE'){
+                    new_data.to = undefined
+                } else {
+                    new_data.to = this.state.gudang_list.find(i => i.gudang_name == new_data['to']).name
+                }
+                
+                console.log(new_data)
+                
                 frappe.call({
                     type: "POST",
-                    method:"vet_website.vet_website.doctype.vetoperation.vetoperation.action_send",
-                    args: {name: new_data.name},
+                    method:"vet_website.vet_website.doctype.vetoperation.vetoperation.new_operation",
+                    args: {data: new_data},
                     callback: function(r){
                         if (r.message) {
-                            var new_data = Object.assign({}, op.state.data)
-                            new_data.status = r.message.status
-                            op.setState({data: new_data})
+                            
+                            op.props.usage?
+                            window.location.href = "/main/accounting/usage/edit?n=" + r.message.name:
+                            window.location.href = "/main/inventory/operation/edit?n=" + r.message.name
                         }
                     }
                 })
             }
-        } else if(id == undefined){
-            console.log('masuk')
-            console.log(new_data)
-            new_data.from = this.state.gudang_list.find(i => i.gudang_name == new_data['from']).name
-            if(this.props.usage){new_data.expense_account = this.state.accounts.find(i => i.account_name == new_data['expense_account']).name}
-            if(new_data.to == 'USAGE'){
-                new_data.to = undefined
-            } else {
-                new_data.to = this.state.gudang_list.find(i => i.gudang_name == new_data['to']).name
-            }
-            
-            console.log(new_data)
-            
-            frappe.call({
-                type: "POST",
-                method:"vet_website.vet_website.doctype.vetoperation.vetoperation.new_operation",
-                args: {data: new_data},
-                callback: function(r){
-                    if (r.message) {
-                        
-                        op.props.usage?
-                        window.location.href = "/main/accounting/usage/edit?n=" + r.message.name:
-                        window.location.href = "/main/inventory/operation/edit?n=" + r.message.name
-                    }
-                }
-            })
+    
+            this.setState({submit_loading: false})
         }
-
-        this.setState({submit_loading: false})
     }
     
     toggleReceive(e) {
