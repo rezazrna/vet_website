@@ -8,7 +8,8 @@ class Operation extends React.Component {
             'loaded': false,
             'show_receive': false,
             'edit_mode': false,
-            'currentUser': {}
+            'currentUser': {},
+            'submit_loading': false,
         }
         
         this.changeInput = this.changeInput.bind(this)
@@ -273,6 +274,8 @@ class Operation extends React.Component {
                 }
             })
         }
+
+        this.setState({submit_loading: false})
     }
     
     toggleReceive(e) {
@@ -308,7 +311,14 @@ class Operation extends React.Component {
             if(id == undefined){
                 buttonMode.push(
                         <div className="col-auto d-flex my-auto" key="1">
-            				<button type="submit" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">{this.props.usage?"Simpan":"Tambah"}</button>
+            				<button type="submit" 
+                                className={ this.state.submit_loading
+                                    ? "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4 disabled"
+                                    : "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4"}>
+                                { this.steta.submit_loading
+                                    ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                    : this.props.usage?"Simpan":"Tambah"}
+                            </button>
             			</div>
                     )
                 // if(this.props.usage){
@@ -327,7 +337,15 @@ class Operation extends React.Component {
                 if(kirim && !this.props.usage){
                     buttonMode.push(
                         <div className="col-auto d-flex my-auto" key="1">
-            				<button type="submit" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Kirim</button>
+            				<button type="submit" 
+                                className={ this.state.submit_loading
+                                    ? "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4 disabled"
+                                    : "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4"
+                                }>
+                                    {this.state.submit_loading
+                                    ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                    : 'Kirim'}
+                            </button>
             			</div>
                     )
                 }
@@ -341,7 +359,14 @@ class Operation extends React.Component {
                             )
                             buttonMode.push(
                                 <div className="col-auto d-flex my-auto" key="1">
-                    				<button type="submit" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Simpan</button>
+                    				<button type="submit" className={ this.state.submit_loading
+                                        ? "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4 disabled"
+                                        : "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4"
+                                    }>
+                                        { this.state.submit_loading
+                                        ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                        : 'Simpan'}
+                                    </button>
                     			</div>
                             )
                         } else {
@@ -353,7 +378,14 @@ class Operation extends React.Component {
 
                             buttonMode.push(
                                 <div className="col-auto d-flex my-auto" key="simpan">
-                                    <button type="submit" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4" onClick={() => this.statusDone()}>Proses</button>
+                                    <button type="submit" className={ this.state.submit_loading
+                                        ? "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4 disabled"
+                                        : "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4"
+                                    } onClick={() => this.statusDone()}>
+                                        {this.state.submit_loading
+                                        ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                        : 'Proses'}
+                                    </button>
                                 </div>
                             )
                         }
