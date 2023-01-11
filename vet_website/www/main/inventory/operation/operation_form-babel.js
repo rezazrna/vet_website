@@ -318,7 +318,7 @@ class Operation extends React.Component {
                                 className={ this.state.submit_loading
                                     ? "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4 disabled"
                                     : "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4"}>
-                                { this.steta.submit_loading
+                                { this.state.submit_loading
                                     ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                                     : this.props.usage?"Simpan":"Tambah"}
                             </button>
