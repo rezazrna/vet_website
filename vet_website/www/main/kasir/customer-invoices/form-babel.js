@@ -1967,6 +1967,9 @@ class CustomerInvoiceLines extends React.Component {
                 				<div className="col">
                 					<span className="my-auto">Product</span>
                 				</div>
+                                <div className="col-1">
+                					<span className="my-auto">Internal Reference</span>
+                				</div>
                 				<div className="col-2 text-center">
                 					<span className="my-auto">Warehouse</span>
                 				</div>
@@ -2087,6 +2090,7 @@ class CustomerInvoiceLinesMultipleRow extends React.Component {
                         <div className="col">
         					<span className="my-auto">{this.props.pet_name}<i className={this.props.status=='Draft'?"fa fa-pencil fs18 mx-2":"fa fa-external-link fs18 mx-2"} style={cursor} onClick={() => this.goToDetail()}/></span>
         				</div>
+                        <div className="col-1 text-center"/>
         				<div className="col-2 text-center"/>
         				<div className="col-1 text-center">
         					<span className="my-auto">{total_qty}</span>
@@ -2104,6 +2108,9 @@ class CustomerInvoiceLinesMultipleRow extends React.Component {
                     <div className="row mx-0 fs14 fw600 row-header">
                 		<div className="col">
                 			<span className="my-auto">Product</span>
+                		</div>
+                        <div className="col-1">
+                			<span className="my-auto">Internal Reference</span>
                 		</div>
                 		<div className="col-2 text-center">
                 			<span className="my-auto">Warehouse</span>
@@ -2348,6 +2355,7 @@ class CustomerInvoiceLinesRow extends React.Component {
             required = true
         }
         var product = <span className="my-auto">{item.product_name?item.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):item.product}</span>
+        var internal_reference = <span className="my-auto">{item.product || ''}</span>
         var quantity = <span className="my-auto">{Math.ceil(item.quantity || 0)}</span>
         var uom = <span className="my-auto">{item.uom_name||item.product_uom}</span>
         var unit_price = <span className="my-auto">{formatter2.format(this.props.racikan_total || item.unit_price || 0)}</span>
@@ -2404,6 +2412,9 @@ class CustomerInvoiceLinesRow extends React.Component {
         			<div className="row mx-0 fs14 fw600">
         				<div className="col">
         					{product}
+        				</div>
+                        <div className="col-1 text-center">
+        					{internal_reference}
         				</div>
         				<div className="col-2 text-center">
         					{warehouse}
