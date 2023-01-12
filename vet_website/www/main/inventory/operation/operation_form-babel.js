@@ -9,7 +9,7 @@ class Operation extends React.Component {
             'show_receive': false,
             'edit_mode': false,
             'currentUser': {},
-            'submit_loading': false,
+            'submit_loading': true,
         }
         
         this.changeInput = this.changeInput.bind(this)
