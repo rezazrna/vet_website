@@ -9,7 +9,7 @@ class Operation extends React.Component {
             'show_receive': false,
             'edit_mode': false,
             'currentUser': {},
-            'submit_loading': true,
+            'submit_loading': false,
         }
         
         this.changeInput = this.changeInput.bind(this)
@@ -244,7 +244,7 @@ class Operation extends React.Component {
                             if (r.message) {
                                 var new_data = Object.assign({}, op.state.data)
                                 new_data.status = r.message.status
-                                op.setState({data: new_data})
+                                op.setState({data: new_data, submit_loading: false})
                             }
                         }
                     })
@@ -276,8 +276,6 @@ class Operation extends React.Component {
                     }
                 })
             }
-    
-            this.setState({submit_loading: false})
         }
     }
     
