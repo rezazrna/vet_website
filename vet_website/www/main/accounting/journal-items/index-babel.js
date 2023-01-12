@@ -841,7 +841,7 @@ class JournalItemsList extends React.Component {
             if (this.props.account != undefined) {
                 account_col = (
                     <div className="col d-flex">
-                        <span className="my-auto">Total</span>
+                        <span className="my-auto">Saldo</span>
                     </div>
                 )
 
@@ -905,7 +905,7 @@ class JournalItemsList extends React.Component {
                 // if (item.debit != 0 || item.credit != 0) {
                     // if (currentItems.includes(item)){
                     item_rows.push(
-                        <JournalItemsListRow account={ji.props.account} key={item.name} item={item} checkRow={() => ji.props.checkRow(index)} changeRemoveStorage={(value) => ji.props.changeRemoveStorage(value)} />
+                        <JournalItemsListRow account={ji.props.account} key={item.name} item={item} checkRow={() => ji.props.checkRow(index)} changeRemoveStorage={(value) => ji.props.changeRemoveStorage(value)}  />
                     )
                     // }
                 // }
@@ -1213,7 +1213,7 @@ class PDF extends React.Component {
 
             if (this.props.account != undefined) {
                 account_col = (
-                    <th className="fw700 py-1" width="90px">Total</th>
+                    <th className="fw700 py-1" width="90px">Saldo</th>
                 )
             }
 
@@ -1499,7 +1499,7 @@ class ExcelPage extends React.Component {
 
             if (this.props.account != undefined) {
                 account_col = (
-                    <th className="fw700 py-1" width="90px">Total</th>
+                    <th className="fw700 py-1" width="90px">Saldo</th>
                 )
             }
 
