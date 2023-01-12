@@ -539,13 +539,13 @@ def submit_pembayaran(data):
 			purchase.save()
 			frappe.db.commit()
 			
-			create_purchase_payment_journal_items(purchase.name, value, False, data_json.get('deposit', 0), data_json.get('payment_method'), dt.strptime(pay.tanggal, '%Y-%m-%d'))
+			create_purchase_payment_journal_items(purchase.name, value, False, data_json.get('deposit', 0), data_json.get('payment_method'), dt.strptime(pay.tanggal, '%Y-%m-%d %H:%M:%S'))
 			purchase.reload()
 			
 			if not data_json.get('from_owner_credit'):
 				owner_credit = frappe.new_doc('VetOwnerCredit')
 				owner_credit.update({
-					'date': dt.strftime(dt.strptime(pay.tanggal, '%Y-%m-%d'), "%Y-%m-%d %H:%M:%S"),
+					'date': dt.strftime(dt.strptime(pay.tanggal, '%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S'),
 					'purchase': purchase.name,
 					'type': 'Payment',
 					'nominal': pay.jumlah,
@@ -606,7 +606,7 @@ def submit_refund(data):
 			purchase.save()
 			frappe.db.commit()
 			
-			create_purchase_payment_journal_items(purchase.name, data_json.get('refund'), True, 0, data_json.get('payment_method'), dt.strptime(pay.tanggal, '%Y-%m-%d'))
+			create_purchase_payment_journal_items(purchase.name, data_json.get('refund'), True, 0, data_json.get('payment_method'), dt.strptime(pay.tanggal, '%Y-%m-%d %H:%M:%S'))
 			
 			if check_paid_purchase(purchase.name):
 				purchase.status = 'Refund'

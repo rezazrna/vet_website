@@ -628,7 +628,11 @@ class PopupPay extends React.Component {
     constructor(props) {
         super(props)
         this.state={
-            'data': {'name': this.props.name, 'tanggal': moment().format('YYYY-MM-DD')}
+            'data': {
+                'name': this.props.name,
+                'tanggal': moment().format('YYYY-MM-DD'),
+                'time': moment().format('HH:mm:ss')
+            }
         }
         
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -683,6 +687,8 @@ class PopupPay extends React.Component {
             var new_data = Object.assign({}, this.state.data)
             new_data.jumlah = parseInt(new_data.jumlah.replace(/\D/g,''))
             new_data.payment_method.includes('Deposit') ? new_data.jumlah = this.props.total_credit:false
+            new_data.tanggal = new_data.tanggal + ' ' + new_data.time
+            delete new_data['time']
             console.log(new_data)
             if(new_data.payment_method){
                 frappe.call({
@@ -771,6 +777,11 @@ class PopupPay extends React.Component {
                                 <input required type="date" id="tanggal" name='tanggal' className="form-control border-0 fs22 fw600 mb-4" onChange={this.handleInputChange} defaultValue={this.state.data.tanggal || ''} style={inputStyle}/>
                             </div>
         
+        var time_input = <div className="form-group">
+                                <span className="fs14 fw600 mb-2">Waktu</span>
+                                <input required type="time" id="time" name='time' className="form-control border-0 fs22 fw600 mb-4" onChange={this.handleInputChange} defaultValue={this.state.data.time || ''} style={inputStyle}/>
+                            </div>
+        
         return (
                 <div className="menu-popup">
                     <div className="container" style={maxwidth}>
@@ -783,6 +794,7 @@ class PopupPay extends React.Component {
                             </div>
                             {this.state.data.payment_method&&!this.state.data.payment_method.includes('Deposit')?value_input:false}
                             {this.state.data.payment_method&&!this.state.data.payment_method.includes('Deposit')?tanggal_input:false}
+                            {this.state.data.payment_method&&!this.state.data.payment_method.includes('Deposit')?time_input:false}
                             <div className="row justify-content-center mb-2">
                                 <div className="col-auto d-flex mt-4">
                                     <button className="btn btn-sm fs18 h-100 fwbold px-4" style={payStyle} onClick={this.submitPay}>Pay</button>
