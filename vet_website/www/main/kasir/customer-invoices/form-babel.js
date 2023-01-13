@@ -998,6 +998,7 @@ class CustomerInvoice extends React.Component {
             return (
                 <form id="customer_invoice_form" onSubmit={(e) => this.formSubmit(e)} className="position-relative">
                     <PDF data={this.state.data} payment_method_list={this.state.payment_method_list} subtotal={subtotal} total={total} paid={paid} total_credit={this.state.total_credit}/>
+                    <ExcelPage data={this.state.data} payment_method_list={this.state.payment_method_list} subtotal={subtotal} total={total} paid={paid} total_credit={this.state.total_credit}/>
                     <PDFMini data={this.state.data} payment_method_list={this.state.payment_method_list} subtotal={subtotal} total={total} paid={paid} total_credit={this.state.total_credit}/>
                 	<div style={panel_style}>
                 		<div className="row mx-0 flex-row-reverse" style={rowMinHeight}>
@@ -3251,7 +3252,8 @@ class ExcelPage extends React.Component{
         }
         
         var table_rows = []
-        var payment_rows = []
+        var payment_rows_method = []
+        var payment_rows_jumlah = []
         if(data.children_customer_invoice && data.children_customer_invoice.length > 0){
             var all_payment = []
             data.children_customer_invoice.forEach(ci => {
@@ -3276,11 +3278,12 @@ class ExcelPage extends React.Component{
                 var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
                 pm_find?payment_method = pm_find.method_name:false
                 
-                payment_rows.push(
-                    <tr>
-                        <td>{payment_method}</td>
-                        <td>{formatter.format(d.jumlah)}</td>
-                    </tr>
+                payment_rows_method.push(
+                    <td>{payment_method}</td>
+                )
+
+                payment_rows_jumlah.push(
+                    <td>{formatter.format(d.jumlah)}</td>
                 )
             })
         } else {
@@ -3292,11 +3295,12 @@ class ExcelPage extends React.Component{
                 var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
                 pm_find?payment_method = pm_find.method_name:false
                 
-                payment_rows.push(
-                    <tr>
-                        <td>{payment_method}</td>
-                        <td>{formatter.format(d.jumlah)}</td>
-                    </tr>
+                payment_rows_method.push(
+                    <td>{payment_method}</td>
+                )
+
+                payment_rows_jumlah.push(
+                    <td>{formatter.format(d.jumlah)}</td>
                 )
             })
         }
@@ -3310,21 +3314,15 @@ class ExcelPage extends React.Component{
         
         var remaining = total - paid
         
-        var remaining_row
+        var remaining_row_title = []
+        var remaining_row_jumlah = []
         if(['Refund','Done'].includes(data.status) && data.is_rawat_inap){
-            remaining_row = (
-                <tr>
-                    <td>Sisa Deposit</td>
-                    <td>{formatter.format(total_credit)}</td>
-                </tr>
-            )
+            remaining_row_title = <td>Sisa Deposit</td>
+            remaining_row_jumlah = <td>{formatter.format(total_credit)}</td>
+            
         } else {
-            remaining_row = (
-                <tr>
-                    <td>{remaining<0?"Exchange":"Remaining"}</td>
-                    <td>{remaining<0?formatter.format(-remaining):formatter.format(remaining)}</td>
-                </tr>
-            )
+            remaining_row_title = <td>{remaining<0?"Exchange":"Remaining"}</td>
+            remaining_row_jumlah = <td>{remaining<0?formatter.format(-remaining):formatter.format(remaining)}</td>
         }
 
         if (this.state.loaded) {
@@ -3357,15 +3355,15 @@ class ExcelPage extends React.Component{
                     <tr>
                         <td colspan="2">{data.owner_name}</td>
                         <td colspan="2">{data.pet_name}</td>
-                        <td colspan="2">
-                            <tr>
-                                {moment(data.invoice_date).subtract(tzOffset, 'minute').format("DD-MM-YYYY HH:mm:ss")}
-                            </tr>
-                            <tr>
-                                {data.user_name}
-                            </tr>
-                        </td>
+                        <td colspan="2">{moment(data.invoice_date).subtract(tzOffset, 'minute').format("DD-MM-YYYY HH:mm:ss")}</td>
                     </tr>
+                    <tr>
+                        <td colspan="2"></td>
+                        <td colspan="2"></td>
+                        <td colspan="2">{data.user_name}</td>
+                    </tr>
+                    <tr></tr>
+                    <tr></tr>
                     <table className="fs12" style={row2}>
                         <thead className="text-uppercase" style={thead}>
                             <tr className="text-center">
@@ -3388,24 +3386,51 @@ class ExcelPage extends React.Component{
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td>
+                        <td colspan="2">
                             {data.is_refund?refund:false}
-                            <tr>
-                                <td>Sub Total</td>
-                                <td>{formatter.format(subtotal)}</td>
-                            </tr>
-                            <tr>
-                                <td>Diskon</td>
-                                <td>{formatter.format(data.potongan)}</td>
-                            </tr>
-                            <tr></tr>
-                            <tr>
-                                <td>Total</td>
-                                <td>{formatter.format(total)}</td>
-                            </tr>
-                            {payment_rows}
-                            {remaining_row}
                         </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>Sub Total</td>
+                        <td>{formatter.format(subtotal)}</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>Diskon</td>
+                        <td>{formatter.format(data.potongan)}</td>
+                    </tr>
+                    <tr></tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>Total</td>
+                        <td>{formatter.format(total)}</td>
+                    </tr>
+                    <tr></tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        {payment_rows_method}
+                        {payment_rows_jumlah}
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        {remaining_row_title}
+                        {remaining_row_jumlah}
                     </tr>
                 </table>
             )
