@@ -725,6 +725,39 @@ class CustomerInvoice extends React.Component {
         //   }
         // });
     }
+
+    printExcel(e) {
+        e.stopPropagation()
+
+        var elt = document.getElementById('excel_page');
+        var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+        var sheet = wb.Sheets[wb.SheetNames[0]];
+
+        const format = '#,##0.00'
+        for (let col of [3 , 4, 5]) {
+            this.formatColumn(sheet, col, format)
+        }
+
+        var sheetcols = [
+            {wpx:419},
+            {wpx:140},
+        ];
+        
+        sheet['!cols'] = sheetcols;
+
+        XLSX.writeFile(wb, "Invoice-"+this.state.data.name + '.xlsx');
+    }
+
+    formatColumn(worksheet, col, fmt) {
+        const range = XLSX.utils.decode_range(worksheet['!ref'])
+        // note: range.s.r + 1 skips the header row
+        for (let row = range.s.r + 1; row <= range.e.r; ++row) {
+            const ref = XLSX.utils.encode_cell({ r: row, c: col })
+            if (worksheet[ref] && worksheet[ref].t === 'n') {
+            worksheet[ref].z = fmt
+            }
+        }
+    }
     
     deleteRow(i, type){
         var new_data = this.state.data
@@ -928,6 +961,7 @@ class CustomerInvoice extends React.Component {
             if(id != undefined && this.state.data.status != 'Draft'){
                 buttonMode.push(<div className="col-auto d-flex my-auto" key="printmini"><button type="button" onClick={(e) => this.printPDF(e, true)} className="d-block btn btn-sm btn-outline-danger fs12 text-uppercase fwbold py-2 px-4">Print Mini</button></div>)
                 buttonMode.push(<div className="col-auto d-flex my-auto" key="print"><button type="button" onClick={(e) => this.printPDF(e)} className="d-block btn btn-sm btn-outline-danger fs12 text-uppercase fwbold py-2 px-4">Print</button></div>)
+                buttonMode.push(<div className="col-auto d-flex my-auto" key="printExcel"><button type="button" onClick={(e) => this.printExcel(e)} className="d-block btn btn-sm btn-outline-danger fs12 text-uppercase fwbold py-2 px-4">Print Excel</button></div>)
             }
             
             if (this.state.data.status) {
@@ -996,722 +1030,6 @@ class CustomerInvoice extends React.Component {
                     </div>
                 </div>
         }
-    }
-}
-
-class PDF extends React.Component{
-    constructor(props) {
-        super(props);
-        this.state = {
-            'profile': {},
-            'loaded': false,
-        }
-    }
-    
-    componentDidMount() {
-        var ci = this
-        
-        frappe.call({
-            type: "GET",
-            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
-            args: {},
-            callback: function(r){
-                if (r.message) {
-                    ci.setState({'profile': r.message.profile, 'loaded': true});
-                }
-            }
-        });
-    }
-
-    render(){
-        var data = this.props.data
-        var profile = this.state.profile
-        var payment_method_list = this.props.payment_method_list
-        var subtotal = this.props.subtotal
-        var paid = this.props.paid
-        var total = this.props.total
-        var total_credit = this.props.total_credit
-        console.log(data)
-        var page_dimension = {width: 559, minHeight: 794, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
-        var borderStyle = {border: '1px solid #000', margin: '15px 0'}
-        var row1 = {marginBottom: 12}
-        var row2 = {margin: '0 -14px'}
-        var th = {border: '1px solid #000'}
-        var td = {borderLeft: '1px solid #000', borderRight: '1px solid #000'}
-        var fs11 = {fontSize: 11}
-        var fs13 = {fontSize: 13}
-        var fs9 = {fontSize: 9}
-        var invoice = {letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18}
-        var invoice2 = {letterSpacing: 0}
-        var thead = {background: '#d9d9d9', fontSize: 11}
-        var total_border = {borderTop: '1px solid #000', marginBottom: 5}
-        
-        function addProductRow(data){
-            var table_rows = []
-            if (!data.is_rawat_inap){
-                var keys = ['farmasi','instalasi_medis','jasa','rawat_inap']
-                keys.forEach(k => {
-                    if(data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
-                        var filtered_list = data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
-                        var racikan = []
-                        data.invoice_line[k].forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
-                        
-                        table_rows.push(
-                            <tr key={k+" "+data.name} style={fs9}>
-                                <td className="px-2 py-1 fw600 text-capitalize" >{k.replace(/_/g,' ')}</td>
-                	            <td className="py-1" ></td>
-                	            <td className="py-1" ></td>
-                	            <td className="py-1" ></td>
-                	            <td className="py-1" ></td>
-                            </tr>
-                        )
-                        
-                        filtered_list.forEach((f,index) => {
-                            table_rows.push(
-                                <tr key={k+"_"+data.name+"_"+index.toString()} style={fs9}>
-                                    <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                    <td className="py-1 text-center" >{Math.ceil(f.quantity)}</td>
-                                    <td className="py-1 text-center" >{f.discount||'-'}</td>
-                                    <td className="py-1 text-center" >{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
-                                    ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
-                                    : formatter.format(f.unit_price)}
-                                    </td>
-                                    <td className="py-1 text-center" >{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
-                                    ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
-                                    : formatter.format(f.total)}</td>
-                                </tr>
-                            )
-                        })
-                    }
-                })
-            } else {
-                var rawat_inap_rows = []
-                var date_groups = []
-                
-                if(data.invoice_line['instalasi_medis'].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
-                    var filtered_list = data.invoice_line['instalasi_medis'].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
-                    table_rows.push(
-                        <tr key={'instalasi_medis_'+data.name} style={fs9}>
-                            <td className="px-2 py-1 fw600 text-capitalize" >Instalasi Medis</td>
-            	            <td className="py-1" ></td>
-            	            <td className="py-1" ></td>
-            	            <td className="py-1" ></td>
-            	            <td className="py-1" ></td>
-                        </tr>
-                    )
-                    
-                    filtered_list.forEach((f,index) => {
-                        table_rows.push(
-                            <tr key={'instalasi_medis_'+data.name+"_"+index.toString()} style={fs9}>
-                                <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                <td className="py-1 text-center" >{Math.ceil(f.quantity)}</td>
-                                <td className="py-1 text-center" >{f.discount||'-'}</td>
-                                <td className="py-1 text-center" >{formatter.format(f.unit_price)}</td>
-                                <td className="py-1 text-center" >{formatter.format(f.total)}</td>
-                            </tr>
-                        )
-                    })
-                }
-                
-                // list.forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
-                data.invoice_line['rawat_inap'].forEach(l => !date_groups.map(d => d.date).includes(moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"))?date_groups.push({'date': moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"), 'rows': []}):false)
-                date_groups.forEach((d, index) => {
-                    data.invoice_line['rawat_inap'].forEach(l => moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD") == d.date?d.rows.push(l):false)
-                    table_rows.push(
-                        <tr key={d.date+"_"+data.name} style={fs9}>
-                            <td className="px-2 py-1 fw700 text-capitalize" >{d.date}</td>
-            	            <td className="py-1" ></td>
-            	            <td className="py-1" ></td>
-            	            <td className="py-1" ></td>
-            	            <td className="py-1" ></td>
-                        </tr>
-                    )
-                    d.rows.forEach((r, index) => {
-                        table_rows.push(
-                            <tr key={d.date+"_"+data.name+"_"+index.toString()} style={fs9}>
-                                <td className="px-2 py-1" >{r.product_name?r.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                <td className="py-1 text-center" >{Math.ceil(r.quantity)}</td>
-                                <td className="py-1 text-center" >{r.discount||'-'}</td>
-                                <td className="py-1 text-center" >{formatter.format(r.unit_price)}</td>
-                                <td className="py-1 text-center" >{formatter.format(r.total)}</td>
-                            </tr>
-                        )
-                    })
-                    
-                })
-            }
-            return table_rows
-        }
-        
-        var table_rows = []
-        var payment_rows = []
-        if(data.children_customer_invoice && data.children_customer_invoice.length > 0){
-            var all_payment = []
-            data.children_customer_invoice.forEach(ci => {
-                var border = {borderTop: "1px solid #000", paddingTop: 7}
-                var headerStyle = {background: "#D9D9D9", borderRadius: 3, padding: "3px 15px", fontSize: 10, fontWeight: 600}
-                table_rows.push(
-                    <tr key={ci.customer_invoice.name+"_header"}>
-                        <td colSpan="5">
-                            <div className="row">
-                                <div className="col-auto mx-auto my-1" style={headerStyle}>
-                                    <span className="pr-2">{ci.customer_invoice.name}</span><span className="pl-2">{ci.customer_invoice.pet_name}</span>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                )
-                table_rows = [...table_rows, ...addProductRow(ci.customer_invoice)]
-                table_rows.push(<tr key={ci.customer_invoice.name+"_border"}><td colSpan="5" style={border}/></tr>)
-                all_payment = all_payment.concat(ci.customer_invoice.pembayaran)
-            })
-            all_payment.forEach((d, index) => {
-                var payment_method = d.metode_pembayaran
-                var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
-                pm_find?payment_method = pm_find.method_name:false
-                
-                payment_rows.push(
-                    <div className="row" style={fs11} key={index.toString()}>
-    	                <div className="col-6 text-right fw600">
-    	                    {payment_method}
-    	                </div>
-    	                <div className="col-6 text-right">
-    	                    {formatter.format(d.jumlah)}
-    	                </div>
-    	            </div>
-                )
-            })
-        } else {
-            var border = {borderTop: "1px solid #000", paddingTop: 7}
-            table_rows = addProductRow(data)
-            table_rows.push(<tr key={data.name+"_border"}><td colSpan="5" style={border}/></tr>)
-            data.pembayaran.forEach((d, index) => {
-                var payment_method = d.metode_pembayaran
-                var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
-                pm_find?payment_method = pm_find.method_name:false
-                
-                payment_rows.push(
-                    <div className="row" style={fs11} key={index.toString()}>
-    	                <div className="col-6 text-right fw600">
-    	                    {payment_method}
-    	                </div>
-    	                <div className="col-6 text-right">
-    	                    {formatter.format(d.jumlah)}
-    	                </div>
-    	            </div>
-                )
-            })
-        }
-        
-        var refund_border = {border: '2px solid #000'}
-        var refund = (
-            <div className="col-3 mr-auto">
-                <div className="fs16 fw600 px-3 py-2 text-uppercase text-center" style={refund_border}>
-                    Refund
-                </div>
-            </div>
-        )
-        
-        var remaining = total - paid
-        
-        var remaining_row
-        if(['Refund','Done'].includes(data.status) && data.is_rawat_inap){
-            remaining_row = (
-                <div className="row" style={fs11}>
-	                <div className="col-6 text-right fw600">
-	                    Sisa Deposit
-	                </div>
-	                <div className="col-6 text-right">
-	                    {formatter.format(total_credit)}
-	                </div>
-	            </div>
-            )
-        } else {
-            remaining_row = (
-                <div className="row" style={fs11}>
-                    <div className="col-6 text-right fw600">
-                        {remaining<0?"Exchange":"Remaining"}
-                    </div>
-                    <div className="col-6 text-right">
-                        {remaining<0?formatter.format(-remaining):formatter.format(remaining)}
-                    </div>
-                </div>
-            )
-        }
-
-        if (this.state.loaded) {
-            var image
-            if (profile.image != undefined){
-                var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
-                image = <img src={profile.temp_image || profile.image} style={image_style}/>
-            } else {
-                image = <img src={profile.temp_image} style={image_style} />
-            }
-
-            return(
-                <div className="position-absolute d-none" style={page_dimension}>
-                    <div id="pdf" className="px-4" style={page_dimension}>
-                        <div className="row">
-                            <div className="col-2 px-0">
-                                {/* <div style={div_image_style}> */}
-                                    {image}
-                                {/* </div> */}
-                                {/* <img className="mt-3" src="/static/img/main/menu/naturevet_logo_2x.png"/> */}
-                            </div>
-                            <div className="col-6">
-                                <p className="my-3 fwbold text-uppercase" style={fs13}>{profile.clinic_name}</p>
-                                <p className="my-0" style={fs9}>{profile.address}</p>
-                                <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
-                            </div>
-                            <div className="col-4">
-                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Invoice</p>
-                                <p className="fw600 text-right text-uppercase" style={Object.assign({}, invoice2, fs13)}>{data.name}</p>
-                            </div>
-                            <div className="col-12" style={borderStyle}/>
-                        </div>
-                        <div className="row mx-0" style={row1}>
-                            <div className="col-3 px-0">
-                                <p className="mb-0 fs10">{data.owner_name}</p>
-                            </div>
-                            <div className="col px-0">
-                                <p className="mb-0 fs10">{data.pet_name}</p>
-                            </div>
-                            <div className="col">
-                                <p className="mb-0 fs10 text-right">
-                                    {moment(data.invoice_date).subtract(tzOffset, 'minute').format("DD-MM-YYYY HH:mm:ss")}
-                                </p>
-                                <p className="mb-0 fs10 text-right">
-                                    {data.user_name}
-                                </p>
-                            </div>
-                        </div>
-                        <table className="fs12" style={row2}>
-                            <thead className="text-uppercase" style={thead}>
-                                <tr className="text-center">
-                                    <th className="fw700 py-2" width="280px" >Produk</th>
-                                    <th className="fw700 py-2" width="40px" >Qty</th>
-                                    <th className="fw700 py-2" width="50px" >Disc</th>
-                                    <th className="fw700 py-2" width="90px" >Harga</th>
-                                    <th className="fw700 py-2" width="90px" >Jumlah</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {table_rows}
-                            </tbody>
-                        </table>
-                        <div className="row justify-content-end mb-2">
-                            {data.is_refund?refund:false}
-                            <div className="col-7 px-0">
-                                <div className="row" style={fs11}>
-                                    <div className="col-6 text-right fw600">
-                                        Sub Total
-                                    </div>
-                                    <div className="col-6 text-right">
-                                        {formatter.format(subtotal)}
-                                    </div>
-                                </div>
-                                <div className="row" style={fs11}>
-                                    <div className="col-6 text-right fw600">
-                                        Diskon
-                                    </div>
-                                    <div className="col-6 text-right">
-                                        {formatter.format(data.potongan)}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="row justify-content-end">
-                            <div className="col-6 px-0">
-                                <div style={total_border}/>
-                            </div>
-                        </div>
-                        <div className="row justify-content-end mb-2">
-                            <div className="col-7 px-0">
-                                <div className="row" style={fs11}>
-                                    <div className="col-6 text-right fw600 fs16">
-                                        Total
-                                    </div>
-                                    <div className="col-6 text-right">
-                                        {formatter.format(total)}
-                                    </div>
-                                </div>
-                                {payment_rows}
-                                {remaining_row}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )
-        } else {
-            return <div className="row justify-content-center" key='0'>
-                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
-                        <p className="mb-0 fs24md fs16 fw600 text-muted">
-                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
-                        </p>
-                    </div>
-                </div>
-        }
-    }
-}
-
-class PDFRow extends React.Component{
-    render(){
-        var lineHeight = {lineHeight: '24px'}
-        var fontSize = {fontSize: 12}
-        
-        return(
-            <div className="row mx-0" style={lineHeight}>
-                <div className="col-5 px-1" style={fontSize}>
-                    {this.props.label}
-                </div>
-                <div className="col-1 px-1">
-                    :
-                </div>
-                <div className="col-6 px-1" style={fontSize}>
-                    {this.props.value}
-                </div>
-            </div>
-        )
-    }
-}
-
-class PDFMini extends React.Component{
-    constructor(props) {
-        super(props);
-        this.state = {
-            'profile': {},
-            'loaded': false,
-        }
-    }
-    
-    componentDidMount() {
-        var ci = this
-        
-        frappe.call({
-            type: "GET",
-            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
-            args: {},
-            callback: function(r){
-                if (r.message) {
-                    ci.setState({'profile': r.message.profile, 'loaded': true});
-                }
-            }
-        });
-    }
-
-    render(){
-        var data = this.props.data
-        var profile = this.state.profile
-        var payment_method_list = this.props.payment_method_list
-        var subtotal = this.props.subtotal
-        var paid = this.props.paid
-        var total = this.props.total
-        var total_credit = this.props.total_credit
-        console.log(data)
-        var page_dimension = {width: 361, minHeight: 525, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
-        var page_scale = {transform: 'scale(78%)', transformOrigin: 'top left'}
-        var borderStyle = {border: '1px solid #000', margin: '15px 0'}
-        var borderStyle2 = {borderBottom: '1px solid #000'}
-        var row1 = {marginBottom: 2}
-        var row2 = {marginBottom: 10, width: '100%'}
-        var total_border = {borderTop: '1px solid #000', marginBottom: 5}
-        var fontSize = {fontSize: 12}
-        var fontSize2 = {fontSize: 12}
-        var logo = {width: 72}
-        
-        function addProductRow(data){
-            var table_rows = []
-            if (!data.is_rawat_inap){
-                var keys = ['farmasi','instalasi_medis','jasa','rawat_inap']
-                keys.forEach(k => {
-                    if(data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
-                        var filtered_list = data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
-                        var racikan = []
-                        data.invoice_line[k].forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
-                        
-                        table_rows.push(
-                            <tr key={k+""+data.name}>
-                                <td className="px-2 py-1 fw700 text-capitalize">{k.replace(/_/g,' ')}</td>
-                	            <td className="py-1"></td>
-                	            <td className="py-1"></td>
-                            </tr>
-                        )
-                        
-                        filtered_list.forEach((f,index) => {
-                            table_rows.push(
-                                <tr key={k+""+data.name+""+index.toString()}>
-                                    <td className="px-2 py-1">{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                    <td className="py-1">{Math.ceil(f.quantity)+" x "+(k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
-                                    ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
-                                    : formatter.format(f.unit_price))}</td>
-                                    <td className="py-1 text-right">{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)?formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
-                                    : formatter.format(f.total)}</td>
-                                </tr>
-                            )
-                        })
-                    }
-                })
-            } else {
-                var rawat_inap_rows = []
-                var date_groups = []
-                
-                if(data.invoice_line['instalasi_medis'].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
-                    var filtered_list = data.invoice_line['instalasi_medis'].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
-                    table_rows.push(
-                        <tr key={'instalasi_medis'+data.name}>
-                            <td className="px-2 py-1 fw600 text-capitalize" >Instalasi Medis</td>
-            	            <td className="py-1" ></td>
-            	            <td className="py-1" ></td>
-                        </tr>
-                    )
-                    
-                    filtered_list.forEach((f,index) => {
-                        table_rows.push(
-                            <tr key={'instalasi_medis'+data.name+"_"+index.toString()}>
-                                <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                <td className="py-1" >{Math.ceil(f.quantity)+" x "+formatter.format(f.unit_price)}</td>
-                                <td className="py-1 text-right" >{formatter.format(f.total)}</td>
-                            </tr>
-                        )
-                    })
-                }
-                
-                // list.forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
-                data.invoice_line['rawat_inap'].forEach(l => !date_groups.map(d => d.date).includes(moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"))?date_groups.push({'date': moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"), 'rows': []}):false)
-                date_groups.forEach((d, index) => {
-                    data.invoice_line['rawat_inap'].forEach(l => moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD") == d.date?d.rows.push(l):false)
-                    table_rows.push(
-                        <tr key={d.date+""+d.name}>
-                            <td className="px-2 py-1 fw700 text-capitalize">{d.date}</td>
-            	            <td className="py-1"></td>
-            	            <td className="py-1"></td>
-                        </tr>
-                    )
-                    d.rows.forEach((r, index) => {
-                        table_rows.push(
-                            <tr key={d.date+""+d.name+""+index.toString()}>
-                                <td className="px-2 py-1">{r.product_name?r.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
-                                <td className="py-1">{Math.ceil(r.quantity)+" x "+formatter.format(r.unit_price)}</td>
-                                <td className="py-1 text-right">{formatter.format(r.total)}</td>
-                            </tr>
-                        )
-                    })
-                    
-                })
-            }
-            
-            return table_rows
-        }
-        
-        var table_rows = []
-        var payment_rows = []
-        if(data.children_customer_invoice && data.children_customer_invoice.length > 0){
-            var all_payment = []
-            data.children_customer_invoice.forEach(ci => {
-                var border = {borderTop: "1px solid #000", paddingTop: 7}
-                var headerStyle = {background: "#D9D9D9", borderRadius: 3, padding: "3px 15px", fontSize: 10, fontWeight: 600}
-                table_rows.push(
-                    <tr key={ci.customer_invoice.name+"_header"}>
-                        <td colSpan="5">
-                            <div className="row">
-                                <div className="col-auto mx-auto my-1">
-                                    <span className="pr-2">{ci.customer_invoice.name}</span><span className="pl-2">{ci.customer_invoice.pet_name}</span>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                )
-                table_rows = [...table_rows, ...addProductRow(ci.customer_invoice)]
-                all_payment = all_payment.concat(ci.customer_invoice.pembayaran)
-            })
-            all_payment.forEach((d, index) => {
-                var payment_method = d.metode_pembayaran
-                var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
-                pm_find?payment_method = pm_find.method_name:false
-                
-                payment_rows.push(
-                    <div className="row" style={fontSize2} key={index.toString()}>
-    	                <div className="col-6 text-right fw600">
-    	                    {payment_method}
-    	                </div>
-    	                <div className="col-6 text-right">
-    	                    {formatter.format(d.jumlah)}
-    	                </div>
-    	            </div>
-                )
-            })
-        } else {
-            var border = {borderTop: "1px solid #000", paddingTop: 7}
-            table_rows = addProductRow(data)
-            table_rows.push(<tr key={data.name+"_border"}><td colSpan="5" style={border}/></tr>)
-            data.pembayaran.forEach((d, index) => {
-                var payment_method = d.metode_pembayaran
-                var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
-                pm_find?payment_method = pm_find.method_name:false
-                
-                payment_rows.push(
-                    <div className="row" style={fontSize2} key={index.toString()}>
-    	                <div className="col-6 text-right fw600">
-    	                    {payment_method}
-    	                </div>
-    	                <div className="col-6 text-right">
-    	                    {formatter.format(d.jumlah)}
-    	                </div>
-    	            </div>
-                )
-            })
-        }
-        
-        var refund_border = {border: '2px solid #000'}
-        var refund = (
-            <div className="col-3 mr-auto">
-                <div className="fs16 fw600 px-3 py-2 text-uppercase text-center" style={refund_border}>
-                    Refund
-                </div>
-            </div>
-        )
-        
-        var remaining = total - paid
-        
-        var remaining_row
-        if(['Refund','Done'].includes(data.status) && data.is_rawat_inap){
-            remaining_row = (
-                <div className="row" style={fontSize2}>
-	                <div className="col-6 text-right fw600">
-	                    Sisa Deposit
-	                </div>
-	                <div className="col-6 text-right">
-	                    {formatter.format(total_credit)}
-	                </div>
-	            </div>
-            )
-        } else {
-            remaining_row = (
-                <div className="row" style={fontSize2}>
-                    <div className="col-6 text-right fw600">
-                        {remaining<0?"Exchange":"Remaining"}
-                    </div>
-                    <div className="col-6 text-right">
-                        {remaining<0?formatter.format(-remaining):formatter.format(remaining)}
-                    </div>
-                </div>
-            )
-        }
-
-        if (this.state.loaded) {
-            var image
-            if (profile.image != undefined){
-                var image_style = {position: 'absolute', top: 0, left: 15, objectFit: 'cover', height: '100%'}
-                image = <img src={profile.temp_image || profile.image} style={image_style}/>
-            } else {
-                image = <img src={profile.temp_image} style={image_style} />
-            }
-
-            return(
-                <div className="position-absolute d-none" style={page_dimension}>
-                    <div id="pdfmini" className="px-2 py-3" style={Object.assign({}, page_dimension, page_scale)}>
-                        <div className="row">
-                            <div className="col-auto mr-2">
-                                {image}
-                                {/* <img src="/static/img/main/menu/naturevet_logo.png" style={logo}/> */}
-                            </div>
-                            <div className="col-8">
-                                <p className="my-0 fs12 fwbold text-uppercase">{profile.clinic_name}</p>
-                                <p className="my-0" style={fontSize2}>{profile.addres}</p>
-                                <p className="my-0" style={fontSize2}>Telp. : {profile.phone}</p>
-                            </div>
-                            <div className="col-12">
-                                <div style={borderStyle}/>
-                            </div>
-                        </div>
-                        <div className="row mx-0" style={row1}>
-                            <div className="col-6 px-1">
-                                <PDFMiniRow label="Owner Name" value={data.owner_name}/>
-                                <PDFMiniRow label="Pet Name" value={data.pet_name}/>
-                            </div>
-                            <div className="col-6 px-1">
-                                <PDFMiniRow right={true} label="Tanggal Invoice" value={moment(data.invoice_date).subtract(tzOffset, 'minute').format("DD-MM-YYYY HH:mm")}/>
-                                <PDFMiniRow right={true} label="No. Invoice" value={'Invoice '+data.name}/>
-                                <PDFMiniRow right={true} label="Responsible" value={data.user_name}/>
-                            </div>
-                        </div>
-                        <table style={Object.assign({}, row2, fontSize2)}>
-                            <tbody>
-                                {table_rows}
-                            </tbody>
-                        </table>
-                        <div className="row justify-content-end">
-                            <div className="col-5">
-                                <div style={total_border}/>
-                            </div>
-                        </div>
-                        <div className="row justify-content-end mb-2">
-                            <div className="col-7">
-                                {data.is_refund?refund:false}
-                                <div className="row" style={fontSize2}>
-                                    <div className="col-6 text-right fw600">
-                                        Sub Total
-                                    </div>
-                                    <div className="col-6 text-right">
-                                        {formatter.format(subtotal)}
-                                    </div>
-                                </div>
-                                <div className="row" style={fontSize2}>
-                                    <div className="col-6 text-right fw600">
-                                        Diskon
-                                    </div>
-                                    <div className="col-6 text-right">
-                                        {formatter.format(data.potongan)}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="row justify-content-end">
-                            <div className="col-5">
-                                <div style={total_border}/>
-                            </div>
-                        </div>
-                        <div className="row justify-content-end mb-2">
-                            <div className="col-7">
-                                <div className="row" style={fontSize2}>
-                                    <div className="col-6 text-right fw600">
-                                        Total
-                                    </div>
-                                    <div className="col-6 text-right">
-                                        {formatter.format(total)}
-                                    </div>
-                                </div>
-                                {payment_rows}
-                                {remaining_row}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )
-        } else {
-            return <div className="row justify-content-center" key='0'>
-                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
-                        <p className="mb-0 fs24md fs16 fw600 text-muted">
-                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
-                        </p>
-                    </div>
-                </div>
-        }
-    }
-}
-
-class PDFMiniRow extends React.Component{
-    render(){
-        var lineHeight = {lineHeight: '24px'}
-        var fontSize = {fontSize: 12}
-        
-        return(
-            <div className="row mx-0">
-                <div className={this.props.right?"col-12 px-1 fw600 text-right":"col-12 px-1 fw600"} style={fontSize}>
-                    {this.props.value}
-                </div>
-            </div>
-        )
     }
 }
 
@@ -3067,6 +2385,1040 @@ class CustomerInvoiceVersion extends React.Component {
 					{row_version}
 				</div>
 	}
+}
+
+class PDF extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+    
+    componentDidMount() {
+        var ci = this
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                }
+            }
+        });
+    }
+
+    render(){
+        var data = this.props.data
+        var profile = this.state.profile
+        var payment_method_list = this.props.payment_method_list
+        var subtotal = this.props.subtotal
+        var paid = this.props.paid
+        var total = this.props.total
+        var total_credit = this.props.total_credit
+        console.log(data)
+        var page_dimension = {width: 559, minHeight: 794, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
+        var borderStyle = {border: '1px solid #000', margin: '15px 0'}
+        var row1 = {marginBottom: 12}
+        var row2 = {margin: '0 -14px'}
+        var th = {border: '1px solid #000'}
+        var td = {borderLeft: '1px solid #000', borderRight: '1px solid #000'}
+        var fs11 = {fontSize: 11}
+        var fs13 = {fontSize: 13}
+        var fs9 = {fontSize: 9}
+        var invoice = {letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18}
+        var invoice2 = {letterSpacing: 0}
+        var thead = {background: '#d9d9d9', fontSize: 11}
+        var total_border = {borderTop: '1px solid #000', marginBottom: 5}
+        
+        function addProductRow(data){
+            var table_rows = []
+            if (!data.is_rawat_inap){
+                var keys = ['farmasi','instalasi_medis','jasa','rawat_inap']
+                keys.forEach(k => {
+                    if(data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
+                        var filtered_list = data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
+                        var racikan = []
+                        data.invoice_line[k].forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
+                        
+                        table_rows.push(
+                            <tr key={k+" "+data.name} style={fs9}>
+                                <td className="px-2 py-1 fw600 text-capitalize" >{k.replace(/_/g,' ')}</td>
+                	            <td className="py-1" ></td>
+                	            <td className="py-1" ></td>
+                	            <td className="py-1" ></td>
+                	            <td className="py-1" ></td>
+                            </tr>
+                        )
+                        
+                        filtered_list.forEach((f,index) => {
+                            table_rows.push(
+                                <tr key={k+"_"+data.name+"_"+index.toString()} style={fs9}>
+                                    <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
+                                    <td className="py-1 text-center" >{Math.ceil(f.quantity)}</td>
+                                    <td className="py-1 text-center" >{f.discount||'-'}</td>
+                                    <td className="py-1 text-center" >{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
+                                    ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
+                                    : formatter.format(f.unit_price)}
+                                    </td>
+                                    <td className="py-1 text-center" >{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
+                                    ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
+                                    : formatter.format(f.total)}</td>
+                                </tr>
+                            )
+                        })
+                    }
+                })
+            } else {
+                var rawat_inap_rows = []
+                var date_groups = []
+                
+                if(data.invoice_line['instalasi_medis'].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
+                    var filtered_list = data.invoice_line['instalasi_medis'].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
+                    table_rows.push(
+                        <tr key={'instalasi_medis_'+data.name} style={fs9}>
+                            <td className="px-2 py-1 fw600 text-capitalize" >Instalasi Medis</td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+                        </tr>
+                    )
+                    
+                    filtered_list.forEach((f,index) => {
+                        table_rows.push(
+                            <tr key={'instalasi_medis_'+data.name+"_"+index.toString()} style={fs9}>
+                                <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
+                                <td className="py-1 text-center" >{Math.ceil(f.quantity)}</td>
+                                <td className="py-1 text-center" >{f.discount||'-'}</td>
+                                <td className="py-1 text-center" >{formatter.format(f.unit_price)}</td>
+                                <td className="py-1 text-center" >{formatter.format(f.total)}</td>
+                            </tr>
+                        )
+                    })
+                }
+                
+                // list.forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
+                data.invoice_line['rawat_inap'].forEach(l => !date_groups.map(d => d.date).includes(moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"))?date_groups.push({'date': moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"), 'rows': []}):false)
+                date_groups.forEach((d, index) => {
+                    data.invoice_line['rawat_inap'].forEach(l => moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD") == d.date?d.rows.push(l):false)
+                    table_rows.push(
+                        <tr key={d.date+"_"+data.name} style={fs9}>
+                            <td className="px-2 py-1 fw700 text-capitalize" >{d.date}</td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+                        </tr>
+                    )
+                    d.rows.forEach((r, index) => {
+                        table_rows.push(
+                            <tr key={d.date+"_"+data.name+"_"+index.toString()} style={fs9}>
+                                <td className="px-2 py-1" >{r.product_name?r.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
+                                <td className="py-1 text-center" >{Math.ceil(r.quantity)}</td>
+                                <td className="py-1 text-center" >{r.discount||'-'}</td>
+                                <td className="py-1 text-center" >{formatter.format(r.unit_price)}</td>
+                                <td className="py-1 text-center" >{formatter.format(r.total)}</td>
+                            </tr>
+                        )
+                    })
+                    
+                })
+            }
+            return table_rows
+        }
+        
+        var table_rows = []
+        var payment_rows = []
+        if(data.children_customer_invoice && data.children_customer_invoice.length > 0){
+            var all_payment = []
+            data.children_customer_invoice.forEach(ci => {
+                var border = {borderTop: "1px solid #000", paddingTop: 7}
+                var headerStyle = {background: "#D9D9D9", borderRadius: 3, padding: "3px 15px", fontSize: 10, fontWeight: 600}
+                table_rows.push(
+                    <tr key={ci.customer_invoice.name+"_header"}>
+                        <td colSpan="5">
+                            <div className="row">
+                                <div className="col-auto mx-auto my-1" style={headerStyle}>
+                                    <span className="pr-2">{ci.customer_invoice.name}</span><span className="pl-2">{ci.customer_invoice.pet_name}</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                )
+                table_rows = [...table_rows, ...addProductRow(ci.customer_invoice)]
+                table_rows.push(<tr key={ci.customer_invoice.name+"_border"}><td colSpan="5" style={border}/></tr>)
+                all_payment = all_payment.concat(ci.customer_invoice.pembayaran)
+            })
+            all_payment.forEach((d, index) => {
+                var payment_method = d.metode_pembayaran
+                var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
+                pm_find?payment_method = pm_find.method_name:false
+                
+                payment_rows.push(
+                    <div className="row" style={fs11} key={index.toString()}>
+    	                <div className="col-6 text-right fw600">
+    	                    {payment_method}
+    	                </div>
+    	                <div className="col-6 text-right">
+    	                    {formatter.format(d.jumlah)}
+    	                </div>
+    	            </div>
+                )
+            })
+        } else {
+            var border = {borderTop: "1px solid #000", paddingTop: 7}
+            table_rows = addProductRow(data)
+            table_rows.push(<tr key={data.name+"_border"}><td colSpan="5" style={border}/></tr>)
+            data.pembayaran.forEach((d, index) => {
+                var payment_method = d.metode_pembayaran
+                var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
+                pm_find?payment_method = pm_find.method_name:false
+                
+                payment_rows.push(
+                    <div className="row" style={fs11} key={index.toString()}>
+    	                <div className="col-6 text-right fw600">
+    	                    {payment_method}
+    	                </div>
+    	                <div className="col-6 text-right">
+    	                    {formatter.format(d.jumlah)}
+    	                </div>
+    	            </div>
+                )
+            })
+        }
+        
+        var refund_border = {border: '2px solid #000'}
+        var refund = (
+            <div className="col-3 mr-auto">
+                <div className="fs16 fw600 px-3 py-2 text-uppercase text-center" style={refund_border}>
+                    Refund
+                </div>
+            </div>
+        )
+        
+        var remaining = total - paid
+        
+        var remaining_row
+        if(['Refund','Done'].includes(data.status) && data.is_rawat_inap){
+            remaining_row = (
+                <div className="row" style={fs11}>
+	                <div className="col-6 text-right fw600">
+	                    Sisa Deposit
+	                </div>
+	                <div className="col-6 text-right">
+	                    {formatter.format(total_credit)}
+	                </div>
+	            </div>
+            )
+        } else {
+            remaining_row = (
+                <div className="row" style={fs11}>
+                    <div className="col-6 text-right fw600">
+                        {remaining<0?"Exchange":"Remaining"}
+                    </div>
+                    <div className="col-6 text-right">
+                        {remaining<0?formatter.format(-remaining):formatter.format(remaining)}
+                    </div>
+                </div>
+            )
+        }
+
+        if (this.state.loaded) {
+            var image
+            if (profile.image != undefined){
+                var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
+                image = <img src={profile.temp_image || profile.image} style={image_style}/>
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            return(
+                <div className="position-absolute d-none" style={page_dimension}>
+                    <div id="pdf" className="px-4" style={page_dimension}>
+                        <div className="row">
+                            <div className="col-2 px-0">
+                                {/* <div style={div_image_style}> */}
+                                    {image}
+                                {/* </div> */}
+                                {/* <img className="mt-3" src="/static/img/main/menu/naturevet_logo_2x.png"/> */}
+                            </div>
+                            <div className="col-6">
+                                <p className="my-3 fwbold text-uppercase" style={fs13}>{profile.clinic_name}</p>
+                                <p className="my-0" style={fs9}>{profile.address}</p>
+                                <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
+                            </div>
+                            <div className="col-4">
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Invoice</p>
+                                <p className="fw600 text-right text-uppercase" style={Object.assign({}, invoice2, fs13)}>{data.name}</p>
+                            </div>
+                            <div className="col-12" style={borderStyle}/>
+                        </div>
+                        <div className="row mx-0" style={row1}>
+                            <div className="col-3 px-0">
+                                <p className="mb-0 fs10">{data.owner_name}</p>
+                            </div>
+                            <div className="col px-0">
+                                <p className="mb-0 fs10">{data.pet_name}</p>
+                            </div>
+                            <div className="col">
+                                <p className="mb-0 fs10 text-right">
+                                    {moment(data.invoice_date).subtract(tzOffset, 'minute').format("DD-MM-YYYY HH:mm:ss")}
+                                </p>
+                                <p className="mb-0 fs10 text-right">
+                                    {data.user_name}
+                                </p>
+                            </div>
+                        </div>
+                        <table className="fs12" style={row2}>
+                            <thead className="text-uppercase" style={thead}>
+                                <tr className="text-center">
+                                    <th className="fw700 py-2" width="280px" >Produk</th>
+                                    <th className="fw700 py-2" width="40px" >Qty</th>
+                                    <th className="fw700 py-2" width="50px" >Disc</th>
+                                    <th className="fw700 py-2" width="90px" >Harga</th>
+                                    <th className="fw700 py-2" width="90px" >Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {table_rows}
+                            </tbody>
+                        </table>
+                        <div className="row justify-content-end mb-2">
+                            {data.is_refund?refund:false}
+                            <div className="col-7 px-0">
+                                <div className="row" style={fs11}>
+                                    <div className="col-6 text-right fw600">
+                                        Sub Total
+                                    </div>
+                                    <div className="col-6 text-right">
+                                        {formatter.format(subtotal)}
+                                    </div>
+                                </div>
+                                <div className="row" style={fs11}>
+                                    <div className="col-6 text-right fw600">
+                                        Diskon
+                                    </div>
+                                    <div className="col-6 text-right">
+                                        {formatter.format(data.potongan)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="row justify-content-end">
+                            <div className="col-6 px-0">
+                                <div style={total_border}/>
+                            </div>
+                        </div>
+                        <div className="row justify-content-end mb-2">
+                            <div className="col-7 px-0">
+                                <div className="row" style={fs11}>
+                                    <div className="col-6 text-right fw600 fs16">
+                                        Total
+                                    </div>
+                                    <div className="col-6 text-right">
+                                        {formatter.format(total)}
+                                    </div>
+                                </div>
+                                {payment_rows}
+                                {remaining_row}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                        </p>
+                    </div>
+                </div>
+        }
+    }
+}
+
+class PDFRow extends React.Component{
+    render(){
+        var lineHeight = {lineHeight: '24px'}
+        var fontSize = {fontSize: 12}
+        
+        return(
+            <div className="row mx-0" style={lineHeight}>
+                <div className="col-5 px-1" style={fontSize}>
+                    {this.props.label}
+                </div>
+                <div className="col-1 px-1">
+                    :
+                </div>
+                <div className="col-6 px-1" style={fontSize}>
+                    {this.props.value}
+                </div>
+            </div>
+        )
+    }
+}
+
+class PDFMini extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+    
+    componentDidMount() {
+        var ci = this
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                }
+            }
+        });
+    }
+
+    render(){
+        var data = this.props.data
+        var profile = this.state.profile
+        var payment_method_list = this.props.payment_method_list
+        var subtotal = this.props.subtotal
+        var paid = this.props.paid
+        var total = this.props.total
+        var total_credit = this.props.total_credit
+        console.log(data)
+        var page_dimension = {width: 361, minHeight: 525, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
+        var page_scale = {transform: 'scale(78%)', transformOrigin: 'top left'}
+        var borderStyle = {border: '1px solid #000', margin: '15px 0'}
+        var borderStyle2 = {borderBottom: '1px solid #000'}
+        var row1 = {marginBottom: 2}
+        var row2 = {marginBottom: 10, width: '100%'}
+        var total_border = {borderTop: '1px solid #000', marginBottom: 5}
+        var fontSize = {fontSize: 12}
+        var fontSize2 = {fontSize: 12}
+        var logo = {width: 72}
+        
+        function addProductRow(data){
+            var table_rows = []
+            if (!data.is_rawat_inap){
+                var keys = ['farmasi','instalasi_medis','jasa','rawat_inap']
+                keys.forEach(k => {
+                    if(data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
+                        var filtered_list = data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
+                        var racikan = []
+                        data.invoice_line[k].forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
+                        
+                        table_rows.push(
+                            <tr key={k+""+data.name}>
+                                <td className="px-2 py-1 fw700 text-capitalize">{k.replace(/_/g,' ')}</td>
+                	            <td className="py-1"></td>
+                	            <td className="py-1"></td>
+                            </tr>
+                        )
+                        
+                        filtered_list.forEach((f,index) => {
+                            table_rows.push(
+                                <tr key={k+""+data.name+""+index.toString()}>
+                                    <td className="px-2 py-1">{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
+                                    <td className="py-1">{Math.ceil(f.quantity)+" x "+(k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
+                                    ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
+                                    : formatter.format(f.unit_price))}</td>
+                                    <td className="py-1 text-right">{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)?formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
+                                    : formatter.format(f.total)}</td>
+                                </tr>
+                            )
+                        })
+                    }
+                })
+            } else {
+                var rawat_inap_rows = []
+                var date_groups = []
+                
+                if(data.invoice_line['instalasi_medis'].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
+                    var filtered_list = data.invoice_line['instalasi_medis'].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
+                    table_rows.push(
+                        <tr key={'instalasi_medis'+data.name}>
+                            <td className="px-2 py-1 fw600 text-capitalize" >Instalasi Medis</td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+                        </tr>
+                    )
+                    
+                    filtered_list.forEach((f,index) => {
+                        table_rows.push(
+                            <tr key={'instalasi_medis'+data.name+"_"+index.toString()}>
+                                <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
+                                <td className="py-1" >{Math.ceil(f.quantity)+" x "+formatter.format(f.unit_price)}</td>
+                                <td className="py-1 text-right" >{formatter.format(f.total)}</td>
+                            </tr>
+                        )
+                    })
+                }
+                
+                // list.forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
+                data.invoice_line['rawat_inap'].forEach(l => !date_groups.map(d => d.date).includes(moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"))?date_groups.push({'date': moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"), 'rows': []}):false)
+                date_groups.forEach((d, index) => {
+                    data.invoice_line['rawat_inap'].forEach(l => moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD") == d.date?d.rows.push(l):false)
+                    table_rows.push(
+                        <tr key={d.date+""+d.name}>
+                            <td className="px-2 py-1 fw700 text-capitalize">{d.date}</td>
+            	            <td className="py-1"></td>
+            	            <td className="py-1"></td>
+                        </tr>
+                    )
+                    d.rows.forEach((r, index) => {
+                        table_rows.push(
+                            <tr key={d.date+""+d.name+""+index.toString()}>
+                                <td className="px-2 py-1">{r.product_name?r.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
+                                <td className="py-1">{Math.ceil(r.quantity)+" x "+formatter.format(r.unit_price)}</td>
+                                <td className="py-1 text-right">{formatter.format(r.total)}</td>
+                            </tr>
+                        )
+                    })
+                    
+                })
+            }
+            
+            return table_rows
+        }
+        
+        var table_rows = []
+        var payment_rows = []
+        if(data.children_customer_invoice && data.children_customer_invoice.length > 0){
+            var all_payment = []
+            data.children_customer_invoice.forEach(ci => {
+                var border = {borderTop: "1px solid #000", paddingTop: 7}
+                var headerStyle = {background: "#D9D9D9", borderRadius: 3, padding: "3px 15px", fontSize: 10, fontWeight: 600}
+                table_rows.push(
+                    <tr key={ci.customer_invoice.name+"_header"}>
+                        <td colSpan="5">
+                            <div className="row">
+                                <div className="col-auto mx-auto my-1">
+                                    <span className="pr-2">{ci.customer_invoice.name}</span><span className="pl-2">{ci.customer_invoice.pet_name}</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                )
+                table_rows = [...table_rows, ...addProductRow(ci.customer_invoice)]
+                all_payment = all_payment.concat(ci.customer_invoice.pembayaran)
+            })
+            all_payment.forEach((d, index) => {
+                var payment_method = d.metode_pembayaran
+                var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
+                pm_find?payment_method = pm_find.method_name:false
+                
+                payment_rows.push(
+                    <div className="row" style={fontSize2} key={index.toString()}>
+    	                <div className="col-6 text-right fw600">
+    	                    {payment_method}
+    	                </div>
+    	                <div className="col-6 text-right">
+    	                    {formatter.format(d.jumlah)}
+    	                </div>
+    	            </div>
+                )
+            })
+        } else {
+            var border = {borderTop: "1px solid #000", paddingTop: 7}
+            table_rows = addProductRow(data)
+            table_rows.push(<tr key={data.name+"_border"}><td colSpan="5" style={border}/></tr>)
+            data.pembayaran.forEach((d, index) => {
+                var payment_method = d.metode_pembayaran
+                var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
+                pm_find?payment_method = pm_find.method_name:false
+                
+                payment_rows.push(
+                    <div className="row" style={fontSize2} key={index.toString()}>
+    	                <div className="col-6 text-right fw600">
+    	                    {payment_method}
+    	                </div>
+    	                <div className="col-6 text-right">
+    	                    {formatter.format(d.jumlah)}
+    	                </div>
+    	            </div>
+                )
+            })
+        }
+        
+        var refund_border = {border: '2px solid #000'}
+        var refund = (
+            <div className="col-3 mr-auto">
+                <div className="fs16 fw600 px-3 py-2 text-uppercase text-center" style={refund_border}>
+                    Refund
+                </div>
+            </div>
+        )
+        
+        var remaining = total - paid
+        
+        var remaining_row
+        if(['Refund','Done'].includes(data.status) && data.is_rawat_inap){
+            remaining_row = (
+                <div className="row" style={fontSize2}>
+	                <div className="col-6 text-right fw600">
+	                    Sisa Deposit
+	                </div>
+	                <div className="col-6 text-right">
+	                    {formatter.format(total_credit)}
+	                </div>
+	            </div>
+            )
+        } else {
+            remaining_row = (
+                <div className="row" style={fontSize2}>
+                    <div className="col-6 text-right fw600">
+                        {remaining<0?"Exchange":"Remaining"}
+                    </div>
+                    <div className="col-6 text-right">
+                        {remaining<0?formatter.format(-remaining):formatter.format(remaining)}
+                    </div>
+                </div>
+            )
+        }
+
+        if (this.state.loaded) {
+            var image
+            if (profile.image != undefined){
+                var image_style = {position: 'absolute', top: 0, left: 15, objectFit: 'cover', height: '100%'}
+                image = <img src={profile.temp_image || profile.image} style={image_style}/>
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            return(
+                <div className="position-absolute d-none" style={page_dimension}>
+                    <div id="pdfmini" className="px-2 py-3" style={Object.assign({}, page_dimension, page_scale)}>
+                        <div className="row">
+                            <div className="col-auto mr-2">
+                                {image}
+                                {/* <img src="/static/img/main/menu/naturevet_logo.png" style={logo}/> */}
+                            </div>
+                            <div className="col-8">
+                                <p className="my-0 fs12 fwbold text-uppercase">{profile.clinic_name}</p>
+                                <p className="my-0" style={fontSize2}>{profile.addres}</p>
+                                <p className="my-0" style={fontSize2}>Telp. : {profile.phone}</p>
+                            </div>
+                            <div className="col-12">
+                                <div style={borderStyle}/>
+                            </div>
+                        </div>
+                        <div className="row mx-0" style={row1}>
+                            <div className="col-6 px-1">
+                                <PDFMiniRow label="Owner Name" value={data.owner_name}/>
+                                <PDFMiniRow label="Pet Name" value={data.pet_name}/>
+                            </div>
+                            <div className="col-6 px-1">
+                                <PDFMiniRow right={true} label="Tanggal Invoice" value={moment(data.invoice_date).subtract(tzOffset, 'minute').format("DD-MM-YYYY HH:mm")}/>
+                                <PDFMiniRow right={true} label="No. Invoice" value={'Invoice '+data.name}/>
+                                <PDFMiniRow right={true} label="Responsible" value={data.user_name}/>
+                            </div>
+                        </div>
+                        <table style={Object.assign({}, row2, fontSize2)}>
+                            <tbody>
+                                {table_rows}
+                            </tbody>
+                        </table>
+                        <div className="row justify-content-end">
+                            <div className="col-5">
+                                <div style={total_border}/>
+                            </div>
+                        </div>
+                        <div className="row justify-content-end mb-2">
+                            <div className="col-7">
+                                {data.is_refund?refund:false}
+                                <div className="row" style={fontSize2}>
+                                    <div className="col-6 text-right fw600">
+                                        Sub Total
+                                    </div>
+                                    <div className="col-6 text-right">
+                                        {formatter.format(subtotal)}
+                                    </div>
+                                </div>
+                                <div className="row" style={fontSize2}>
+                                    <div className="col-6 text-right fw600">
+                                        Diskon
+                                    </div>
+                                    <div className="col-6 text-right">
+                                        {formatter.format(data.potongan)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="row justify-content-end">
+                            <div className="col-5">
+                                <div style={total_border}/>
+                            </div>
+                        </div>
+                        <div className="row justify-content-end mb-2">
+                            <div className="col-7">
+                                <div className="row" style={fontSize2}>
+                                    <div className="col-6 text-right fw600">
+                                        Total
+                                    </div>
+                                    <div className="col-6 text-right">
+                                        {formatter.format(total)}
+                                    </div>
+                                </div>
+                                {payment_rows}
+                                {remaining_row}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                        </p>
+                    </div>
+                </div>
+        }
+    }
+}
+
+class PDFMiniRow extends React.Component{
+    render(){
+        var lineHeight = {lineHeight: '24px'}
+        var fontSize = {fontSize: 12}
+        
+        return(
+            <div className="row mx-0">
+                <div className={this.props.right?"col-12 px-1 fw600 text-right":"col-12 px-1 fw600"} style={fontSize}>
+                    {this.props.value}
+                </div>
+            </div>
+        )
+    }
+}
+
+class ExcelPage extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+    
+    componentDidMount() {
+        var ci = this
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                }
+            }
+        });
+    }
+
+    render(){
+        var data = this.props.data
+        var profile = this.state.profile
+        var payment_method_list = this.props.payment_method_list
+        var subtotal = this.props.subtotal
+        var paid = this.props.paid
+        var total = this.props.total
+        var total_credit = this.props.total_credit
+        console.log(data)
+        var page_dimension = {width: 559, minHeight: 794, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
+        var borderStyle = {border: '1px solid #000', margin: '15px 0'}
+        var row1 = {marginBottom: 12}
+        var row2 = {margin: '0 -14px'}
+        var th = {border: '1px solid #000'}
+        var td = {borderLeft: '1px solid #000', borderRight: '1px solid #000'}
+        var fs11 = {fontSize: 11}
+        var fs13 = {fontSize: 13}
+        var fs9 = {fontSize: 9}
+        var invoice = {letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18}
+        var invoice2 = {letterSpacing: 0}
+        var thead = {background: '#d9d9d9', fontSize: 11}
+        var total_border = {borderTop: '1px solid #000', marginBottom: 5}
+        
+        function addProductRow(data){
+            var table_rows = []
+            if (!data.is_rawat_inap){
+                var keys = ['farmasi','instalasi_medis','jasa','rawat_inap']
+                keys.forEach(k => {
+                    if(data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
+                        var filtered_list = data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
+                        var racikan = []
+                        data.invoice_line[k].forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
+                        
+                        table_rows.push(
+                            <tr key={k+" "+data.name} style={fs9}>
+                                <td className="px-2 py-1 fw600 text-capitalize" >{k.replace(/_/g,' ')}</td>
+                	            <td className="py-1" ></td>
+                	            <td className="py-1" ></td>
+                	            <td className="py-1" ></td>
+                	            <td className="py-1" ></td>
+                            </tr>
+                        )
+                        
+                        filtered_list.forEach((f,index) => {
+                            table_rows.push(
+                                <tr key={k+"_"+data.name+"_"+index.toString()} style={fs9}>
+                                    <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
+                                    <td className="py-1 text-center" >{f.product}</td>
+                                    <td className="py-1 text-center" >{Math.ceil(f.quantity)}</td>
+                                    <td className="py-1 text-center" >{f.discount||'-'}</td>
+                                    <td className="py-1 text-center" >{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
+                                    ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
+                                    : formatter.format(f.unit_price)}
+                                    </td>
+                                    <td className="py-1 text-center" >{k=='farmasi' && f.apotik_obat_id != undefined && racikan.includes(f.apotik_obat_id)
+                                    ? formatter.format(f.total + data.invoice_line[k].filter(lf => lf.racikan == f.apotik_obat_id).reduce((total, item) => total += item.total, 0))
+                                    : formatter.format(f.total)}</td>
+                                </tr>
+                            )
+                        })
+                    }
+                })
+            } else {
+                var rawat_inap_rows = []
+                var date_groups = []
+                
+                if(data.invoice_line['instalasi_medis'].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
+                    var filtered_list = data.invoice_line['instalasi_medis'].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
+                    table_rows.push(
+                        <tr key={'instalasi_medis_'+data.name} style={fs9}>
+                            <td className="px-2 py-1 fw600 text-capitalize" >Instalasi Medis</td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+                        </tr>
+                    )
+                    
+                    filtered_list.forEach((f,index) => {
+                        table_rows.push(
+                            <tr key={'instalasi_medis_'+data.name+"_"+index.toString()} style={fs9}>
+                                <td className="px-2 py-1" >{f.product_name?f.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
+                                <td className="py-1 text-center" >{f.product}</td>
+                                <td className="py-1 text-center" >{Math.ceil(f.quantity)}</td>
+                                <td className="py-1 text-center" >{f.discount||'-'}</td>
+                                <td className="py-1 text-center" >{formatter.format(f.unit_price)}</td>
+                                <td className="py-1 text-center" >{formatter.format(f.total)}</td>
+                            </tr>
+                        )
+                    })
+                }
+                
+                // list.forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
+                data.invoice_line['rawat_inap'].forEach(l => !date_groups.map(d => d.date).includes(moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"))?date_groups.push({'date': moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD"), 'rows': []}):false)
+                date_groups.forEach((d, index) => {
+                    data.invoice_line['rawat_inap'].forEach(l => moment(l.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD") == d.date?d.rows.push(l):false)
+                    table_rows.push(
+                        <tr key={d.date+"_"+data.name} style={fs9}>
+                            <td className="px-2 py-1 fw700 text-capitalize" >{d.date}</td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+            	            <td className="py-1" ></td>
+                        </tr>
+                    )
+                    d.rows.forEach((r, index) => {
+                        table_rows.push(
+                            <tr key={d.date+"_"+data.name+"_"+index.toString()} style={fs9}>
+                                <td className="px-2 py-1" >{r.product_name?r.product_name.replace(/&lt;/,'<').replace(/&gt;/,'>'):false}</td>
+                                <td className="py-1 text-center" >{r.product}</td>
+                                <td className="py-1 text-center" >{Math.ceil(r.quantity)}</td>
+                                <td className="py-1 text-center" >{r.discount||'-'}</td>
+                                <td className="py-1 text-center" >{formatter.format(r.unit_price)}</td>
+                                <td className="py-1 text-center" >{formatter.format(r.total)}</td>
+                            </tr>
+                        )
+                    })
+                    
+                })
+            }
+            return table_rows
+        }
+        
+        var table_rows = []
+        var payment_rows = []
+        if(data.children_customer_invoice && data.children_customer_invoice.length > 0){
+            var all_payment = []
+            data.children_customer_invoice.forEach(ci => {
+                var border = {borderTop: "1px solid #000", paddingTop: 7}
+                var headerStyle = {background: "#D9D9D9", borderRadius: 3, padding: "3px 15px", fontSize: 10, fontWeight: 600}
+                table_rows.push(
+                    <tr key={ci.customer_invoice.name+"_header"}>
+                        <td colSpan="2">
+                            {ci.customer_invoice.name}
+                        </td>
+                        <td colSpan="2">
+                            {ci.customer_invoice.pet_name}
+                        </td>
+                    </tr>
+                )
+                table_rows = [...table_rows, ...addProductRow(ci.customer_invoice)]
+                table_rows.push(<tr key={ci.customer_invoice.name+"_border"}><td colSpan="5" style={border}/></tr>)
+                all_payment = all_payment.concat(ci.customer_invoice.pembayaran)
+            })
+            all_payment.forEach((d, index) => {
+                var payment_method = d.metode_pembayaran
+                var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
+                pm_find?payment_method = pm_find.method_name:false
+                
+                payment_rows.push(
+                    <tr>
+                        <td>{payment_method}</td>
+                        <td>{formatter.format(d.jumlah)}</td>
+                    </tr>
+                )
+            })
+        } else {
+            var border = {borderTop: "1px solid #000", paddingTop: 7}
+            table_rows = addProductRow(data)
+            table_rows.push(<tr key={data.name+"_border"}><td colSpan="5" style={border}/></tr>)
+            data.pembayaran.forEach((d, index) => {
+                var payment_method = d.metode_pembayaran
+                var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
+                pm_find?payment_method = pm_find.method_name:false
+                
+                payment_rows.push(
+                    <tr>
+                        <td>{payment_method}</td>
+                        <td>{formatter.format(d.jumlah)}</td>
+                    </tr>
+                )
+            })
+        }
+        
+        var refund_border = {border: '2px solid #000'}
+        var refund = (
+            <tr>
+                <td colspan="2">Refund</td>
+            </tr>
+        )
+        
+        var remaining = total - paid
+        
+        var remaining_row
+        if(['Refund','Done'].includes(data.status) && data.is_rawat_inap){
+            remaining_row = (
+                <tr>
+                    <td>Sisa Deposit</td>
+                    <td>{formatter.format(total_credit)}</td>
+                </tr>
+            )
+        } else {
+            remaining_row = (
+                <tr>
+                    <td>{remaining<0?"Exchange":"Remaining"}</td>
+                    <td>{remaining<0?formatter.format(-remaining):formatter.format(remaining)}</td>
+                </tr>
+            )
+        }
+
+        if (this.state.loaded) {
+            var image
+            if (profile.image != undefined){
+                var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
+                image = <img src={profile.temp_image || profile.image} style={image_style}/>
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            return(
+                <table id="excel_page" border="1" className="position-absolute d-none" style={page_dimension}>
+                    <thead className="text-uppercase" style={thead}>
+                        <tr>
+                            <td rowspan="3">{image}</td>
+                            <td colspan="3">{profile.clinic_name}</td>
+                            <td colspan="2">Invoice</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">{profile.address}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">Telp. : {profile.phone}</td>
+                            <td colspan="2">{data.name}</td>
+                        </tr>
+                        <tr></tr>
+                        <tr></tr>
+                    </thead>
+                    <tr>
+                        <td colspan="2">{data.owner_name}</td>
+                        <td colspan="2">{data.pet_name}</td>
+                        <td colspan="2">
+                            <tr>
+                                {moment(data.invoice_date).subtract(tzOffset, 'minute').format("DD-MM-YYYY HH:mm:ss")}
+                            </tr>
+                            <tr>
+                                {data.user_name}
+                            </tr>
+                        </td>
+                    </tr>
+                    <table className="fs12" style={row2}>
+                        <thead className="text-uppercase" style={thead}>
+                            <tr className="text-center">
+                                <th className="fw700 py-2" width="280px" >Produk</th>
+                                <th className="fw700 py-2" width="40px" >Internal Reference</th>
+                                <th className="fw700 py-2" width="40px" >Qty</th>
+                                <th className="fw700 py-2" width="50px" >Disc</th>
+                                <th className="fw700 py-2" width="90px" >Harga</th>
+                                <th className="fw700 py-2" width="90px" >Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {table_rows}
+                        </tbody>
+                    </table>
+                    <tr></tr>
+                    <tr></tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            {data.is_refund?refund:false}
+                            <tr>
+                                <td>Sub Total</td>
+                                <td>{formatter.format(subtotal)}</td>
+                            </tr>
+                            <tr>
+                                <td>Diskon</td>
+                                <td>{formatter.format(data.potongan)}</td>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td>Total</td>
+                                <td>{formatter.format(total)}</td>
+                            </tr>
+                            {payment_rows}
+                            {remaining_row}
+                        </td>
+                    </tr>
+                </table>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                        </p>
+                    </div>
+                </div>
+        }
+    }
 }
 
 document.getElementById('customer_invoice_form')?ReactDOM.render(<CustomerInvoice/>, document.getElementById('customer_invoice_form')):false
