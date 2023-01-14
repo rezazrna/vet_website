@@ -490,7 +490,7 @@ def get_kartu_stok_list(filters=None, mode=False):
 		# moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="date asc")
 		moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="receive_date asc")
 		if moves:
-			saldo_awal = count_saldo_quantity(moves)
+			saldo_awal = count_saldo_quantity(moves, gudang)
 
 		saldo = saldo_awal['saldo']
 		
@@ -514,16 +514,16 @@ def get_kartu_stok_list(filters=None, mode=False):
 	except PermissionError as e:
 		return {'error': e}
 
-def count_saldo_quantity(moves):
+def count_saldo_quantity(moves, gudang):
 	saldo = 0
 	masuk = 0
 	keluar = 0
 	for m in moves:
 		operation = frappe.get_doc("VetOperation", m.parent)
-		if operation.get('from', False):
+		if operation.get('from', False) and (operation.get('from', False) == gudang or not gudang):
 			saldo -= m.quantity_done
 			keluar += m.quantity_done
-		elif operation.get('to', False):
+		elif operation.get('to', False) and (operation.get('to', False) == gudang or not gudang):
 			saldo += m.quantity_done
 			masuk += m.quantity_done
 
@@ -560,6 +560,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 	product_or_filters = []
 	filter_json = False
 	page = 1
+	gudang = False
 	
 	if filters:
 		try:
@@ -654,8 +655,8 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			# moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="date asc")
 			moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="receive_date asc")
 			if moves:
-				saldo_awal = count_saldo_quantity(moves)
-				nilai_awal = count_nilai_awal(moves)
+				saldo_awal = count_saldo_quantity(moves, gudang)
+				nilai_awal = count_nilai_awal(moves, gudang)
 
 			p['saldo_awal'] = saldo_awal['saldo']
 
@@ -665,8 +666,8 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['*'], order_by="receive_date asc")
 			nilai_akhir_moves = frappe.get_list("VetOperationMove", filters=nilai_akhir_filters, fields=['*'], order_by="receive_date asc")
 			if mutasi_persediaan:
-				saldo_akhir = count_saldo_quantity(mutasi_persediaan)
-				nilai_akhir = count_nilai_awal(nilai_akhir_moves)
+				saldo_akhir = count_saldo_quantity(mutasi_persediaan, gudang)
+				nilai_akhir = count_nilai_awal(nilai_akhir_moves, gudang)
 
 			p['saldo_akhir'] = saldo_akhir['saldo'] + saldo_awal['saldo']
 			p['masuk'] = saldo_akhir['masuk']
@@ -679,7 +680,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 	except PermissionError as e:
 		return {'error': e}
 
-def count_nilai_awal(moves):
+def count_nilai_awal(moves, gudang):
 	pembelian = []
 	penjualan = 0
 	nilai = 0
@@ -697,14 +698,14 @@ def count_nilai_awal(moves):
 
 		if 'VCI' in operation.reference and ' ' not in operation.reference:
 			invoice = frappe.get_doc("VetCustomerInvoice", operation.reference)
-			if invoice.is_refund == 1 or operation.get('to', False):
+			if invoice.is_refund == 1 or (operation.get('to', False) and (operation.get('to', False) == gudang or not gudang)):
 				penjualan -= m.quantity_done
 			else:
 				penjualan += m.quantity_done
 			continue
 		elif 'POSORDER' in operation.reference and ' ' not in operation.reference:
 			order = frappe.get_doc("VetPosOrder", operation.reference)
-			if order.is_refund == 1 or operation.get('to', False):
+			if order.is_refund == 1 or (operation.get('to', False) and (operation.get('to', False) == gudang or not gudang)):
 				penjualan -= m.quantity_done
 			else:
 				penjualan += m.quantity_done
@@ -719,11 +720,11 @@ def count_nilai_awal(moves):
 					nilai -= pa.adjustment_value
 			continue
 
-		if operation.get('to', False):
+		if operation.get('to', False) and (operation.get('to', False) == gudang or not gudang):
 			pembelian.append({'quantity': m.quantity_done, 'price': m.price})
 			continue
 		
-		if operation.get('from', False):
+		if operation.get('from', False) and (operation.get('from', False) == gudang or not gudang):
 			penjualan += m.quantity_done
 			continue
 
