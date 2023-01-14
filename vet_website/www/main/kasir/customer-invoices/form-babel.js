@@ -3252,8 +3252,7 @@ class ExcelPage extends React.Component{
         }
         
         var table_rows = []
-        var payment_rows_method = []
-        var payment_rows_jumlah = []
+        var payment_rows = []
         if(data.children_customer_invoice && data.children_customer_invoice.length > 0){
             var all_payment = []
             data.children_customer_invoice.forEach(ci => {
@@ -3277,13 +3276,16 @@ class ExcelPage extends React.Component{
                 var payment_method = d.metode_pembayaran
                 var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
                 pm_find?payment_method = pm_find.method_name:false
-                
-                payment_rows_method.push(
-                    <td>{payment_method}</td>
-                )
 
-                payment_rows_jumlah.push(
-                    <td>{formatter.format(d.jumlah)}</td>
+                payment_rows.push(
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>{payment_method}</td>
+                        <td>{formatter.format(d.jumlah)}</td>
+                    </tr>
                 )
             })
         } else {
@@ -3294,13 +3296,16 @@ class ExcelPage extends React.Component{
                 var payment_method = d.metode_pembayaran
                 var pm_find = payment_method_list.find(p => p.name == d.metode_pembayaran)
                 pm_find?payment_method = pm_find.method_name:false
-                
-                payment_rows_method.push(
-                    <td>{payment_method}</td>
-                )
 
-                payment_rows_jumlah.push(
-                    <td>{formatter.format(d.jumlah)}</td>
+                payment_rows.push(
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>{payment_method}</td>
+                        <td>{formatter.format(d.jumlah)}</td>
+                    </tr>
                 )
             })
         }
@@ -3314,15 +3319,30 @@ class ExcelPage extends React.Component{
         
         var remaining = total - paid
         
-        var remaining_row_title = []
-        var remaining_row_jumlah = []
+        var remaining_row = []
         if(['Refund','Done'].includes(data.status) && data.is_rawat_inap){
-            remaining_row_title = <td>Sisa Deposit</td>
-            remaining_row_jumlah = <td>{formatter.format(total_credit)}</td>
+            remaining_row = (
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Sisa Deposit</td>
+                    <td>{formatter.format(total_credit)}</td>
+                </tr>
+            )
             
         } else {
-            remaining_row_title = <td>{remaining<0?"Exchange":"Remaining"}</td>
-            remaining_row_jumlah = <td>{remaining<0?formatter.format(-remaining):formatter.format(remaining)}</td>
+            remaining_row = (
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{remaining<0?"Exchange":"Remaining"}</td>
+                    <td>{remaining<0?formatter.format(-remaining):formatter.format(remaining)}</td>
+                </tr>
+            )
         }
 
         if (this.state.loaded) {
@@ -3375,6 +3395,7 @@ class ExcelPage extends React.Component{
                                 <th className="fw700 py-2" width="90px" >Jumlah</th>
                             </tr>
                         </thead>
+                        <tr></tr>
                         <tbody>
                             {table_rows}
                         </tbody>
@@ -3416,22 +3437,8 @@ class ExcelPage extends React.Component{
                         <td>{formatter.format(total)}</td>
                     </tr>
                     <tr></tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        {payment_rows_method}
-                        {payment_rows_jumlah}
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        {remaining_row_title}
-                        {remaining_row_jumlah}
-                    </tr>
+                    {payment_rows}
+                    {remaining_row}
                 </table>
             )
         } else {
