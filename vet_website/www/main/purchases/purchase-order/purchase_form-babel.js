@@ -966,6 +966,7 @@ class PopupReceive extends React.Component {
                 'name': this.props.name,
                 'products': this.props.products,
                 'receive_date': moment().format('YYYY-MM-DD'),
+                'time': moment().format('HH:mm:ss')
             },
             'backOrder': true,
             'showBackOrder': false,
@@ -989,6 +990,9 @@ class PopupReceive extends React.Component {
             }
         } else if (name == 'receive_date') {
             new_data.receive_date = value
+            this.setState({data: new_data})
+        } else if (name == 'time') {
+            new_data.time = value
             this.setState({data: new_data})
         } else {
             var showBackOrder = this.state.showBackOrder
@@ -1024,7 +1028,9 @@ class PopupReceive extends React.Component {
         })
         
         var valid = new_data.products.every(i => parseInt(i.quantity) >= parseInt(i.quantity_receive))
-        
+
+        new_data.receive_date = new_data.receive_date + ' ' + new_data.time
+        delete new_data['time']
         console.log(new_data, products, this.state.backOrder)
         
         if (valid) {
@@ -1125,6 +1131,10 @@ class PopupReceive extends React.Component {
                         <div className="form-group mt-2">
                             <span className="fs14 fw600 mb-2">Tanggal</span>
                             <input required type="date" id="receive_date" name='receive_date' className="form-control border-0 fs22 fw600 mb-2" onChange={this.handleInputChange} defaultValue={this.state.data.receive_date || ''} style={qtyStyle}/>
+                        </div>
+                        <div className="form-group mt-2">
+                            <span className="fs14 fw600 mb-2">Waktu</span>
+                            <input required type="time" id="time" name='time' className="form-control border-0 fs22 fw600 mb-2" onChange={this.handleInputChange} defaultValue={this.state.data.time || ''} style={qtyStyle}/>
                         </div>
             			{backOrder}
                         <div className="row justify-content-center mb-2">

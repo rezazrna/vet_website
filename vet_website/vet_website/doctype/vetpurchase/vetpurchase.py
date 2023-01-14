@@ -798,7 +798,7 @@ def receive_purchase(name, products, receive_date):
 	print('########## Receive Purchase ##########')
 	try:
 		# pindahin ke confirm_purchase
-		create_purchase_journal_entry(name, False, json.loads(products))
+		create_purchase_journal_entry(name, False, json.loads(products), False, dt.strptime(receive_date, '%Y-%m-%d %H:%M:%S'))
 		
 		for p in json.loads(products):
 			product_purchase = frappe.get_doc('VetPurchaseProducts', p.get('name'))
@@ -827,7 +827,7 @@ def receive_purchase(name, products, receive_date):
 		for m in moves:
 			purchase_product = next((p for p in purchase.products if p.product == m.product), False)
 			purchase_product_received = next((p for p in json.loads(products) if p.get('product_id') == m.product), False)
-			m.receive_date = receive_date
+			m.receive_date = dt.strftime(dt.strptime(receive_date, '%Y-%m-%d %H:%M:%S'), '%Y-%m-%d')
 			if purchase_product:
 				m.quantity_done = purchase_product.quantity_receive
 			if purchase_product_received:
@@ -847,7 +847,7 @@ def edit_receive_purchase(name, products, receive_date):
 		operation = frappe.get_doc("VetOperation", {'reference': name})
 		
 		# pindahin ke confirm_purchase
-		create_purchase_journal_entry(purchase.name, False, json.loads(products))
+		create_purchase_journal_entry(purchase.name, False, json.loads(products), False, dt.strptime(receive_date, '%Y-%m-%d %H:%M:%S'))
 		
 		purchase.reload()
 		
@@ -890,7 +890,7 @@ def edit_receive_purchase(name, products, receive_date):
 		for m in moves:
 			purchase_product = next((p for p in purchase.products if p.product == m.product), False)
 			purchase_product_received = next((p for p in json.loads(products) if p.get('product_id') == m.product), False)
-			m.receive_date = receive_date
+			m.receive_date = dt.strftime(dt.strptime(receive_date, '%Y-%m-%d %H:%M:%S'), '%Y-%m-%d')
 			if purchase_product:
 				m.quantity_done = purchase_product.quantity_receive
 			if purchase_product_received:
@@ -935,7 +935,7 @@ def check_purchase_journal():
 			return False
 			
 			
-def create_purchase_journal_entry(purchase_name, refund=False, products=False, retur=False):
+def create_purchase_journal_entry(purchase_name, refund=False, products=False, retur=False, date=False):
 	tz = pytz.timezone("Asia/Jakarta")
 	purchase = frappe.get_doc('VetPurchase', purchase_name)
 	purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
@@ -1032,8 +1032,8 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 	
 	je_data = {
 		'journal': purchase_journal,
-		'period': dt.now(tz).strftime('%m/%Y'),
-		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
+		'period': (date or dt.now(tz)).strftime('%m/%Y'),
+		'date': (date or dt.now(tz)).date().strftime('%Y-%m-%d'),
 		'reference': purchase.name,
 		'journal_items': jis,
 		'keterangan': purchase.supplier_name
@@ -1052,7 +1052,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 		else:
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime((date or dt.now(tz)), '%Y-%m-%d %H:%M:%S'),
 				'purchase': purchase.name,
 				'type': 'Purchase',
 				'nominal': total
