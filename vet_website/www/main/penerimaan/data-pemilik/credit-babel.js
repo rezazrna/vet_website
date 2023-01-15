@@ -469,7 +469,11 @@ class Popup extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            'data': { action: this.props.popup_mode == 'bayar_piutang' ? 'Bayar' : this.props.popup_mode == 'pengambilan_deposit' ? 'Buat' : 'Deposit' }
+            'data': { 
+                action: this.props.popup_mode == 'bayar_piutang' ? 'Bayar' : this.props.popup_mode == 'pengambilan_deposit' ? 'Buat' : 'Deposit',
+                'tanggal': this.props.popup_mode == 'deposit'? moment().format('YYYY-MM-DD') : undefined,
+                'time': this.props.popup_mode == 'deposit'? moment().format('HH:mm:ss') : undefined
+            }
         }
     }
 
@@ -529,13 +533,18 @@ class Popup extends React.Component {
 
         new_data.nominal_float = parseInt(new_data.nominal.replace(/\D/g, ''))
 
-        console.log({ action: new_data.action, nominal: new_data.nominal, supplier: id || new_data.pet_owner, method: new_data.payment_method })
+        if (new_data.action == 'Deposit') {
+            new_data.tanggal = new_data.tanggal + ' ' + new_data.time
+            delete new_data['time']
+        }
+
+        console.log({ action: new_data.action, nominal: new_data.nominal, supplier: id || new_data.pet_owner, method: new_data.payment_method, tanggal: new_data.tanggal})
 
         if (this.props.tipe == 'Invoice') {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetownercredit.vetownercredit.submit_piutang",
-                args: { action: new_data.action, nominal: new_data.nominal_float, petOwner: id || new_data.pet_owner_id, method: new_data.payment_method },
+                args: { action: new_data.action, nominal: new_data.nominal_float, petOwner: id || new_data.pet_owner_id, method: new_data.payment_method, tanggal: new_data.tanggal },
                 freeze: true,
                 callback: function (r) {
                     if (r.message) {
@@ -553,7 +562,7 @@ class Popup extends React.Component {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetownercredit.vetownercredit.submit_piutang_purchase",
-                args: { action: new_data.action, nominal: new_data.nominal_float, supplier: id || new_data.pet_owner_id, method: new_data.payment_method },
+                args: { action: new_data.action, nominal: new_data.nominal_float, supplier: id || new_data.pet_owner_id, method: new_data.payment_method, tanggal: new_data.tanggal },
                 freeze: true,
                 callback: function (r) {
                     if (r.message) {
@@ -626,6 +635,20 @@ class Popup extends React.Component {
             pm_buttons.push(<div key={pm.name} className="col-6 px-1 pb-2"><button type="button" style={th.state.data.payment_method == pm.method_name ? simpanStyle : batalStyle} className="btn btn-block p-3 h-100 text-truncate fs12" onClick={() => th.setPaymentMethod(pm.method_name)}>{detail}</button></div>)
         })
 
+        var tanggal_input, time_input
+
+        if (this.state.data.action == 'Deposit') {
+            tanggal_input = <div className="form-group">
+                                    <span className="fs14 fw600 mb-2">Tanggal</span>
+                                    <input required type="date" id="tanggal" name='tanggal' className="form-control border-0 fs22 fw600 mb-4" onChange={(e) => this.handleInputChange(e)} defaultValue={this.state.data.tanggal || ''} style={input_style}/>
+                                </div>
+            
+            time_input = <div className="form-group">
+                                    <span className="fs14 fw600 mb-2">Waktu</span>
+                                    <input required type="time" id="time" name='time' className="form-control border-0 fs22 fw600 mb-4" onChange={(e) => this.handleInputChange(e)} defaultValue={this.state.data.time || ''} style={input_style}/>
+                                </div>
+        }
+
         return <div className="menu-popup">
             <div className="container" style={maxwidth}>
                 <div className="bg-white p-4">
@@ -637,6 +660,8 @@ class Popup extends React.Component {
                         <input required type="text" id="nominal" name='nominal' className="form-control border-0" style={input_style} onChange={(e) => this.handleInputChange(e)} value={this.state.data.nominal || ''} />
                     </div>
                     {owner_list}
+                    {tanggal_input}
+                    {time_input}
                     <div className="row justify-content-center mb-2">
                         <div className="col-auto d-flex mt-4">
                             <button className="btn btn-sm fs18 h-100 fwbold px-4" style={simpanStyle} onClick={() => this.submitAction()}>Simpan</button>

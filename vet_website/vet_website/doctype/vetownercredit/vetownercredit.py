@@ -17,7 +17,7 @@ class VetOwnerCredit(Document):
 	pass
 	
 @frappe.whitelist()
-def submit_piutang(action, nominal, petOwner, method):
+def submit_piutang(action, nominal, petOwner, method, tanggal=False):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		if action == 'Buat':
@@ -48,9 +48,11 @@ def submit_piutang(action, nominal, petOwner, method):
 			session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
 			if len(session_search) < 1:
 				return {'error': "Belum ada POS Session yang dibuka, bukan POS Session terlebih dahulu"}
+			if not tanggal:
+				tanggal = dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S")
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
-				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.strptime(tanggal, '%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S'),
 				'invoice': '',
 				'type': 'Payment',
 				'nominal': nominal,
@@ -62,7 +64,7 @@ def submit_piutang(action, nominal, petOwner, method):
 			frappe.db.commit()
 			set_owner_credit_total(petOwner)
 			
-			create_journal_entry('Payment', nominal, owner_credit.name, method, True)
+			create_journal_entry('Payment', nominal, owner_credit.name, method, True, dt.strptime(tanggal, '%Y-%m-%d %H:%M:%S'))
 		elif action == 'Bayar':
 			session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
 			if len(session_search) < 1:
@@ -236,7 +238,7 @@ def process_invoice(data):
 		return {'error': e}
 		
 @frappe.whitelist()
-def submit_piutang_purchase(action, nominal, supplier, method):
+def submit_piutang_purchase(action, nominal, supplier, method, tanggal=False):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		if action == 'Buat':
@@ -264,8 +266,10 @@ def submit_piutang_purchase(action, nominal, supplier, method):
 		
 		elif action == 'Deposit':
 			owner_credit = frappe.new_doc('VetOwnerCredit')
+			if not tanggal:
+				tanggal = dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S")
 			owner_credit.update({
-				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
+				'date': dt.strftime(dt.strptime(tanggal, '%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S'),
 				'purchase': '',
 				'type': 'Payment',
 				'nominal': nominal,
@@ -277,7 +281,7 @@ def submit_piutang_purchase(action, nominal, supplier, method):
 			frappe.db.commit()
 			set_owner_credit_total(supplier, True)
 			
-			create_journal_entry('Purchase Payment', nominal, owner_credit.name, method, True)
+			create_journal_entry('Purchase Payment', nominal, owner_credit.name, method, True, dt.strptime(tanggal, '%Y-%m-%d %H:%M:%S'))
 		elif action == 'Bayar':
 			bayar_hutang_purchase(nominal, supplier, method)
 			# owner_credit = frappe.get_list('VetOwnerCredit', filters={'supplier': supplier}, order_by="creation asc", fields=['*'])
@@ -615,7 +619,7 @@ def check_invoice(invoice, owner_credit, total_invoice, purchase=False):
 	else:
 		return True
 		
-def create_journal_entry(tipe, nominal, owner_credit, method=False, is_deposit=False):
+def create_journal_entry(tipe, nominal, owner_credit, method=False, is_deposit=False, date=False):
 	tz = pytz.timezone("Asia/Jakarta")
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')
 	purchase_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'name')
@@ -686,8 +690,8 @@ def create_journal_entry(tipe, nominal, owner_credit, method=False, is_deposit=F
 	
 	je_data = {
 		'journal': journal,
-		'period': dt.now(tz).strftime('%m/%Y'),
-		'date': dt.now(tz).date().strftime('%Y-%m-%d'),
+		'period': (date or dt.now(tz)).strftime('%m/%Y'),
+		'date': (date or dt.now(tz)).date().strftime('%Y-%m-%d'),
 		'reference': owner_credit,
 		'journal_items': ji
 	}
