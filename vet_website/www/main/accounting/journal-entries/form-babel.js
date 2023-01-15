@@ -204,42 +204,42 @@ class JournalEntry extends React.Component {
             e.credit = parseFloat(this.reverseFormatNumber(String(e.credit || 0), 'id'))
         })
         
-        var total_debit = new_data.journal_items.filter(a => !a.delete).reduce((total, j) => total+=parseFloat(j.debit||'0.0'),0.0)
-        var total_credit = new_data.journal_items.filter(a => !a.delete).reduce((total, j) => total+=parseFloat(j.credit||'0.0'),0.0)
+        var total_debit = new_data.journal_items.filter(a => !a.delete).reduce((total, j) => total+=parseFloat(j.debit||'0'),0)
+        var total_credit = new_data.journal_items.filter(a => !a.delete).reduce((total, j) => total+=parseFloat(j.credit||'0'),0)
         console.log(total_debit)
         console.log(total_credit)
-        if(total_debit!=total_credit){
-            frappe.msgprint("Total debit tidak sama dengan total credit")
+        // if(total_debit!=total_credit){
+        //     frappe.msgprint("Total debit tidak sama dengan total credit")
+        // } else {
+        if (this.state.edit) {
+            this.setState({'loading_simpan': true})
         } else {
-            if (this.state.edit) {
-                this.setState({'loading_simpan': true})
-            } else {
-                this.setState({'loading_post': true})
-            }
-            frappe.call({
-        		type: "POST",
-        		method:method,
-        		args: args,
-        		callback: function(r){
-                    console.log(r.message)
-        			if (r.message) {
-        			    if (th.state.edit) {
-        			        var update = {'accounts': r.message.account_list, 'journals': r.message.journal_list, 'edit': false, 'loading_simpan': false}
-                            if (r.message.journal_entry != undefined) {
-                                update.data = r.message.journal_entry
-                            }
-                            th.setState(update);
-        			    } else {
-                            th.setState({'loading_post': false})
-        			        window.location.href = "/main/accounting/journal-entries/edit?n=" + r.message.journal_entry.name
-        			    }
-        			}
-        			if (r.message.error) {
-        				frappe.msgprint(r.message.error);
-        			}
-        		}
-        	});
+            this.setState({'loading_post': true})
         }
+        frappe.call({
+            type: "POST",
+            method:method,
+            args: args,
+            callback: function(r){
+                console.log(r.message)
+                if (r.message) {
+                    if (th.state.edit) {
+                        var update = {'accounts': r.message.account_list, 'journals': r.message.journal_list, 'edit': false, 'loading_simpan': false}
+                        if (r.message.journal_entry != undefined) {
+                            update.data = r.message.journal_entry
+                        }
+                        th.setState(update);
+                    } else {
+                        th.setState({'loading_post': false})
+                        window.location.href = "/main/accounting/journal-entries/edit?n=" + r.message.journal_entry.name
+                    }
+                }
+                if (r.message.error) {
+                    frappe.msgprint(r.message.error);
+                }
+            }
+        });
+        // }
     }
     
     toggleEdit(e, batal=false) {
