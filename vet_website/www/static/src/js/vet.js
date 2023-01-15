@@ -32,12 +32,12 @@ var formatter = new Intl.NumberFormat('id-ID', {
   style: 'currency',
   currency: 'IDR',
   minimumFractionDigits: 0,
-  maximumFractionDigits: 5,
+  maximumFractionDigits: 2,
 });
 
 var formatter2 = new Intl.NumberFormat('id-ID', {
   minimumFractionDigits: 0,
-  maximumFractionDigits: 5,
+  maximumFractionDigits: 2,
 });
 
 var formatter3 = new Intl.NumberFormat('id-ID', {

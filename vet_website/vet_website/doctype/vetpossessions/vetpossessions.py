@@ -387,6 +387,7 @@ def pos_add_order(data):
 	new_order = frappe.new_doc("VetPosOrder")
 	new_order.update(data_json)
 	new_order.insert()
+	frappe.db.commit()
 	
 	pos_order_filters = {
 		"session": data_json.get("session")
@@ -405,7 +406,7 @@ def pos_add_order(data):
 	deliver_to_customer(new_order.name)
 	
 	new_order.reload()
-	create_pos_journal_entry(new_order.name, new_order.payment)
+	create_pos_journal_entry(new_order.name, data_json.get("payment"))
 	
 	return {"orders": get_order_list(json.dumps(pos_order_filters)), "datetime": datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")}
 	
