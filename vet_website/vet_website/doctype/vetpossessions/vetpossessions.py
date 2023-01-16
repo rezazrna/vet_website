@@ -994,8 +994,8 @@ def create_pos_journal_entry(name, payment, refund=False):
 	exchange = float(paid) - float(pos_order.total)
 	
 	for y in payment:
-		if y.type:
-			debit_account = frappe.db.get_value('VetPaymentMethod', y.type, 'account')
+		if y['type']:
+			debit_account = frappe.db.get_value('VetPaymentMethod', y['type'], 'account')
 		else:
 			debit_account = frappe.db.get_value('VetCoa', {'account_code': '1-11101'}, 'name')
 		# if refund:
@@ -1013,13 +1013,13 @@ def create_pos_journal_entry(name, payment, refund=False):
 		# if deposit != 0:
 		# 	jis.append({'account': uang_muka_lain, 'debit': deposit})
 		
-		data = {'account': debit_account, 'debit': y.value}
-		if y.method_type == 'Cash':
-			if y.value >= exchange:
-				data.update({'debit': y.value - exchange})
+		data = {'account': debit_account, 'debit': y['value']}
+		if y['method_type'] == 'Cash':
+			if y['value'] >= exchange:
+				data.update({'debit': y['value'] - exchange})
 			else:
 				data.pop('debit')
-				data.update({'credit': -(y.value - exchange)})
+				data.update({'credit': -(y['value'] - exchange)})
 		
 		jis.append(data)
 		
