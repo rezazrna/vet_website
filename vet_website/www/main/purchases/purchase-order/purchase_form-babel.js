@@ -632,7 +632,8 @@ class PopupPay extends React.Component {
                 'name': this.props.name,
                 'tanggal': moment().format('YYYY-MM-DD'),
                 'time': moment().format('HH:mm:ss')
-            }
+            },
+            'loading': false,
         }
         
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -675,12 +676,18 @@ class PopupPay extends React.Component {
     submitPay(e) {
         e.preventDefault()
         var remaining = 0
+
+        if (this.state.loading) {
+            return;
+        }
+
+        this.setState({loading: true})
         
         remaining = this.props.subtotal - this.props.potongan - this.props.paid
         if(['',undefined,null].includes(this.state.data.jumlah)){
             var new_data = Object.assign({}, this.state.data)
             new_data.jumlah = remaining
-            this.setState({'data': new_data})
+            this.setState({'data': new_data, 'loading': false})
         }
         else{
             console.log(this.state.data)
@@ -797,7 +804,9 @@ class PopupPay extends React.Component {
                             {this.state.data.payment_method&&!this.state.data.payment_method.includes('Deposit')?time_input:false}
                             <div className="row justify-content-center mb-2">
                                 <div className="col-auto d-flex mt-4">
-                                    <button className="btn btn-sm fs18 h-100 fwbold px-4" style={payStyle} onClick={this.submitPay}>Pay</button>
+                                    <button className={this.state.loading
+                                        ? "btn btn-sm fs18 h-100 fwbold px-4 disabled"
+                                        : "btn btn-sm fs18 h-100 fwbold px-4"} style={payStyle} onClick={this.submitPay}>Pay</button>
                                 </div>
                                 <div className="col-auto d-flex mt-4">
                                     <button className="btn btn-sm fs18 h-100 fwbold px-4" style={batalStyle} onClick={this.props.togglePopupPay}>Batal</button>

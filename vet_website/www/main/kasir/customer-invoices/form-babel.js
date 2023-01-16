@@ -1971,7 +1971,8 @@ class PopupPay extends React.Component {
     constructor(props) {
         super(props)
         this.state={
-            'data': {'name': this.props.name}
+            'data': {'name': this.props.name},
+            'loading': false,
         }
         
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -2022,6 +2023,11 @@ class PopupPay extends React.Component {
     submitPay(e) {
         e.preventDefault()
         var th = this
+        if (this.state.loading) {
+            return;
+        }
+
+        this.setState({loading: true})
         var subtotal = 0
         var paid = 0
         var remaining = 0
@@ -2029,7 +2035,7 @@ class PopupPay extends React.Component {
         if(['',undefined,null].includes(this.state.data.jumlah)){
             var new_data = Object.assign({}, this.state.data)
             new_data.jumlah = parseInt(remaining).toLocaleString('id-ID')
-            this.setState({'data': new_data})
+            this.setState({'data': new_data, 'loading': false})
         }
         else if (this.state.data.payment_method != undefined){
             var method = "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.add_payment"
@@ -2040,6 +2046,7 @@ class PopupPay extends React.Component {
             typeof new_data.name == 'object'?method = "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.add_payment_multiple":false
             if(new_data.payment_method.includes('Deposit')&&new_data.jumlah>this.props.total_credit){
                 frappe.msgprint('Nominal melebihi deposit, jumlah deposit tersedia '+formatter.format(this.props.total_credit))
+                this.setState({loading: false})
             } else {
                 frappe.call({
                     type: "POST",
@@ -2075,6 +2082,7 @@ class PopupPay extends React.Component {
                                     window.location.reload()
                                 }
                             }
+                            th.setState({loading : false})
                         }
                     }
                 });
@@ -2166,7 +2174,9 @@ class PopupPay extends React.Component {
                             </div>
                             <div className="row justify-content-center mb-2">
                                 <div className="col-auto d-flex mt-4">
-                                    <button className="btn btn-sm fs18 h-100 fwbold px-4" style={payStyle} onClick={this.submitPay}>Pay</button>
+                                    <button className={this.state.loading
+                                    ? "btn btn-sm fs18 h-100 fwbold px-4 disabled"
+                                    : "btn btn-sm fs18 h-100 fwbold px-4"} style={payStyle} onClick={this.submitPay}>Pay</button>
                                 </div>
                                 <div className="col-auto d-flex mt-4">
                                     <button className="btn btn-sm fs18 h-100 fwbold px-4" style={batalStyle} onClick={this.props.togglePopupPay}>Batal</button>
