@@ -661,7 +661,7 @@ class ExpenseMainForm extends React.Component {
 
             if (filter_account) {
                 cashAccounts = cashAccounts.filter(a => a.account_code.match(/^1-11.*$/) && a.is_parent == 0 && a.account_type == 'Asset')
-                expenseAccounts = expenseAccounts.filter(a => a.is_parent == 0 && a.account_type == 'Expense' && (a.account_code.match(/^8-.*$/) || a.account_code.match(/^6-.*$/)))
+                expenseAccounts = expenseAccounts.filter(a => a.is_parent == 0 && a.account_type == 'Expense')
             }
 
             cashAccounts.forEach((item, index) => cash_account_options.push(<option value={item.account_name} key={index.toString()} />))
