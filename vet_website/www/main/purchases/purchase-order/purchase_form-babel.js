@@ -536,7 +536,7 @@ class PurchaseOrder extends React.Component {
                 	                   </div>
                 	}
                 	
-                	if (receive && !data.products.every(i => parseInt(i.quantity) == parseInt(i.quantity_receive))) {
+                	if (receive && !data.products.every(i => parseFloat(i.quantity) == parseFloat(i.quantity_receive))) {
                 	    receive_button = <div className="col-auto my-auto">
             	                            <button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={(e) => this.toggleReceive(e)}>Receive</button>
             	                       </div>
@@ -655,10 +655,19 @@ class PopupPay extends React.Component {
         var new_data = this.state.data
         
         if(name == 'jumlah' && value != ''){
-            var filtered = value.replace(/\D/g,'')
-            if(filtered != ''){
-                var formatted = parseInt(filtered).toLocaleString('id-ID')
-                new_data.jumlah = formatted
+            console.log(value)
+
+            if (new RegExp(/,$/g).test(value)) {
+                new_data.jumlah = value
+            } else {
+                // var filtered = value.replace(/\D/g,'')
+                var filtered = parseFloat(this.reverseFormatNumber(value, 'id'))
+                console.log(filtered)
+                if(filtered != ''){
+                    var formatted = parseFloat(filtered).toLocaleString('id-ID')
+                    console.log(formatted)
+                    new_data.jumlah = formatted
+                }
             }
         }
         else {
@@ -692,7 +701,7 @@ class PopupPay extends React.Component {
         else{
             console.log(this.state.data)
             var new_data = Object.assign({}, this.state.data)
-            new_data.jumlah = parseInt(new_data.jumlah.replace(/\D/g,''))
+            new_data.jumlah = parseFloat(this.reverseFormatNumber(new_data.jumlah || '0', 'id'))
             new_data.payment_method.includes('Deposit') ? new_data.jumlah = this.props.total_credit:false
             new_data.tanggal = new_data.tanggal + ' ' + new_data.time
             delete new_data['time']
@@ -711,6 +720,14 @@ class PopupPay extends React.Component {
                 });
             }
         }
+    }
+
+    reverseFormatNumber(val,locale){
+        var group = new Intl.NumberFormat(locale).format(1111).replace(/1/g, '');
+        var decimal = new Intl.NumberFormat(locale).format(1.1).replace(/1/g, '');
+        var reversedVal = val.replace(new RegExp('\\' + group, 'g'), '');
+        reversedVal = reversedVal.replace(new RegExp('\\' + decimal, 'g'), '.');
+        return Number.isNaN(reversedVal) ? '' : reversedVal;
     }
     
     render() {
@@ -1036,7 +1053,7 @@ class PopupReceive extends React.Component {
             delete item.quantity_receive_temp
         })
         
-        var valid = new_data.products.every(i => parseInt(i.quantity) >= parseInt(i.quantity_receive))
+        var valid = new_data.products.every(i => parseFloat(i.quantity) >= parseFloat(i.quantity_receive))
 
         new_data.receive_date = new_data.receive_date + ' ' + new_data.time
         delete new_data['time']
@@ -1217,7 +1234,7 @@ class PopupRetur extends React.Component {
         
         var valid = new_data.products.every((i) => {
             if (i.quantity_retur_temp != undefined) {
-                return (parseInt(i.quantity_receive) - parseInt(i.quantity_retur_temp)) >= 0
+                return (parseFloat(i.quantity_receive) - parseFloat(i.quantity_retur_temp)) >= 0
             }
 
             return true

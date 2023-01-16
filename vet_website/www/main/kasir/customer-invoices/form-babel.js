@@ -785,7 +785,7 @@ class CustomerInvoice extends React.Component {
         e.preventDefault()
         
         var paid = this.state.data.pembayaran.reduce((total, p) => total += p.jumlah, 0)
-        var exchange = parseInt(paid) - parseInt(this.state.data.total)
+        var exchange = parseFloat(paid) - parseFloat(this.state.data.total)
         var method = this.state.data.pembayaran[0].metode_pembayaran
         
         frappe.call({
@@ -2034,7 +2034,7 @@ class PopupPay extends React.Component {
         remaining = this.props.total - this.props.paid
         if(['',undefined,null].includes(this.state.data.jumlah)){
             var new_data = Object.assign({}, this.state.data)
-            new_data.jumlah = parseInt(remaining).toLocaleString('id-ID')
+            new_data.jumlah = parseFloat(remaining).toLocaleString('id-ID')
             this.setState({'data': new_data, 'loading': false})
         }
         else if (this.state.data.payment_method != undefined){
@@ -2215,10 +2215,16 @@ class PopupRefund extends React.Component {
         var value = e.target.value
         var new_data = this.state.data
         if(name == 'refund' && value != ''){
-            var filtered = value.replace(/\D/g,'')
-            if(filtered != ''){
-                var formatted = parseInt(filtered).toLocaleString('id-ID')
-                new_data.refund = formatted
+            if (new RegExp(/,$/g).test(value)) {
+                new_data.refund = value
+            } else {
+                var filtered = this.reverseFormatNumber(value, 'id')
+                console.log(filtered)
+                if(filtered != ''){
+                    var formatted = parseFloat(filtered).toLocaleString('id-ID')
+                    console.log(formatted)
+                    new_data.refund = formatted
+                }
             }
         }
         else {
@@ -2241,15 +2247,15 @@ class PopupRefund extends React.Component {
         remaining = this.props.total - this.props.paid
         if(['',undefined,null].includes(this.state.data.refund)){
             var new_data = Object.assign({}, this.state.data)
-            new_data.refund = parseInt(remaining).toLocaleString('id-ID')
+            new_data.refund = parseFloat(remaining).toLocaleString('id-ID')
             this.setState({'data': new_data})
         }
-        else if (this.state.data.refund.replace(/\D/g,'') > remaining) {
+        else if (parseFloat(this.reverseFormatNumber(this.state.data.refund, 'id')) > remaining) {
             frappe.msgprint('Hanya ada sisa ' + formatter.format(remaining))
         } else if (this.state.data.payment_method != undefined) {
             var new_data = this.state.data
             var invoice_line = new_data.invoice_line.farmasi.concat(new_data.invoice_line.jasa).concat(new_data.invoice_line.rawat_inap).concat(new_data.invoice_line.instalasi_medis)
-            new_data.refund = parseInt(new_data.refund.replace(/\D/g,''))
+            new_data.refund = parseFloat(this.reverseFormatNumber(new_data.refund, 'id'))
         
             new_data.invoice_line = invoice_line.filter(i => i.product && i.quantity)
             new_data.invoice_line.forEach(function(item, index) {

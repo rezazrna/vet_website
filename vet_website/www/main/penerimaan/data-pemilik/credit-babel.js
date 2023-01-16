@@ -483,10 +483,16 @@ class Popup extends React.Component {
         var new_data = this.state.data
 
         if (name == 'nominal' && value != '') {
-            var filtered = value.replace(/\D/g, '')
-            if (filtered != '') {
-                var formatted = parseInt(filtered).toLocaleString('id-ID')
-                new_data.nominal = formatted
+            if (new RegExp(/,$/g).test(value)) {
+                new_data.nominal = value
+            } else {
+                var filtered = this.reverseFormatNumber(value, 'id')
+                console.log(filtered)
+                if(filtered != ''){
+                    var formatted = parseFloat(filtered).toLocaleString('id-ID')
+                    console.log(formatted)
+                    new_data.nominal = formatted
+                }
             }
         } else {
             new_data[name] = value
@@ -531,7 +537,7 @@ class Popup extends React.Component {
             }
         }
 
-        new_data.nominal_float = parseInt(new_data.nominal.replace(/\D/g, ''))
+        new_data.nominal_float = parseFloat(this.reverseFormatNumber(new_data.nominal, 'id'))
 
         if (new_data.action == 'Deposit') {
             new_data.tanggal = new_data.tanggal + ' ' + new_data.time
