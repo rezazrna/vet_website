@@ -488,6 +488,7 @@ def kas_masuk_keluar(session, list_kas):
 		'period': datetime.now(tz).strftime('%m/%Y'),
 		'date': datetime.now(tz).date().strftime('%Y-%m-%d'),
 		'reference': session,
+		'keterangan': kas['keterangan'],
 		'journal_items': jis
 	}
 	
