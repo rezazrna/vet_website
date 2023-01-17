@@ -254,11 +254,11 @@ class Operation extends React.Component {
                 console.log(new_data)
                 new_data.from = this.state.gudang_list.find(i => i.gudang_name == new_data['from']).name
                 if(this.props.usage){new_data.expense_account = this.state.accounts.find(i => i.account_name == new_data['expense_account']).name}
-                if(new_data.to == 'USAGE'){
-                    new_data.to = undefined
-                } else {
-                    new_data.to = this.state.gudang_list.find(i => i.gudang_name == new_data['to']).name
-                }
+                // if(new_data.to == 'USAGE'){
+                //     new_data.to = undefined
+                // } else {
+                //     new_data.to = this.state.gudang_list.find(i => i.gudang_name == new_data['to']).name
+                // }
                 
                 console.log(new_data)
                 
