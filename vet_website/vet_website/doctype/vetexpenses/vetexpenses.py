@@ -200,6 +200,7 @@ def create_expense_journal_items(expense_name):
 			'period': expense.period,
 			'date': expense.expense_date.strftime('%Y-%m-%d'),
 			'reference': expense.name,
+			'keterangan': expense.description,
 			'journal_items': jis
 		}
 		

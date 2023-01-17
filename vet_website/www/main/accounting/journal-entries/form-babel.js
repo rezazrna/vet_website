@@ -496,7 +496,7 @@ class JournalEntryItems extends React.Component {
 
                     var new_debit, new_credit
 
-                    if (ji.props.edit) {
+                    if (id == undefined || ji.props.edit) {
                         new_debit = parseFloat(ji.reverseFormatNumber(String(item.debit || 0), 'id'))
                         new_credit = parseFloat(ji.reverseFormatNumber(String(item.credit || 0), 'id'))
                     } else {

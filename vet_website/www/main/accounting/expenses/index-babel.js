@@ -760,6 +760,10 @@ class ExpenseMainForm extends React.Component {
             content = <div className="row" style={color}>
                 <div className="col-6">
                     <div className="row mb-3 mx-4">
+                        <div className="col-6 fs16 fw600">ID</div>
+                        <div className="col-6"><span className="fs16 px-0">{data.name}</span></div>
+                    </div>
+                    <div className="row mb-3 mx-4">
                         <div className="col-6 fs16 fw600">Expense</div>
                         <div className="col-6"><span className="fs16 px-0">{data.expense_name}</span></div>
                     </div>
@@ -876,6 +880,9 @@ class ExpensesList extends React.Component {
                                 <div className="col d-flex">
                                     <span className="my-auto">Date</span>
                                 </div>
+                                <div className="col-1 d-flex">
+                                    <span className="my-auto">ID</span>
+                                </div>
                                 <div className="col-3 d-flex">
                                     <span className="my-auto">Expense</span>
                                 </div>
@@ -947,6 +954,9 @@ class ExpensesListRow extends React.Component {
                     <div className="row mx-0 fs12 fw600">
                         <div className="col d-flex">
                             <span className="my-auto">{moment(item.expense_date).format("DD-MM-YYYY")}</span>
+                        </div>
+                        <div className="col-1 d-flex">
+                            <span className="my-auto">{item.name}</span>
                         </div>
                         <div className="col-3 d-flex">
                             <span className="my-auto">{item.expense_name}</span>
