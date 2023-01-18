@@ -906,9 +906,9 @@ def check_paid_purchase(name):
 	purchase = frappe.get_doc('VetPurchase', name)
 	subtotal = 0
 	for p in purchase.products:
-		subtotal = subtotal + (p.quantity * p.price - ((p.discount or 0) / 100 * (p.quantity * p.price)))
-	paid = sum(p.jumlah for p in purchase.pembayaran)
-	if paid >= (subtotal - purchase.potongan):
+		subtotal = subtotal + (float(p.quantity) * float(p.price) - ((p.discount or 0) / 100 * (float(p.quantity) * float(p.price))))
+	paid = sum(float(p.jumlah) for p in purchase.pembayaran)
+	if paid >= (subtotal - float(purchase.potongan)):
 		return True
 	else:
 		return False
