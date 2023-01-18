@@ -265,7 +265,7 @@ class PurchaseOrder extends React.Component {
             				console.log(uom)
             				uom.value = new_data.products[i].uom
             				if (new_data.products[i].price) {
-            				    price.value = parseFloat(th.reverseFormatNumber(String(new_data.products[i].price || 0), 'id')).toLocaleString('id-ID')
+            				    price.value = formatter2.format(parseFloat(th.reverseFormatNumber(String(new_data.products[i].price || 0), 'id')))
             				}
             				
             				th.setState({data: new_data})
@@ -302,7 +302,7 @@ class PurchaseOrder extends React.Component {
                 }
                 
                 var price = document.querySelectorAll('[id=price'+i+']')
-                price.value = parseFloat(th.reverseFormatNumber(String(new_data.products[i]['price'] || 0), 'id')).toLocaleString('id-ID')
+                price.value = formatter2.format(parseFloat(th.reverseFormatNumber(String(new_data.products[i]['price'] || 0), 'id')))
                 
                 new_data.products[i][name] = value
                 this.setState({data: new_data})
