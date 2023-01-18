@@ -65,7 +65,7 @@ def get_sessions_list(filters=None):
 	try:
 		session = frappe.get_list("VetPosSessions", or_filters=session_or_filters, filters=session_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetPosSessions", or_filters=session_or_filters, filters=session_filters, as_list=True))
-		for s in session:
+		for index, s in enumerate(session):
 			kas_masuk = frappe.get_list("VetPosSessionsKasMasuk", filters={'parent': s['name']}, fields=["*"], order_by="kas_date desc")
 			kas_keluar = frappe.get_list("VetPosSessionsKasKeluar", filters={'parent': s['name']}, fields=["*"], order_by="kas_date desc")
 			order = frappe.get_list("VetPosOrder", filters={'session': s['name']}, fields=["name", "is_refund"])
@@ -117,6 +117,16 @@ def get_sessions_list(filters=None):
 							r['credit_mutation'] = 0
 							r['credit_mutation_return'] = 0
 							cash_payment.append(r)
+
+			# max_session_date = s['closing_session']
+
+			# opening_date = s['opening_session'].date()
+
+			# if index != 0 and session[index - 1]['opening_session'].date() == opening_date:
+			# 	max_session_date = session[index - 1]['opening_session']
+
+			# credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', max_session_date or datetime.now(tz)], ['type', 'in', ['Payment', 'Refund']]]
+			# sales_credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', max_session_date or datetime.now(tz)], ['type', '=', 'Sales']]
 							
 			credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz)], ['type', 'in', ['Payment', 'Refund']]]
 			sales_credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz)], ['type', '=', 'Sales']]
@@ -128,11 +138,6 @@ def get_sessions_list(filters=None):
 				method_name = frappe.db.get_value('VetPaymentMethod', ow['metode_pembayaran'], 'method_name')
 				# payment_method = frappe.get_list('VetPaymentMethod', filters={'name': ow['metode_pembayaran']}, fields=['method_type', 'method_name'])
 
-				# if ow['invoice']:
-				# 	invoice_session = frappe.db.get_value('VetCustomerInvoice', ow['invoice'], 'pos_session')
-				# 	if invoice_session != s['name']:
-				# 		continue
-				
 				# if payment_method :
 				if ow.metode_pembayaran != 'Cash':
 					ada = False
@@ -187,14 +192,6 @@ def get_sessions_list(filters=None):
 			s['total_kas_keluar'] = sum([k['jumlah'] for k in kas_keluar])
 			s['non_cash_payment'] = non_cash_payment
 			s['cash_payment'] = cash_payment
-			# filtered_sales_credit_list = []
-			# for scl in sales_credit_list:
-			# 	if scl['invoice']:
-			# 		invoice_session = frappe.db.get_value('VetCustomerInvoice', scl['invoice'], 'pos_session')
-			# 		if invoice_session != s['name']:
-			# 			continue
-
-			# 	filtered_sales_credit_list.append(scl)
 			s['sales_debt'] = sales_credit_list
 		
 		journal = frappe.get_list("VetCoa", fields=["*"])
