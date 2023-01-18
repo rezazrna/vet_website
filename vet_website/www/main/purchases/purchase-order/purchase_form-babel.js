@@ -925,8 +925,26 @@ class PopupRefund extends React.Component {
         var name = e.target.name
         var value = e.target.value
         var new_data = this.state.data
-        
-        new_data[name] = value
+
+        if(name == 'refund' && value != ''){
+            console.log(value)
+
+            if (new RegExp(/,$/g).test(value)) {
+                new_data.refund = value
+            } else {
+                // var filtered = value.replace(/\D/g,'')
+                var filtered = parseFloat(this.reverseFormatNumber(value, 'id'))
+                console.log(filtered)
+                if(filtered != ''){
+                    var formatted = parseFloat(filtered).toLocaleString('id-ID')
+                    console.log(formatted)
+                    new_data.refund = formatted
+                }
+            }
+        }
+        else {
+            new_data[name] = value
+        }
         this.setState({data: new_data})
     }
     
@@ -952,6 +970,8 @@ class PopupRefund extends React.Component {
                     item.is_delete = true
                 }
             })
+
+            new_data.refund = parseFloat(this.reverseFormatNumber(new_data.refund || '0', 'id'))
             
             console.log(new_data)
             
