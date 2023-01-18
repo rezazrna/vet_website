@@ -120,12 +120,25 @@ class PurchaseOrder extends React.Component {
             var realValueUom = th.state.uomAll.find(i => i.uom_name == item.uom)
             
             if (item.product && item.quantity) {
+                var newPrice, newQuantity, newDiscount
+
+                if (saveOnly) {
+                    newPrice = parseFloat(th.reverseFormatNumber(String(item.price || 0), 'id'))
+                    newQuantity = parseFloat(th.reverseFormatNumber(String(item.quantity || 0), 'id'))
+                    newDiscount = parseFloat(th.reverseFormatNumber(String(item.discount || 0), 'id'))
+                } else {
+                    newPrice = item.price || 0
+                    newQuantity = item.quantity || 0
+                    newDiscount = item.discount || 0
+                }
+
+
                 products['product'] = realValueProduct.name
-                products['quantity'] = parseFloat(th.reverseFormatNumber(String(item.quantity || 0), 'id'))
+                products['quantity'] = newQuantity
                 products['uom'] = realValueUom.name
-                products['price'] = parseFloat(th.reverseFormatNumber(String(item.price || 0), 'id'))
+                products['price'] = newPrice
                 products['name'] = item.name
-                products['discount'] = parseFloat(th.reverseFormatNumber(String(item.discount || 0), 'id'))
+                products['discount'] = newDiscount
                 if(item.delete){
                     products['delete'] = item.delete
                 }
