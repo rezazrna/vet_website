@@ -121,11 +121,11 @@ class PurchaseOrder extends React.Component {
             
             if (item.product && item.quantity) {
                 products['product'] = realValueProduct.name
-                products['quantity'] = parseFloat(this.reverseFormatNumber(String(item.quantity || 0), 'id'))
+                products['quantity'] = parseFloat(th.reverseFormatNumber(String(item.quantity || 0), 'id'))
                 products['uom'] = realValueUom.name
-                products['price'] = parseFloat(this.reverseFormatNumber(String(item.price || 0), 'id'))
+                products['price'] = parseFloat(th.reverseFormatNumber(String(item.price || 0), 'id'))
                 products['name'] = item.name
-                products['discount'] = parseFloat(this.reverseFormatNumber(String(item.discount || 0), 'id'))
+                products['discount'] = parseFloat(th.reverseFormatNumber(String(item.discount || 0), 'id'))
                 if(item.delete){
                     products['delete'] = item.delete
                 }
@@ -265,7 +265,7 @@ class PurchaseOrder extends React.Component {
             				console.log(uom)
             				uom.value = new_data.products[i].uom
             				if (new_data.products[i].price) {
-            				    price.value = new_data.products[i].price
+            				    price.value = parseFloat(th.reverseFormatNumber(String(new_data.products[i].price || 0), 'id')).toLocaleString('id-ID')
             				}
             				
             				th.setState({data: new_data})
@@ -302,7 +302,7 @@ class PurchaseOrder extends React.Component {
                 }
                 
                 var price = document.querySelectorAll('[id=price'+i+']')
-                price.value = new_data.products[i]['price']
+                price.value = parseFloat(th.reverseFormatNumber(String(new_data.products[i]['price'] || 0), 'id')).toLocaleString('id-ID')
                 
                 new_data.products[i][name] = value
                 this.setState({data: new_data})
@@ -1948,7 +1948,7 @@ class ProductsListRow extends React.Component {
         reversedVal = reversedVal.replace(new RegExp('\\' + decimal, 'g'), '.');
         return Number.isNaN(reversedVal) ? '' : reversedVal;
     }
-    
+
     render() {
         var item = this.props.item
         var index = this.props.index
