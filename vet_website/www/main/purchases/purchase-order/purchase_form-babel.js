@@ -265,7 +265,8 @@ class PurchaseOrder extends React.Component {
             				console.log(uom)
             				uom.value = new_data.products[i].uom
             				if (new_data.products[i].price) {
-                                var formattedPrice = formatter2.format(parseFloat(th.reverseFormatNumber(String(new_data.products[i].price || 0), 'id')))
+                                console.log(new_data.products[i].price)
+                                var formattedPrice = formatter2.format(new_data.products[i].price || 0)
                                 console.log(formattedPrice)
             				    price.value = formattedPrice
             				}
