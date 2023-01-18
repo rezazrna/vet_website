@@ -509,7 +509,7 @@ def submit_pembayaran(data):
 			purchase = frappe.get_doc('VetPurchase', data_json.get('name'))
 			
 			subtotal = sum(p.quantity * p.price - ((p.discount or 0) / 100 * (p.quantity * p.price)) for p in purchase.products)
-			paid = sum(float(p.jumlah) for p in purchase.pembayaran)
+			paid = sum(p.jumlah for p in purchase.pembayaran)
 			remaining = (subtotal - purchase.potongan)- paid
 			
 			pp_data = {}
@@ -907,7 +907,7 @@ def check_paid_purchase(name):
 	subtotal = 0
 	for p in purchase.products:
 		subtotal = subtotal + (p.quantity * p.price - ((p.discount or 0) / 100 * (p.quantity * p.price)))
-	paid = sum(float(p.jumlah) for p in purchase.pembayaran)
+	paid = sum(p.jumlah for p in purchase.pembayaran)
 	if paid >= (subtotal - purchase.potongan):
 		return True
 	else:
