@@ -121,11 +121,11 @@ class PurchaseOrder extends React.Component {
             
             if (item.product && item.quantity) {
                 products['product'] = realValueProduct.name
-                products['quantity'] = item.quantity
+                products['quantity'] = parseFloat(this.reverseFormatNumber(String(item.quantity || 0), 'id'))
                 products['uom'] = realValueUom.name
-                products['price'] = item.price
+                products['price'] = parseFloat(this.reverseFormatNumber(String(item.price || 0), 'id'))
                 products['name'] = item.name
-                products['discount'] = item.discount || 0
+                products['discount'] = parseFloat(this.reverseFormatNumber(String(item.discount || 0), 'id'))
                 if(item.delete){
                     products['delete'] = item.delete
                 }
@@ -176,7 +176,27 @@ class PurchaseOrder extends React.Component {
     
     toggleEditMode(e){
         e.preventDefault()
-        this.setState({edit_mode: !this.state.edit_mode})
+        var new_data = this.state.data
+
+        if (this.state.edit) {
+            new_data.products.forEach((e, index) => {
+                // e.debit = parseFloat(String(e.debit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                // e.credit = parseFloat(String(e.credit || '0').replace(/(?!)\D/g,'').replace(/,$/g,'').replace(',','.'))
+                e.quantity = parseFloat(this.reverseFormatNumber(String(e.quantity || 0), 'id'))
+                e.price = parseFloat(this.reverseFormatNumber(String(e.price || 0), 'id'))
+                e.discount = parseFloat(this.reverseFormatNumber(String(e.discount || 0), 'id'))
+            })
+                
+            this.setState({edit_mode: false, data: new_data})
+        } else {
+            new_data.products.forEach((e, index) => {
+                e.quantity = formatter2.format(e.quantity || 0)
+                e.price = formatter2.format(e.price || 0)
+                e.discount = formatter2.format(e.discount || 0)
+            })
+            console.log(new_data.products)
+            this.setState({edit_mode: true, data: new_data})
+        }
     }
     
     handleInputChange(e, i=false) {
@@ -187,12 +207,31 @@ class PurchaseOrder extends React.Component {
 	    if (['quantity', 'price', 'discount'].includes(name)) {
 	        var empty = new_data.products.filter(p => Object.keys(p).length == 0)
 	        console.log(empty)
-	        if (empty.length < 1 && !new_data.is_refund) {
-                new_data.products.push({})
+
+            if (new RegExp(/,$/g).test(value)) {
+                if (empty.length < 1 && !new_data.is_refund) {
+                    new_data.products.push({})
+                }
+
+                new_data.products[i][name] = value
+	            this.setState({data: new_data})
+            } else {
+                // var filtered = value.replace(/(?!)\D/g,'').replace(/,$/g,'.01').replace(',','.')
+                var filtered = this.reverseFormatNumber(value, 'id')
+                console.log(filtered)
+                if(filtered != ''){
+                    if (empty.length < 1 && !new_data.is_refund) {
+                        new_data.products.push({})
+                    }
+                    var formatted = parseFloat(filtered).toLocaleString('id-ID')
+                    console.log(formatted)
+                    new_data.products[i][name] = formatted
+                    this.setState({data: new_data})
+                } else {
+                    new_data.products[i][name] = value
+	                this.setState({data: new_data})
+                }
             }
-            
-	        new_data.products[i][name] = value
-	        this.setState({data: new_data})
 	    } else if (name == 'product') {
 	        var empty = new_data.products.filter(p => Object.keys(p).length == 0)
 	        console.log(empty)
@@ -422,6 +461,13 @@ class PurchaseOrder extends React.Component {
         // });
     }
     
+    reverseFormatNumber(val,locale){
+        var group = new Intl.NumberFormat(locale).format(1111).replace(/1/g, '');
+        var decimal = new Intl.NumberFormat(locale).format(1.1).replace(/1/g, '');
+        var reversedVal = val.replace(new RegExp('\\' + group, 'g'), '');
+        reversedVal = reversedVal.replace(new RegExp('\\' + decimal, 'g'), '.');
+        return Number.isNaN(reversedVal) ? '' : reversedVal;
+    }
     
     render() {
         var bgstyle = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '2px 32px', marginBottom: '15px'}
@@ -436,6 +482,7 @@ class PurchaseOrder extends React.Component {
         var cancel = checkPermission('VetPurchase', this.state.currentUser, 'cancel')
         var receive = checkPermission('VetPurchase', this.state.currentUser, 'receive')
         var refund = checkPermission('VetPurchase', this.state.currentUser, 'refund')
+        var th = this
         
         if (this.state.loaded) {
             
@@ -444,7 +491,17 @@ class PurchaseOrder extends React.Component {
             if (!!data.products) {
                  data.products.filter(d => !d.delete).forEach(function(item, index) {
                     if (item.product && item.quantity && item.price) {
-                        subtotal = subtotal + (item.price * item.quantity - ((item.discount || 0) / 100 * (item.price * item.quantity)))
+                        var newPrice, newQuantity, newDiscount
+                        if (['Draft', 'RFQ'].includes(data.status || 'Draft') && !data.is_refund && th.state.edit_mode) {
+                            newPrice = parseFloat(th.reverseFormatNumber(String(item.price || 0), 'id'))
+                            newQuantity = parseFloat(th.reverseFormatNumber(String(item.quantity || 0), 'id'))
+                            newDiscount = parseFloat(th.reverseFormatNumber(String(item.discount || 0), 'id'))
+                        } else {
+                            newPrice = item.price || 0
+                            newQuantity = item.quantity || 0
+                            newDiscount = item.discount || 0
+                        }
+                        subtotal = subtotal + (newPrice * newQuantity - ((newDiscount || 0) / 100 * (newPrice * newQuantity)))
                     }
                 })
             }
@@ -1954,7 +2011,23 @@ class ProductsListRow extends React.Component {
           inputQuantityReceive = <div className="col text-center my-auto">
                                     <span>{item.quantity_receive}</span>
                                 </div>
-        } 
+        }
+
+        var newPrice, newQuantity, newDiscount
+
+        if (['Draft', 'RFQ'].includes(this.props.status) && !is_refund && this.props.edit_mode) {
+            newPrice = parseFloat(th.reverseFormatNumber(String(item.price || 0), 'id'))
+            newQuantity = parseFloat(th.reverseFormatNumber(String(item.quantity || 0), 'id'))
+            newDiscount = parseFloat(th.reverseFormatNumber(String(item.discount || 0), 'id'))
+        } else {
+            newPrice = item.price || 0
+            newQuantity = item.quantity || 0
+            newDiscount = item.discount || 0
+        }
+
+        var subtotal = item.quantity && item.price 
+            ? formatter2.format(newPrice * newQuantity - ((newDiscount || 0) / 100 * (newPrice * newQuantity)) + taxes)
+            : ''
         
         return(
             <div className="row mx-0">
@@ -1976,7 +2049,7 @@ class ProductsListRow extends React.Component {
         					{inputDiscount}
         				</div>
         				<div className="col text-right my-auto">
-        					<span>{item.quantity && item.price ? formatter2.format(item.price * item.quantity - ((item.discount || 0) / 100 * (item.price * item.quantity)) + taxes) : ''}</span>
+        					<span>{subtotal}</span>
         				</div>
         				<div className="col-auto text-center my-auto">
         					{deleteButton}
