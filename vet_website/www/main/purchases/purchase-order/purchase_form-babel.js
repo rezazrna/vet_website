@@ -145,24 +145,24 @@ class PurchaseOrder extends React.Component {
         var args = {data: new_data}
         saveOnly?args.saveOnly = true:false
         
-        frappe.call({
-    		type: "POST",
-    		method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.confirm_purchase",
-    		args: args,
-    		callback: function(r){
-    			if (r.message.purchase) {
-    			    if (saveOnly){
-    			        th.getData()
-    			     //   th.setState({'edit_mode': false})
-    			    } else {
-    			        window.location.href = "/main/purchases/purchase-order/edit?n=" + r.message.purchase.name
-    			    }
-    			}
-    			if (r.message.error) {
-    				frappe.msgprint(r.message.error);
-    			}
-    		}
-    	});
+        // frappe.call({
+    	// 	type: "POST",
+    	// 	method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.confirm_purchase",
+    	// 	args: args,
+    	// 	callback: function(r){
+    	// 		if (r.message.purchase) {
+    	// 		    if (saveOnly){
+    	// 		        th.getData()
+    	// 		     //   th.setState({'edit_mode': false})
+    	// 		    } else {
+    	// 		        window.location.href = "/main/purchases/purchase-order/edit?n=" + r.message.purchase.name
+    	// 		    }
+    	// 		}
+    	// 		if (r.message.error) {
+    	// 			frappe.msgprint(r.message.error);
+    	// 		}
+    	// 	}
+    	// });
     }
     
     navigationAction(name){
