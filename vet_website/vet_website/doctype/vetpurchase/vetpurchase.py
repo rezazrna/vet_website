@@ -606,7 +606,7 @@ def submit_refund(data):
 			purchase.save()
 			frappe.db.commit()
 			
-			create_purchase_payment_journal_items(purchase.name, data_json.get('refund'), True, 0, data_json.get('payment_method'), dt.strptime(pay.tanggal, '%Y-%m-%d %H:%M:%S'))
+			create_purchase_payment_journal_items(purchase.name, data_json.get('refund'), True, 0, data_json.get('payment_method'), dt.strptime(pay.tanggal, '%Y-%m-%d'))
 			
 			if check_paid_purchase(purchase.name):
 				purchase.status = 'Refund'
