@@ -1941,6 +1941,14 @@ class PembayaranListRow extends React.Component {
 }
 
 class ProductsListRow extends React.Component {
+    reverseFormatNumber(val,locale){
+        var group = new Intl.NumberFormat(locale).format(1111).replace(/1/g, '');
+        var decimal = new Intl.NumberFormat(locale).format(1.1).replace(/1/g, '');
+        var reversedVal = val.replace(new RegExp('\\' + group, 'g'), '');
+        reversedVal = reversedVal.replace(new RegExp('\\' + decimal, 'g'), '.');
+        return Number.isNaN(reversedVal) ? '' : reversedVal;
+    }
+    
     render() {
         var item = this.props.item
         var index = this.props.index
@@ -2016,9 +2024,9 @@ class ProductsListRow extends React.Component {
         var newPrice, newQuantity, newDiscount
 
         if (['Draft', 'RFQ'].includes(this.props.status) && !is_refund && this.props.edit_mode) {
-            newPrice = parseFloat(th.reverseFormatNumber(String(item.price || 0), 'id'))
-            newQuantity = parseFloat(th.reverseFormatNumber(String(item.quantity || 0), 'id'))
-            newDiscount = parseFloat(th.reverseFormatNumber(String(item.discount || 0), 'id'))
+            newPrice = parseFloat(this.reverseFormatNumber(String(item.price || 0), 'id'))
+            newQuantity = parseFloat(this.reverseFormatNumber(String(item.quantity || 0), 'id'))
+            newDiscount = parseFloat(this.reverseFormatNumber(String(item.discount || 0), 'id'))
         } else {
             newPrice = item.price || 0
             newQuantity = item.quantity || 0
