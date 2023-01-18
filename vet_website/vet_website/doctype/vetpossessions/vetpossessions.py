@@ -127,6 +127,11 @@ def get_sessions_list(filters=None):
 				# print(ow.metode_pembayaran)
 				method_name = frappe.db.get_value('VetPaymentMethod', ow['metode_pembayaran'], 'method_name')
 				# payment_method = frappe.get_list('VetPaymentMethod', filters={'name': ow['metode_pembayaran']}, fields=['method_type', 'method_name'])
+
+				if ow['invoice']:
+					invoice_session = frappe.db.get_value('VetCustomerInvoice', ow['invoice'], 'pos_session')
+					if invoice_session != s['name']:
+						continue
 				
 				# if payment_method :
 				if ow.metode_pembayaran != 'Cash':
@@ -182,7 +187,15 @@ def get_sessions_list(filters=None):
 			s['total_kas_keluar'] = sum([k['jumlah'] for k in kas_keluar])
 			s['non_cash_payment'] = non_cash_payment
 			s['cash_payment'] = cash_payment
-			s['sales_debt'] = sales_credit_list
+			filtered_sales_credit_list = []
+			for scl in sales_credit_list:
+				if scl['invoice']:
+					invoice_session = frappe.db.get_value('VetCustomerInvoice', scl['invoice'], 'pos_session')
+					if invoice_session != s['name']:
+						continue
+
+				filtered_sales_credit_list.append(scl)
+			s['sales_debt'] = filtered_sales_credit_list
 		
 		journal = frappe.get_list("VetCoa", fields=["*"])
 		# journal = frappe.get_list("VetCoa", filters={'account_parent': 'VC-102'}, fields=["*"])

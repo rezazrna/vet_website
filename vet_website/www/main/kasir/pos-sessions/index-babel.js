@@ -589,6 +589,9 @@ class PosSessionsListRow extends React.Component {
         !all_debt || all_debt < 0 ? all_debt = 0 : false
 
         var total_omset = all_transaction + all_deposit + all_debt
+        console.log(all_transaction)
+        console.log(all_deposit)
+        console.log(all_debt)
         // var total_omset = all_transaction + deposit_transaction + all_debt
 
         if (this.state.show_detail) {
