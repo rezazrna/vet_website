@@ -371,8 +371,8 @@ def check_paid_purchase(name):
 	purchase = frappe.get_doc('VetPurchase', name)
 	subtotal = 0
 	for p in purchase.products:
-		subtotal = subtotal + (p.quantity * p.price)
-	paid = sum(int(p.jumlah) for p in purchase.pembayaran)
+		subtotal = subtotal + (float(p.quantity) * float(p.price))
+	paid = sum(float(p.jumlah) for p in purchase.pembayaran)
 	if paid >= subtotal:
 		return True
 	else:
@@ -729,7 +729,7 @@ def count_nilai_awal(moves, gudang):
 			continue
 
 
-	nilai += sum(c['price'] * c['quantity'] for c in pembelian)
+	nilai += sum(float(c['price']) * float(c['quantity']) for c in pembelian)
 
 	for pe in pembelian:
 		if penjualan > 0:

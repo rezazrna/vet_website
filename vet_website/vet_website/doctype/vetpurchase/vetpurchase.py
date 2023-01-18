@@ -113,15 +113,15 @@ def get_purchase_order_list(filters=None):
 				
 			p['untaxed'] = untaxed
 			p['total'] = total
-			p['paid'] = sum(py.jumlah for py in payments)
+			p['paid'] = sum(float(py.jumlah) for py in payments)
 			
 			if product_detail_name:
 				purchase_line = list(pp for pp in purchase_products if pp.product == product_detail_name)
 				p['purchase_product'] = purchase_line[0]
 			
 			if unpaid_mode:
-				paid = sum(pay.jumlah for pay in payments) or 0
-				subtotal = sum(pp.quantity*pp.price for pp in purchase_products) or 0
+				paid = sum(float(pay.jumlah) for pay in payments) or 0
+				subtotal = sum(float(pp.quantity) * float(pp.price) for pp in purchase_products) or 0
 				if paid < subtotal:
 					purchase.append(p)
 			else:
@@ -508,9 +508,9 @@ def submit_pembayaran(data):
 		if data_json.get('jumlah') :
 			purchase = frappe.get_doc('VetPurchase', data_json.get('name'))
 			
-			subtotal = sum(p.quantity * p.price - ((p.discount or 0) / 100 * (p.quantity * p.price)) for p in purchase.products)
-			paid = sum(p.jumlah for p in purchase.pembayaran)
-			remaining = (subtotal - purchase.potongan)- paid
+			subtotal = sum(float(p.quantity) * float(p.price) - ((p.discount or 0) / 100 * (float(p.quantity) * float(p.price))) for p in purchase.products)
+			paid = sum(float(p.jumlah) for p in purchase.pembayaran)
+			remaining = (subtotal - float(purchase.potongan))- paid
 			
 			pp_data = {}
 			pp_data.update({'parent': purchase.name, 'parenttype': 'VetPurchase', 'parentfield': 'pembayaran'})
@@ -946,7 +946,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '1-16204'}, 'name')
 	jis = []
 	total = 0
-	paid = sum(i.jumlah for i in purchase.pembayaran)
+	paid = sum(float(i.jumlah) for i in purchase.pembayaran)
 	subtotal = 0
 	
 	for p in purchase.products:
@@ -1106,7 +1106,7 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 			}
 		]
 	else:
-		paid = sum(i.jumlah for i in purchase.pembayaran)
+		paid = sum(float(i.jumlah) for i in purchase.pembayaran)
 		subtotal = 0 - (purchase.potongan or 0)
 		for p in purchase.products:
 			subtotal = subtotal + (p.quantity_receive * p.price - ((p.discount or 0) / 100 * (p.quantity_receive * p.price)))
