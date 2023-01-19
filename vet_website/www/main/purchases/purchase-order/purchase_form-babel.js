@@ -92,7 +92,7 @@ class PurchaseOrder extends React.Component {
                             if (r.message) {
                                 console.log('products loaded');
                                 console.log(r.message);
-                                gr.setState({'gudang': r.message.gudang, 'supplier': r.message.supplier, 'productAll': r.message.productAll, 'loaded': true, 'uomAll': r.message.uomAll, 'payment_method_list': r.message.payment_method_list});
+                                gr.setState({'gudang': r.message.gudang, 'supplier': r.message.supplier, 'productAll': r.message.productAll, 'uomAll': r.message.uomAll, 'payment_method_list': r.message.payment_method_list});
                             }
                         }
                     });

@@ -144,7 +144,7 @@ class CustomerInvoice extends React.Component {
             callback: function(r){
                 if (r.message) {
                     console.log(r.message)
-                    var update = {'loaded': true, 'pet_owner_list': r.message.pet_owner_list, 'pet_list': r.message.pet_list, 'task_list': r.message.task_list, 'product_list': r.message.product_list, 'warehouse_list': r.message.warehouse_list, 'payment_method_list': r.message.payment_method_list}
+                    var update = {'pet_owner_list': r.message.pet_owner_list, 'pet_list': r.message.pet_list, 'task_list': r.message.task_list, 'product_list': r.message.product_list, 'warehouse_list': r.message.warehouse_list, 'payment_method_list': r.message.payment_method_list}
                     
                     ci.setState(update);
                 }
@@ -1037,10 +1037,7 @@ class CustomerInvoice extends React.Component {
 	            	    </div>
 	            	</div>
                 	<CustomerInvoiceForm data={this.state.data} pet_owner_list={this.state.pet_owner_list} pet_list={pet_list} task_list={this.state.task_list} changeInput={this.changeInput} inputBlur={this.inputBlur}/>
-                    {this.state.data.invoice_line
-                        ? <CustomerInvoiceLines name={this.state.data.name} list={this.state.data.invoice_line} children_customer_invoice={this.state.data.children_customer_invoice} edit_mode={this.state.edit_mode} no_exchange={this.state.data.no_exchange} is_refund={this.state.data.is_refund} product_list={this.state.product_list} uom_list={this.state.uom_list} status={this.state.data.status} payments={this.state.data.pembayaran} payment_method_list={this.state.payment_method_list} subtotal={this.state.data.subtotal} paid={paid} changeInput={this.changeInput} inputBlur={this.inputBlur} warehouse_list={this.state.warehouse_list} potongan={this.state.data.potongan} deleteRow={this.deleteRow} role={this.state.role} service={this.state.service} is_rawat_inap={this.state.data.is_rawat_inap} current_session={this.state.current_session} links={this.state.links} services={this.state.services} register_number={this.state.data.register_number}/>
-                        : <div></div>
-                    }                	
+                	<CustomerInvoiceLines name={this.state.data.name} list={this.state.data.invoice_line} children_customer_invoice={this.state.data.children_customer_invoice} edit_mode={this.state.edit_mode} no_exchange={this.state.data.no_exchange} is_refund={this.state.data.is_refund} product_list={this.state.product_list} uom_list={this.state.uom_list} status={this.state.data.status} payments={this.state.data.pembayaran} payment_method_list={this.state.payment_method_list} subtotal={this.state.data.subtotal} paid={paid} changeInput={this.changeInput} inputBlur={this.inputBlur} warehouse_list={this.state.warehouse_list} potongan={this.state.data.potongan} deleteRow={this.deleteRow} role={this.state.role} service={this.state.service} is_rawat_inap={this.state.data.is_rawat_inap} current_session={this.state.current_session} links={this.state.links} services={this.state.services} register_number={this.state.data.register_number}/>
                 	<CustomerInvoiceVersion version={this.state.version || []} />
                 	{popup_pay}
                 	{popup_refund}
@@ -2622,9 +2619,7 @@ class PDF extends React.Component{
             })
         } else {
             var border = {borderTop: "1px solid #000", paddingTop: 7}
-            if (data.invoice_line) {
-                table_rows = addProductRow(data)
-            }
+            table_rows = addProductRow(data)
             table_rows.push(<tr key={data.name+"_border"}><td colSpan="5" style={border}/></tr>)
             data.pembayaran.forEach((d, index) => {
                 var payment_method = d.metode_pembayaran
@@ -2983,9 +2978,7 @@ class PDFMini extends React.Component{
             })
         } else {
             var border = {borderTop: "1px solid #000", paddingTop: 7}
-            if (data.invoice_line) {
-                table_rows = addProductRow(data)
-            }
+            table_rows = addProductRow(data)
             table_rows.push(<tr key={data.name+"_border"}><td colSpan="5" style={border}/></tr>)
             data.pembayaran.forEach((d, index) => {
                 var payment_method = d.metode_pembayaran
@@ -3344,9 +3337,7 @@ class ExcelPage extends React.Component{
             })
         } else {
             var border = {borderTop: "1px solid #000", paddingTop: 7}
-            if (data.invoice_line) {
-                table_rows = addProductRow(data)
-            }
+            table_rows = addProductRow(data)
             table_rows.push(<tr key={data.name+"_border"}><td colSpan="5" style={border}/></tr>)
             data.pembayaran.forEach((d, index) => {
                 var payment_method = d.metode_pembayaran
