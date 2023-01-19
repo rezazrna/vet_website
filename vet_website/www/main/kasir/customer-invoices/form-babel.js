@@ -12,7 +12,8 @@ class CustomerInvoice extends React.Component {
             'show_refund': false,
             'show_loading_pdf': false,
             'edit_mode': false,
-            'currentUser': {}
+            'currentUser': {},
+            'submit_loading': false,
         }
         this.changeInput = this.changeInput.bind(this)
         this.inputBlur = this.inputBlur.bind(this)
@@ -439,6 +440,12 @@ class CustomerInvoice extends React.Component {
         e.preventDefault()
         var ci = this
         var method, args
+
+        if (this.state.submit_loading) {
+            return
+        }
+
+        this.setState({submit_loading: true})
         
         if(this.state.data.children_customer_invoice && this.state.data.children_customer_invoice.length > 0){
             var invoices = []
@@ -484,8 +491,11 @@ class CustomerInvoice extends React.Component {
                         } else if (r.message.error){
                             frappe.msgprint(r.message.error)
                         }
+                        ci.setState({submit_loading: false})
                     }
                 })
+            } else {
+                this.setState({submit_loading: false})
             }
             
         } else {
@@ -536,6 +546,8 @@ class CustomerInvoice extends React.Component {
                         } else if (r.message.error){
                             frappe.msgprint(r.message.error)
                         }
+
+                        ci.setState({submit_loading: false})
                     }
                 })
             } else if (id == undefined) {
@@ -550,8 +562,11 @@ class CustomerInvoice extends React.Component {
                         if (r.message.name) {
                             window.location.href = "/main/kasir/customer-invoices/edit?n=" + r.message.name
                         }
+                        ci.setState({submit_loading: false})
                     }
                 })
+            } else {
+                this.setState({submit_loading: false})
             }
         }
     }
@@ -864,7 +879,9 @@ class CustomerInvoice extends React.Component {
             if (id == undefined) {
                 buttonMode.push(
                         <div className="col-auto d-flex my-auto" key="1">
-            				<button type="submit" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Tambah</button>
+            				<button type="submit" className={this.state.submit_loading
+                                ? "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4 disabled"
+                                : "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4"}>Tambah</button>
             			</div>
                     )
             } else {
@@ -898,7 +915,11 @@ class CustomerInvoice extends React.Component {
                     if([undefined,false,''].includes(this.state.data.parent_customer_invoice)){
                         buttonMode.push(
                             <div className="col-auto d-flex my-auto" key="1">
-                				<button type="button" onClick={(e) => this.formSubmit(e)} className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Open</button>
+                				<button type="button" onClick={(e) => this.formSubmit(e)} className={this.state.submit_loading
+                                    ? "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4 disabled"
+                                    : "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4"}>
+                                        Open
+                                </button>
                 			</div>
                         )
                     }
@@ -906,7 +927,9 @@ class CustomerInvoice extends React.Component {
                         if (this.state.edit_mode) {
                             buttonMode.push(
                                 <div className="col-auto d-flex my-auto" key="save_button">
-                                    <button type="button" onClick={(e) => this.formSubmit(e, true)} className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Save</button>
+                                    <button type="button" onClick={(e) => this.formSubmit(e, true)} className={this.state.submit_loading
+                                        ? "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4 disabled"
+                                        : "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4"}>Save</button>
                                 </div>
                             )
 
@@ -2596,7 +2619,9 @@ class PDF extends React.Component{
             })
         } else {
             var border = {borderTop: "1px solid #000", paddingTop: 7}
-            table_rows = addProductRow(data)
+            if (data.invoice_line) {
+                table_rows = addProductRow(data)
+            }
             table_rows.push(<tr key={data.name+"_border"}><td colSpan="5" style={border}/></tr>)
             data.pembayaran.forEach((d, index) => {
                 var payment_method = d.metode_pembayaran
@@ -2955,7 +2980,9 @@ class PDFMini extends React.Component{
             })
         } else {
             var border = {borderTop: "1px solid #000", paddingTop: 7}
-            table_rows = addProductRow(data)
+            if (data.invoice_line) {
+                table_rows = addProductRow(data)
+            }
             table_rows.push(<tr key={data.name+"_border"}><td colSpan="5" style={border}/></tr>)
             data.pembayaran.forEach((d, index) => {
                 var payment_method = d.metode_pembayaran
@@ -3314,7 +3341,9 @@ class ExcelPage extends React.Component{
             })
         } else {
             var border = {borderTop: "1px solid #000", paddingTop: 7}
-            table_rows = addProductRow(data)
+            if (data.invoice_line) {
+                table_rows = addProductRow(data)
+            }
             table_rows.push(<tr key={data.name+"_border"}><td colSpan="5" style={border}/></tr>)
             data.pembayaran.forEach((d, index) => {
                 var payment_method = d.metode_pembayaran
