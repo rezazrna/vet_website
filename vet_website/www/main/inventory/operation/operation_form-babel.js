@@ -236,18 +236,32 @@ class Operation extends React.Component {
                         })
                     }
                 } else {
-                    frappe.call({
-                        type: "POST",
-                        method:"vet_website.vet_website.doctype.vetoperation.vetoperation.action_send",
-                        args: {name: new_data.name},
-                        callback: function(r){
-                            if (r.message) {
-                                var new_data = Object.assign({}, op.state.data)
-                                new_data.status = r.message.status
-                                op.setState({data: new_data, submit_loading: false})
+                    if(!this.state.edit_mode){
+                        frappe.call({
+                            type: "POST",
+                            method:"vet_website.vet_website.doctype.vetoperation.vetoperation.action_send",
+                            args: {name: new_data.name},
+                            callback: function(r){
+                                if (r.message) {
+                                    var new_data = Object.assign({}, op.state.data)
+                                    new_data.status = r.message.status
+                                    op.setState({data: new_data, submit_loading: false})
+                                }
                             }
-                        }
-                    })
+                        })   
+                    } else {
+                        console.log(this.state.data)
+                        frappe.call({
+                            type: "POST",
+                            method:"vet_website.vet_website.doctype.vetoperation.vetoperation.edit_operation",
+                            args: {data: new_data},
+                            callback: function(r){
+                                if (r.message) {
+                                    window.location.reload()
+                                }
+                            }
+                        })
+                    }
                 }
             } else if(id == undefined){
                 console.log('masuk')
@@ -350,6 +364,36 @@ class Operation extends React.Component {
             			</div>
                     )
                 }
+
+                if(write && !this.props.usage){
+                    if(this.state.edit_mode){
+                        buttonMode.push(
+                            <div className="col-auto d-flex my-auto" key="1">
+                                <button type="submit" className={ this.state.submit_loading
+                                    ? "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4 disabled"
+                                    : "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4"
+                                }>
+                                    { this.state.submit_loading
+                                    ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                    : 'Simpan'}
+                                </button>
+                            </div>
+                        )
+
+                        buttonMode.push(
+                            <div className="col-auto d-flex my-auto" key="cancel">
+                                <button type="button" className="d-block btn btn-sm btn-outline-danger fs12 text-uppercase fwbold py-2 px-4" onClick={() => this.getInitialData()}>Batal</button>
+                            </div>
+                        )
+                    } else {
+                        buttonMode.push(
+                            <div className="col-auto d-flex my-auto" key="1">
+                                <button type="button" className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4" onClick={e => this.toggleEditMode(e)}>Edit</button>
+                            </div>
+                        )
+                    }
+                }
+
                 if(this.props.usage){
                     if(write){
                         if(this.state.edit_mode){
@@ -618,7 +662,7 @@ class FormOperation extends React.Component {
         
         console.log(this.props.edit_mode)
         console.log(this.props.usage)
-        if (id == undefined || (this.props.usage && this.props.edit_mode)){
+        if (id == undefined || this.props.edit_mode){
             arrow_style.marginTop = '40px'
             // reference = <input required type="text" name="reference" id="reference" autoComplete="off" placeholder="Reference" className="form-control fs20 fwbold px-0 p-1 h-auto border-0" value={data.reference||''} style={input_style} onChange={e => this.props.changeInput(e)}/>
             title = <p className="fs18 fw600 text-dark mb-2">{this.props.usage?"Penggunaan Baru":"Operasi Baru"}</p>
@@ -857,7 +901,7 @@ class OperationStockMoveListRow extends React.Component {
             product = <input required={required} autoComplete="off" placeholder="Product" name='product' list="product" id="product" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.product_list, index)} defaultValue={item.product_name||item.product||''}/>
             quantity = <input required={required} autoComplete="off" placeholder="0" name='quantity' id="quantity" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} defaultValue={item.quantity||''}/>
             uom = <input required={required} autoComplete="off" placeholder="Unit Of Measurement" name='product_uom' list={'uom'+index} id="product_uom" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.uom_list, index)} defaultValue={item.uom_name||item.product_uom||''}/>
-        } else if(id != undefined && (this.props.edit_mode && this.props.usage)){
+        } else if(id != undefined && this.props.edit_mode){
             product = <input required={required} autoComplete="off" placeholder="Product" name='product' list="product" id="product" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.product_list, index)} value={item.product_name||''}/>
             quantity = <input required={required} autoComplete="off" placeholder="0" name='quantity' id="quantity" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} value={item.quantity||''}/>
             uom = <input required={required} autoComplete="off" placeholder="Unit Of Measurement" name='product_uom' list={'uom'+index} id="product_uom" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.uom_list, index)} value={item.uom_name||''}/>
