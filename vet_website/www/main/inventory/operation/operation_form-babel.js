@@ -16,6 +16,7 @@ class Operation extends React.Component {
         this.inputBlur = this.inputBlur.bind(this)
         this.toggleReceive = this.toggleReceive.bind(this)
         this.navigationAction = this.navigationAction.bind(this)
+        this.deleteRow = this.deleteRow.bind(this)
     }
     
     componentDidMount() {
@@ -307,6 +308,19 @@ class Operation extends React.Component {
         new_data.moves.push({})
         this.setState({edit_mode: !this.state.edit_mode, data: new_data})
     }
+
+    deleteRow(i){
+        var new_data = Object.assign({}, this.state.data)
+        console.log(i)
+        console.log(new_data.moves)
+        if(new_data.moves[i].name != undefined){
+            new_data.moves[i].delete = true
+        }
+        else {
+            new_data.moves.splice(i, 1)
+        }
+        this.setState({data: new_data})
+    }
     
     render() {
         var panel_style = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '2px 32px', marginBottom: '15px'}
@@ -473,7 +487,7 @@ class Operation extends React.Component {
             	        <RecordNavigation currentname={this.state.data.name} namelist={this.state.namelist} navigationAction={this.navigationAction}/>
             	    </div>
             	</div><FormOperation edit_mode={this.state.edit_mode} usage={this.props.usage} data={this.state.data} accounts={this.state.accounts} gudang_list={this.state.gudang_list} changeInput={this.changeInput} inputBlur={this.inputBlur}/>
-            	<OperationStockMove edit_mode={this.state.edit_mode} usage={this.props.usage}  list={this.state.data.moves} product_list={this.state.product_list} uom_list={this.state.uom_list} status={this.state.data.status} changeInput={this.changeInput} inputBlur={this.inputBlur}/>
+            	<OperationStockMove edit_mode={this.state.edit_mode} usage={this.props.usage}  list={this.state.data.moves} product_list={this.state.product_list} uom_list={this.state.uom_list} status={this.state.data.status} changeInput={this.changeInput} inputBlur={this.inputBlur} deleteRow={this.deleteRow} />
             	{popup_receive}
             </form>
         } else {
@@ -786,9 +800,11 @@ class OperationStockMove extends React.Component {
             var sl = this
             list.forEach(function(l, index){
                 console.log(list)
-                rows.push(
-                    <OperationStockMoveListRow show_receive_date={list.some((l) => l.receive_date)} edit_mode={sl.props.edit_mode} usage={sl.props.usage} index={index.toString()} product_list={product_list} uom_list={sl.props.uom_list} key={index.toString()} item={l} status={sl.props.status} changeInput={e => sl.props.changeInput(e, index.toString())} inputBlur={sl.props.inputBlur}/>
-                )
+                if (!l.delete) {
+                    rows.push(
+                        <OperationStockMoveListRow show_receive_date={list.some((l) => l.receive_date)} edit_mode={sl.props.edit_mode} usage={sl.props.usage} index={index.toString()} product_list={product_list} uom_list={sl.props.uom_list} key={index.toString()} item={l} status={sl.props.status} changeInput={e => sl.props.changeInput(e, index.toString())} inputBlur={sl.props.inputBlur} deleteRow={() => sl.props.deleteRow(index)}/>
+                    )
+                }
             })
         }
         
@@ -813,10 +829,16 @@ class OperationStockMove extends React.Component {
                             <span className="my-auto">Receive Date</span>
                         </div>
         }
+
+        var deleteHeader
+        if (id == undefined || this.props.edit_mode) {
+            var divStyle = {width: '11px'}
+            deleteHeader = <div style={divStyle}/>
+        }
         
         var total_detail
         if(this.props.usage){
-            var total = list.reduce((total, l) => total += (l.price||0)*(parseFloat(l.quantity)||0), 0)
+            var total = list.filter(l => !l.delete).reduce((total, l) => total += (l.price||0)*(parseFloat(l.quantity)||0), 0)
             console.log(total)
             total_detail = (
             <div className="row flex-row-reverse mx-0 fs14 fw600 mt-4 mb-2" style={fontStyle}>
@@ -848,6 +870,9 @@ class OperationStockMove extends React.Component {
         				<div className="col text-center">
         					<span className="my-auto">{this.props.usage?'Qty':'Qty Sent'}</span>
         				</div>
+                        <div className="col text-center">
+        					{deleteHeader}
+        				</div>
         				{price}
         				{qty_done}
         				{subtotal}
@@ -863,6 +888,8 @@ class OperationStockMove extends React.Component {
 class OperationStockMoveListRow extends React.Component {
     render() {
         var bgStyle = {background: '#F5FBFF'}
+        var cursor = {cursor: 'pointer'}
+        var divStyle = {width: '11px'}
         var item = this.props.item
         var index = this.props.index
         var status = this.props.status
@@ -896,15 +923,19 @@ class OperationStockMoveListRow extends React.Component {
                                 <span className="my-auto">{item.price?formatter.format(item.price*parseFloat(item.quantity)||0):''}</span>
                             </div>
         }
+
+        var deleteButton = <div style={divStyle}/>
         
         if(id == undefined){
-            product = <input required={required} autoComplete="off" placeholder="Product" name='product' list="product" id="product" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.product_list, index)} defaultValue={item.product_name||item.product||''}/>
-            quantity = <input required={required} autoComplete="off" placeholder="0" name='quantity' id="quantity" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} defaultValue={item.quantity||''}/>
-            uom = <input required={required} autoComplete="off" placeholder="Unit Of Measurement" name='product_uom' list={'uom'+index} id="product_uom" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.uom_list, index)} defaultValue={item.uom_name||item.product_uom||''}/>
+            product = <input required={required} autoComplete="off" placeholder="Product" name='product' list="product" id={"product"+index} style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.product_list, index)} defaultValue={item.product_name||item.product||''} value={item.product_name||''}/>
+            quantity = <input required={required} autoComplete="off" placeholder="0" name='quantity' id={"quantity"+index} style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} defaultValue={item.quantity||''} value={item.quantity||''}/>
+            uom = <input required={required} autoComplete="off" placeholder="Unit Of Measurement" name='product_uom' list={'uom'+index} id={"product_uom"+index} style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.uom_list, index)} defaultValue={item.uom_name||item.product_uom||''} value={item.uom_name||''}/>
+            deleteButton = <i className="fa fa-trash" style={cursor} onClick={this.props.deleteRow}/>
         } else if(id != undefined && this.props.edit_mode){
-            product = <input required={required} autoComplete="off" placeholder="Product" name='product' list="product" id="product" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.product_list, index)} value={item.product_name||''}/>
-            quantity = <input required={required} autoComplete="off" placeholder="0" name='quantity' id="quantity" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} value={item.quantity||''}/>
-            uom = <input required={required} autoComplete="off" placeholder="Unit Of Measurement" name='product_uom' list={'uom'+index} id="product_uom" style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.uom_list, index)} value={item.uom_name||''}/>
+            product = <input required={required} autoComplete="off" placeholder="Product" name='product' list="product" id={"product"+index} style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.product_list, index)} value={item.product_name||''}/>
+            quantity = <input required={required} autoComplete="off" placeholder="0" name='quantity' id={"quantity"+index} style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} value={item.quantity||''}/>
+            uom = <input required={required} autoComplete="off" placeholder="Unit Of Measurement" name='product_uom' list={'uom'+index} id={"product_uom"+index} style={bgStyle} className="form-control border-0 fs14 fw600 p-0 h-auto text-center" onChange={this.props.changeInput} onBlur={e => this.props.inputBlur(e, this.props.uom_list, index)} value={item.uom_name||''}/>
+            deleteButton = <i className="fa fa-trash" style={cursor} onClick={this.props.deleteRow}/>
         }
         
         var uom_options = []
@@ -934,6 +965,9 @@ class OperationStockMoveListRow extends React.Component {
         				</div>
         				<div className="col text-center">
         					{quantity}
+        				</div>
+                        <div className="col text-center">
+        					{deleteButton}
         				</div>
         				{price}
         				{quantity_done}
