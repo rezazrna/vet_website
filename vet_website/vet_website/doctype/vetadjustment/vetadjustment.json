@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "VAJ-.#",
  "creation": "2020-09-29 09:05:19.055986",
  "doctype": "DocType",
@@ -58,8 +57,7 @@
    "label": "warehouse name"
   }
  ],
- "links": [],
- "modified": "2021-02-20 10:33:20.318821",
+ "modified": "2023-01-07 13:24:13.553601",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetAdjustment",

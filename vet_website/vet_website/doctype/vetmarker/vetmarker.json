@@ -1,5 +1,4 @@
 {
- "actions": [],
  "creation": "2020-08-11 09:37:46.869136",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -25,8 +24,7 @@
    "options": "VetMarkerMarkers"
   }
  ],
- "links": [],
- "modified": "2020-08-11 09:37:46.869136",
+ "modified": "2023-01-01 14:27:24.941273",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetMarker",

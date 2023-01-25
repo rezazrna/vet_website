@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "VO-.#",
  "creation": "2020-08-25 13:14:37.239661",
  "doctype": "DocType",
@@ -91,8 +90,7 @@
    "label": "Expense Account Name"
   }
  ],
- "links": [],
- "modified": "2021-04-17 16:40:45.588466",
+ "modified": "2023-01-07 13:24:12.923377",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetOperation",

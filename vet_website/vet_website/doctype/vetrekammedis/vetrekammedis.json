@@ -283,7 +283,7 @@
   {
    "fieldname": "diagnosa_banding",
    "fieldtype": "Text",
-   "label": "Diagnosa Bandung"
+   "label": "Diagnosa Banding"
   },
   {
    "fieldname": "marker",
@@ -320,7 +320,7 @@
    "label": "Lainnya  Diagnosa"
   }
  ],
- "modified": "2022-08-31 19:56:21.990847",
+ "modified": "2023-01-07 13:24:15.921616",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetRekamMedis",

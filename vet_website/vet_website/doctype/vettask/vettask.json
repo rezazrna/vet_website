@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "JS.#",
  "creation": "2020-03-26 12:03:29.484728",
  "doctype": "DocType",
@@ -24,8 +23,7 @@
    "label": "Description"
   }
  ],
- "links": [],
- "modified": "2021-02-15 17:07:36.280673",
+ "modified": "2023-01-07 13:24:12.325145",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetTask",
