@@ -355,7 +355,7 @@ class SettingUsers extends React.Component {
                 	               <label htmlFor="role" className="fw600 mb-0">Role</label>
                 	               <select name='role' id="role" className="form-control fs14" onChange={e => this.handleInputChange(e)} value={new_user.role || ''}>
                                         <option className="d-none"/>
-                                        <option value="Master">Master</option>
+                                        {/* <option value="Master">Master</option> */}
                                         {role_options}
                                     </select>
                 	            </div>
