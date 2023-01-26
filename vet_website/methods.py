@@ -937,6 +937,7 @@ def new_role(data):
 		new_role = frappe.new_doc('VetRole')
 		new_role.update({
 			'role_name': data_json.get('role_name'),
+			'is_dokter': data_json.get('is_dokter', False),
 		})
 		
 		new_role.insert()
@@ -1020,6 +1021,7 @@ def edit_role(data):
 		edit_role = frappe.get_doc('VetRole', data_json.get('name'))
 		edit_role.update({
 			'role_name': data_json.get('role_name'),
+			'is_dokter': data_json.get('is_dokter'),
 		})
 		
 		edit_role.save()

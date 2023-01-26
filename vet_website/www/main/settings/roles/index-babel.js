@@ -432,6 +432,13 @@ class RolesPopupForm extends React.Component {
         } else if (name == 'extra_permission') {
             new_data.permissions[index][name].push(value)
             e.target.value = ''
+        } else if (name == 'is_dokter') {
+            if (this.state.data[name]) {
+                new_data[name] = 0
+            }
+            else {
+                new_data[name] = 1
+            }
         } else {
             new_data[name] = value
         }
@@ -601,7 +608,13 @@ class RolesPopupForm extends React.Component {
                     <form onSubmit={e => this.formSubmit(e)} className="p-5 bg-white">
                         {doctype_list}
                         <div className="form-row form-group">
-                            {input_name}
+                            <div className="col">
+                                {input_name}
+                            </div>
+                            <div className="col-2 d-flex">
+                                <input disabled={readOnly} type="checkbox" name="is_dokter" id="is_dokter" className="mr-2" checked={this.state.data.is_dokter == 1} onChange={e => this.changeInput(e)} />
+                                <label htmlFor="is_dokter" className="my-auto fw600" style={color_style}>Dokter</label>
+                            </div>
                         </div>
                         <div className="form-row fs16 fw600 py-2" style={border_style}>
                             <div className="col-4">

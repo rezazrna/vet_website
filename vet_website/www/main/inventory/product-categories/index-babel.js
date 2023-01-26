@@ -445,6 +445,7 @@ class ProductCategoriesPopupForm extends React.Component {
             args: {},
             callback: function (r) {
                 if (r.message) {
+                    console.log(r.message)
                     p.setState({ 'accounts': r.message.accounts });
                 }
             }
