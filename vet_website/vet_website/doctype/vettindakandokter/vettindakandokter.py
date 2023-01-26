@@ -346,8 +346,8 @@ def confirm_tindakan_dokter(data):
 			tindakan_dokter_data = {}
 			tindakan_dokter_data.update(data_json)
 			pops = [
-			'name','attachment','attachments','dokter','jasa',
-			'layanan_berjadwal','nama_dokter','pet','pet_name',
+			'name','attachment','attachments','jasa','list_dokter'
+			'layanan_berjadwal','pet','pet_name',
 			'pet_owner','pet_owner_name','reception','reception_date',
 			'register_number','status','tindak_lanjut', 'obat', 'marker', 'creation', 'modified'
 			]
