@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "VRL-.#",
  "creation": "2021-04-12 14:44:49.694351",
  "doctype": "DocType",
@@ -9,7 +8,8 @@
   "role_name",
   "permissions",
   "users",
-  "description"
+  "description",
+  "is_dokter"
  ],
  "fields": [
   {
@@ -35,10 +35,15 @@
    "fieldname": "description",
    "fieldtype": "Text",
    "label": "Description"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_dokter",
+   "fieldtype": "Check",
+   "label": "Is Dokter"
   }
  ],
- "links": [],
- "modified": "2021-04-12 15:35:20.370088",
+ "modified": "2023-01-26 14:36:04.695316",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetRole",

@@ -117,7 +117,6 @@
    "label": "Nama Pemilik"
   },
   {
-   "fetch_from": "register_number.owner",
    "fieldname": "dokter",
    "fieldtype": "Link",
    "label": "Dokter",
@@ -335,7 +334,7 @@
    "label": "Lainnya Diagnosa"
   }
  ],
- "modified": "2023-01-07 13:24:17.321192",
+ "modified": "2023-01-26 14:36:18.021931",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetInstalasiMedis",
