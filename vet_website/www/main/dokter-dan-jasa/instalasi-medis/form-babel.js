@@ -742,7 +742,7 @@ class InstalasiMedisMainForm extends React.Component {
     render() {
         var readOnly = false
         var select_style = { color: '#056EAD', border: '1px solid #056EAD' }
-        var input_nama_dokter = <input required name='nama_dokter' className="form-control lightbg fs14" style={select_style} onChange={e => this.props.changeTindakanDokter(e)} onBlur={(e) => this.props.handleInputBlur(e, this.props.data.list_dokter)} list="list_dokter" id="nama_dokter" autoComplete="off" value={this.props.data.nama_dokter || ''} readOnly={readOnly}/>
+        var input_nama_dokter = <input required name='nama_dokter' className="form-control lightbg fs14" style={select_style} onChange={e => this.props.changeInstalasiMedis(e)} onBlur={(e) => this.props.handleInputBlur(e, this.props.data.list_dokter)} list="list_dokter" id="nama_dokter" autoComplete="off" value={this.props.data.nama_dokter || ''} readOnly={readOnly}/>
         if(this.props.data.status == 'Done'){
             readOnly = true
             input_nama_dokter = <p className="mb-0">{this.props.data.nama_dokter || ''}</p>
@@ -846,19 +846,19 @@ class InstalasiMedisMainForm extends React.Component {
         					<p className="mb-0">{moment(this.props.data.date).format("DD-MM-YYYY") || ''}</p>
         				</div>
 			        </div>
-			        <div className="col">
-			            <div className="form-group mb-1">
-        					<label htmlFor="service" className="fs10 fw600">Layanan</label>
-        					<p className="mb-0">{this.props.data.service || ''}</p>
-        				</div>
-			        </div>
-                    <div className="col">
+                    <div className="col-2">
 			            <div className="form-group mb-1">
                             <label htmlFor="nama_dokter" className="fs10 fw600">Nama Dokter</label>
         					{input_nama_dokter}
                             <datalist id="list_dokter">
                                 {option_dokter}
                             </datalist>
+        				</div>
+			        </div>
+			        <div className="col">
+			            <div className="form-group mb-1">
+        					<label htmlFor="service" className="fs10 fw600">Layanan</label>
+        					<p className="mb-0">{this.props.data.service || ''}</p>
         				</div>
 			        </div>
 			        <div className="col-auto text-right mt-auto">
