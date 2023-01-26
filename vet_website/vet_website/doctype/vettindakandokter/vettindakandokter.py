@@ -519,8 +519,8 @@ def confirm_tindakan_dokter(data):
 			rekam_medis_data.update(data_json)
 			pops_rekam_medis = [
 				'attachments', 'creation', 'docstatus', 'idx', 'jasa', 'layanan_berjadwal', 'modified', 'modified_by', 'owner', 'parent', 'parentfield', 'parenttype',
-				'pet_name', 'pet_owner', 'pet_owner_name', 'pulse', 'reception_date', 'rekam_medis_count', 'respirasi', 'status', 'tindak_lanjut', 'obat', 'marker'
-				]
+				'pet_name', 'pet_owner', 'pet_owner_name', 'pulse', 'reception_date', 'rekam_medis_count', 'respirasi', 'status', 'tindak_lanjut', 'obat', 'marker', 'list_dokter'
+			]
 				
 			for p in pops_rekam_medis:
 				if rekam_medis_data.get(p,False):
