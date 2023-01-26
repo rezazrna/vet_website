@@ -191,6 +191,14 @@ def get_instalasi_medis(name):
 		rawat_inap = frappe.get_list('VetRawatInap', filters={'register_number': instalasi_medis.register_number}, fields=['name'])
 		if len(rawat_inap) > 0:
 			instalasi_medis['rawat_inap'] = list(r.name for r in rawat_inap)
+
+		dokter_role = frappe.get_list('VetRole', filters={'is_dokter': True}, fields=['name'])
+		dokter_role_names = list(map(lambda r: r.name, dokter_role))
+		users = frappe.get_list('VetRoleUser', filters={'parent': ['in', dokter_role_names]}, fields=['user'], group_by="user")
+		user_names = list(map(lambda u: u.user, users))
+		list_dokter = frappe.get_list('User', filters={'name': ['in', user_names]}, fields=['name', 'full_name'])
+
+		instalasi_medis.update({'list_dokter': list_dokter})
 		
 		return instalasi_medis
 
@@ -242,8 +250,8 @@ def confirm_instalasi_medis(data):
 			instalasi_medis_data = {}
 			instalasi_medis_data.update(data_json)
 			pops = [
-			'name','attachments','dokter','jasa',
-			'nama_dokter','pet','pet_name','pet_owner','pet_owner_name',
+			'name','attachments','jasa','list_dokter',
+			'pet','pet_name','pet_owner','pet_owner_name',
 			'reception','date','register_number','status','tindak_lanjut',
 			'obat','marker', 'creation', 'modified', 'tindakan_dokter', 'customer_invoice', 'rawat_inap'
 			]
@@ -329,7 +337,7 @@ def confirm_instalasi_medis(data):
 			rekam_medis_data = {}
 			rekam_medis_data.update(data_json)
 			pops_rekam_medis = [
-				'attachments', 'creation', 'docstatus', 'idx', 'jasa', 'modified', 'modified_by', 'owner', 'parent', 'parentfield', 'parenttype',
+				'attachments', 'creation', 'docstatus', 'idx', 'jasa', 'modified', 'modified_by', 'owner', 'parent', 'parentfield', 'parenttype', 'list_dokter'
 				'pet_name', 'pet_owner', 'pet_owner_name', 'date', 'status', 'tindak_lanjut', 'obat', 'marker', 'tindakan_dokter', 'customer_invoice', 'rawat_inap']
 			for p in pops_rekam_medis:
 				if rekam_medis_data.get(p,False):
@@ -358,7 +366,7 @@ def confirm_instalasi_medis(data):
 
 				rekam_medis.save()
 
-			update_invoice(json.dumps(products_invoice), instalasi_medis.register_number, instalasi_medis.reference)
+			update_invoice(json.dumps(products_invoice), instalasi_medis.register_number, instalasi_medis.dokter, instalasi_medis.reference)
 			
 			return {'instalasi_medis': instalasi_medis}
 
@@ -369,7 +377,7 @@ def confirm_instalasi_medis(data):
 		return {'error': e}
 		
 @frappe.whitelist()
-def update_invoice(products, register_number, reference=False):
+def update_invoice(products, register_number, dokter, reference=False):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		invoice_filters = {'register_number': register_number, 'Status': 'Draft'}
@@ -427,7 +435,7 @@ def update_invoice(products, register_number, reference=False):
 			new_invoice_data = {
 				'register_number': register_number,
 				'pet': pet[0]['pet'],
-				'user': frappe.session.user,
+				'user': dokter,
 				'invoice_date': invoice_date,
 				'due_date': due_date,
 				'origin': register_number,

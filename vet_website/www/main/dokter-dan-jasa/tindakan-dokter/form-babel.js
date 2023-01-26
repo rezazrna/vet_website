@@ -933,6 +933,7 @@ class TindakanDokterMainForm extends React.Component {
     
     render() {
         var readOnly = false
+        var select_style = { color: '#056EAD', border: '1px solid #056EAD' }
         var input_nama_dokter = <input required name='nama_dokter' className="form-control lightbg fs14" style={select_style} onChange={e => this.props.changeTindakanDokter(e)} onBlur={(e) => this.props.handleInputBlur(e, this.props.data.list_dokter)} list="list_dokter" id="nama_dokter" autoComplete="off" value={this.props.data.nama_dokter || ''} readOnly={readOnly}/>
         if(this.props.data.status == 'Done' || !this.props.write){
             readOnly = true
@@ -943,8 +944,6 @@ class TindakanDokterMainForm extends React.Component {
         var link_pemilik = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pemilik')} style={cursor}/>
         var link_pasien = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pasien')} style={cursor}/>
         var link_penerimaan = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('penerimaan')} style={cursor}/>
-
-        var select_style = { color: '#056EAD', border: '1px solid #056EAD' }
 
         var option_dokter = [];
 
