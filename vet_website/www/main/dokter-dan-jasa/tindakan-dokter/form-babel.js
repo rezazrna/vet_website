@@ -933,8 +933,10 @@ class TindakanDokterMainForm extends React.Component {
     
     render() {
         var readOnly = false
+        var input_nama_dokter = <input required name='nama_dokter' className="form-control lightbg fs14" style={select_style} onChange={e => this.props.changeTindakanDokter(e)} onBlur={(e) => this.props.handleInputBlur(e, this.props.data.list_dokter)} list="list_dokter" id="nama_dokter" autoComplete="off" value={this.props.data.nama_dokter || ''} readOnly={readOnly}/>
         if(this.props.data.status == 'Done' || !this.props.write){
             readOnly = true
+            input_nama_dokter = <p className="mb-0">{this.props.data.nama_dokter || ''}</p>
         }
         var bgstyle = {background: '#fff', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
         var cursor = {cursor: 'pointer'}
@@ -986,7 +988,7 @@ class TindakanDokterMainForm extends React.Component {
                 				</div>
             			        <div className="form-group mb-1">
                 					<label htmlFor="nama_dokter" className="fs10 fw600">Nama Dokter</label>
-                                    <input required name='nama_dokter' className="form-control lightbg fs14" style={select_style} onChange={e => this.props.changeTindakanDokter(e)} onBlur={(e) => this.props.handleInputBlur(e, this.props.data.list_dokter)} list="list_dokter" id="nama_dokter" autoComplete="off" value={this.props.data.nama_dokter || ''} readOnly={readOnly}/>
+                                    {input_nama_dokter}
                                     <datalist id="list_dokter">
                                         {option_dokter}
                                     </datalist>
@@ -1025,7 +1027,7 @@ class TindakanDokterMainForm extends React.Component {
 			        <div className="col">
     			        <div className="form-group mb-1">
         					<label htmlFor="nama_dokter" className="fs10 fw600">Nama Dokter</label>
-                            <input required name='nama_dokter' className="form-control lightbg fs14" style={select_style} onChange={e => this.props.changeTindakanDokter(e)} onBlur={(e) => this.props.handleInputBlur(e, this.props.data.list_dokter)} list="list_dokter" id="nama_dokter" autoComplete="off" value={this.props.data.nama_dokter || ''} readOnly={readOnly}/>
+                            {input_nama_dokter}
                             <datalist id="list_dokter">
                                 {option_dokter}
                             </datalist>

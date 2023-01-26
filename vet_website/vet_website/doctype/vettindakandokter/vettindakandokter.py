@@ -605,7 +605,7 @@ def confirm_tindakan_dokter(data):
 					'register_number': tindakan_dokter.register_number,
 					'pet': tindakan_dokter.pet,
 					'service': 'Dokter',
-					'user': frappe.session.user,
+					'user': data_json.get('dokter'),
 					'description': action.note,
 					'schedule_date': action.date,
 				}
@@ -634,6 +634,7 @@ def confirm_tindakan_dokter(data):
 				'register_number': tindakan_dokter.register_number,
 				'pet': tindakan_dokter.pet,
 				'products': products_invoice,
+				'dokter': tindakan_dokter.dokter,
 			}
 
 			add_invoice(json.dumps(invoice_data), tindakan_dokter.name)
@@ -665,7 +666,7 @@ def add_invoice(invoice_data, name):
 			new_invoice_data = {
 				'register_number': invoice_json.get('register_number'),
 				'pet': invoice_json.get('pet'),
-				'user': frappe.session.user,
+				'user': invoice_json.get('dokter'),
 				'invoice_date': invoice_date,
 				'due_date': due_date,
 				'origin': invoice_json.get('register_number'),
