@@ -1115,7 +1115,7 @@ class CustomerInvoiceForm extends React.Component {
             owner_name = <span className="fs16 px-0" id="owner_name">{data.owner_name}{link_pemilik}</span>
             invoice_date = <span className="fs16 px-0" id="invoice_date">{data.is_refund ? moment(data.refund_date).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss") : moment(data.invoice_date).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}</span>
             register_number = <span className="fs16 px-0" id="register_number">{data.is_refund ? data.origin : data.register_number}</span>
-            user = <span className="fs16 px-0" id="user">{data.user}</span>
+            user = <span className="fs16 px-0" id="user">{data.user_name}</span>
             if(data.children_customer_invoice && data.children_customer_invoice.length > 0){
                 pet = false
             }
