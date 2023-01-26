@@ -204,7 +204,7 @@ def edit_grooming(grooming_data, is_done=False):
 						
 				if len(dokter_products) > 0:
 					dokter = frappe.new_doc('VetTindakanDokter')
-					dokter.update({'reception': grooming.reception, 'description': grooming.description, 'reception_date': grooming.reception_date, 'dokter': grooming.owner, 'jasa': dokter_products})
+					dokter.update({'reception': grooming.reception, 'description': grooming.description, 'reception_date': grooming.reception_date, 'jasa': dokter_products})
 					
 					dokter.insert()
 					frappe.db.commit()

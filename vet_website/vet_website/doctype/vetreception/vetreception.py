@@ -151,7 +151,7 @@ def new_reception(owner_data, reception_data):
 			frappe.db.commit()
 		elif service.service_name == "Dokter":
 			dokter = frappe.new_doc('VetTindakanDokter')
-			dokter.update({'reception': reception.name, 'description': reception.description, 'reception_date': reception.reception_date, 'dokter': reception.owner})
+			dokter.update({'reception': reception.name, 'description': reception.description, 'reception_date': reception.reception_date})
 			dokter.append("jasa", {"product": reception.service_detail, "quantity": 1})
 			
 			dokter.insert()
