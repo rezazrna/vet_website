@@ -337,7 +337,7 @@ def confirm_instalasi_medis(data):
 			rekam_medis_data = {}
 			rekam_medis_data.update(data_json)
 			pops_rekam_medis = [
-				'attachments', 'creation', 'docstatus', 'idx', 'jasa', 'modified', 'modified_by', 'owner', 'parent', 'parentfield', 'parenttype', 'list_dokter'
+				'attachments', 'creation', 'docstatus', 'idx', 'jasa', 'modified', 'modified_by', 'owner', 'parent', 'parentfield', 'parenttype', 'list_dokter',
 				'pet_name', 'pet_owner', 'pet_owner_name', 'date', 'status', 'tindak_lanjut', 'obat', 'marker', 'tindakan_dokter', 'customer_invoice', 'rawat_inap']
 			for p in pops_rekam_medis:
 				if rekam_medis_data.get(p,False):
