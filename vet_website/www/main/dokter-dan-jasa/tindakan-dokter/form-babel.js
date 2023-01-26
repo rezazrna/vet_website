@@ -392,17 +392,19 @@ class TindakanDokter extends React.Component {
         
         new_data[name] = value
         this.setState({data: new_data});
-        
-        frappe.call({
-            type: "POST",
-            method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
-            args: {field: name, value: value, name: id},
-            callback: function(r){
-                if (r.message != true) {
-                    frappe.msgprint(r.message.error)
+
+        if (name != 'nama_dokter') {
+            frappe.call({
+                type: "POST",
+                method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
+                args: {field: name, value: value, name: id},
+                callback: function(r){
+                    if (r.message != true) {
+                        frappe.msgprint(r.message.error)
+                    }
                 }
-            }
-        });
+            });
+        }
     }
     
     toggleMainFormWide(){
@@ -432,7 +434,14 @@ class TindakanDokter extends React.Component {
         	        selected = true
         	    }
         	})
-    	}
+    	} else if (name == "nama_dokter") {
+    	    list.forEach(function(item, index) {
+        	    if (item.full_name == value) {
+        	        selected = true
+                    new_data['dokter'] == item.name
+        	    }
+        	}) 
+        }
     	else {
 	        list.forEach(function(item, index) {
         	    if (item.label == value) {
@@ -882,7 +891,7 @@ class TindakanDokter extends React.Component {
 	            	        <RecordNavigation currentname={this.state.data.name} namelist={this.state.namelist} navigationAction={this.navigationAction}/>
 	            	    </div>
 	            	</div>
-                	<TindakanDokterMainForm write={write} data={this.state.data} changeTindakanDokter={this.changeTindakanDokter} main_form_wide={this.state.main_form_wide} toggleMainFormWide={() => this.toggleMainFormWide()}/>
+                	<TindakanDokterMainForm write={write} data={this.state.data} handleInputBlur={this.handleInputBlur} changeTindakanDokter={this.changeTindakanDokter} main_form_wide={this.state.main_form_wide} toggleMainFormWide={() => this.toggleMainFormWide()}/>
                 	<div className="row">
                 	    <div className={rekam_medis_class}>
                 	        <TindakanDokterRekamMedis write={write} main_form_wide={this.state.main_form_wide} data={this.state.data} changeTindakanDokter={this.changeTindakanDokter} handleInputBlur={this.handleInputBlur} addCheck={this.addCheck} deleteCheck={this.deleteCheck} checks={this.state.checks} toggleRekamMedisWide={() => this.toggleRekamMedisWide()} deleteAttachment={this.deleteAttachment} addAttachment={this.addAttachment} addMarker={this.addMarker} resetMarker={this.resetMarker}/>
@@ -930,6 +939,16 @@ class TindakanDokterMainForm extends React.Component {
         var link_pemilik = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pemilik')} style={cursor}/>
         var link_pasien = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pasien')} style={cursor}/>
         var link_penerimaan = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('penerimaan')} style={cursor}/>
+
+        var select_style = { color: '#056EAD', border: '1px solid #056EAD' }
+
+        var option_dokter = [];
+
+        this.props.data.list_dokter.forEach(function (item, index) {
+            option_dokter.push(
+                <option value={item.full_name} key={index.toString()} />
+            )
+        })
         
         var row, button
         if(this.props.main_form_wide){
@@ -965,7 +984,10 @@ class TindakanDokterMainForm extends React.Component {
                 				</div>
             			        <div className="form-group mb-1">
                 					<label htmlFor="nama_dokter" className="fs10 fw600">Nama Dokter</label>
-                					<p className="mb-0">{this.props.data.nama_dokter || ''}</p>
+                                    <input required name='nama_dokter' className="form-control lightbg fs14" style={select_style} onChange={e => this.props.changeTindakanDokter(e)} onBlur={(e) => this.props.handleInputBlur(e, this.props.data.list_dokter)} list="list_dokter" id="nama_dokter" autoComplete="off" value={this.props.data.nama_dokter || ''} readOnly={readOnly}/>
+                                    <datalist id="list_dokter">
+                                        {option_dokter}
+                                    </datalist>
                 				</div>
         			        </div>
         			    </div>
@@ -1001,7 +1023,10 @@ class TindakanDokterMainForm extends React.Component {
 			        <div className="col">
     			        <div className="form-group mb-1">
         					<label htmlFor="nama_dokter" className="fs10 fw600">Nama Dokter</label>
-        					<p className="mb-0">{this.props.data.nama_dokter || ''}</p>
+                            <input required name='nama_dokter' className="form-control lightbg fs14" style={select_style} onChange={e => this.props.changeTindakanDokter(e)} onBlur={(e) => this.props.handleInputBlur(e, this.props.data.list_dokter)} list="list_dokter" id="nama_dokter" autoComplete="off" value={this.props.data.nama_dokter || ''} readOnly={readOnly}/>
+                            <datalist id="list_dokter">
+                                {option_dokter}
+                            </datalist>
         				</div>
 			        </div>
 			        <div className="col">

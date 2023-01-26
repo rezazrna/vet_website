@@ -189,8 +189,27 @@ def get_tindakan_dokter(name):
 			t.product_category = pr.get('product').get('product_category')
 			t.is_rawat = pr.get('product').get('product_category').get('is_rawat')
 			t.is_grooming = pr.get('product').get('product_category').get('is_grooming')
+
+		list_dokter = []
+		if tindakan_dokter.status == 'Draft':
+			dokter_role = frappe.get_list('VetRole', filters={'is_dokter': True}, fields=['name'])
+			dokter_role_names = list(map(lambda r: r.name, dokter_role))
+			users = frappe.get_list('VetRoleUser', filters={'parent': ['in', dokter_role_names]}, fields=['user'], group_by="user")
+			user_names = list(map(lambda u: u.user, users))
+			list_dokter = frappe.get_list('User', filters={'name': ['in', user_names]}, fields=['name', 'full_name'])
 		
-		tindakan_dokter.update({'jasa': jasa, 'tindak_lanjut': tindak_lanjut, 'layanan_berjadwal': layanan_berjadwal, 'rekam_medis_count': rekam_medis_count, 'attachments': attachments, 'obat': list_product, 'marker': marker, 'template_data': template_data})
+		tindakan_dokter.update({
+			'jasa': jasa,
+			'tindak_lanjut': tindak_lanjut,
+			'layanan_berjadwal': layanan_berjadwal,
+			'rekam_medis_count': rekam_medis_count,
+			'attachments': attachments,
+			'obat': list_product,
+			'marker': marker,
+			'template_data': template_data,
+			'list_dokter': list_dokter,
+		})
+
 		tindakan_dokter.update({'queue': frappe.db.get_value('VetReception', tindakan_dokter.reception, 'queue')})
 		return tindakan_dokter
 		
@@ -220,8 +239,7 @@ def get_all_products():
 def get_tindakan_dokter_form(name=False):
 	try:
 		if not name:
-			user = get_current_user()
-			data_dokter = {'status': 'Draft', 'dokter': user.get('name'), 'nama_dokter': user.get('full_name')}
+			data_dokter = {'status': 'Draft'}
 		else:
 			data_dokter = get_tindakan_dokter(name)
 		# products = get_all_products()
@@ -233,7 +251,14 @@ def get_tindakan_dokter_form(name=False):
 			for po in pet_owners:
 				pet = frappe.get_list('VetPet', filters={'status': 'Active'}, fields=['*'])
 				po.pets = pet
-			data.update({'pet_owners': pet_owners})
+
+			dokter_role = frappe.get_list('VetRole', filters={'is_dokter': True}, fields=['name'])
+			dokter_role_names = list(map(lambda r: r.name, dokter_role))
+			users = frappe.get_list('VetRoleUser', filters={'parent': ['in', dokter_role_names]}, fields=['user'], group_by="user")
+			user_names = list(map(lambda u: u.user, users))
+			list_dokter = frappe.get_list('User', filters={'name': ['in', user_names]}, fields=['name', 'full_name'])
+
+			data.update({'pet_owners': pet_owners, 'list_dokter': list_dokter})
 		return data
 		
 	except PermissionError as e:
