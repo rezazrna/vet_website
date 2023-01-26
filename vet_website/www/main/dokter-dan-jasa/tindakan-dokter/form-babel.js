@@ -438,7 +438,7 @@ class TindakanDokter extends React.Component {
     	    list.forEach(function(item, index) {
         	    if (item.full_name == value) {
         	        selected = true
-                    new_data['dokter'] == item.name
+                    new_data['dokter'] = item.name
                     this.setState({data: new_data})
                     return
         	    }
