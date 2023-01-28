@@ -170,6 +170,11 @@ def edit_user(data):
 			})
 		user.save()
 		frappe.db.commit()
+
+		has_roles = frappe.get_list('Has Role', filters={'parent': user.name}, fields=['name'])
+		for hr in has_roles:
+			frappe.delete_doc('Has Role', hr.name)
+			frappe.db.commit()
 		
 		has_role = frappe.new_doc('Has Role')
 		has_role.update({'parent': user.name, 'parenttype': 'User', 'parentfield': 'roles', 'role': role})

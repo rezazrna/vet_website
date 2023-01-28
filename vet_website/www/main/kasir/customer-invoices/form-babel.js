@@ -3313,6 +3313,9 @@ class ExcelPage extends React.Component{
                         <td colSpan="2">
                             {ci.customer_invoice.pet_name}
                         </td>
+                        <td colSpan="2">
+                            {ci.customer_invoice.user_name}
+                        </td>
                     </tr>
                 )
                 table_rows = [...table_rows, ...addProductRow(ci.customer_invoice)]

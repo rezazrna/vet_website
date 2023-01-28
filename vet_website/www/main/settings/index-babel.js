@@ -333,6 +333,11 @@ class SettingUsers extends React.Component {
         this.state.roles.filter(d => !d.disabled).forEach(d => {
             role_options.push(<option key={d.name} value={d.name}>{d.role_name}</option>)
         })
+
+        var readOnly = false
+        if (this.state.edit) {
+            readOnly = true
+        }
         
         return <div>
                    <p className="fs18 fw600 text-dark mb-2">Users</p>
@@ -341,13 +346,13 @@ class SettingUsers extends React.Component {
                 	        <div className="col">
                 	            <div className="form-group">
                 	               <label htmlFor="full_name" className="fw600 mb-0">Nama</label>
-                	               <input value={new_user.full_name || ''} onChange={e => this.handleInputChange(e)} autoComplete="off" type="text" id='full_name' name='full_name' className="form-control fs14"/>
+                	               <input readOnly={readOnly} value={new_user.full_name || ''} onChange={e => this.handleInputChange(e)} autoComplete="off" type="text" id='full_name' name='full_name' className="form-control fs14"/>
                 	            </div>
                 	        </div>
                 	        <div className="col">
                 	            <div className="form-group">
                 	               <label htmlFor="email" className="fw600 mb-0">Email</label>
-                	               <input value={new_user.email || ''} onChange={e => this.handleInputChange(e)} autoComplete="off" type="email" id='email' name='email' className="form-control fs14"/>
+                	               <input readOnly={readOnly} value={new_user.email || ''} onChange={e => this.handleInputChange(e)} autoComplete="off" type="email" id='email' name='email' className="form-control fs14"/>
                 	            </div>
                 	        </div>
                 	        <div className="col">

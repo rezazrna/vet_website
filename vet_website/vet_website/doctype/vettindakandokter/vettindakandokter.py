@@ -196,6 +196,8 @@ def get_tindakan_dokter(name):
 			dokter_role_names = list(map(lambda r: r.name, dokter_role))
 			users = frappe.get_list('VetRoleUser', filters={'parent': ['in', dokter_role_names]}, fields=['user'], group_by="user")
 			user_names = list(map(lambda u: u.user, users))
+			# TODO: sementara
+			user_names.append('administrator')
 			list_dokter = frappe.get_list('User', filters={'name': ['in', user_names]}, fields=['name', 'full_name'])
 		
 		tindakan_dokter.update({
