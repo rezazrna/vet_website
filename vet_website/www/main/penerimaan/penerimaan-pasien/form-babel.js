@@ -598,15 +598,15 @@ class PenerimaanPasien extends React.Component {
     processPopupRow(data, pet_suggest=false) {
         console.log(data)
         if (pet_suggest) {
-            if(data.pet_owner.nik != undefined){
-                this.getPetOwnerByNik(data.pet_owner.name);
-                this.closeSearchPopup(true);
-            }
+            // if(data.pet_owner.nik != undefined){
+            this.getPetOwnerByNik(data.pet_owner.name);
+            this.closeSearchPopup(true);
+            // }
         } else {
-            if(data.nik != undefined){
-                this.getPetOwnerByNik(data.name);
-                this.closeSearchPopup();
-            }
+            // if(data.nik != undefined){
+            this.getPetOwnerByNik(data.name);
+            this.closeSearchPopup();
+            // }
         }
     }
     
