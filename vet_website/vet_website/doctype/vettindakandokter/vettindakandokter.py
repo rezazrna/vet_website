@@ -58,7 +58,8 @@ def get_tindakan_dokter_list(filters=None):
 		datalength = len(frappe.get_all("VetTindakanDokter", or_filters=td_or_filters, filters=td_filters, as_list=True))
 		for td in tindakan_dokter:
 			td.queue = frappe.db.get_value('VetReception', td.reception, 'queue')
-			td.customer_invoice = frappe.get_list('VetCustomerInvoice', filters={'register_number': td.register_number}, fields=['name'])
+			customer_invoice = frappe.get_list('VetCustomerInvoice', filters={'register_number': td.register_number}, fields=['name'])
+			td.customer_invoice = list(map(lambda c: c.name, customer_invoice))
 		return {'tindakan_dokter': tindakan_dokter, 'datalength': datalength}
 		
 	except PermissionError as e:
