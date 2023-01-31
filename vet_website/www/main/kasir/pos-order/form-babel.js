@@ -290,9 +290,9 @@ class PosOrderProducts extends React.Component {
         var lineStyle = {'border': '1px solid #1B577B'}
         var isDone = this.props.isDone
         var isRefund = this.props.isRefund
+        var sl = this
         
         if (data.produk.length != 0){
-            var sl = this
             data.produk.forEach(function(item, index){
                 if (!item.deleted) {
                     rows.push(

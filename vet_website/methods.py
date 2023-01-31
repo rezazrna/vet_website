@@ -22,12 +22,14 @@ except ModuleNotFoundError:
 	from frappe.core.doctype.data_import.data_import import start_import
 	
 
-def get_home_page(context):
-    print("########## Boot Session ##########")
-    print(context)
-    frappe.local.response["type"] = "redirect"
-    frappe.local.response["location"] = "/desk#List/VetGrooming/List"
+def get_home_page(user):
+    print("########## Home Page ##########")
+    print(user)
+    # frappe.local.response["type"] = "redirect"
+    # frappe.local.response["location"] = "/desk#List/VetGrooming/List"
+
     # frappe.local.response["home_page"] = "/desk#List/VetGrooming/List"
+    return 'main'
     
 @frappe.whitelist()
 def get_settings():

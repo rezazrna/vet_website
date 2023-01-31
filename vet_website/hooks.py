@@ -69,7 +69,7 @@ web_include_js = [
 # }
 
 # Website user home page (by function)
-# get_website_user_home_page = "vet_website.utils.get_home_page"
+get_website_user_home_page = "vet_website.methods.get_home_page"
 # boot_session = "vet_website.methods.get_home_page"
 
 # Generators
