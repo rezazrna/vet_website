@@ -307,6 +307,9 @@ class TindakanDokterList extends React.Component {
                                     <span className="my-auto">Nama Pemilik</span>
                                 </div>
                                 <div className="col d-flex">
+                                    <span className="my-auto">No Invoice</span>
+                                </div>
+                                <div className="col d-flex">
                                     <span className="my-auto">Keterangan / request</span>
                                 </div>
                                 <div className="col-1 d-flex">
@@ -390,6 +393,9 @@ class TindakanDokterListRow extends React.Component {
                         </div>
                         <div className="col-2 d-flex">
                             <span className="my-auto">{item.pet_owner_name}</span>
+                        </div>
+                        <div className="col d-flex">
+                            <span className="my-auto">{item.customer_invoice.join(',')}</span>
                         </div>
                         <div className="col d-flex">
                             <span className="my-auto">{item.description}</span>
