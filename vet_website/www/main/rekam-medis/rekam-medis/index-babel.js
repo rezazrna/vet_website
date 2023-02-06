@@ -43,6 +43,7 @@ class RekamMedis extends React.Component {
             'currentpage': 1,
             'search': false,
             'datalength': 0,
+            'noPagination': false,
         }
 
         this.rekamMedisSearch = this.rekamMedisSearch.bind(this);
@@ -76,6 +77,10 @@ class RekamMedis extends React.Component {
                 value = params[1]
         }
 
+        if (pet) {
+            this.setState({ 'noPagination': true })
+        }
+
         if (params) {
             new_filters[key] = value
             sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
@@ -85,7 +90,7 @@ class RekamMedis extends React.Component {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rekam_medis_list",
-                args: { filters: new_filters },
+                args: { filters: new_filters, no_pagination: po.noPagination },
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
@@ -114,7 +119,7 @@ class RekamMedis extends React.Component {
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rekam_medis_list",
-            args: { filters: filters },
+            args: { filters: filters, no_pagination: po.noPagination },
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
@@ -143,7 +148,7 @@ class RekamMedis extends React.Component {
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rekam_medis_list",
-            args: { filters: filters },
+            args: { filters: filters, no_pagination: po.noPagination },
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
@@ -368,6 +373,7 @@ class RekamMedisList extends React.Component {
         var rekam_medis_rows = []
         var panel_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '40px 32px 40px 12px' }
         var col_style = { width: '25px' }
+        
         if (this.props.data.length != 0) {
             var pol = this
             // const indexOfLastTodo = this.props.currentpage * 30;
@@ -384,6 +390,12 @@ class RekamMedisList extends React.Component {
                 )
                 // }
             })
+
+            var pagination = <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10' />
+
+            if (pet) {
+                pagination = undefined
+            }
 
             return (
                 <div style={panel_style}>
@@ -421,7 +433,7 @@ class RekamMedisList extends React.Component {
                         </div>
                     </div>
                     {rekam_medis_rows}
-                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10' />
+                    {pagination}
                 </div>
             )
         }

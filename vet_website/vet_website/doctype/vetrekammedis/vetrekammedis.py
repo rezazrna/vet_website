@@ -14,7 +14,7 @@ class VetRekamMedis(Document):
 	pass
 
 @frappe.whitelist()
-def get_rekam_medis_list(filters=None):
+def get_rekam_medis_list(filters=None, no_pagination=False):
 	default_sort = "creation desc"
 
 	rekam_medis_filters = []
@@ -54,8 +54,12 @@ def get_rekam_medis_list(filters=None):
 			rekam_medis_filters.append({'pet': pet})
 	
 	try:
-		rekam_medis = frappe.get_list("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
-		datalength = len(frappe.get_all("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, as_list=True))
+		if no_pagination:
+			rekam_medis = frappe.get_list("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, fields=["*"], order_by=default_sort)
+			datalength = 0
+		else:
+			rekam_medis = frappe.get_list("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+			datalength = len(frappe.get_all("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, as_list=True))
 		for r in rekam_medis:
 			r['diagnose_name'] = r['diagnosa_utama']
 		return {'rekam_medis': rekam_medis, 'datalength': datalength}
