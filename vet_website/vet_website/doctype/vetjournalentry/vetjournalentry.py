@@ -379,8 +379,10 @@ def set_journal_item_total(name, account):
 	if indexElement:
 		if int(indexElement[0]) == 0:
 			last_ji = last_ji[int(indexElement[0]):]
+		elif int(indexElement[0]) == 1:
+			last_ji = last_ji[int(indexElement[0] - 1):]
 		else:
-			last_ji = last_ji[(int(indexElement[0]) - 1):]
+			last_ji = last_ji[(int(indexElement[0]) - 2):]
 	else:
 		last_ji = []
 
