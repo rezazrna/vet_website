@@ -420,7 +420,7 @@ def get_invoice_list(filters=None):
 	# print(invoice_filters)
 	
 	try:
-		invoice = frappe.get_list("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+		invoice = frappe.get_list("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
 		datalength = len(frappe.get_all("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, as_list=True))
 		# print(frappe.get_all("VetCustomerInvoice", filters=invoice_filters, as_list=True))
 		for i in range(len(invoice)):

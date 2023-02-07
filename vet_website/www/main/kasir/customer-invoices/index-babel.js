@@ -528,7 +528,7 @@ class CustomerInvoiceList extends React.Component {
                         </div>
                     </div>
                     {invoice_rows}
-                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10' />
+                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30' />
                 </div>
             )
         }
