@@ -471,6 +471,10 @@ class JournalItems extends React.Component {
                 this.formatColumn(sheet, col, format)
             }
 
+            for (let col of [3]) {
+                this.formatColumn(sheet, col, '@')
+            }
+
             for (let col of [0]) {
                 this.formatColumn(sheet, col, 'dd-mm-yyyy')
             }
@@ -596,7 +600,8 @@ class JournalItems extends React.Component {
         // note: range.s.r + 1 skips the header row
         for (let row = range.s.r + 1; row <= range.e.r; ++row) {
             const ref = XLSX.utils.encode_cell({ r: row, c: col })
-            if (worksheet[ref] && worksheet[ref].t === 'n') {
+            // if (worksheet[ref] && worksheet[ref].t === 'n') {
+            if (worksheet[ref]) {
                 worksheet[ref].z = fmt
             }
         }
