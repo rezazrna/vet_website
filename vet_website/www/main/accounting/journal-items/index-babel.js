@@ -463,7 +463,7 @@ class JournalItems extends React.Component {
 
         if (is_excel) {
             var elt = document.getElementById('excel_page');
-            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1"});
+            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1", raw: true });
             var sheet = wb.Sheets[wb.SheetNames[0]];
 
             const format = '#,##0.00'
@@ -597,8 +597,12 @@ class JournalItems extends React.Component {
         // note: range.s.r + 1 skips the header row
         for (let row = range.s.r + 1; row <= range.e.r; ++row) {
             const ref = XLSX.utils.encode_cell({ r: row, c: col })
-            if (worksheet[ref] && worksheet[ref].t === 'n') {
+            // if (worksheet[ref] && worksheet[ref].t === 'n') {
+            if (worksheet[ref] && worksheet[ref].t === 's') {
+                worksheet[ref].v = parseFloat(worksheet[ref].v)
+                worksheet[ref].t = 'n'
                 worksheet[ref].z = fmt
+                console.log(worksheet[ref])
             }
         }
     }
@@ -1467,15 +1471,13 @@ class ExcelPage extends React.Component {
                         <td className="py-1" width="90px">{d.total || d.computed_total || 0}</td>
                     )
                 }
-
-                var tdStyle = {textAlign: 'right'}
     
                 table_rows.push(
                     <tr key={d.name} style={fs9}>
                         <td className="py-1" width="89px">{d.date}</td>
                         <td className="py-1" width="88px">{d.reference}</td>
                         <td className="py-1" width="88px">{d.parent}</td>
-                        <td style={tdStyle} className="py-1" width="88px">{d.keterangan}</td>
+                        <td className="py-1" width="88px">{d.keterangan}</td>
                         <td className="py-1" width="202px">{d.account_name}</td>
                         <td className="py-1" width="90px">{d.debit}</td>
                         <td className="py-1" width="90px">{d.credit}</td>
