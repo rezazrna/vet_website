@@ -599,7 +599,8 @@ class JournalItems extends React.Component {
             const ref = XLSX.utils.encode_cell({ r: row, c: col })
             // if (worksheet[ref] && worksheet[ref].t === 'n') {
             if (worksheet[ref] && worksheet[ref].t === 's') {
-                worksheet[ref].v = parseFloat(worksheet[ref].v)
+                console.log(worksheet[ref])
+                // worksheet[ref].v = parseFloat(worksheet[ref].v)
                 worksheet[ref].t = 'n'
                 worksheet[ref].z = fmt
                 console.log(worksheet[ref])
