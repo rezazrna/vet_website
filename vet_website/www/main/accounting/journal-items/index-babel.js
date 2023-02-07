@@ -466,7 +466,6 @@ class JournalItems extends React.Component {
             var wb = XLSX.utils.table_to_book(elt, {
                 sheet: "sheet1",
                 raw: true,
-                cellDates: true,
             });
             var sheet = wb.Sheets[wb.SheetNames[0]];
 
@@ -601,16 +600,18 @@ class JournalItems extends React.Component {
         // note: range.s.r + 1 skips the header row
         for (let row = range.s.r + 1; row <= range.e.r; ++row) {
             const ref = XLSX.utils.encode_cell({ r: row, c: col })
-            if (worksheet[ref] && worksheet[ref].t === 's') {
+            if (worksheet[ref] && worksheet[ref].t === 's' && this.isNumeric(worksheet[ref].v)) {
                 worksheet[ref].t = 'n'
             }
 
             if (worksheet[ref] && worksheet[ref].t === 'n') {
-                console.log(worksheet[ref])
                 worksheet[ref].z = fmt
-                console.log(worksheet[ref])
             }
         }
+    }
+
+    isNumeric(value) {
+        return /^-?\d+$/.test(value);
     }
 
     render() {
