@@ -466,6 +466,7 @@ class JournalItems extends React.Component {
             var wb = XLSX.utils.table_to_book(elt, {
                 sheet: "sheet1",
                 raw: true,
+                cellDates: true,
                 dateNF: 'dd-mm-yyyy'
             });
             var sheet = wb.Sheets[wb.SheetNames[0]];
