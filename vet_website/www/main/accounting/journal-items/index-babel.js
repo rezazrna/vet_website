@@ -467,7 +467,6 @@ class JournalItems extends React.Component {
                 sheet: "sheet1",
                 raw: true,
                 cellDates: true,
-                dateNF: 'dd-mm-yyyy'
             });
             var sheet = wb.Sheets[wb.SheetNames[0]];
 
@@ -476,9 +475,9 @@ class JournalItems extends React.Component {
                 this.formatColumn(sheet, col, format)
             }
 
-            // for (let col of [0]) {
-            //     this.formatColumn(sheet, col, 'dd-mm-yyyy')
-            // }
+            for (let col of [0]) {
+                this.formatColumn(sheet, col, 'dd-mm-yyyy')
+            }
 
             var sheetcols = [
                 {wpx:90},
