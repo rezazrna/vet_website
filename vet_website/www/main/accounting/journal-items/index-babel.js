@@ -472,7 +472,7 @@ class JournalItems extends React.Component {
             }
 
             for (let col of [3]) {
-                this.formatColumn(sheet, col, '@')
+                this.formatColumn(sheet, col, '')
             }
 
             for (let col of [0]) {
