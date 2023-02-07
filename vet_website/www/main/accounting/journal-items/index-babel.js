@@ -597,11 +597,12 @@ class JournalItems extends React.Component {
 
     formatColumn(worksheet, col, fmt) {
         const range = XLSX.utils.decode_range(worksheet['!ref'])
+        console.log(col)
         // note: range.s.r + 1 skips the header row
         for (let row = range.s.r + 1; row <= range.e.r; ++row) {
             const ref = XLSX.utils.encode_cell({ r: row, c: col })
-            // if (worksheet[ref] && worksheet[ref].t === 'n') {
-            if (worksheet[ref]) {
+            if (worksheet[ref] && worksheet[ref].t === 'n') {
+                console.log(worksheet[ref])
                 worksheet[ref].z = fmt
             }
         }
