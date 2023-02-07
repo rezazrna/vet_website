@@ -463,7 +463,7 @@ class JournalItems extends React.Component {
 
         if (is_excel) {
             var elt = document.getElementById('excel_page');
-            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1", raw: true });
             var sheet = wb.Sheets[wb.SheetNames[0]];
 
             const format = '#,##0.00'
