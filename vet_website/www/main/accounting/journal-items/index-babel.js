@@ -1475,8 +1475,8 @@ class ExcelPage extends React.Component {
                         <td className="py-1" width="89px">{d.date}</td>
                         <td className="py-1" width="88px">{d.reference}</td>
                         <td className="py-1" width="88px">{d.parent}</td>
-                        <td className="py-1" width="88px">{d.keterangan}</td>
-                        <td style={tdStyle} className="py-1" width="202px">{d.account_name}</td>
+                        <td style={tdStyle} className="py-1" width="88px">{d.keterangan}</td>
+                        <td className="py-1" width="202px">{d.account_name}</td>
                         <td className="py-1" width="90px">{d.debit}</td>
                         <td className="py-1" width="90px">{d.credit}</td>
                         {account_col}
