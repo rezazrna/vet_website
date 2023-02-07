@@ -463,16 +463,12 @@ class JournalItems extends React.Component {
 
         if (is_excel) {
             var elt = document.getElementById('excel_page');
-            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1"});
+            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1", raw: true});
             var sheet = wb.Sheets[wb.SheetNames[0]];
 
             const format = '#,##0.00'
             for (let col of [5, 6, 7]) {
                 this.formatColumn(sheet, col, format)
-            }
-
-            for (let col of [3]) {
-                this.formatColumn(sheet, col, '')
             }
 
             for (let col of [0]) {
@@ -601,7 +597,8 @@ class JournalItems extends React.Component {
         // note: range.s.r + 1 skips the header row
         for (let row = range.s.r + 1; row <= range.e.r; ++row) {
             const ref = XLSX.utils.encode_cell({ r: row, c: col })
-            if (worksheet[ref] && worksheet[ref].t === 'n') {
+            // if (worksheet[ref] && worksheet[ref].t === 'n') {
+            if (worksheet[ref]) {                
                 console.log(worksheet[ref])
                 worksheet[ref].z = fmt
             }
