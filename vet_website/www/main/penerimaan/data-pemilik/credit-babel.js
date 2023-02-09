@@ -832,7 +832,7 @@ class CreditList extends React.Component {
                             </div>
                         </div>
                         {item_rows}
-                        <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10' />
+                        <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30' />
                     </div>
                 )
             } else {
@@ -914,7 +914,7 @@ class CreditList extends React.Component {
                             </div>
                         </div>
                         {item_rows}
-                        <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10' />
+                        <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30' />
                     </div>
                 )
             }

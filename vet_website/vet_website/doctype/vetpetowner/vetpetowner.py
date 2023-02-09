@@ -495,7 +495,7 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 		pos_order_payment_list = []
 		if no_filter == 'true':
 			if supplier == 'true':
-				owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'supplier': ['!=', ''], 'purchase': ['!=', '']}, filters=credit_filters, fields=['*'], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+				owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'supplier': ['!=', ''], 'purchase': ['!=', '']}, filters=credit_filters, fields=['*'], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
 				datalength = len(frappe.get_all("VetOwnerCredit", or_filters={'supplier': ['!=', ''], 'purchase': ['!=', '']}, filters=credit_filters, as_list=True))
 				for oc in owner_credit_list:
 					oc['owner_full_name'] = frappe.db.get_value('User', oc['owner'], 'full_name')
@@ -526,7 +526,7 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 								pop['type'] = 'Payment'
 								pos_order_payment_list.append(pop)
 					
-				owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+				owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
 				datalength = len(frappe.get_all("VetOwnerCredit", or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, as_list=True))
 				for oc in owner_credit_list:
 					oc['owner_full_name'] = frappe.db.get_value('User', oc['owner'], 'full_name')
@@ -539,7 +539,7 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 						oc['remaining'] = (customer_invoice.subtotal - customer_invoice.potongan) - paid
 				owner_list = frappe.get_list('VetPetOwner', fields=['*'])
 		else:
-			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters=[{'pet_owner': name}, {'supplier': name}], filters=credit_filters, fields=['*'], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
+			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters=[{'pet_owner': name}, {'supplier': name}], filters=credit_filters, fields=['*'], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
 			datalength = len(frappe.get_all("VetOwnerCredit", or_filters=[{'pet_owner': name}, {'supplier': name}], filters=credit_filters, as_list=True))
 			for oc in owner_credit_list:
 				oc['owner_full_name'] = frappe.db.get_value('User', oc['owner'], 'full_name')
