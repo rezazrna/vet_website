@@ -47,6 +47,7 @@ def get_order_list(filters=None):
 					# odd_filters.append(fj)
 					fj[0] = 'type'
 					payment_filters.append(fj)
+					payment_filters.append({'value': ['>', 0]})
 
 		if search:
 			order_or_filters.append({'name': ['like', '%'+search+'%']})
