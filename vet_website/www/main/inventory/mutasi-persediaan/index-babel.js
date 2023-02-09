@@ -144,9 +144,10 @@ class MutasiPersediaan extends React.Component {
         //     }
         // } else 
         if (e.target.name == 'gudang') {
-            if (this.state.gudang_list.length != 0) {
-                selected = this.state.gudang_list[0]
-            }
+            // if (this.state.gudang_list.length != 0) {
+            //     selected = this.state.gudang_list[0]
+            // }
+            selected = this.state.gudang_list.find(p => p.gudang_name == value)
         }
 
         if (!selected) {

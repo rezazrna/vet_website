@@ -9,12 +9,14 @@ class CustomerInvoice extends React.Component {
         super(props)
         this.state = {
             'data': [],
+            'print_data': [],
             'loaded': false,
             'check_all': false,
             'show_delete': false,
             'currentpage': 1,
             'search': false,
             'datalength': 0,
+            'print_loading': false,
         }
 
         this.invoiceSearch = this.invoiceSearch.bind(this);
@@ -314,6 +316,33 @@ class CustomerInvoice extends React.Component {
         }
     }
 
+    getPrintData() {
+        var po = this
+
+        if (!this.state.print_loading) {
+            var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+            this.setState({
+                print_loading: true,
+            });
+
+            frappe.call({
+                type: "GET",
+                method: "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.get_invoice_list",
+                args: { filters: filters, all_page: true},
+                callback: function (r) {
+                    if (r.message) {
+                        console.log(r.message);
+                        po.setState({print_data: r.message.customer_invoice});
+                        setTimeout(function() {
+                            po.printPDF()
+                        }, 3000);
+                    }
+                }
+            });
+        }
+    }
+
     printPDF() {
         var pdfid = 'pdf'
         var format = [559, 794]
@@ -323,7 +352,8 @@ class CustomerInvoice extends React.Component {
         //     unit: 'pt',
         //     format: format,
         // });
-        var source = document.getElementById(pdfid)
+        var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
+        // var source = document.getElementById(pdfid)
         var opt = {
             margin: [10, 0, 10, 0],
             filename: "CustomerInvoice-" + moment().format('MM-YYYY') + ".pdf",
@@ -331,13 +361,41 @@ class CustomerInvoice extends React.Component {
             html2canvas: { scale: 3 },
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
         }
+
+        var worker = html2pdf()
+            .set(opt)
+            .from(elements[0])
+
+        if (elements.length > 1) {
+            worker = worker.toPdf()
+
+            elements.slice(1).forEach((element, index) => {
+            worker = worker
+                .get('pdf')
+                .then(pdf => {
+                    console.log('masuk pak eko')
+                    console.log(index)
+                    pdf.addPage()
+                })
+                .set(opt)
+                .from(element)
+                // .toContainer()
+                .toCanvas()
+                .toPdf()
+            })
+        }
+
+        worker = worker.save().then(e => {
+            this.setState({print_loading: false})
+        })
         // html2pdf().set(opt).from(source).save()
-        html2pdf().set(opt).from(source).toPdf().get('pdf').then(function (pdfObj) {
-            // pdfObj has your jsPDF object in it, use it as you please!
-            // For instance (untested):
-            pdfObj.autoPrint();
-            window.open(pdfObj.output('bloburl'), '_blank');
-        });
+        // html2pdf().set(opt).from(source).toPdf().get('pdf').then(function (pdfObj) {
+        //     // pdfObj has your jsPDF object in it, use it as you please!
+        //     // For instance (untested):
+        //     th.setState({print_loading: false})
+        //     pdfObj.autoPrint();
+        //     window.open(pdfObj.output('bloburl'), '_blank');
+        // });
         // doc.html(source, {
         //   callback: function (doc) {
         //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
@@ -417,6 +475,30 @@ class CustomerInvoice extends React.Component {
             backButton = <span className="fs16 fw600 mr-4 my-auto" style={color} onClick={() => { history.back() }}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
         }
         if (this.state.loaded) {
+            var item_pdf = []
+
+            if (this.state.print_data.length > 0) {
+                var chunk = []
+                for (var i = 0; i < this.state.print_data.length; i += (i == 0 ? 255 : 275)) {
+                    chunk.push(this.state.print_data.slice(i, i + (i == 0 ? 255 : 275)));
+                }
+
+                console.log(chunk)
+
+                for (i = 0; i < chunk.length; i++) {
+                    if (i == 0) {
+                        console.log('masuk pdf page pertama')
+                        item_pdf.push(
+                            <PDF data={chunk[i]} rawat_inap={this.props.rawat_inap}/>
+                        )
+                    } else {
+                        item_pdf.push(
+                            <PDFListPage data={chunk[i]} pdfPage={i + 1}/>
+                        )
+                    }
+                }
+            }
+
             return (
                 <div>
                     <div className="row mx-0" style={row_style}>
@@ -426,7 +508,13 @@ class CustomerInvoice extends React.Component {
                             {delete_button}
                             {openButton}
                             {joinButton}
-                            <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => this.printPDF()}>Print</button>
+                            <button type="button" className={this.state.print_loading
+                                ? "btn btn-outline-danger text-uppercase fs12 fwbold mx-2 disabled"
+                                : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{
+                                    this.state.print_loading
+                                    ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                    : "Print"
+                                }</button>
                         </div>
                         <div className="col">
                             <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.invoiceSearch(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
@@ -436,7 +524,7 @@ class CustomerInvoice extends React.Component {
                         </div>
                     </div>
                     <CustomerInvoiceList invoices={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} paginationClick={this.paginationClick} currentpage={this.state.currentpage} rawat_inap={this.props.rawat_inap} datalength={this.state.datalength} />
-                    <PDF data={this.state.data} rawat_inap={this.props.rawat_inap} />
+                    {item_pdf}
                 </div>
             )
         }
@@ -711,7 +799,7 @@ class PDF extends React.Component {
 
             return (
                 <div className="position-absolute d-none" style={page_dimension}>
-                    <div id="pdf" className="px-4" style={page_dimension}>
+                    <div id="pdf-1" className="px-4" style={page_dimension}>
                         <div className="row">
                             <div className="col-2 px-0">
                                 {image}
@@ -756,6 +844,46 @@ class PDF extends React.Component {
                 </div>
             </div>
         }
+    }
+}
+
+class PDFListPage extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        var data = this.props.data
+        var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
+        var row2 = { margin: '0 -14px' }
+        var fs9 = { fontSize: 9 }
+        var table_rows = []
+
+        data.forEach((d, index) => {
+            table_rows.push(
+                <tr key={d.name} style={fs9} className="text-center">
+                    <td className="py-1">{d.name}</td>
+                    <td className="py-1">{moment(d.is_refund ? d.refund_date : d.invoice_date).subtract(tzOffset, 'minute').format("DD-MM-YYYY")}</td>
+                    <td className="py-1">{d.owner_name}</td>
+                    <td className="py-1">{d.pet_name}</td>
+                    <td className="py-1">{formatter.format(d.total)}</td>
+                    <td className="py-1">{formatter.format(d.remaining)}</td>
+                    <td className="py-1">{d.status}</td>
+                </tr>
+            )
+        })
+
+        return (
+            <div className="position-absolute d-none" style={page_dimension}>
+                <div id={"pdf-"+this.props.pdfPage} className="px-4" style={page_dimension}>
+                    <table className="fs12" style={row2}>
+                        <tbody>
+                            {table_rows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        )
     }
 }
 

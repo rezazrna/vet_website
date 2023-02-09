@@ -136,13 +136,20 @@ class KartuStok extends React.Component {
         console.log('blur')
 
         if (e.target.name == 'product') {
-            if (this.state.product_list.length != 0) {
-                selected = this.state.product_list[0]
-            }
+            // if (this.state.product_list.length != 0) {
+            //     selected = this.state.product_list[0]
+            // }
+
+            console.log(value)
+
+            selected = this.state.product_list.find(p => p.product_name == value)
+
         } else if (e.target.name == 'gudang') {
-            if (this.state.gudang_list.length != 0) {
-                selected = this.state.gudang_list[0]
-            }
+            // if (this.state.gudang_list.length != 0) {
+            //     selected = this.state.gudang_list[0]
+            // }
+
+            selected = this.state.gudang_list.find(p => p.gudang_name == value)
         }
 
         if (!selected) {
@@ -225,7 +232,8 @@ class KartuStok extends React.Component {
         //     unit: 'pt',
         //     format: format,
         // });
-        var source = document.getElementById(pdfid)
+        // var source = document.getElementById(pdfid)
+        var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
         var opt = {
             margin: [10, 0, 10, 0],
             filename: "KartuStok-" + moment().format('MM-YYYY') + ".pdf",
@@ -233,7 +241,33 @@ class KartuStok extends React.Component {
             html2canvas: { scale: 3 },
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
         }
-        html2pdf().set(opt).from(source).save()
+
+        var worker = html2pdf()
+            .set(opt)
+            .from(elements[0])
+
+        if (elements.length > 1) {
+            worker = worker.toPdf()
+
+            elements.slice(1).forEach((element, index) => {
+            worker = worker
+                .get('pdf')
+                .then(pdf => {
+                    console.log('masuk pak eko')
+                    console.log(index)
+                    pdf.addPage()
+                })
+                .set(opt)
+                .from(element)
+                // .toContainer()
+                .toCanvas()
+                .toPdf()
+            })
+        }
+
+        worker = worker.save()
+
+        // html2pdf().set(opt).from(source).save()
         // doc.html(source, {
         //   callback: function (doc) {
         //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
@@ -311,6 +345,30 @@ class KartuStok extends React.Component {
             this.state.product_list.forEach((item, index) => product_options.push(<option value={item.product_name} key={index.toString()} />))
             this.state.gudang_list.forEach((item, index) => gudang_options.push(<option value={item.gudang_name} key={index.toString()} />))
 
+            var item_pdf = []
+
+            if (this.state.data.length > 0) {
+                var chunk = []
+                for (var i = 0; i < this.state.data.length; i += (i == 0 ? 255 : 275)) {
+                    chunk.push(this.state.data.slice(i, i + (i == 0 ? 255 : 275)));
+                }
+
+                console.log(chunk)
+
+                for (i = 0; i < chunk.length; i++) {
+                    if (i == 0) {
+                        console.log('masuk pdf page pertama')
+                        item_pdf.push(
+                            <PDF data={chunk[i]} saldo_awal={this.state.saldo_awal}/>
+                        )
+                    } else {
+                        item_pdf.push(
+                            <PDFListPage data={chunk[i]} pdfPage={i + 1}/>
+                        )
+                    }
+                }
+            }
+
             return (
                 <div>
                     <div className="row mx-0" style={row_style2}>
@@ -349,7 +407,7 @@ class KartuStok extends React.Component {
                         </div>
                     </div>
                     <KartuStokList items={this.state.data} saldo_awal={this.state.saldo_awal} gudang={this.state.gudang} />
-                    <PDF data={this.state.data} saldo_awal={this.state.saldo_awal} />
+                    {item_pdf}
                 </div>
             )
 
@@ -653,7 +711,7 @@ class PDF extends React.Component {
 
             return (
                 <div className="position-absolute d-none" style={page_dimension}>
-                    <div id="pdf" className="px-4" style={page_dimension}>
+                    <div id="pdf-1" className="px-4" style={page_dimension}>
                         <div className="row">
                             <div className="col-2 px-0">
                                 {image}
@@ -700,6 +758,82 @@ class PDF extends React.Component {
                 </div>
             </div>
         }
+    }
+}
+
+class PDFListPage extends React.Component {
+
+    render() {
+        // var search = this.props.search
+        // function filterRow(row) {
+        //     function filterField(field) {
+        //         return field ? field.toString().replace(/&lt;/g, "<").replace(/&gt;/g, ">").includes(search) : false
+        //     }
+        //     var fields = [row.product_name, row.parent, row.quantity_done, row.from_name || 'Supplier', row.to_name || 'Customer', moment(row.date || row.creation).format('DD-MM-YYYY'), row.status]
+        //     return ![false, ''].includes(search) ? fields.some(filterField) : true
+        // }
+
+        var data = this.props.data
+        var profile = this.state.profile
+        var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
+        var borderStyle = { border: '1px solid #000', margin: '15px 0' }
+        var row2 = { margin: '0 -14px' }
+        var th = { border: '1px solid #000' }
+        var td = { borderLeft: '1px solid #000', borderRight: '1px solid #000' }
+        var fs13 = { fontSize: 13 }
+        var fs9 = { fontSize: 9 }
+        var invoice = { letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18 }
+        var invoice2 = { letterSpacing: 0 }
+        var thead = { background: '#d9d9d9', fontSize: 11 }
+        var table_rows = []
+
+        // const indexOfLastTodo = this.props.currentpage * 30;
+        // const indexOfFirstTodo = indexOfLastTodo - 30;
+        // var currentItems
+        // ![false,''].includes(search)?
+        // currentItems = data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
+        // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
+        // currentItems = data.slice(0,30)
+        table_rows.push(
+            <tr key={'999999'} style={fs9} className="text-center">
+                {/* <td className="py-1">{d.product_name}</td> */}
+                <td className="py-1"></td>
+                <td className="py-1"></td>
+                <td className="py-1"></td>
+                <td className="py-1"></td>
+                <td className="py-1"></td>
+                <td className="py-1"></td>
+                <td className="py-1">{formatter2.format(this.props.saldo_awal)}</td>
+                <td className="py-1"></td>
+            </tr>
+        )
+        data.forEach((d, index) => {
+            table_rows.push(
+                <tr key={d.name} style={fs9} className="text-center">
+                    {/* <td className="py-1">{d.product_name}</td> */}
+                    <td className="py-1">{d.parent}</td>
+                    <td className="py-1">{moment(d.date || d.creation).format('DD-MM-YYYY')}</td>
+                    <td className="py-1">{d.from_name || 'Supplier'}</td>
+                    <td className="py-1">{d.to_name || 'Customer'}</td>
+                    <td className="py-1">{d.from != null ? '0' : formatter2.format(d.quantity_done)}</td>
+                    <td className="py-1">{d.to != null ? '0' : formatter2.format(d.quantity_done)}</td>
+                    <td className="py-1">{formatter2.format(d.saldo)}</td>
+                    <td className="py-1">{d.status}</td>
+                </tr>
+            )
+        })
+
+        return (
+            <div className="position-absolute d-none" style={page_dimension}>
+                <div id={"pdf-"+this.props.pdfPage} className="px-4" style={page_dimension}>
+                    <table className="fs12" style={row2}>
+                        <tbody>
+                            {table_rows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        )
     }
 }
 
