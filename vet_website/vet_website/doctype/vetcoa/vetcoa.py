@@ -407,7 +407,8 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False):
 				min_date = (max_date_dt-rd(months=1)).strftime('%Y-%m-01')
 
 			je_filters.update({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
-				
+		
+		journal_entry_names = []
 		if je_filters:
 			journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
 
@@ -417,7 +418,9 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False):
 
 		
 		# if 'parent' in filters:
-		ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by='creation desc')
+		if journal_entry_names:
+			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by='creation desc')
+
 		for ji in ji_list:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 			ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
