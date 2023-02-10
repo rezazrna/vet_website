@@ -797,28 +797,28 @@ class PDFListPage extends React.Component {
         table_rows.push(
             <tr key={'999999'} style={fs9} className="text-center">
                 {/* <td className="py-1">{d.product_name}</td> */}
-                <td className="py-1"></td>
-                <td className="py-1"></td>
-                <td className="py-1"></td>
-                <td className="py-1"></td>
-                <td className="py-1"></td>
-                <td className="py-1"></td>
-                <td className="py-1">{formatter2.format(this.props.saldo_awal)}</td>
-                <td className="py-1"></td>
+                <td className="py-1" width="62px" ></td>
+                <td className="py-1" width="63px" ></td>
+                <td className="py-1" width="63px" ></td>
+                <td className="py-1" width="63px" ></td>
+                <td className="py-1" width="63px" ></td>
+                <td className="py-1" width="63px" ></td>
+                <td className="py-1" width="63px" >{formatter2.format(this.props.saldo_awal)}</td>
+                <td className="py-1" width="63px" ></td>
             </tr>
         )
         data.forEach((d, index) => {
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">
                     {/* <td className="py-1">{d.product_name}</td> */}
-                    <td className="py-1">{d.parent}</td>
-                    <td className="py-1">{moment(d.date || d.creation).format('DD-MM-YYYY')}</td>
-                    <td className="py-1">{d.from_name || 'Supplier'}</td>
-                    <td className="py-1">{d.to_name || 'Customer'}</td>
-                    <td className="py-1">{d.from != null ? '0' : formatter2.format(d.quantity_done)}</td>
-                    <td className="py-1">{d.to != null ? '0' : formatter2.format(d.quantity_done)}</td>
-                    <td className="py-1">{formatter2.format(d.saldo)}</td>
-                    <td className="py-1">{d.status}</td>
+                    <td className="py-1" width="62px" >{d.parent}</td>
+                    <td className="py-1" width="63px" >{moment(d.date || d.creation).format('DD-MM-YYYY')}</td>
+                    <td className="py-1" width="63px" >{d.from_name || 'Supplier'}</td>
+                    <td className="py-1" width="63px" >{d.to_name || 'Customer'}</td>
+                    <td className="py-1" width="63px" >{d.from != null ? '0' : formatter2.format(d.quantity_done)}</td>
+                    <td className="py-1" width="63px" >{d.to != null ? '0' : formatter2.format(d.quantity_done)}</td>
+                    <td className="py-1" width="63px" >{formatter2.format(d.saldo)}</td>
+                    <td className="py-1" width="63px" >{d.status}</td>
                 </tr>
             )
         })

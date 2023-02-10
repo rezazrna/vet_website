@@ -862,13 +862,13 @@ class PDFListPage extends React.Component {
         data.forEach((d, index) => {
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">
-                    <td className="py-1">{d.name}</td>
-                    <td className="py-1">{moment(d.is_refund ? d.refund_date : d.invoice_date).subtract(tzOffset, 'minute').format("DD-MM-YYYY")}</td>
-                    <td className="py-1">{d.owner_name}</td>
-                    <td className="py-1">{d.pet_name}</td>
-                    <td className="py-1">{formatter.format(d.total)}</td>
-                    <td className="py-1">{formatter.format(d.remaining)}</td>
-                    <td className="py-1">{d.status}</td>
+                    <td className="py-1" width="58px" >{d.name}</td>
+                    <td className="py-1" width="91px" >{moment(d.is_refund ? d.refund_date : d.invoice_date).subtract(tzOffset, 'minute').format("DD-MM-YYYY")}</td>
+                    <td className="py-1" width="101px" >{d.owner_name}</td>
+                    <td className="py-1" width="101px" >{d.pet_name}</td>
+                    <td className="py-1" width="73px" >{formatter.format(d.total)}</td>
+                    <td className="py-1" width="73px" >{formatter.format(d.remaining)}</td>
+                    <td className="py-1" width="62px" >{d.status}</td>
                 </tr>
             )
         })
