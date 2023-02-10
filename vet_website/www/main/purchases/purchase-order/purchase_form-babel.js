@@ -122,7 +122,7 @@ class PurchaseOrder extends React.Component {
             if (item.product && item.quantity) {
                 var newPrice, newQuantity, newDiscount
 
-                if (saveOnly) {
+                if (['Draft', 'RFQ'].includes(new_data.status || 'Draft') && !new_data.is_refund && this.state.edit_mode) {
                     newPrice = parseFloat(th.reverseFormatNumber(String(item.price || 0), 'id'))
                     newQuantity = parseFloat(th.reverseFormatNumber(String(item.quantity || 0), 'id'))
                     newDiscount = parseFloat(th.reverseFormatNumber(String(item.discount || 0), 'id'))
