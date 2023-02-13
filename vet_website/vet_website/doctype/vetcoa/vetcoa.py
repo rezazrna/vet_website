@@ -89,7 +89,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 
 		journal_items = []
 		if journal_entry_names:
-			journal_items = frappe.get_list('VetJournalItem', or_filters={'debit': ['>', 0], 'credit': ['>', 0]}, filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account', 'parent'])
+			journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account', 'parent'])
 
 			for ji in journal_items:
 				ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
@@ -180,7 +180,7 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 
 	journal_items = []
 	if journal_entry_names:
-		journal_items = frappe.get_list('VetJournalItem', or_filters={'debit': ['>', 0], 'credit': ['>', 0]}, filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account', 'parent'])
+		journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account', 'parent'])
 
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
