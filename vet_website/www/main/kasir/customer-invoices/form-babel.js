@@ -745,7 +745,7 @@ class CustomerInvoice extends React.Component {
         e.stopPropagation()
 
         var elt = document.getElementById('excel_page');
-        var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+        var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1", raw: true });
         var sheet = wb.Sheets[wb.SheetNames[0]];
 
         const format = '#,##0.00'
@@ -768,8 +768,12 @@ class CustomerInvoice extends React.Component {
         // note: range.s.r + 1 skips the header row
         for (let row = range.s.r + 1; row <= range.e.r; ++row) {
             const ref = XLSX.utils.encode_cell({ r: row, c: col })
+            if (worksheet[ref] && worksheet[ref].t === 's') {
+                worksheet[ref].t = 'n'
+            }
+
             if (worksheet[ref] && worksheet[ref].t === 'n') {
-            worksheet[ref].z = fmt
+                worksheet[ref].z = fmt
             }
         }
     }
