@@ -2221,7 +2221,8 @@ class PopupRefund extends React.Component {
     constructor(props) {
         super(props)
         this.state={
-            'data': {'name': this.props.name, 'invoice_line': this.props.invoice_line}
+            'data': {'name': this.props.name, 'invoice_line': this.props.invoice_line},
+            'loading': false,
         }
         
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -2270,14 +2271,21 @@ class PopupRefund extends React.Component {
     submitRefund(e) {
         e.preventDefault()
         var remaining = 0
+
+        if (this.state.loading) {
+            return;
+        }
+
+        this.setState({loading: true})
         
         remaining = this.props.total - this.props.paid
         if(['',undefined,null].includes(this.state.data.refund)){
             var new_data = Object.assign({}, this.state.data)
             new_data.refund = parseFloat(remaining).toLocaleString('id-ID')
-            this.setState({'data': new_data})
+            this.setState({'data': new_data, 'loading': false})
         }
         else if (parseFloat(this.reverseFormatNumber(this.state.data.refund, 'id')) > remaining) {
+            this.setState({loading: false})
             frappe.msgprint('Hanya ada sisa ' + formatter.format(remaining))
         } else if (this.state.data.payment_method != undefined) {
             var new_data = this.state.data
@@ -2389,7 +2397,9 @@ class PopupRefund extends React.Component {
                             </div>
                             <div className="row justify-content-center mb-2">
                                 <div className="col-auto d-flex mt-4">
-                                    <button className="btn btn-sm fs18 h-100 fwbold px-4" style={refundStyle} onClick={this.submitRefund}>Refund</button>
+                                    <button className={this.state.loading
+                                        ? "btn btn-sm fs18 h-100 fwbold px-4 disabled"
+                                        : "btn btn-sm fs18 h-100 fwbold px-4"} style={refundStyle} onClick={this.submitRefund}>Refund</button>
                                 </div>
                                 <div className="col-auto d-flex mt-4">
                                     <button className="btn btn-sm fs18 h-100 fwbold px-4" style={batalStyle} onClick={this.props.togglePopupRefund}>Batal</button>
