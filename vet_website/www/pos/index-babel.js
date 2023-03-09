@@ -1174,14 +1174,17 @@ class MainPOSCustomerSelector extends React.Component {
             return (
                 <div style={styles.panel} className="px-3 py-2 mb-2" onClick={props.setCustomer}>
                     <div className="row fs20 fw600">
-                        <div className="col-4">
+                        <div className="col-3">
                             {props.pet.pet_name}
                         </div>
-                        <div className="col-4">
+                        <div className="col-3">
                             {props.pet.pet_owner.owner_name}
                         </div>
-                        <div className="col-4">
+                        <div className="col-3">
                             {props.pet.pet_owner.phone}
+                        </div>
+                        <div className="col-3">
+                            {props.pet.pet_owner.address}
                         </div>
                     </div>
                 </div>
@@ -1267,14 +1270,17 @@ class MainPOSCustomerSelector extends React.Component {
                         <div style={styles.overflow}>
                             <div style={styles.header_panel} className="px-3 py-2 mb-2">
                                 <div className="row fs20 fw600">
-                                    <div className="col-4">
+                                    <div className="col-3">
                                         Nama Hewan
                                     </div>
-                                    <div className="col-4">
+                                    <div className="col-3">
                                         Nama Pemilik
                                     </div>
-                                    <div className="col-4">
+                                    <div className="col-3">
                                         No. Telepon
+                                    </div>
+                                    <div className="col-3">
+                                        Alamat
                                     </div>
                                 </div>
                             </div>

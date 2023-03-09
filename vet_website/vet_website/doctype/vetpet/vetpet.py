@@ -90,7 +90,7 @@ def get_pet(filters=None):
 		pet = frappe.get_list("VetPet", or_filters=pet_or_filters, filters=pet_filters, fields=["pet_name", "name", "parent", "register_date", "pet_description", "hewan_jenis", "status"], order_by=default_sort, limit=default_limit, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetPet", or_filters=pet_or_filters, filters=pet_filters, as_list=True))
 		for p in range(len(pet)):
-			pet_owner = frappe.get_list("VetPetOwner", filters={'name': pet[p]['parent']}, fields=["owner_name", 'nik', 'phone', 'name'])
+			pet_owner = frappe.get_list("VetPetOwner", filters={'name': pet[p]['parent']}, fields=["owner_name", 'nik', 'phone', 'name', "address"])
 			pet_type = frappe.get_list("VetPetType", filters={'name': pet[p]['hewan_jenis']}, fields=["type_name"])
 			pet[p]['pet_owner'] = pet_owner[0]
 			pet[p]['pet_type'] = pet_type[0]
