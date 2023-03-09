@@ -572,6 +572,8 @@ class PurchaseOrder extends React.Component {
 			            			</div>
         	    }
 
+                pdf = <PDF data={data} subtotal={subtotal} paid={paid} payment_method_list={this.state.payment_method_list}/>
+
                 print_button = <div className="col-auto my-auto">
                                     <button className="btn btn-sm btn-outline-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.printPDF()}>Print</button>
                                 </div>
