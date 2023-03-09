@@ -262,26 +262,27 @@ def open_invoice_process(data, saveonly=False):
 			frappe.db.commit()
 			set_owner_credit_total(invoice.owner)
 			
-			last_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': invoice.owner}, fields=['credit'], order_by="creation desc")
-			if last_credit and invoice.is_rawat_inap == 1:
-				data = {'jumlah': 0, 'name': invoice.name}
-				paid = 0
-				paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': invoice.name}, fields=['sum(jumlah) as paid'])
-				if paid_search[0]['paid'] != None:
-					paid = paid_search[0]['paid']
+			# Langsung bayar dari deposit untuk rawat inap invoice
+			# last_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': invoice.owner}, fields=['credit'], order_by="creation desc")
+			# if last_credit and invoice.is_rawat_inap == 1:
+			# 	data = {'jumlah': 0, 'name': invoice.name}
+			# 	paid = 0
+			# 	paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': invoice.name}, fields=['sum(jumlah) as paid'])
+			# 	if paid_search[0]['paid'] != None:
+			# 		paid = paid_search[0]['paid']
 					
-				remaining = invoice.total - paid
+			# 	remaining = invoice.total - paid
 				
-				if last_credit[0]['credit'] > 0:
-					if last_credit[0]['credit'] > remaining:
-						data.update({'jumlah': remaining})
-					else:
-						data.update({'jumlah': last_credit[0]['credit']})
+			# 	if last_credit[0]['credit'] > 0:
+			# 		if last_credit[0]['credit'] > remaining:
+			# 			data.update({'jumlah': remaining})
+			# 		else:
+			# 			data.update({'jumlah': last_credit[0]['credit']})
 					
-					# session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
-					# if len(session_search) > 0:
-					# 	add_payment_from_deposit(json.dumps(data))
-					add_payment_from_deposit(json.dumps(data))
+			# 		# session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
+			# 		# if len(session_search) > 0:
+			# 		# 	add_payment_from_deposit(json.dumps(data))
+			# 		add_payment_from_deposit(json.dumps(data))
 			
 		return {'invoice': invoice}
 
