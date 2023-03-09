@@ -103,8 +103,10 @@ def get_order_payment_list(filters=None):
 		# for fj in odd_filters:
 		# 	result_filter = process_odd_filter(fj)
 		# 	order_payment = filter(result_filter, order_payment)
+
+		payment_method = frappe.get_list("VetPaymentMethod", fields=['*'])
 			
-		return {'data': order_payment, 'datalength': datalength}
+		return {'data': order_payment, 'datalength': datalength, 'payment_method_list': payment_method}
 			
 	except PermissionError as e:
 		return {'error': e}

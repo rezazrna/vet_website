@@ -12,6 +12,7 @@ class PosOrder extends React.Component {
             'currentpage': 1,
             'search': false,
             'datalength': 0,
+            'payment_method_list': []
         }
 
         this.orderSearch = this.orderSearch.bind(this);
@@ -61,7 +62,7 @@ class PosOrder extends React.Component {
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({ 'data': r.message.order, 'loaded': true, 'datalength': r.message.datalength });
+                        po.setState({ 'data': r.message.order, 'loaded': true, 'datalength': r.message.datalength, 'payment_method_list': r.message.payment_method_list});
                     }
                 }
             });
@@ -89,7 +90,7 @@ class PosOrder extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.order, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.order, 'loaded': true, 'datalength': r.message.datalength, 'payment_method_list': r.message.payment_method_list });
                 }
             }
         });
@@ -116,7 +117,7 @@ class PosOrder extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.order, loaded: true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.order, loaded: true, 'datalength': r.message.datalength, 'payment_method_list': r.message.payment_method_list });
                 }
             }
         });
@@ -218,6 +219,7 @@ class PosOrder extends React.Component {
         //         !metode_options.map(j => j.value).includes(o) && o != '' ? metode_options.push({ label: o, value: o }) : false
         //     })
         // })
+        var metode_pembayaran_options = []
 
         var sorts = [
             { 'label': 'Tanggal DESC', 'value': 'order_date desc' },
@@ -241,7 +243,7 @@ class PosOrder extends React.Component {
             { 'label': 'Nama Pemilik', 'field': 'owner_name', 'type': 'char' },
             { 'label': 'Nama Hewan', 'field': 'pet_name', 'type': 'char' },
             { 'label': 'Responsible', 'field': 'responsible_name', 'type': 'char' },
-            { 'label': 'Metode Pembayaran', 'field': 'metode_pembayaran', 'type': 'char'},
+            // { 'label': 'Metode Pembayaran', 'field': 'metode_pembayaran', 'type': 'char'},
             { 'label': 'Total', 'field': 'total', 'type': 'int' },
         ]
 
@@ -262,6 +264,12 @@ class PosOrder extends React.Component {
         }
 
         if (this.state.loaded) {
+            this.state.payment_method_list.forEach(p => {
+                metode_pembayaran_options.push({ label: p.method_name, value: p.name })
+            })
+
+            field_list.push({ 'label': 'Metode Pembayaran', 'field': 'metode_pembayaran', 'type': 'select', 'options': metode_pembayaran_options })
+
             return (
                 <div>
                     <div className="row mx-0" style={row_style}>

@@ -9,7 +9,8 @@ class OrderPayment extends React.Component {
             data: [],
             loaded: false,
             currentpage: 1,
-            datalength: 0
+            datalength: 0,
+            payment_method_list: []
         }
         this.paginationClick = this.paginationClick.bind(this);
         this.searchAction = this.searchAction.bind(this)
@@ -45,7 +46,7 @@ class OrderPayment extends React.Component {
                     if (r.message.error){
                         frappe.msgprint(r.message.error)
                     } else {
-                        th.setState({'data': r.message.data,'loaded': true, 'datalength': r.message.datalength});
+                        th.setState({'data': r.message.data,'loaded': true, 'datalength': r.message.datalength, 'payment_method_list': r.message.payment_method_list});
                     }
                 }
             }
@@ -79,7 +80,7 @@ class OrderPayment extends React.Component {
                     if (r.message.error){
                         frappe.msgprint(r.message.error)
                     } else {
-                        th.setState({'data': r.message.data,'loaded': true, 'datalength': r.message.datalength});
+                        th.setState({'data': r.message.data,'loaded': true, 'datalength': r.message.datalength, 'payment_method_list': r.message.payment_method_list});
                     }
                 }
             }
@@ -109,7 +110,7 @@ class OrderPayment extends React.Component {
                             if (r.message.error){
                                 frappe.msgprint(r.message.error)
                             } else {
-                                po.setState({'data': r.message.data,'loaded': true, 'datalength': r.message.datalength});
+                                po.setState({'data': r.message.data,'loaded': true, 'datalength': r.message.datalength, 'payment_method_list': r.message.payment_method_list});
                             }
                         }
                     }
@@ -118,6 +119,7 @@ class OrderPayment extends React.Component {
     }
     
     render() {
+        var metode_pembayaran_options = []
 		var row_style = {'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px'}
 		
 		var sorts = [
@@ -130,10 +132,16 @@ class OrderPayment extends React.Component {
                         {'label': 'Nama Pemilik', 'field': 'owner_name', 'type': 'char'},
                         {'label': 'No Invoice', 'field': 'parent', 'type': 'char'},
                         {'label': 'Nominal', 'field': 'value', 'type': 'int'},
-                        {'label': 'Metode Pembayaran', 'field': 'method_type', 'type': 'char'},
+                        // {'label': 'Metode Pembayaran', 'field': 'metode_pembayaran', 'type': 'char'},
                     ]
         
         if (this.state.loaded){
+            this.state.payment_method_list.forEach(p => {
+                metode_pembayaran_options.push({ label: p.method_name, value: p.name })
+            })
+
+            field_list.push({ 'label': 'Metode Pembayaran', 'field': 'type', 'type': 'select', 'options': metode_pembayaran_options },)
+
             return(
                 <div>
                     <div className="row mx-0" style={row_style}>

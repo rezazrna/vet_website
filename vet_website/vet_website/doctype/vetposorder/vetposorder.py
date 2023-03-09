@@ -80,7 +80,10 @@ def get_order_list(filters=None):
 		# 	fj.reverse()
 		# 	result_filter = lambda a: eval(" ".join(fj))
 		# 	order = filter(result_filter, order)
-		return {'order': order, 'datalength': datalength}
+
+		payment_method = frappe.get_list("VetPaymentMethod", fields=['*'])
+
+		return {'order': order, 'datalength': datalength, 'payment_method_list': payment_method}
 		
 	except PermissionError as e:
 		return {'error': e}
