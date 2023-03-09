@@ -2183,17 +2183,19 @@ class PDF extends React.Component{
         var total_border = {borderTop: '1px solid #000', marginBottom: 5}
         var table_rows = []
         data.products.forEach((d, index) => {
-            table_rows.push(
-                <tr key={d.name} style={fs9} className="text-center">
-                    <td className="py-1">{d.product_name}</td>
-                    <td className="py-1">{d.quantity}</td>
-                    <td className="py-1">{d.uom_name}</td>
-                    <td className="py-1">{d.quantity_receive}</td>
-                    <td className="py-1">{d.discount}%</td>
-                    <td className="py-1">{formatter.format(d.price)}</td>
-                    <td className="py-1">{formatter.format(d.price * d.quantity - ((d.discount || 0) / 100 * (d.price * d.quantity)))}</td>
-                </tr>
-            )
+            if (d.product_name && d.quantity && d.price) {
+                table_rows.push(
+                    <tr key={d.name} style={fs9} className="text-center">
+                        <td className="py-1">{d.product_name}</td>
+                        <td className="py-1">{d.quantity}</td>
+                        <td className="py-1">{d.uom_name}</td>
+                        <td className="py-1">{d.quantity_receive}</td>
+                        <td className="py-1">{d.discount}%</td>
+                        <td className="py-1">{formatter.format(d.price)}</td>
+                        <td className="py-1">{formatter.format(d.price * d.quantity - ((d.discount || 0) / 100 * (d.price * d.quantity)))}</td>
+                    </tr>
+                )
+            }
         })
         var payment_rows = []
         data.pembayaran.forEach((d, index) => {
