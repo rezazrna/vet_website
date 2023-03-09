@@ -22,7 +22,7 @@ class Operation extends React.Component {
     componentDidMount() {
         var lastfilter = JSON.parse(sessionStorage.getItem('/main/inventory/operation'))
         if(this.props.usage){
-            lastfilter = JSON.parse(sessionStorage.getItem('/main/accounting/usage'))
+            lastfilter = JSON.parse(sessionStorage.getItem('/main/inventory/usage'))
         }
         var gr = this
         frappe.call({
@@ -78,7 +78,7 @@ class Operation extends React.Component {
     }
     
     navigationAction(name){
-        this.props.usage?window.location.href="/main/accounting/usage/edit?n="+name:window.location.href="/main/inventory/operation/edit?n="+name
+        this.props.usage?window.location.href="/main/inventory/usage/edit?n="+name:window.location.href="/main/inventory/operation/edit?n="+name
     }
     
     changeInput(e, i=false){
@@ -285,7 +285,7 @@ class Operation extends React.Component {
                         if (r.message) {
                             
                             op.props.usage?
-                            window.location.href = "/main/accounting/usage/edit?n=" + r.message.name:
+                            window.location.href = "/main/inventory/usage/edit?n=" + r.message.name:
                             window.location.href = "/main/inventory/operation/edit?n=" + r.message.name
                         }
                     }

@@ -16,7 +16,7 @@ def get_context(context):
     context.alt_page_title = "Operation / "+ operation.name
     
     if operation.is_usage:
-        frappe.local.flags.redirect_location = frappe.utils.get_url('/main/accounting/usage/edit?n=%s'%operation.name)
+        frappe.local.flags.redirect_location = frappe.utils.get_url('/main/inventory/usage/edit?n=%s'%operation.name)
         raise frappe.Redirect
 
     return context

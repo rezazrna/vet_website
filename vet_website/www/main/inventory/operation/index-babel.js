@@ -209,7 +209,7 @@ class Operation extends React.Component {
         var delete_row
         var add_row = (
             <div className="col-auto">
-                <a href={this.props.usage ? "/main/accounting/usage/form" : "/main/inventory/operation/form"} className="btn btn-outline-danger text-uppercase fs12 fwbold"><i className="fa fa-plus mr-2" />Tambah</a>
+                <a href={this.props.usage ? "/main/inventory/usage/form" : "/main/inventory/operation/form"} className="btn btn-outline-danger text-uppercase fs12 fwbold"><i className="fa fa-plus mr-2" />Tambah</a>
             </div>
         )
         if (this.state.show_delete) {
@@ -348,7 +348,7 @@ class OperationListRow extends React.Component {
     clickRow() {
         var pathname = "/main/inventory/operation/edit?n=" + this.props.item.name
         if (this.props.usage) {
-            pathname = "/main/accounting/usage/edit?n=" + this.props.item.name
+            pathname = "/main/inventory/usage/edit?n=" + this.props.item.name
         }
         window.location = pathname
     }
