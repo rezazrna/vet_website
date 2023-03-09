@@ -165,7 +165,7 @@ class Inventory extends React.Component {
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({print_data: r.message.customer_invoice});
+                        po.setState({print_data: r.message.product_quantity});
                         setTimeout(function() {
                             po.printPDF()
                         }, 3000);
