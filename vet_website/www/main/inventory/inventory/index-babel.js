@@ -5,10 +5,12 @@ class Inventory extends React.Component {
         super(props)
         this.state = {
             'data': [],
+            'print_data': [],
             'loaded': false,
             'valuation': this.props.valuation || false,
             'currentpage': 1,
             'datalength': 0,
+            'print_loading': false,
         }
         this.inventorySearch = this.inventorySearch.bind(this);
         this.toggleShowQuantityGroup = this.toggleShowQuantityGroup.bind(this)
@@ -145,6 +147,33 @@ class Inventory extends React.Component {
         new_data[i].show_group = value
         this.setState({data: new_data})
     }
+
+    getPrintData() {
+        var po = this
+
+        if (!this.state.print_loading) {
+            var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+            this.setState({
+                print_loading: true,
+            });
+
+            frappe.call({
+                type: "GET",
+                method: "vet_website.vet_website.doctype.vetproductquantity.vetproductquantity.get_quantity_list",
+                args: { filters: filters, all_page: true, valuation: po.props.valuation},
+                callback: function (r) {
+                    if (r.message) {
+                        console.log(r.message);
+                        po.setState({print_data: r.message.customer_invoice});
+                        setTimeout(function() {
+                            po.printPDF()
+                        }, 3000);
+                    }
+                }
+            });
+        }
+    }
     
     printPDF() {
         var pdfid = 'pdf'
@@ -163,7 +192,9 @@ class Inventory extends React.Component {
             html2canvas: {scale: 3},
             jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
         }
-        html2pdf().set(opt).from(source).save()
+        html2pdf().set(opt).from(source).save().then(e => {
+            this.setState({print_loading: false})
+        })
         // doc.html(source, {
         //   callback: function (doc) {
         //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
@@ -218,8 +249,10 @@ class Inventory extends React.Component {
         }
         
         if(!product){
-            print_button = <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => this.printPDF()}>Print</button>
-            pdf = <PDF data={this.state.data} valuation={this.props.valuation}/>
+            print_button = <button type="button" className={this.state.print_loading
+                ? "btn btn-outline-danger text-uppercase fs12 fwbold mx-2 disabled"
+                : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>Print</button>
+            pdf = <PDF data={this.state.print_data} valuation={this.props.valuation}/>
         }
         
         if (this.state.loaded){
