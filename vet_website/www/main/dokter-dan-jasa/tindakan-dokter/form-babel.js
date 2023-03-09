@@ -1129,7 +1129,7 @@ class TindakanDokterJasaLain extends React.Component {
                     <div className="row">
                         <div className="col-4">
                             <select name="filter" className="form-control fs14" style={select_style} value={this.state.tindak_lanjut_filter} onChange={e => this.changeTindakLanjutFilter(e)}>
-                                <option value="is_operasi">Operasi</option>
+                                <option value="is_operasi">Instalasi Medis</option>
                                 <option value="is_rawat">Rawat Inap</option>
                                 <option value="is_grooming">Grooming</option>
                             </select>
