@@ -571,8 +571,13 @@ class PurchaseOrder extends React.Component {
 			            				<button type="button" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} onClick={e => this.toggleEditMode(e)}>Edit</button>
 			            			</div>
         	    }
+
+                print_button = <div className="col-auto my-auto">
+                                    <button className="btn btn-sm btn-outline-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} type="button" onClick={() => this.printPDF()}>Print</button>
+                                </div>
         	    
         	    headerButton = <div className="row mx-0 flex-row-reverse" style={rowMinHeight}>
+                                    {print_button}
 			            			<div className="col-auto my-auto">
 			            				<button type="submit" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14}>Purchase</button>
 			            			</div>
