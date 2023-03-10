@@ -135,14 +135,17 @@ def get_sessions_list(filters=None):
 
 			for ow in owner_credit_list:
 				# print(ow.metode_pembayaran)
-				method_name = frappe.db.get_value('VetPaymentMethod', ow['metode_pembayaran'], 'method_name')
-				# payment_method = frappe.get_list('VetPaymentMethod', filters={'name': ow['metode_pembayaran']}, fields=['method_type', 'method_name'])
+				payment_method = frappe.get_list('VetPaymentMethod', filters={'method_name': ow['metode_pembayaran']}, fields=['name', 'method_name'])
+				if payment_method:
+					payment_method_name = payment_method[0]['name']
+				else:
+					payment_method_name = ''
 
 				# if payment_method :
 				if ow.metode_pembayaran != 'Cash':
 					ada = False
 					for n in non_cash_payment:
-						if n['type'] == ow['metode_pembayaran']:
+						if n['method_name'] == ow['metode_pembayaran']:
 							if ow['type'] == 'Refund':
 								n['value'] -= ow['nominal'] if ow['nominal'] > 0 else 0
 							else:
@@ -160,7 +163,7 @@ def get_sessions_list(filters=None):
 							value = ow['nominal'] if ow['nominal'] > 0 else 0
 						credit_mutation = ow['credit_mutation'] if ow['credit_mutation'] > 0 else 0
 						credit_mutation_return = ow['credit_mutation'] if ow['credit_mutation'] < 0 else 0
-						ncp = {'type': ow['metode_pembayaran'], 'method_name': method_name, 'value': value, 'exchange': ow['exchange'], 'debt_mutation': ow['debt_mutation'], 'credit_mutation': credit_mutation, 'credit_mutation_return': credit_mutation_return}
+						ncp = {'type': payment_method_name, 'method_name': ow['metode_pembayaran'], 'value': value, 'exchange': ow['exchange'], 'debt_mutation': ow['debt_mutation'], 'credit_mutation': credit_mutation, 'credit_mutation_return': credit_mutation_return}
 						non_cash_payment.append(ncp)
 				else:
 					ada = False
