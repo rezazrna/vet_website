@@ -87,11 +87,13 @@ class MainPOS extends React.Component {
             fetch(url, {
                 method: "GET",
             }).then(async(response) => {
-                if (!response.ok && this.state.online) {
-                    this.setState({online: false})
-                } else if (response.ok && !this.state.online) {
-                    this.setState({online: true})
-                }
+                response.json().then((data) => {
+                    if ((!data.message || data.message != pos_session_id) && this.state.online) {
+                        this.setState({online: false})
+                    } else if (data.message && !this.state.online) {
+                        this.setState({online: true})
+                    }
+                })
             }).catch(e => this.setState({online: false}))
         }, 500)
         

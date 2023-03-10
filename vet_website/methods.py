@@ -292,7 +292,7 @@ def get_pos_data(name):
 	
 @frappe.whitelist()
 def ping():
-	return True
+	return get_current_session()
 	
 @frappe.whitelist()
 def get_current_datetime():
