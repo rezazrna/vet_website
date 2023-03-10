@@ -687,7 +687,7 @@ def get_customer_invoice_form_after_loading():
 			pet.owner_name = owner_name
 		task_list = frappe.get_list("VetTask", fields=['*'])
 		# uom_list = frappe.get_list("VetUOM", fields=['*'])
-		product_list = frappe.get_list("VetProduct", fields=['*'])
+		product_list = frappe.get_list("VetProduct", filters={'active': True}, fields=['*'])
 		for pl in product_list:
 			pl.update({
 				'stockable': frappe.db.get_value('VetProductCategory', pl.product_category, 'stockable'),

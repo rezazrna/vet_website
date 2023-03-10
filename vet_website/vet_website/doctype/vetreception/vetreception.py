@@ -268,7 +268,7 @@ def get_services():
 		services = frappe.get_list("VetService", fields=['name', 'service_name'])
 		product_category = frappe.get_list("VetProductCategory", or_filters=[('is_dokter','=',1),('is_grooming','=',1)], fields=['name'])
 		product_category_map = map(lambda x: x.name, product_category)
-		products = frappe.get_list("VetProduct", filters={'product_category': ['in', list(product_category_map)]}, fields=['name', 'product_name', 'product_category'])
+		products = frappe.get_list("VetProduct", filters={'product_category': ['in', list(product_category_map)], 'active': True}, fields=['name', 'product_name', 'product_category'])
 		for p in products:
 			product_category_search = frappe.get_list("VetProductCategory", filters={'name': p.product_category}, fields=['name', 'category_name', 'is_grooming', 'is_dokter'])
 			if len(product_category_search) != 0:

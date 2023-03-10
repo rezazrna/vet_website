@@ -331,7 +331,7 @@ def get_purchase_after_loading():
 		gudangAll = frappe.get_list('VetGudang', fields=['*'])
 		supplierAll = frappe.get_list('VetSupplier', fields=['*'])
 		category = frappe.get_list('VetProductCategory', filters={'stockable': True}, fields=['name'])
-		productAll = frappe.get_list('VetProduct', filters={'product_category': ['in', [i.name for i in category]]}, fields=['*'])
+		productAll = frappe.get_list('VetProduct', filters={'product_category': ['in', [i.name for i in category]], 'active': True}, fields=['*'])
 		uomAll = frappe.get_list('VetUOM', fields=['*'])
 		payment_method = frappe.get_list('VetPaymentMethod', fields=['*'])
 		

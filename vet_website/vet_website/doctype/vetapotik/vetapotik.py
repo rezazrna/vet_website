@@ -278,7 +278,7 @@ def get_products_all():
 	try:
 		categories = frappe.get_list('VetProductCategory', or_filters={'is_obat': True, 'is_racikan': True}, fields=['name'])
 		categorie_names = (c.name for c in categories)
-		obatAll = frappe.get_list('VetProduct', filters={'product_category': ['in', categorie_names]}, fields=['*'])
+		obatAll = frappe.get_list('VetProduct', filters={'product_category': ['in', categorie_names], 'active': True}, fields=['*'])
 		
 		for o in range(len(obatAll)):
 			uom = frappe.get_list('VetUOM', filters={'name': obatAll[o]['product_uom']}, fields=['uom_name'])
@@ -643,7 +643,7 @@ def get_obat_all(racikan):
 			categories = frappe.get_list('VetProductCategory', filters={'is_obat': True}, fields=['name'])
 			
 		categorie_names = (c.name for c in categories)
-		obatAll = frappe.get_list('VetProduct', filters={'product_category': ['in', categorie_names]}, fields=['*'])
+		obatAll = frappe.get_list('VetProduct', filters={'product_category': ['in', categorie_names], 'active': True}, fields=['*'])
 			
 		for o in range(len(obatAll)):
 			uom = frappe.get_list('VetUOM', filters={'name': obatAll[o]['product_uom']}, fields=['uom_name'])

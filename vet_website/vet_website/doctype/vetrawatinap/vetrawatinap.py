@@ -238,7 +238,7 @@ def get_rawat_inap(name):
 @frappe.whitelist()
 def get_all_products():
 	try:
-		products = frappe.get_list("VetProduct", fields=["*"])
+		products = frappe.get_list("VetProduct", filters={'active': True}, fields=["*"])
 		for p in products:
 			pr = get_product(p.name)
 			p.product_category = pr.get('product').get('product_category')
@@ -674,7 +674,7 @@ def get_unfinished_rawat_inap():
 			
 			rawat_inap.tindakan = tindakan_list
 			
-		products = frappe.get_list("VetProduct", fields=["*"])
+		products = frappe.get_list("VetProduct", filters={'active': True}, fields=["*"])
 		for p in products:
 			pr = get_product(p.name)
 			p.product_category = pr.get('product').get('product_category')

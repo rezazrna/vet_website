@@ -223,7 +223,7 @@ def get_tindakan_dokter(name):
 @frappe.whitelist()
 def get_all_products():
 	try:
-		products = frappe.get_list("VetProduct", fields=["*"])
+		products = frappe.get_list("VetProduct", filters={'active': True}, fields=["*"])
 		for p in products:
 			product_category_search = frappe.get_list("VetProductCategory", filters={'name': p.product_category}, fields=['*'])
 			if len(product_category_search) != 0:
