@@ -186,7 +186,7 @@ def get_sessions_list(filters=None):
 							value = ow['nominal'] if ow['nominal'] > 0 else 0
 						credit_mutation = ow['credit_mutation'] if ow['credit_mutation'] > 0 else 0
 						credit_mutation_return = ow['credit_mutation'] if ow['credit_mutation'] < 0 else 0
-						ncp = {'type': ow['metode_pembayaran'], 'method_name': method_name, 'value': value, 'exchange': ow['exchange'], 'debt_mutation': ow['debt_mutation'], 'credit_mutation': credit_mutation, 'credit_mutation_return': credit_mutation_return}
+						ncp = {'type': ow['metode_pembayaran'], 'method_name': ow['metode_pembayaran'], 'value': value, 'exchange': ow['exchange'], 'debt_mutation': ow['debt_mutation'], 'credit_mutation': credit_mutation, 'credit_mutation_return': credit_mutation_return}
 						cash_payment.append(ncp)
 			
 			s['kas_masuk'] = kas_masuk
