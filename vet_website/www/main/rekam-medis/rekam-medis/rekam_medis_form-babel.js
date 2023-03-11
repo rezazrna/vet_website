@@ -78,6 +78,8 @@ class RekamMedisForm extends React.Component {
                         {'label': 'Tindakan', 'name': 'action'},
                         {'label': 'Suhu', 'name': 'temperature'},
                         {'label': 'Berat', 'name': 'weight'},
+                        {'label': 'Lainnya Pemeriksaan', 'name': 'other_pemeriksaan'},
+                        {'label': 'Lainnya Diagnosa', 'name': 'other_diagnosa'},
                     ]
                     var new_checks = []
                     
@@ -445,6 +447,8 @@ class TindakanDokterRekamMedis extends React.Component {
                 {'label': 'Tindakan', 'name': 'action'},
                 {'label': 'Suhu', 'name': 'temperature'},
                 {'label': 'Berat', 'name': 'weight'},
+                {'label': 'Lainnya Pemeriksaan', 'name': 'other_pemeriksaan'},
+                {'label': 'Lainnya Diagnosa', 'name': 'other_diagnosa'},
             ],
             'selected_check': false
         }

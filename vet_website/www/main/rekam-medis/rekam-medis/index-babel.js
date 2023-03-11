@@ -29,6 +29,8 @@ var checks = [
     { 'label': 'Tindakan', 'name': 'action' },
     { 'label': 'Suhu', 'name': 'temperature' },
     { 'label': 'Berat', 'name': 'weight' },
+    {'label': 'Lainnya Pemeriksaan', 'name': 'other_pemeriksaan'},
+    {'label': 'Lainnya Diagnosa', 'name': 'other_diagnosa'},
 ]
 
 class RekamMedis extends React.Component {
