@@ -72,7 +72,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 			dc_mode = True
 	
 	try:
-		is_coa_list = not is_profit_loss and not is_balance_sheet
+		is_coa_list = not dc_mode and not is_profit_loss and not is_balance_sheet
 
 		if not search_mode:
 			td_filters.update({'account_parent': ''})

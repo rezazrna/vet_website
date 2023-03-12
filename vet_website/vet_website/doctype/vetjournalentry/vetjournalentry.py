@@ -283,21 +283,37 @@ def get_journal_entry_detail(name):
 		return {'error': "Gagal mendapatkan children"}
 
 @frappe.whitelist()
-def reconcile_account(account, min_date):
+def reconcile_account(account, date):
 	journal_entry_names = []
 
-	journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>=', min_date]}, fields=["name"], order_by='date desc, reference desc')
+	journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['<=', date]}, fields=["name"], order_by='date desc, reference desc')
+
 	if len(journal_entry_search):
 		journal_entry_names = list(j.name for j in journal_entry_search)
 
 	journal_items = []
 	if journal_entry_names:
-		journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names], 'account': account}, fields=['name'])
+		journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names], 'account': account}, fields=['name', 'parent'])
 
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 
-		journal_items.sort(key=lambda x: x.date)
+		journal_items.sort(key=lambda x: x.date, reverse=True)
+
+	if not journal_items:
+		journal_entry_search = frappe.get_list("VetJournalEntry", filters={'date': ['>', date]}, fields=["name"], order_by='date desc, reference desc')
+
+		if len(journal_entry_search):
+			journal_entry_names = list(j.name for j in journal_entry_search)
+
+		journal_items = []
+		if journal_entry_names:
+			journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names], 'account': account}, fields=['name', 'parent'])
+
+			for ji in journal_items:
+				ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+
+			journal_items.sort(key=lambda x: x.date)
 
 	if journal_items:
 		set_journal_item_total(journal_items[0]['name'], account)

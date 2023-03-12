@@ -27,7 +27,8 @@ class JournalItems extends React.Component {
             'journal_date': '',
             'remove_storage': true,
             'saldo_awal': 0,
-            'list_year': []
+            'list_year': [],
+            'show_popup_reconcile': false,
         }
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -315,6 +316,11 @@ class JournalItems extends React.Component {
 
     changeRemoveStorage(value) {
         this.setState({'remove_storage': value})
+    }
+
+    togglePopupReconcile(e) {
+        e.preventDefault()
+        this.setState({show_popup_reconcile: !this.state.show_popup_reconcile})
     }
 
     checkAll() {
@@ -622,6 +628,7 @@ class JournalItems extends React.Component {
         var delete_button, back_button, account_dropdown, mode_options, sd_period, month_select, year_select, set_button, min_month_select, min_date_input, max_date_input
         var account_options = []
         var account_name = ''
+        var popup_reconcile, reconcile_button
 
         if (this.state.show_delete) {
             delete_button = <button className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={() => frappe.msgprint("Journal Item tidak bisa dihapus karena akan menyebabkan Journal Entry tidak balance, jika ingin menghapus lakukan lewat Journal Entry")}>Hapus</button>
@@ -672,10 +679,16 @@ class JournalItems extends React.Component {
 
         if (this.state.loaded) {
             if (this.state.account != undefined) {
+                if (this.state.show_popup_reconcile) {
+                    popup_reconcile = <PopupReconcile togglePopupReconcile={(e) => this.togglePopupReconcile(e)} account={this.state.account} />
+                }
+
                 var color = { color: '#056EAD', cursor: 'pointer' }
                 back_button = <span className="fs16 fw600 mr-4 my-auto" style={color} onClick={() => { history.back() }}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
                 var coa = this.state.coaAll.find((e) => e.name == this.state.account)
                 account_name = coa != undefined ? coa.account_name : ''
+
+                reconcile_button = <button className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" type="button" onClick={(e) => this.togglePopupReconcile(e)}>Reconcile</button>
             }
     
             if (gl != undefined) {
@@ -777,6 +790,7 @@ class JournalItems extends React.Component {
                             {delete_button}
                             {print_button}
                             {print_excel}
+                            {reconcile_button}
                         </div>
                         <div className="col">
                             <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.itemSearch(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
@@ -798,6 +812,7 @@ class JournalItems extends React.Component {
                     {item_pdf}
                     <ExcelPage data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/>
                     {/* <PDF data={this.state.print_data} account_name={account_name} account={this.state.account} mode={this.state.mode} month={this.state.month} year={this.state.year} datalength={this.state.datalength} saldo_awal={this.state.saldo_awal}/> */}
+                    {popup_reconcile}
                 </div>
             )
         }
@@ -1042,6 +1057,93 @@ class JournalItemsListRow extends React.Component {
                 </div>
             </div>
         )
+    }
+}
+
+class PopupReconcile extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state={
+            'data': {
+                'account': this.props.account,
+                'tanggal': moment().format('YYYY-MM-DD'),
+            },
+        }
+        
+        this.handleInputChange = this.handleInputChange.bind(this)
+        this.reconcile = this.reconcile.bind(this)
+    }
+    
+    handleInputChange(e) {
+        var name = e.target.name
+        var value = e.target.value
+        var new_data = this.state.data
+        
+        new_data[name] = value
+        this.setState({data: new_data})
+    }
+    
+    reconcile(e) {
+        e.preventDefault()
+        var th = this
+
+        if (this.state.loading) {
+            return;
+        }
+
+        this.setState({loading: true})
+
+        console.log(this.state.data.account)
+        console.log(this.state.data.tanggal)
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetjournalentry.vetjournalentry.reconcile_account",
+            freeze: true,
+            args: {account: th.state.data.account, date: th.state.data.tanggal},
+            callback: function(r){
+                if (r.message) {
+                    window.location.reload()
+                } else {
+                    frappe.msgprint(('No Journal Item Found'));
+                }
+            }
+        });
+    }
+    
+    render() {
+        var maxwidth = {maxWidth: '480px', paddingTop: '100px'}
+        var colorStyle = {color: '#056EAD'}
+        var inputStyle = {background: '#CEEDFF'}
+        var reconcileStyle = {background: '#056EAD', color: '#FFFFFF'}
+        var batalStyle = {color: '#056EAD', border: '1px solid #056EAD'}
+        
+        return (
+                <div className="menu-popup">
+                    <div className="container" style={maxwidth}>
+                        <div className="bg-white p-4">
+                            <div className="text-center fs20 fw600 mb-4" style={colorStyle}>
+                            RECONCILE
+                            </div>
+                            <div className="form-group">
+                                <span className="fs14 fw600 mb-2">Tanggal</span>
+                                <input required type="date" id="tanggal" name='tanggal' className="form-control border-0 fs22 fw600 mb-4" onChange={this.handleInputChange} defaultValue={this.state.data.tanggal || ''} style={inputStyle}/>
+                            </div>
+                            <div className="row justify-content-center mb-2">
+                                <div className="col-auto d-flex mt-4">
+                                    <button className={this.state.loading
+                                        ? "btn btn-sm fs18 h-100 fwbold px-4 disabled"
+                                        : "btn btn-sm fs18 h-100 fwbold px-4"} style={reconcileStyle} onClick={this.reconcile}>Reconcile</button>
+                                </div>
+                                <div className="col-auto d-flex mt-4">
+                                    <button className="btn btn-sm fs18 h-100 fwbold px-4" style={batalStyle} onClick={this.props.togglePopupReconcile}>Batal</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="menu-popup-close" onClick={this.props.togglePopupReconcile}></div>
+                </div>
+            )
     }
 }
 
