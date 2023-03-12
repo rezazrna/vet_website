@@ -119,7 +119,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 			datalength = len(frappe.get_list("VetJournalItem", filters=journal_items_filters, as_list=True))
 
 		if not journal_items and is_gl == '1':
-			if ji_account and ('4-' in ji_account or '5-' in ji_account or '6-' in ji_account or '7-' in ji_account or '8-' in ji_account) and '-01-01' in min_date:
+			if ji_account and ('4-' in ji_account or '5-' in ji_account or '6-' in ji_account or '7-' in ji_account or '8-' in ji_account) and min_date and '-01-01' in min_date:
 				saldo_awal = 0
 			else:
 				journal_items_filters_if_empty = []
