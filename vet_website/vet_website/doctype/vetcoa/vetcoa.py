@@ -72,6 +72,8 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 			dc_mode = True
 	
 	try:
+		is_coa_list = not is_profit_loss and not is_balance_sheet
+
 		if not search_mode:
 			td_filters.update({'account_parent': ''})
 
@@ -99,7 +101,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 
 		if not dc_mode:
 			for c in coa_list:
-				total_children = get_coa_last_total_children(c.name, journal_items=journal_items)
+				total_children = get_coa_last_total_children(c.name, journal_items=journal_items, is_coa_list=is_coa_list)
 				c['total'] = total_children['total']
 				c['children'] = total_children['children']
 		else:
@@ -117,7 +119,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 		if all_children:
 			if max_trans_date:
 				for c in coa_list:
-					c['children'] = get_coa_children(c.name, max_trans_date, min_trans_date, dc_mode, True, mode)
+					c['children'] = get_coa_children(c.name, max_trans_date, min_trans_date, dc_mode, True, mode, is_coa_list)
 			# else:
 			# 	for c in coa_list:
 			# 		c['children'] = get_coa_children(c.name, accounting_date, min_trans_date, dc_mode, True, mode)
@@ -151,7 +153,7 @@ def get_parent_list():
 		return {'error': "Gagal menghapus Chart of Account"}
 
 @frappe.whitelist()
-def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_children=False, mode=False):
+def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_children=False, mode=False, is_coa_list=False):
 	# try:
 	filters={'account_parent': name}
 	children = frappe.get_list('VetCoa', filters=filters, fields="*", order_by="account_code asc")
@@ -190,7 +192,7 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 		
 	if not dc_mode:
 		for c in children:
-			total_children = get_coa_last_total_children(c.name, journal_items=journal_items)
+			total_children = get_coa_last_total_children(c.name, journal_items=journal_items, is_coa_list=is_coa_list)
 			c['total'] = total_children['total']
 			c['children'] = total_children['children']
 	else:
@@ -207,7 +209,7 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 	
 	if all_children:
 		for c in children:
-			c['children'] = get_coa_children(c.name, max_date, min_date, dc_mode, all_children, mode=mode)
+			c['children'] = get_coa_children(c.name, max_date, min_date, dc_mode, all_children, mode=mode, is_coa_list=is_coa_list)
 	return children
 	# except:
 	# 	return {'error': "Gagal mendapatkan children"}
@@ -384,7 +386,7 @@ def get_coa_last_total(coa_name, max_date=False, journal_items=False):
 		
 	return total
 
-def get_coa_last_total_children(coa_name, max_date=False, journal_items=False):
+def get_coa_last_total_children(coa_name, max_date=False, journal_items=False, is_coa_list=False):
 	
 	total = 0
 	# coa = frappe.get_doc('VetCoa', coa_name)
@@ -418,7 +420,7 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False):
 
 		
 		# if 'parent' in filters:
-		if journal_entry_names:
+		if journal_entry_names or is_coa_list:
 			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by='creation desc')
 
 		for ji in ji_list:
@@ -429,7 +431,10 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False):
 		if len(ji_list) > 0:
 			journal_item = ji_list[0]
 
-	if len(ji_list) != 0:
+	if is_coa_list:
+		if journal_item:
+			total = total + journal_item.total
+	elif len(ji_list) != 0:
 		account_type = frappe.db.get_value('VetCoa', coa_name, 'account_type')
 		if account_type in ['Asset','Expense']:
 			for ji in ji_list:
@@ -445,7 +450,7 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False):
 		
 	children = frappe.get_list('VetCoa', filters={'account_parent': coa_name}, fields=["*"], order_by="account_code asc")
 	for c in children:
-		total_children = get_coa_last_total_children(c.name, max_date=max_date, journal_items=journal_items)
+		total_children = get_coa_last_total_children(c.name, max_date=max_date, journal_items=journal_items, is_coa_list=is_coa_list)
 		c['total'] = total_children['total']
 		c['children'] = total_children['children']
 		total = total + c['total']
