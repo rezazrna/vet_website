@@ -79,7 +79,7 @@ def new_invoice(data):
 				new_product = frappe.new_doc("VetCustomerInvoiceLine")
 				new_product.update(product_data)
 				new_product.insert()
-				if(not product_data.get('total')):
+				if(product_data.get('total') == None):
 					check_pack = frappe.get_list('VetProductPack', filters={'parent': new_product.product}, fields=['harga_pack', 'quantity_pack'])
 					selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(math.ceil(new_product.quantity))]
 					# selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(new_product.quantity)]
