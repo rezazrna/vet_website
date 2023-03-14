@@ -223,51 +223,59 @@ class TindakanDokter extends React.Component {
     }
     
     deleteJasaLain(i){
-        var new_data = Object.assign({}, this.state.data)
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
         if(new_data.jasa[i].name != undefined){
             new_data.jasa[i].deleted = true
         }
         else {
             new_data.jasa.splice(i, 1)
         }
+
+        var th = this
+
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'jasa', value: new_data.jasa.filter(i => !i.deleted), name: id},
             callback: function(r){
-                if (r.message != true) {
+                if (r.message) {
+                    th.setState({data: new_data})
+                } else {
                     frappe.msgprint(r.message.error)
                 }
             }
         });
-        this.setState({data: new_data})
     }
     
     deleteTindakLanjut(i){
-        var new_data = Object.assign({}, this.state.data)
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
         if(new_data.tindak_lanjut[i].name != undefined){
             new_data.tindak_lanjut[i].deleted = true
         }
         else {
             new_data.tindak_lanjut.splice(i, 1)
         }
+
+        var th = this
+
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'tindak_lanjut', value: new_data.tindak_lanjut.filter(i => !i.deleted), name: id},
             callback: function(r){
-                if (r.message != true) {
+                if (r.message) {
+                    th.setState({data: new_data})
+                } else {
                     frappe.msgprint(r.message.error)
                 }
             }
         });
-        this.setState({data: new_data})
     }
     
     addJasaLain(e){
         var target = e.target
         var value = target.value
-        var new_data = Object.assign({}, this.state.data)
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
         var jl = this
         var realValue
         var selected = false
@@ -293,13 +301,13 @@ class TindakanDokter extends React.Component {
                                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
                                 args: {field: 'jasa', value: new_data.jasa.filter(i => !i.deleted), name: id},
                                 callback: function(r){
-                                    if (r.message != true) {
+                                    if (r.message) {
+                                        jl.setState({'data': new_data})
+                                    } else {
                                         frappe.msgprint(r.message.error)
                                     }
                                 }
                             });
-                            
-            				jl.setState({'data': new_data})
             			}
             			if (r.message.error) {
             				frappe.msgprint(r.message.error);
@@ -316,7 +324,7 @@ class TindakanDokter extends React.Component {
         var target = e.target
         var value = target.value
         var tl = this
-        var new_data = Object.assign({}, this.state.data)
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
         var selected = false
         var realValue
         if (value != undefined || value != '') {
@@ -341,12 +349,13 @@ class TindakanDokter extends React.Component {
                                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
                                 args: {field: 'tindak_lanjut', value: new_data.tindak_lanjut.filter(i => !i.deleted), name: id},
                                 callback: function(r){
-                                    if (r.message != true) {
+                                    if (r.message) {
+                                        tl.setState({'data': new_data})
+                                    } else {
                                         frappe.msgprint(r.message.error)
                                     }
                                 }
                             });
-            				tl.setState({'data': new_data})
             			}
             			if (r.message.error) {
             				frappe.msgprint(r.message.error);
@@ -362,12 +371,12 @@ class TindakanDokter extends React.Component {
         var target = e.target
         var name = target.name
         var value = target.value
-        var new_data = Object.assign({}, this.state.data)
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
         if(new_data.layanan_berjadwal[i] == undefined){
             new_data.layanan_berjadwal[i] = {}
         }
         new_data.layanan_berjadwal[i][name] = value
-        this.setState({data: new_data})
+        var th = this
         
         if (new_data.layanan_berjadwal[i]['date'] && new_data.layanan_berjadwal[i]['note']) {
             frappe.call({
@@ -375,7 +384,9 @@ class TindakanDokter extends React.Component {
                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
                 args: {field: 'layanan_berjadwal', value: new_data.layanan_berjadwal[i], name: id},
                 callback: function(r){
-                    if (r.message != true) {
+                    if (r.message) {
+                        th.setState({data: new_data})
+                    } else {
                         frappe.msgprint(r.message.error)
                     }
                 }
@@ -388,10 +399,9 @@ class TindakanDokter extends React.Component {
         var name = target.name
         var value = target.value
         var th = this
-        var new_data = Object.assign({}, this.state.data)
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
         
         new_data[name] = value
-        this.setState({data: new_data});
 
         if (name != 'nama_dokter') {
             frappe.call({
@@ -399,7 +409,9 @@ class TindakanDokter extends React.Component {
                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
                 args: {field: name, value: value, name: id},
                 callback: function(r){
-                    if (r.message != true) {
+                    if (r.message) {
+                        th.setState({data: new_data});
+                    } else {
                         frappe.msgprint(r.message.error)
                     }
                 }
@@ -463,21 +475,24 @@ class TindakanDokter extends React.Component {
     }
     
     deleteObat(e, index) {
-    	var new_data = this.state.data
+    	var new_data = JSON.parse(JSON.stringify(this.state.data));
     	var onSelectObat = this.state.onSelectObat
     	new_data.obat.splice(index, 1)
-    	if (onSelectObat == index) {
-    		this.setState({data: new_data, onSelectObat: 'false'})
-    	} else {
-    		this.setState({data: new_data})
-    	}
+
+        var th = this
     	
     	frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'obat', value: new_data.obat, name: id},
             callback: function(r){
-                if (r.message != true) {
+                if (r.message) {
+                    if (onSelectObat == index) {
+                        th.setState({data: new_data, onSelectObat: 'false'})
+                    } else {
+                        th.setState({data: new_data})
+                    }
+                } else {
                     frappe.msgprint(r.message.error)
                 }
             }
@@ -540,6 +555,7 @@ class TindakanDokter extends React.Component {
     }
     
     pressEnter(e) {
+        var th = this
     	var name = e.target.name
     	var new_obat = this.state.new_obat
     	var onSelectObat = this.state.onSelectObat
@@ -547,7 +563,7 @@ class TindakanDokter extends React.Component {
         if (e.key === 'Enter' || (e.key == 'Tab' && name == 'note')) {
         	e.preventDefault();
             if (new_obat.name && new_obat.name != '' && new_obat.quantity != '0' && new_obat.quantity) {
-            	var new_data = this.state.data
+            	var new_data = JSON.parse(JSON.stringify(this.state.data));
             	if (new_obat.quantity.includes(',')) {
             	    new_obat.quantity = new_obat.quantity.replace(/,/g, '.') 
             	}
@@ -556,13 +572,6 @@ class TindakanDokter extends React.Component {
             	} else {
             		new_data.obat.push(new_obat)
             	}
-            	this.setState({data: new_data, new_obat:{}})
-            	var qty = document.getElementById("quantity")
-            	var selectObat = document.getElementById("obat_input")
-            	var note = document.getElementById("note")
-            	qty.value = qty.defaultValue
-            	selectObat.value = ''
-            	note.value = ''
             	
             	frappe.call({
                     type: "POST",
@@ -570,13 +579,21 @@ class TindakanDokter extends React.Component {
                     args: {field: 'obat', value: new_data.obat, name: id},
                     callback: function(r){
                         console.log(r.message)
-                        if (r.message != true) {
+                        if (r.message) {
+                            th.setState({data: new_data, new_obat:{}})
+                            var qty = document.getElementById("quantity")
+                            var selectObat = document.getElementById("obat_input")
+                            var note = document.getElementById("note")
+                            qty.value = qty.defaultValue
+                            selectObat.value = ''
+                            note.value = ''
+
+                            document.getElementById("obat_input").focus();
+                        } else {
                             frappe.msgprint(r.message.error)
                         }
                     }
                 });
-            	
-            	document.getElementById("obat_input").focus();
             } else {
             	if (name == 'quantity') {
             		document.getElementById("note").focus();
@@ -598,16 +615,18 @@ class TindakanDokter extends React.Component {
     }
     
     deleteObatRacikan(e, indexParent, indexChild) {
-    	var new_data = this.state.data
+    	var new_data = JSON.parse(JSON.stringify(this.state.data));
     	new_data.obat[indexParent].product_racikan.splice(indexChild, 1)
-    	this.setState({data: new_data})
+        var th = this
     	
     	frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'obat', value: new_data.obat, name: id},
             callback: function(r){
-                if (r.message != true) {
+                if (r.message) {
+                    th.setState({data: new_data})
+                } else {
                     frappe.msgprint(r.message.error)
                 }
             }
@@ -615,22 +634,24 @@ class TindakanDokter extends React.Component {
     }
     
     addToRacikan(productIndex, racikanIndex) {
-    	var new_data = Object.assign({}, this.state.data)
+    	var new_data = JSON.parse(JSON.stringify(this.state.data));
     	var product = new_data.obat[productIndex]
     	new_data.obat[racikanIndex].product_racikan.push(product)
     	new_data.obat.splice(productIndex,1)
-    	if (racikanIndex > productIndex){
-    	    this.setState({onSelectObat: racikanIndex-1, data: new_data})
-    	} else {
-    	    this.setState({data: new_data})
-    	}
+        var th = this
     	
     	frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'obat', value: new_data.obat, name: id},
             callback: function(r){
-                if (r.message != true) {
+                if (r.message) {
+                    if (racikanIndex > productIndex){
+                        th.setState({onSelectObat: racikanIndex-1, data: new_data})
+                    } else {
+                        th.setState({data: new_data})
+                    }
+                } else {
                     frappe.msgprint(r.message.error)
                 }
             }
@@ -641,14 +662,16 @@ class TindakanDokter extends React.Component {
         var checks = this.state.checks.slice()
         checks.push(data)
         console.log(data)
-        this.setState({checks: checks})
+        var th = this
         
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: data.name, value: data.value, name: id},
             callback: function(r){
-                if (r.message != true) {
+                if (r.message) {
+                    th.setState({checks: checks})
+                } else {
                     frappe.msgprint(r.message.error)
                 }
             }
@@ -658,14 +681,16 @@ class TindakanDokter extends React.Component {
     deleteCheck(i){
         var checks = this.state.checks.slice()
         checks[i].delete = true
-        this.setState({checks: checks})
+        var th = this
         
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: checks[i]['name'], value: '', name: id},
             callback: function(r){
-                if (r.message != true) {
+                if (r.message) {
+                    th.setState({checks: checks})
+                } else {
                     frappe.msgprint(r.message.error)
                 }
             }
@@ -674,7 +699,7 @@ class TindakanDokter extends React.Component {
     
     addAttachment(data) {
         var vr = this
-        var new_data = Object.assign({}, this.state.data)
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
         var name = data.attachment.name;
         var reader = new FileReader();
         reader.onload = function(e) {
@@ -687,67 +712,77 @@ class TindakanDokter extends React.Component {
                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
                 args: {field: 'attachments', value: new_data.attachments.filter(i => !i.deleted), name: id},
                 callback: function(r){
-                    if (r.message != true) {
+                    if (r.message) {
+                        vr.setState({data: new_data})
+                    } else {
                         frappe.msgprint(r.message.error)
                     }
                 }
             });
-            vr.setState({data: new_data})
         }
         reader.readAsDataURL(data.attachment);
     }
     
     deleteAttachment(i){
-        var new_data = Object.assign({}, this.state.data)
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
         if(new_data.attachments[i].name != undefined){
             new_data.attachments[i].deleted = true
         }
         else {
             new_data.attachments.splice(i, 1)
         }
+        var th = this
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'attachments', value: new_data.attachments.filter(i => !i.deleted), name: id},
             callback: function(r){
-                if (r.message != true) {
+                if (r.message) {
+                    th.setState({data: new_data})
+                } else {
                     frappe.msgprint(r.message.error)
                 }
             }
         });
-        this.setState({data: new_data})
     }
     
     addMarker(marker){
-        var new_data = Object.assign({}, this.state.data)
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
         new_data.marker = marker
+
+        var th = this
+
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'marker', value: new_data.marker, name: id},
             callback: function(r){
-                if (r.message != true) {
+                if (r.message) {
+                    th.setState({data: new_data})
+                } else {
                     frappe.msgprint(r.message.error)
                 }
             }
         });
-        this.setState({data: new_data})
     }
     
     resetMarker(){
-        var new_data = Object.assign({}, this.state.data)
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
+        var th = this
+
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'marker_delete', value: new_data.marker, name: id},
             callback: function(r){
-                if (r.message != true) {
+                if (r.message) {
+                    delete new_data.marker
+                    th.setState({data: new_data})
+                } else {
                     frappe.msgprint(r.message.error)
                 }
             }
         });
-        delete new_data.marker
-        this.setState({data: new_data})
     }
     
     toggleTemplateTindakan(e) {
