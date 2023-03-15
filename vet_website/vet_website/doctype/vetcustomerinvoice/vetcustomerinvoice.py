@@ -753,7 +753,7 @@ def add_payment(data):
 			pos_session = session_search[0].name
 		
 		
-		if data_json.get('jumlah') :
+		if data_json.get('jumlah') != None:
 			invoice = frappe.get_doc('VetCustomerInvoice', data_json.get('name'))
 			line_data = {}
 			line_data.update({'parent': invoice.name, 'parenttype': 'VetCustomerInvoice', 'parentfield': 'pembayaran', 'pos_session': pos_session})
