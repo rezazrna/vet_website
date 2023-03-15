@@ -398,7 +398,6 @@ class TindakanDokter extends React.Component {
         var target = e.target
         var name = target.name
         var value = target.value
-        var th = this
         var new_data = JSON.parse(JSON.stringify(this.state.data));
         
         new_data[name] = value
@@ -409,16 +408,14 @@ class TindakanDokter extends React.Component {
                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
                 args: {field: name, value: value, name: id},
                 callback: function(r){
-                    if (r.message) {
-                        th.setState({data: new_data});
-                    } else {
+                    if (r.message != true) {
                         frappe.msgprint(r.message.error)
                     }
                 }
             });
-        } else {
-            th.setState({data: new_data});
         }
+
+        this.setState({data: new_data});
     }
     
     toggleMainFormWide(){
@@ -664,39 +661,37 @@ class TindakanDokter extends React.Component {
         var checks = this.state.checks.slice()
         checks.push(data)
         console.log(data)
-        var th = this
         
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: data.name, value: data.value, name: id},
             callback: function(r){
-                if (r.message) {
-                    th.setState({checks: checks})
-                } else {
-                    frappe.msgprint(r.message.error)
+                if (r.message != true) {
+                    frappe.msgprint(r.message.error)   
                 }
             }
         });
+
+        this.setState({checks: checks})
     }
     
     deleteCheck(i){
         var checks = this.state.checks.slice()
         checks[i].delete = true
-        var th = this
         
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: checks[i]['name'], value: '', name: id},
             callback: function(r){
-                if (r.message) {
-                    th.setState({checks: checks})
-                } else {
+                if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
             }
         });
+
+        this.setState({checks: checks})
     }
     
     addAttachment(data) {
@@ -752,39 +747,36 @@ class TindakanDokter extends React.Component {
         var new_data = JSON.parse(JSON.stringify(this.state.data));
         new_data.marker = marker
 
-        var th = this
-
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'marker', value: new_data.marker, name: id},
             callback: function(r){
-                if (r.message) {
-                    th.setState({data: new_data})
-                } else {
+                if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
             }
         });
+
+        this.setState({data: new_data})
     }
     
     resetMarker(){
         var new_data = JSON.parse(JSON.stringify(this.state.data));
-        var th = this
 
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'marker_delete', value: new_data.marker, name: id},
             callback: function(r){
-                if (r.message) {
-                    delete new_data.marker
-                    th.setState({data: new_data})
-                } else {
-                    frappe.msgprint(r.message.error)
+                if (r.message != true) {
+                    frappe.msgprint(r.message.error)   
                 }
             }
         });
+
+        delete new_data.marker
+        this.setState({data: new_data})
     }
     
     toggleTemplateTindakan(e) {
