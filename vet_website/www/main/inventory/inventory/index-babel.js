@@ -736,11 +736,11 @@ class PDFListPage extends React.Component{
                         var quantity = pl.quantity_stocked||pl.quantity_receive||0
                         table_rows.push(
                             <tr key={pl.name} style={fs9} className="text-center">
-                                <td className="py-1">{first?d.product.product_name:''}</td>
-                                <td className="py-1">{moment(pl.creation).format('DD-MM-YYYY')}</td>
-                                <td className="py-1">{formatter.format(pl.price)}</td>
-                                <td className="py-1">{formatter2.format(quantity)}</td>
-                                <td className="py-1">{formatter.format(pl.price*quantity)}</td>
+                                <td className="py-1" width="231px" >{first?d.product.product_name:''}</td>
+                                <td className="py-1" width="82px" >{moment(pl.creation).format('DD-MM-YYYY')}</td>
+                                <td className="py-1" width="82px" >{formatter.format(pl.price)}</td>
+                                <td className="py-1" width="82px" >{formatter2.format(quantity)}</td>
+                                <td className="py-1" width="82px" >{formatter.format(pl.price*quantity)}</td>
                             </tr>
                         )
                     })
@@ -748,9 +748,9 @@ class PDFListPage extends React.Component{
             } else {
                 table_rows.push(
                     <tr key={d.name} style={fs9} className="text-center">
-                        <td className="py-1">{d.product.barcode||d.product.default_code}</td>
-                        <td className="py-1">{d.product.product_name}</td>
-                        <td className="py-1">{formatter2.format(d.quantity)}</td>
+                        <td className="py-1" width="100px">{d.product.barcode||d.product.default_code}</td>
+                        <td className="py-1" width="400px" >{d.product.product_name}</td>
+                        <td className="py-1" width="59px" >{formatter2.format(d.quantity)}</td>
                     </tr>
                 )
             }
