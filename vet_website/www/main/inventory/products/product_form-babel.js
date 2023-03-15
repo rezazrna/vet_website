@@ -294,6 +294,8 @@ class Products extends React.Component {
         	new_tag = {}
         	e.target.value = ''
         	this.setState({data: new_data, new_tag: new_tag})
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
         }
     }
     
