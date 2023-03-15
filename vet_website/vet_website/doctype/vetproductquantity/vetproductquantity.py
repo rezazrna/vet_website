@@ -49,15 +49,16 @@ def get_quantity_list(filters=None, all_page=False, valuation=False):
 			
 	try:
 		stockable_product_category = frappe.get_list("VetProductCategory", filters={'stockable': True}, fields=['name'])
-		stockable_product = frappe.get_list("VetProduct", filters={'product_category': ['in', list(pc.name for pc in stockable_product_category)]}, fields=['name'])
+		td_filters.append({'product_category': ['in', list(pc.name for pc in stockable_product_category)]})
+		# stockable_product = frappe.get_list("VetProduct", filters={'product_category': ['in', list(pc.name for pc in stockable_product_category)]}, fields=['name'])
 		
 		datalength = 0
 		if all_page:
-			product_quantity_search = frappe.get_list("VetProductQuantity", filters=td_filters, fields=["*"], order_by=default_sort, group_by=group_by)
-			product_quantity = list(pqs for pqs in product_quantity_search if pqs.product in list(sp.name for sp in stockable_product))
+			product_quantity = frappe.get_list("VetProductQuantity", filters=td_filters, fields=["*"], order_by=default_sort, group_by=group_by)
+			# product_quantity = list(pqs for pqs in product_quantity_search if pqs.product in list(sp.name for sp in stockable_product))
 		else:
-			product_quantity_search = frappe.get_list("VetProductQuantity", filters=td_filters, fields=["*"], order_by=default_sort, group_by=group_by, start=(page - 1) * 10, page_length= 10)
-			product_quantity = list(pqs for pqs in product_quantity_search if pqs.product in list(sp.name for sp in stockable_product))
+			product_quantity = frappe.get_list("VetProductQuantity", filters=td_filters, fields=["*"], order_by=default_sort, group_by=group_by, start=(page - 1) * 10, page_length= 10)
+			# product_quantity = list(pqs for pqs in product_quantity_search if pqs.product in list(sp.name for sp in stockable_product))
 			datalength = len(frappe.get_all("VetProductQuantity", filters=td_filters, as_list=True))
 
 		for pq in product_quantity:
