@@ -416,6 +416,8 @@ class TindakanDokter extends React.Component {
                     }
                 }
             });
+        } else {
+            th.setState({data: new_data});
         }
     }
     

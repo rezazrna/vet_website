@@ -191,7 +191,7 @@ def open_invoice_process(data, saveonly=False):
 						'discount': line.get('discount', 0),
 						'total': line.get('total', False),
 					})
-					if(not line.get('total', False)):
+					if(line.get('total') == None):
 						check_pack = frappe.get_list('VetProductPack', filters={'parent': line_doc.product}, fields=['harga_pack', 'quantity_pack'])
 						selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(math.ceil(line_doc.quantity))]
 						# selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(line_doc.quantity)]
@@ -215,7 +215,7 @@ def open_invoice_process(data, saveonly=False):
 					new_line = frappe.new_doc("VetCustomerInvoiceLine")
 					new_line.update(line_data)
 					new_line.insert()
-					if(not line_data.get('total', False)):
+					if(line_data.get('total') == None):
 						check_pack = frappe.get_list('VetProductPack', filters={'parent': new_line.product}, fields=['harga_pack', 'quantity_pack'])
 						selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(math.ceil(new_line.quantity))]
 						# selected_pack = [i for i in check_pack if i['quantity_pack'] <= new_line.quantity]

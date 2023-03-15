@@ -187,7 +187,7 @@ class Inventory extends React.Component {
         var title = this.state.valuation
             ? "Valution"
             : "Inventory"
-            
+
         var source = document.getElementById(pdfid)
         var opt = {
             margin: [10, 0, 10, 0],
