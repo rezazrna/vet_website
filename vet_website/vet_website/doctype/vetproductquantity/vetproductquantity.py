@@ -51,6 +51,8 @@ def get_quantity_list(filters=None, all_page=False, valuation=False):
 		stockable_product_category = frappe.get_list("VetProductCategory", filters={'stockable': True}, fields=['name'])
 		# td_filters.append({'product_category': ['in', list(pc.name for pc in stockable_product_category)]})
 		stockable_product = frappe.get_list("VetProduct", filters={'product_category': ['in', list(pc.name for pc in stockable_product_category)]}, fields=['name'])
+		# product_names = list(s.name for s in stockable_product)
+		# td_filters.append({})
 		
 		datalength = 0
 		if all_page:

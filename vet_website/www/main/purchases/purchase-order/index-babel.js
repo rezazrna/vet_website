@@ -407,7 +407,7 @@ class PurchaseOrderList extends React.Component {
                                         <span className="my-auto">Supplier</span>
                                     </div>
                                     <div className="col-2 d-flex">
-                                        <span className="my-auto">Paid</span>
+                                        <span className="my-auto">Remaining</span>
                                     </div>
                                     <div className="col-2 d-flex">
                                         <span className="my-auto">Total</span>
@@ -534,7 +534,7 @@ class PurchaseOrderListRow extends React.Component {
                                 <span className="my-auto">{item.supplier}</span>
                             </div>
                             <div className="col-2 d-flex">
-                                <span className="my-auto">{formatter.format(item.paid)}</span>
+                                <span className="my-auto">{formatter.format(item.total - item.paid)}</span>
                             </div>
                             <div className="col-2 d-flex">
                                 <span className="my-auto">{formatter.format(item.total)}</span>
