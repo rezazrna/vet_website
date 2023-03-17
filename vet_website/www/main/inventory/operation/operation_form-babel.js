@@ -511,7 +511,7 @@ class Operation extends React.Component {
                         <button type="button" onClick={(e) => this.print(e)} className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Print</button>
                     </div>
                 )
-                pdf = <PDF data={data} usage={this.props.usage} />
+                pdf = <PDF data={this.state.data} usage={this.props.usage} />
             }
             
             return <form id="product_form" onSubmit={(e) => this.formSubmit(e)}>
