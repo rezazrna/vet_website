@@ -321,6 +321,38 @@ class Operation extends React.Component {
         }
         this.setState({data: new_data})
     }
+
+    print(e) {
+        e.preventDefault()
+        var pdfid = 'pdf'
+        var format = [559,794]
+        var th = this
+        // var doc = new jsPDF({
+        //     orientation: 'p',
+        //     unit: 'pt',
+        //     format: format,
+        // });
+        var source = document.getElementById(pdfid)
+        var opt = {
+            margin: [10, 0, 10, 0],
+            filename: "Operation-"+this.state.data.name+".pdf",
+            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
+            html2canvas: {scale: 3},
+            jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
+        }
+        console.log('masuk')
+        html2pdf().set(opt).from(source).save()
+        // doc.html(source, {
+        //   callback: function (doc) {
+        //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
+        //   },
+        //   x: 0,
+        //   y: 0,
+        //   html2canvas: {
+        //       scale: 1,
+        //   }
+        // });
+    }
     
     render() {
         var panel_style = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '2px 32px', marginBottom: '15px'}
@@ -330,7 +362,7 @@ class Operation extends React.Component {
         var backButton = <span className="fs16 fw600 mr-auto my-auto" style={color} onClick={() => history.back()}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
         var statuses = ['Draft', 'Delivery', 'Done']
         if(this.props.usage){statuses = ['Draft', 'Done']}
-        var status_row
+        var status_row, pdf
         var write = checkPermission('VetOperation', this.state.currentUser, 'write')
         var kirim = checkPermission('VetOperation', this.state.currentUser, 'kirim')
         var terima = checkPermission('VetOperation', this.state.currentUser, 'terima')
@@ -472,6 +504,15 @@ class Operation extends React.Component {
             if (this.state.show_receive) {
                 popup_receive = <PopupReceive toggleReceive={(e) => this.toggleReceive(e)} moves={this.state.data.moves} name={this.state.data.name}/>
             }
+
+            if (id != undefined) {
+                buttonMode.push(
+                    <div className="col-auto d-flex my-auto" key="1">
+                        <button type="button" onClick={(e) => this.print(e)} className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Print</button>
+                    </div>
+                )
+                pdf = <PDF data={data} usage={this.props.usage} />
+            }
             
             return <form id="product_form" onSubmit={(e) => this.formSubmit(e)}>
             	<div style={panel_style}>
@@ -489,6 +530,7 @@ class Operation extends React.Component {
             	</div><FormOperation edit_mode={this.state.edit_mode} usage={this.props.usage} data={this.state.data} accounts={this.state.accounts} gudang_list={this.state.gudang_list} changeInput={this.changeInput} inputBlur={this.inputBlur}/>
             	<OperationStockMove edit_mode={this.state.edit_mode} usage={this.props.usage}  list={this.state.data.moves} product_list={this.state.product_list} uom_list={this.state.uom_list} status={this.state.data.status} changeInput={this.changeInput} inputBlur={this.inputBlur} deleteRow={this.deleteRow} />
             	{popup_receive}
+                {pdf}
             </form>
         } else {
             return <div className="row justify-content-center" key='0'>
@@ -978,6 +1020,207 @@ class OperationStockMoveListRow extends React.Component {
         )
     }
 }
+
+class PDF extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+    
+    componentDidMount() {
+        var ci = this
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                }
+            }
+        });
+    }
+    
+    render(){
+        var data = this.props.data
+        var usage = this.props.usage
+        var profile = this.state.profile
+        var page_dimension = {width: 559, minHeight: 794, top:0, right: 0, background: '#FFF', color: '#000', zIndex: -1}
+        var borderStyle = {border: '1px solid #000', margin: '15px 0'}
+        var row1 = {marginBottom: 12}
+        var row2 = {margin: '0 -14px'}
+        var fs13 = {fontSize: 13}
+        var fs11 = {fontSize: 11}
+        var fs9 = {fontSize: 9}
+        var invoice = {letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18}
+        var invoice2 = {letterSpacing: 0}
+        var thead = {background: '#d9d9d9', fontSize: 11}
+        var table_rows = []
+
+        var qty_done, price, subtotal, receive_date
+        if (![undefined, 'Draft'].includes(data.status)) {
+            qty_done = <th className="fw700 py-2" width="68px">Qty Done</th>
+        }
+        
+        if(this.props.usage){
+            price = <th className="fw700 py-2" width="68px">Price</th>
+            subtotal = <th className="fw700 py-2" width="68px">Subtotal</th>
+        }
+
+        if (data.moves.some((l) => l.receive_date)) {
+            receive_date = <th className="fw700 py-2" width="68px">Receive Date</th>
+        }
+
+        data.moves.forEach((d, index) => {
+            if (!d.delete) {
+                var qty_done_rows, price_rows, subtotal_rows, receive_date_rows
+
+                if (receive_date) {
+                    receive_date_rows = <td className="py-1">{d.receive_date ? moment(d.receive_date).format('DD-MM-YYYY') : ''}</td>
+                }
+
+                if (price) {
+                    price_rows = <td className="py-1">{d.price?formatter.format(d.price||0):''}</td>
+                }
+
+                if (qty_done) {
+                    qty_done_rows = <td className="py-1">{d.quantity_done}</td>
+                }
+
+                if (subtotal) {
+                    subtotal_rows = <td className="py-1">{d.price?formatter.format(d.price*parseFloat(d.quantity)||0):''}</td>
+                }
+
+                table_rows.push(
+                    <tr key={d.name} style={fs9} className="text-center">
+                        <td className="py-1">{d.product_name || d.product}</td>
+                        {receive_date_rows}
+                        <td className="py-1">{d.uom_name || d.product_uom}</td>
+                        <td className="py-1">{d.quantity}</td>
+                        {price_rows}
+                        {qty_done_rows}
+                        {subtotal_rows}
+                    </tr>
+                )
+            }
+        })
+
+        var total_detail
+        if (usage) {
+            var total = data.moves.filter(l => !l.delete).reduce((total, l) => total += (l.price||0)*(parseFloat(l.quantity)||0), 0)
+            total_detail = <div className="row justify-content-end mb-2">
+                <div className="row" style={fs11}>
+                    <div className="col-6 text-right fw600 fs16">
+                        Total
+                    </div>
+                    <div className="col-6 text-right">
+                        {formatter.format(total)}
+                    </div>
+                </div>
+            </div>
+        }
+        
+        var from_name = data.from_name == undefined
+            ? data.reference.match(/^VCI-.*$/) || data.reference.match(/^POSORDER.*$/)
+                ? 'Customer'
+                : 'Supplier'
+            : data.from_name
+        var to_name = data.to_name == undefined
+            ? data.reference.match(/^VCI-.*$/) || data.reference.match(/^POSORDER.*$/)
+                ? 'Customer'
+                : 'Supplier'
+            : data.to_name
+
+        if (this.state.loaded) {
+            var image
+            if (profile.image != undefined){
+                var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
+                image = <img src={profile.temp_image || profile.image} style={image_style}/>
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            return(
+                <div className="position-absolute d-none" style={page_dimension}>
+                    <div id="pdf" className="px-4" style={page_dimension}>
+                        <div className="row">
+                            <div className="col-2 px-0">
+                                {image}
+                                {/* <img className="mt-3" src="/static/img/main/menu/naturevet_logo_2x.png"/> */}
+                            </div>
+                            <div className="col-5">
+                                <p className="my-3 fwbold text-uppercase" style={fs13}>{profile.clinic_name}</p>
+                                <p className="my-0" style={fs9}>{profile.address}</p>
+                                <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
+                            </div>
+                            <div className="col-5 px-0">
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Operation</p>
+                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{data.name}</p>
+                            </div>
+                            <div className="col-12" style={borderStyle}/>
+                        </div>
+                        <div className="row mx-0" style={row1}>
+                            <div className="col-2 px-0">
+                                <p className="mb-0 fs10">{from_name}</p>
+                            </div>
+                            {
+                                usage
+                                ? false
+                                : <div className="col-2 px-0">
+                                    <i className="fa fa-arrow-right mx-2"/>
+                                </div>
+                            }
+                            <div className="col-2 px-0">
+                                <p className="mb-0 fs10">{usage ? data.expense_account_name : to_name}</p>
+                            </div>
+                            <div className="col-6 px-0">
+                                <p className="mb-0 fs10 text-right">
+                                    {moment(data.date || data.creation).format('DD-MM-YYYY')}
+                                </p>
+                                <p className="mb-0 fs10 text-right">
+                                    {data.reference}
+                                </p>
+                                <p className="mb-0 fs10 text-right">
+                                    {data.status}
+                                </p>
+                            </div>
+                        </div>
+                        <table className="fs12" style={row2}>
+                            <thead className="text-uppercase" style={thead}>
+                                <tr className="text-center">
+                                    <th className="fw700 py-2" width="183px">Product</th>
+                                    {receive_date}
+                                    <th className="fw700 py-2" width="68px">Unit Of Measurement</th>
+                                    <th className="fw700 py-2" width="52px">{this.props.usage?'Qty':'Qty Sent'}</th>
+                                    {price}
+                                    {qty_done}
+                                    {subtotal}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {table_rows}
+                            </tbody>
+                        </table>
+                        {total_detail}
+                    </div>
+                </div>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                    <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                        <p className="mb-0 fs24md fs16 fw600 text-muted">
+                            <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                        </p>
+                    </div>
+                </div>
+        }
+    }
+}
+
 var operation_form = document.getElementById('operation_form')
 var usage_form = document.getElementById('usage_form')
 if(operation_form){
