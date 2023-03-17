@@ -120,6 +120,7 @@ class Inventory extends React.Component {
         if(gudang){
             filters.gudang = gudang
         }
+        console.log(filters)
         frappe.call({
             type: "GET",
             method:"vet_website.vet_website.doctype.vetproductquantity.vetproductquantity.get_quantity_list",
