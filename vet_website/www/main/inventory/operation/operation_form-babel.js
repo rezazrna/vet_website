@@ -392,6 +392,12 @@ class Operation extends React.Component {
             }
             else {
                 status_row = <StatusRow statuses={statuses} current_status={this.state.data.status}/>
+                buttonMode.push(
+                    <div className="col-auto d-flex my-auto" key="1">
+                        <button type="button" onClick={(e) => this.print(e)} className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Print</button>
+                    </div>
+                )
+                pdf = <PDF data={this.state.data} usage={this.props.usage} />
             }
             
             if(this.state.data.status == 'Draft' && this.state.data.from){
@@ -497,15 +503,6 @@ class Operation extends React.Component {
                 			            <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/journal_entries.png"/>
                 			            <p className="mb-0 fs12 text-muted text-center">Journal Entries</p>
                 			        </div>)
-            }
-
-            if (id != undefined) {
-                buttonMode.push(
-                    <div className="col-auto d-flex my-auto" key="1">
-                        <button type="button" onClick={(e) => this.print(e)} className="d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4">Print</button>
-                    </div>
-                )
-                pdf = <PDF data={this.state.data} usage={this.props.usage} />
             }
 
             buttonMode.push(<div key="999" className="col-auto d-flex mr-auto">{backButton}</div>)
@@ -913,12 +910,12 @@ class OperationStockMove extends React.Component {
         				<div className="col text-center">
         					<span className="my-auto">{this.props.usage?'Qty':'Qty Sent'}</span>
         				</div>
+                        {price}
+        				{qty_done}
+        				{subtotal}
                         <div className="col text-center">
         					{deleteHeader}
         				</div>
-        				{price}
-        				{qty_done}
-        				{subtotal}
         			</div>
         			{rows}
         			{total_detail}
@@ -1009,12 +1006,12 @@ class OperationStockMoveListRow extends React.Component {
         				<div className="col text-center">
         					{quantity}
         				</div>
+                        {price}
+        				{quantity_done}
+        				{subtotal}
                         <div className="col text-center">
         					{deleteButton}
         				</div>
-        				{price}
-        				{quantity_done}
-        				{subtotal}
         			</div>
         		</div>
         	</div>
@@ -1060,6 +1057,7 @@ class PDF extends React.Component{
         var invoice = {letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18}
         var invoice2 = {letterSpacing: 0}
         var thead = {background: '#d9d9d9', fontSize: 11}
+        var total_border = {borderTop: '1px solid #000', marginBottom: 5}
         var table_rows = []
 
         var qty_done, price, subtotal, receive_date
@@ -1110,16 +1108,24 @@ class PDF extends React.Component{
             }
         })
 
-        var total_detail
+        var total_detail, border
         if (usage) {
             var total = data.moves.filter(l => !l.delete).reduce((total, l) => total += (l.price||0)*(parseFloat(l.quantity)||0), 0)
+            border = <div className="row justify-content-end">
+                <div className="col-6 px-0">
+                    <div style={total_border}/>
+                </div>
+            </div>
             total_detail = <div className="row justify-content-end mb-2">
-                <div className="row" style={fs11}>
-                    <div className="col-6 text-right fw600 fs16">
-                        Total
-                    </div>
-                    <div className="col-6 text-right">
-                        {formatter.format(total)}
+                <div className="col-12" style={borderStyle}/>
+                <div className="col-7 px-0">
+                    <div className="row" style={fs11}>
+                        <div className="col-6 text-right fw600 fs16">
+                            Total
+                        </div>
+                        <div className="col-6 text-right">
+                            {formatter.format(total)}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1168,13 +1174,13 @@ class PDF extends React.Component{
                             <div className="col-2 px-0">
                                 <p className="mb-0 fs10">{from_name}</p>
                             </div>
-                            {
-                                usage
-                                ? false
-                                : <div className="col-2 px-0">
-                                    <i className="fa fa-arrow-right mx-2"/>
-                                </div>
-                            }
+                            <div className="col-2 px-0">
+                                {
+                                    usage
+                                    ? false
+                                    : <i className="fa fa-arrow-right mx-2"/>
+                                }
+                            </div>
                             <div className="col-2 px-0">
                                 <p className="mb-0 fs10">{usage ? data.expense_account_name : to_name}</p>
                             </div>
@@ -1206,6 +1212,7 @@ class PDF extends React.Component{
                                 {table_rows}
                             </tbody>
                         </table>
+                        {/* {border} */}
                         {total_detail}
                     </div>
                 </div>
