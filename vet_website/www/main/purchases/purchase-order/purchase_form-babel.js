@@ -458,7 +458,7 @@ class PurchaseOrder extends React.Component {
         var source = document.getElementById(pdfid)
         var opt = {
             margin: [10, 0, 10, 0],
-            filename: "PruchaseOrder-"+this.state.data.name+".pdf",
+            filename: "PurchaseOrder-"+this.state.data.name+".pdf",
             pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
             html2canvas: {scale: 3},
             jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
