@@ -498,12 +498,6 @@ class Operation extends React.Component {
                 			            <p className="mb-0 fs12 text-muted text-center">Journal Entries</p>
                 			        </div>)
             }
-            buttonMode.push(<div key="999" className="col-auto d-flex mr-auto">{backButton}</div>)
-            
-            var popup_receive
-            if (this.state.show_receive) {
-                popup_receive = <PopupReceive toggleReceive={(e) => this.toggleReceive(e)} moves={this.state.data.moves} name={this.state.data.name}/>
-            }
 
             if (id != undefined) {
                 buttonMode.push(
@@ -512,6 +506,13 @@ class Operation extends React.Component {
                     </div>
                 )
                 pdf = <PDF data={this.state.data} usage={this.props.usage} />
+            }
+
+            buttonMode.push(<div key="999" className="col-auto d-flex mr-auto">{backButton}</div>)
+            
+            var popup_receive
+            if (this.state.show_receive) {
+                popup_receive = <PopupReceive toggleReceive={(e) => this.toggleReceive(e)} moves={this.state.data.moves} name={this.state.data.name}/>
             }
             
             return <form id="product_form" onSubmit={(e) => this.formSubmit(e)}>
@@ -1052,7 +1053,7 @@ class PDF extends React.Component{
         var page_dimension = {width: 559, minHeight: 794, top:0, right: 0, background: '#FFF', color: '#000', zIndex: -1}
         var borderStyle = {border: '1px solid #000', margin: '15px 0'}
         var row1 = {marginBottom: 12}
-        var row2 = {margin: '0 -14px'}
+        var row2 = {width: '100%'}
         var fs13 = {fontSize: 13}
         var fs11 = {fontSize: 11}
         var fs9 = {fontSize: 9}
