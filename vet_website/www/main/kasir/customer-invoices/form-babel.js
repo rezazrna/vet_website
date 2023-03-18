@@ -2861,8 +2861,8 @@ class PDFMini extends React.Component{
         var row1 = {marginBottom: 2}
         var row2 = {marginBottom: 10, width: '100%'}
         var total_border = {borderTop: '1px solid #000', marginBottom: 5}
-        var fontSize = {fontSize: 12}
-        var fontSize2 = {fontSize: 12}
+        var fontSize = {fontSize: 14}
+        var fontSize2 = {fontSize: 14}
         var logo = {width: 72}
         
         function addProductRow(data){
@@ -2955,7 +2955,7 @@ class PDFMini extends React.Component{
             var all_payment = []
             data.children_customer_invoice.forEach(ci => {
                 var border = {borderTop: "1px solid #000", paddingTop: 7}
-                var headerStyle = {background: "#D9D9D9", borderRadius: 3, padding: "3px 15px", fontSize: 10, fontWeight: 600}
+                var headerStyle = {background: "#D9D9D9", borderRadius: 3, padding: "3px 15px", fontSize: 12, fontWeight: 600}
                 table_rows.push(
                     <tr key={ci.customer_invoice.name+"_header"}>
                         <td colSpan="5">
@@ -3062,7 +3062,7 @@ class PDFMini extends React.Component{
                                 {/* <img src="/static/img/main/menu/naturevet_logo.png" style={logo}/> */}
                             </div>
                             <div className="col-8">
-                                <p className="my-0 fs12 fwbold text-uppercase">{profile.clinic_name}</p>
+                                <p className="my-0 fs14 fwbold text-uppercase">{profile.clinic_name}</p>
                                 <p className="my-0" style={fontSize2}>{profile.addres}</p>
                                 <p className="my-0" style={fontSize2}>Telp. : {profile.phone}</p>
                             </div>
@@ -3086,11 +3086,6 @@ class PDFMini extends React.Component{
                                 {table_rows}
                             </tbody>
                         </table>
-                        <div className="row justify-content-end">
-                            <div className="col-5">
-                                <div style={total_border}/>
-                            </div>
-                        </div>
                         <div className="row justify-content-end mb-2">
                             <div className="col-7">
                                 {data.is_refund?refund:false}
@@ -3149,7 +3144,7 @@ class PDFMini extends React.Component{
 class PDFMiniRow extends React.Component{
     render(){
         var lineHeight = {lineHeight: '24px'}
-        var fontSize = {fontSize: 12}
+        var fontSize = {fontSize: 14}
         
         return(
             <div className="row mx-0">
