@@ -560,6 +560,76 @@ def get_name_list(filters=None):
 		
 	except PermissionError as e:
 		return {'error': e}
+
+@frappe.whitelist()
+def get_customer_open_invoice(filters=None, all_page=False):
+	owner_filters = []
+	filter_json = False
+	page = 1
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+	
+	if filter_json:
+		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
+
+		if currentpage:
+			page = currentpage
+
+		if search:
+			owner_filters.append({'owner_name': ['like', '%'+search+'%']})
+	
+	try:
+		invoice_filters = {'status': 'Open', 'is_refund': False}
+		open_invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["owner", "name"], group_by="owner")
+		owners_name = list(oi.owner for oi in open_invoices)
+		if owners_name:
+			owner_filters.append({'name': ['in', owners_name]})
+
+		datalength = 0
+		if all_page:
+			owners = frappe.get_list("VetPetOwner", filters=owner_filters, fields=["name", "owner_name"])
+		else:
+			owners = frappe.get_list("VetPetOwner", filters=owner_filters, fields=["name", "owner_name"], start=(page - 1) * 10, page_length= 10)
+			datalength = len(frappe.get_all("VetPetOwner", filters=owner_filters, as_list=True))
+
+		for o in owners:
+			invoice_filters['owner'] = o['name']
+			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["*"])
+			for i in invoices:
+				customer_invoice_children = frappe.get_list('VetCustomerInvoiceChildren', filters={'parent': i['name']}, fields=['customer_invoice'])
+				if len(customer_invoice_children) > 0:
+					customer_invoice_name = list(c.customer_invoice for c in customer_invoice_children)
+					all_total = frappe.get_list('VetCustomerInvoice', filters={'name': ['in', customer_invoice_name]}, fields=['sum(total) as all_total'])
+					
+					paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': ['in', customer_invoice_name]}, fields=['sum(jumlah) as paid'])
+
+					i['all_total'] = all_total[0].all_total
+					if paid_search[0]['paid'] != None:
+						i['remaining'] = all_total[0].all_total - paid_search[0]['paid']
+						i['paid'] = paid_search[0]['paid']
+					else:
+						i['remaining'] = all_total[0].all_total
+						i['paid'] = 0
+				else:
+					paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': i['name']}, fields=['sum(jumlah) as paid'])
+					if paid_search[0]['paid'] != None:
+						i['remaining'] = i['total'] - paid_search[0]['paid']
+						i['paid'] = paid_search[0]['paid']
+					else:
+						i['remaining'] = i['total']
+						i['paid'] = 0
+
+			o['invoices'] = invoices
+		
+		return {'data': owners, 'datalength': datalength}
+		
+	except PermissionError as e:
+		return {'error': e}
 		
 @frappe.whitelist()
 def delete_customer_invoice(data):
