@@ -1,4 +1,4 @@
-class MutasiPiutang extends React.Component {
+class MutasiHutang extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -40,20 +40,20 @@ class MutasiPiutang extends React.Component {
         var name = e.target.name
         var value = e.target.value
         if (name == 'month') {
-            var invoice_date
+            var purchase_date
             this.setState({ month: value })
-            invoice_date = moment(this.state.year + '-' + value, 'YYYY-MM').add(1, 'month').format('YYYY-MM-DD')
-            th.setState({ invoice_date: invoice_date })
+            purchase_date = moment(this.state.year + '-' + value, 'YYYY-MM').add(1, 'month').format('YYYY-MM-DD')
+            th.setState({ purchase_date: purchase_date })
         } else if (name == 'year') {
-            var invoice_date
+            var purchase_date
             this.setState({ year: value })
             if (this.state.mode == 'annual') {
-                invoice_date = moment(value + '-12-31', 'YYYY-MM-DD').format('YYYY-MM-DD')
+                purchase_date = moment(value + '-12-31', 'YYYY-MM-DD').format('YYYY-MM-DD')
             } else {
-                invoice_date = moment(value + '-' + this.state.month, 'YYYY-MM').add(1, 'month').format('YYYY-MM-DD')
+                purchase_date = moment(value + '-' + this.state.month, 'YYYY-MM').add(1, 'month').format('YYYY-MM-DD')
             }
 
-            th.setState({ invoice_date: invoice_date })
+            th.setState({ purchase_date: purchase_date })
         }
     }
 
@@ -78,7 +78,7 @@ class MutasiPiutang extends React.Component {
 
         frappe.call({
             type: "GET",
-            method: "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.get_mutasi_piutang",
+            method: "vet_website.vet_website.doctype.vetpurchase.vetpurchase.get_mutasi_hutang",
             args: { filters: filters, mode: td.state.mode, },
             callback: function (r) {
                 if (r.message) {
@@ -97,18 +97,18 @@ class MutasiPiutang extends React.Component {
         console.log(this.state.mode)
         console.log(this.state.month)
         console.log(this.state.year)
-        console.log(this.state.invoice_date)
+        console.log(this.state.purchase_date)
         console.log(this.state.gudang)
         if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
             td.setState({ 'loaded': false, 'currentpage': 1 })
             filters['currentpage'] = 1
             filters['search'] = this.state.search
-            filters['invoice_date'] = this.state.invoice_date
+            filters['purchase_date'] = this.state.purchase_date
             sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             console.log(filters)
             frappe.call({
                 type: "GET",
-                method: "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.get_mutasi_piutang",
+                method: "vet_website.vet_website.doctype.vetpurchase.vetpurchase.get_mutasi_hutang",
                 args: { filters: filters, mode: td.state.mode, },
                 callback: function (r) {
                     if (r.message) {
@@ -130,7 +130,7 @@ class MutasiPiutang extends React.Component {
             if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
                 frappe.call({
                     type: "GET",
-                    method: "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.get_mutasi_piutang",
+                    method: "vet_website.vet_website.doctype.vetpurchase.vetpurchase.get_mutasi_hutang",
                     args: { filters: JSON.parse(sessionStorage.getItem(window.location.pathname)), mode: td.state.mode, all: 1 },
                     callback: function (r) {
                         if (r.message) {
@@ -153,7 +153,7 @@ class MutasiPiutang extends React.Component {
         var source = document.getElementById(pdfid)
         var opt = {
             margin: [10, 0, 10, 0],
-            filename: "MutasiPiutang-" + moment().format('MM-YYYY') + ".pdf",
+            filename: "MutasiHutang-" + moment().format('MM-YYYY') + ".pdf",
             pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
             html2canvas: { scale: 3 },
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
@@ -225,7 +225,7 @@ class MutasiPiutang extends React.Component {
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
                         </div>
                     </div>
-                    <MutasiPiutangList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
+                    <MutasiHutangList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
                     <PDF data={this.state.print_data} />
                 </div>
             )
@@ -244,7 +244,7 @@ class MutasiPiutang extends React.Component {
     }
 }
 
-class MutasiPiutangList extends React.Component {
+class MutasiHutangList extends React.Component {
     render() {
         var rows = []
         var panel_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '40px 32px 40px 12px' }
@@ -253,7 +253,7 @@ class MutasiPiutangList extends React.Component {
         if (items.length != 0) {
             items.forEach(function (item, index) {
                 rows.push(
-                    <MutasiPiutangListRow key={index.toString()} item={item} />
+                    <MutasiHutangListRow key={index.toString()} item={item} />
                 )
             })
 
@@ -263,10 +263,10 @@ class MutasiPiutangList extends React.Component {
                         <div className="col row-header">
                             <div className="row mx-0 fs12 fw600">
                                 <div className="col text-center">
-                                    <span>ID Pemilik</span>
+                                    <span>ID Supplier</span>
                                 </div>
                                 <div className="col text-center">
-                                    <span>Nama Pemilik</span>
+                                    <span>Nama Supplier</span>
                                 </div>
                                 <div className="col text-center">
                                     <span>Nilai Awal</span>
@@ -304,7 +304,7 @@ class MutasiPiutangList extends React.Component {
     }
 }
 
-class MutasiPiutangListRow extends React.Component {
+class MutasiHutangListRow extends React.Component {
     render() {
 
         var item = this.props.item
@@ -317,7 +317,7 @@ class MutasiPiutangListRow extends React.Component {
                             <span>{item.name}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{item.owner_name}</span>
+                            <span>{item.supplier_name}</span>
                         </div>
                         <div className="col text-center">
                             <span>{formatter2.format(item.awal)}</span>
@@ -381,7 +381,7 @@ class PDF extends React.Component {
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">
                     <td className="py-1">{d.name}</td>
-                    <td className="py-1">{d.owner_name}</td>
+                    <td className="py-1">{d.supplier_name}</td>
                     <td className="py-1">{formatter2.format(d.awal)}</td>
                     <td className="py-1">{formatter2.format(d.debit)}</td>
                     <td className="py-1">{formatter2.format(d.credit)}</td>
@@ -412,15 +412,15 @@ class PDF extends React.Component {
                                 <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
                             </div>
                             <div className="col-4 px-0">
-                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Mutasi Piutang</p>
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Mutasi Hutang</p>
                             </div>
                             <div className="col-12" style={borderStyle} />
                         </div>
                         <table className="fs12" style={row2}>
                             <thead className="text-uppercase" style={thead}>
                                 <tr className="text-center">
-                                    <th className="fw700 py-2" width="62px">ID Pemilik</th>
-                                    <th className="fw700 py-2" width="63px">Nama Pemilik</th>
+                                    <th className="fw700 py-2" width="62px">ID Supplier</th>
+                                    <th className="fw700 py-2" width="63px">Nama Supplier</th>
                                     <th className="fw700 py-2" width="63px">Awal</th>
                                     <th className="fw700 py-2" width="63px">Debit</th>
                                     <th className="fw700 py-2" width="63px">Credit</th>
@@ -446,4 +446,4 @@ class PDF extends React.Component {
     }
 }
 
-ReactDOM.render(<MutasiPiutang />, document.getElementById('mutasi_piutang_list'))
+ReactDOM.render(<MutasiHutang />, document.getElementById('mutasi_hutang_list'))

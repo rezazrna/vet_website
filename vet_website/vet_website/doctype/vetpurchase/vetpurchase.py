@@ -11,6 +11,7 @@ from datetime import datetime as dt
 from vet_website.vet_website.doctype.vetoperation.vetoperation import action_receive
 from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry
 from vet_website.vet_website.doctype.vetpetowner.vetpetowner import set_owner_credit_total
+from dateutil.relativedelta import relativedelta as rd
 
 class VetPurchase(Document):
 	pass
@@ -229,7 +230,7 @@ def get_supplier_open_order(filters=None, all_page=False):
 
 		for s in suppliers:
 			purchase_filters['supplier'] = s['name']
-			purchase_search = frappe.get_list("VetPurchase", filters=purchase_filters, fields=["*"], start=(page - 1) * 10, page_length= 10)
+			purchase_search = frappe.get_list("VetPurchase", filters=purchase_filters, fields=["*"])
 			purchase = []
 			
 			for i,p in enumerate(purchase_search):
@@ -252,6 +253,94 @@ def get_supplier_open_order(filters=None, all_page=False):
 				purchase.append(p)
 
 			s['purchases'] = purchase
+			
+		return {'data': suppliers, 'datalength': datalength}
+		
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
+def get_mutasi_hutang(filters=None, mode=False, all=False):
+	supplier_filters = {}
+	purchase_filters = {}
+	awal_filters = {}
+
+	filter_json = False
+	page = 1
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		search = filter_json.get('search', False)
+		purchase_date = filter_json.get('purchase_date', False)
+		currentpage = filter_json.get('currentpage', False)
+		
+		if search:
+			supplier_filters.update({'supplier_name': ['like', '%'+search+'%']})
+
+		if currentpage:
+			page = currentpage
+
+		if purchase_date:
+			if mode == 'monthly' or mode == 'period':
+				max_date_dt = dt.strptime(purchase_date, '%Y-%m-%d') - rd(days=1)
+			else:
+				max_date_dt = dt.strptime(purchase_date, '%Y-%m-%d')
+
+			if mode == 'monthly':
+				min_date = (max_date_dt).strftime('%Y-%m-01')
+			else:
+				min_date = max_date_dt.strftime('%Y-01-01')
+			purchase_filters.update({'order_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			awal_filters.update({'order_date': ['<', min_date]})
+	
+	try:
+		if all:
+			suppliers = frappe.get_list("VetSupplier", filters=supplier_filters, fields=['name', 'supplier_name'])
+		else: 
+			suppliers = frappe.get_list("VetSupplier", filters=supplier_filters, fields=['name', 'supplier_name'], start=(page - 1) * 30, page_length= 30)
+		datalength = len(frappe.get_all("VetSupplier", filters=supplier_filters, as_list=True))
+
+		for s in suppliers:
+			purchase_filters.update({'status': ['in', ['Purchase Order', 'Receive']], 'is_refund': False, 'supplier': s['name']})
+			purchases = frappe.get_list("VetPurchase", filters=purchase_filters, fields=["name"])
+			debit = 0
+			credit = 0
+
+			for i,p in enumerate(purchases):
+				total = 0
+				
+				purchase_products = frappe.get_list("VetPurchaseProducts", filters={'parent': p.name}, fields=["*"])
+				payments = frappe.get_list("VetPurchasePay", filters={'parent': p.name}, fields=["*"])
+				for pp in purchase_products:
+					total += pp.price * pp.quantity - ((pp.discount or 0) / 100 * (pp.price * pp.quantity))
+					
+				debit += total
+				credit += sum(float(py.jumlah) for py in payments)
+
+			s['debit'] = debit
+			s['credit'] = credit
+
+			awal_filters.update({'status': ['in', ['Purchase Order', 'Receive']], 'is_refund': False, 'supplier': s['name']})
+			awal_purchases = frappe.get_list("VetPurchase", filters=awal_filters, fields=["name"])
+			awal = 0
+
+			for i,p in enumerate(purchases):
+				total = 0
+				
+				purchase_products = frappe.get_list("VetPurchaseProducts", filters={'parent': p.name}, fields=["*"])
+				payments = frappe.get_list("VetPurchasePay", filters={'parent': p.name}, fields=["*"])
+				for pp in purchase_products:
+					total += pp.price * pp.quantity - ((pp.discount or 0) / 100 * (pp.price * pp.quantity))
+					
+				awal += total - sum(float(py.jumlah) for py in payments)
+
+			s['awal'] = awal
+			s['akhir'] = awal + debit - credit
 			
 		return {'data': suppliers, 'datalength': datalength}
 		
