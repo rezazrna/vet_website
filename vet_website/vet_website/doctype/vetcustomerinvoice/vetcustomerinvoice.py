@@ -13,6 +13,7 @@ from vet_website.vet_website.doctype.vetoperation.vetoperation import action_rec
 from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, set_journal_item_total
 from vet_website.vet_website.doctype.vetpetowner.vetpetowner import set_owner_credit_total
 from vet_website.vet_website.doctype.vetproductpack.vetproductpack import get_pack_price
+from dateutil.relativedelta import relativedelta as rd
 
 class VetCustomerInvoice(Document):
 	pass
@@ -626,6 +627,110 @@ def get_customer_open_invoice(filters=None, all_page=False):
 
 			o['invoices'] = invoices
 		
+		return {'data': owners, 'datalength': datalength}
+		
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
+def get_mutasi_piutang(filters=None, mode=False, all=False):
+	owner_filters = {}
+	invoice_filters = {}
+	awal_filters = {}
+
+	filter_json = False
+	page = 1
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		search = filter_json.get('search', False)
+		invoice_date = filter_json.get('invoice_date', False)
+		currentpage = filter_json.get('currentpage', False)
+		
+		if search:
+			owner_filters.update({'owner_name': ['like', '%'+search+'%']})
+
+		if currentpage:
+			page = currentpage
+
+		if invoice_date:
+			if mode == 'monthly' or mode == 'period':
+				max_date_dt = dt.strptime(invoice_date, '%Y-%m-%d') - rd(days=1)
+			else:
+				max_date_dt = dt.strptime(invoice_date, '%Y-%m-%d')
+
+			if mode == 'monthly':
+				min_date = (max_date_dt).strftime('%Y-%m-01')
+			else:
+				min_date = max_date_dt.strftime('%Y-01-01')
+			invoice_filters.update({'invoice_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			awal_filters.update({'invoice_date': ['<', min_date]})
+	
+	try:
+		if all:
+			owners = frappe.get_list("VetPetOwner", filters=owner_filters, fields=['name', 'owner_name'])
+		else: 
+			owners = frappe.get_list("VetPetOwner", filters=owner_filters, fields=['name', 'owner_name'], start=(page - 1) * 30, page_length= 30)
+		datalength = len(frappe.get_all("VetPetOwner", filters=owner_filters, as_list=True))
+
+		for o in owners:
+			invoice_filters.update({'status': 'Open', 'is_refund': False, 'owner': o['name']})
+			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["name", "total"])
+			debit = 0
+			credit = 0
+
+			for i in invoices:
+				customer_invoice_children = frappe.get_list('VetCustomerInvoiceChildren', filters={'parent': i['name']}, fields=['customer_invoice'])
+				if len(customer_invoice_children) > 0:
+					customer_invoice_name = list(c.customer_invoice for c in customer_invoice_children)
+					all_total = frappe.get_list('VetCustomerInvoice', filters={'name': ['in', customer_invoice_name]}, fields=['sum(total) as all_total'])
+					
+					paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': ['in', customer_invoice_name]}, fields=['sum(jumlah) as paid'])
+
+					debit += all_total[0].all_total
+
+					if paid_search[0]['paid'] != None:
+						credit += paid_search[0]['paid']
+				else:
+					debit += i['total']
+
+					paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': i['name']}, fields=['sum(jumlah) as paid'])
+					if paid_search[0]['paid'] != None:
+						credit += paid_search[0]['paid']
+
+			o['debit'] = debit
+			o['credit'] = credit
+
+			awal_filters.update({'status': 'Open', 'is_refund': False, 'owner': o['name']})
+			awal_invoices = frappe.get_list("VetCustomerInvoice", filters=awal_filters, fields=["name", "total"])
+			awal = 0
+
+			for aw in awal_invoices:
+				customer_invoice_children = frappe.get_list('VetCustomerInvoiceChildren', filters={'parent': aw['name']}, fields=['customer_invoice'])
+				if len(customer_invoice_children) > 0:
+					customer_invoice_name = list(c.customer_invoice for c in customer_invoice_children)
+					all_total = frappe.get_list('VetCustomerInvoice', filters={'name': ['in', customer_invoice_name]}, fields=['sum(total) as all_total'])
+					
+					paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': ['in', customer_invoice_name]}, fields=['sum(jumlah) as paid'])
+
+					if paid_search[0]['paid'] != None:
+						awal += all_total[0].all_total - paid_search[0]['paid']
+					else:
+						awal += all_total[0].all_total
+				else:
+					paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': aw['name']}, fields=['sum(jumlah) as paid'])
+					if paid_search[0]['paid'] != None:
+						awal += aw['total'] - paid_search[0]['paid']
+					else:
+						awal += aw['total']
+			o['awal'] = awal
+			o['akhir'] = awal + debit - credit
+			
 		return {'data': owners, 'datalength': datalength}
 		
 	except PermissionError as e:
