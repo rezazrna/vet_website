@@ -190,6 +190,73 @@ def get_name_list(filters=None):
 		
 	except PermissionError as e:
 		return {'error': e}
+
+@frappe.whitelist()
+def get_supplier_open_order(filters=None, all_page=False):
+	supplier_filters = []
+	filter_json = False
+	page = 1
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		currentpage = filter_json.get('currentpage', False)
+		search = filter_json.get('search', False)
+
+		if currentpage:
+			page = currentpage
+
+		if search:
+			supplier_filters.append({'supplier_name': ['like', '%'+search+'%']})
+		
+	try:
+		purchase_filters = {'status': ['in', ['Purchase Order', 'Receive']], 'is_refund': False}
+		open_purchase = frappe.get_list("VetPurchase", filters=purchase_filters, fields=["name", 'supplier'], group_by="supplier")
+		suppliers_name = list(oi.supplier for oi in open_purchase)
+		if suppliers_name:
+			supplier_filters.append({'name': ['in', suppliers_name]})
+
+		datalength = 0
+		if all_page:
+			suppliers = frappe.get_list("VetSupplier", filters=supplier_filters, fields=["name", "supplier_name"])
+		else:
+			suppliers = frappe.get_list("VetSupplier", filters=supplier_filters, fields=["name", "supplier_name"], start=(page - 1) * 10, page_length= 10)
+			datalength = len(frappe.get_all("VetSupplier", filters=supplier_filters, as_list=True))
+
+		for s in suppliers:
+			purchase_filters['supplier'] = s['name']
+			purchase_search = frappe.get_list("VetPurchase", filters=purchase_filters, fields=["*"], start=(page - 1) * 10, page_length= 10)
+			purchase = []
+			
+			for i,p in enumerate(purchase_search):
+				untaxed = 0
+				total = 0
+				
+				purchase_products = frappe.get_list("VetPurchaseProducts", filters={'parent': p.name}, fields=["*"])
+				payments = frappe.get_list("VetPurchasePay", filters={'parent': p.name}, fields=["*"])
+				for pp in purchase_products:
+					# product = frappe.get_list("VetProduct", filters={'name': pp.product}, fields=["price"])
+					product_price = frappe.db.get_value("VetProduct", pp.product, 'price') or 0
+					
+					untaxed += product_price * pp.quantity
+					total += pp.price * pp.quantity - ((pp.discount or 0) / 100 * (pp.price * pp.quantity))
+					
+				p['untaxed'] = untaxed
+				p['total'] = total
+				p['paid'] = sum(float(py.jumlah) for py in payments)
+				
+				purchase.append(p)
+
+			s['purchases'] = purchase
+			
+		return {'data': suppliers, 'datalength': datalength}
+		
+	except PermissionError as e:
+		return {'error': e}
 		
 @frappe.whitelist()
 def delete_purchase(data):
