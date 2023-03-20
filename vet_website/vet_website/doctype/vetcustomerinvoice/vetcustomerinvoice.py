@@ -735,6 +735,74 @@ def get_mutasi_piutang(filters=None, mode=False, all=False):
 		
 	except PermissionError as e:
 		return {'error': e}
+	
+@frappe.whitelist()
+def get_rekap_penjualan(filters=None, mode=False, all=False):
+	invoice_filters = {}
+
+	filter_json = False
+	page = 1
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		search = filter_json.get('search', False)
+		invoice_date = filter_json.get('invoice_date', False)
+		currentpage = filter_json.get('currentpage', False)
+		
+		if search:
+			invoice_filters.update({'owner_name': ['like', '%'+search+'%']})
+
+		if currentpage:
+			page = currentpage
+
+		if invoice_date:
+			if mode == 'monthly' or mode == 'period':
+				max_date_dt = dt.strptime(invoice_date, '%Y-%m-%d') - rd(days=1)
+			else:
+				max_date_dt = dt.strptime(invoice_date, '%Y-%m-%d')
+
+			if mode == 'monthly':
+				min_date = (max_date_dt).strftime('%Y-%m-01')
+			else:
+				min_date = max_date_dt.strftime('%Y-01-01')
+			invoice_filters.update({'invoice_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+	
+	try:
+		fields = "`tabVetCustomerInvoice`.name, `tabVetCustomerInvoice`.invoice_date, `tabVetCustomerInvoiceLine`"
+		if all:
+			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields)
+		else: 
+			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields, start=(page - 1) * 30, page_length= 30)
+		datalength = len(frappe.get_all("VetCustomerInvoice", filters=invoice_filters, as_list=True))
+
+		# for i in invoices:
+		# 	customer_invoice_children = frappe.get_list('VetCustomerInvoiceChildren', filters={'parent': i['name']}, fields=['customer_invoice'])
+		# 	if len(customer_invoice_children) > 0:
+		# 		customer_invoice_name = list(c.customer_invoice for c in customer_invoice_children)
+		# 		all_total = frappe.get_list('VetCustomerInvoice', filters={'name': ['in', customer_invoice_name]}, fields=['sum(total) as all_total'])
+				
+		# 		paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': ['in', customer_invoice_name]}, fields=['sum(jumlah) as paid'])
+
+		# 		debit += all_total[0].all_total
+
+		# 		if paid_search[0]['paid'] != None:
+		# 			credit += paid_search[0]['paid']
+		# 	else:
+		# 		debit += i['total']
+
+		# 		paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': i['name']}, fields=['sum(jumlah) as paid'])
+		# 		if paid_search[0]['paid'] != None:
+		# 			credit += paid_search[0]['paid']
+			
+		return {'data': invoices, 'datalength': datalength}
+		
+	except PermissionError as e:
+		return {'error': e}
 		
 @frappe.whitelist()
 def delete_customer_invoice(data):
