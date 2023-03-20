@@ -310,7 +310,7 @@ class DetailPenjualanListRow extends React.Component {
         item.lines.forEach(function(i, index) {
             var racikan_total = i.total + item.lines.filter(lf => lf.racikan == i.apotik_obat_id).reduce((total, item) => total += item.total, 0)
             rows.push(<LineRow item={i} key={index.toString()} racikan_total={racikan_total}/>)
-            all_quantity += Math.ceil(line.quantity || 0)
+            all_quantity += Math.ceil(i.quantity || 0)
         })
 
         line_group = (
