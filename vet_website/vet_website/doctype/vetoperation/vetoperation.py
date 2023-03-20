@@ -273,7 +273,7 @@ def action_receive(name, moves, change_product_quantity=True):
 		data_check = frappe.get_list('VetOperation', filters={'name': name}, fields=['name'])
 		if len(data_check) != 0:
 			operation = frappe.get_doc('VetOperation', name)
-			if operation.status == 'Delivery' and any(t['quantity'] == t['quantity_done'] for t in json.loads(moves)):
+			if operation.status == 'Delivery' and all(t['quantity'] == t['quantity_done'] for t in json.loads(moves)):
 				operation.status = 'Done'
 			
 			operation.save()

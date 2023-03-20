@@ -589,20 +589,20 @@ class PopupReceive extends React.Component {
         
         console.log(new_data.name, moves)
         
-        // if (valid) {
-        //     frappe.call({
-        // 		type: "POST",
-        // 		method:"vet_website.vet_website.doctype.vetoperation.vetoperation.action_receive",
-        // 		args: {name: new_data.name, moves: moves},
-        // 		callback: function(r){
-        // 			if (r.message) {
-        //                 window.location.href = "/main/inventory/operation/edit?n=" + r.message.name
-        //             }
-        // 		}
-        // 	});
-        // } else {
-        //     frappe.msgprint('Received Quantity melebihi Quantity')
-        // }
+        if (valid) {
+            frappe.call({
+        		type: "POST",
+        		method:"vet_website.vet_website.doctype.vetoperation.vetoperation.action_receive",
+        		args: {name: new_data.name, moves: moves},
+        		callback: function(r){
+        			if (r.message) {
+                        window.location.href = "/main/inventory/operation/edit?n=" + r.message.name
+                    }
+        		}
+        	});
+        } else {
+            frappe.msgprint('Received Quantity melebihi Quantity')
+        }
     }
     
     render() {
