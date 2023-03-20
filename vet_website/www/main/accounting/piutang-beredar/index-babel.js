@@ -238,8 +238,6 @@ class PiutangList extends React.Component {
         var items = this.props.items
         
         if (items.length != 0 ){
-            var list = this
-            
             items.forEach(function(item, index){
                 rows.push(
                     <PiutangListRow key={index.toString()} item={item}/>
