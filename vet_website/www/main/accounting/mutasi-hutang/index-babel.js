@@ -149,6 +149,22 @@ class MutasiHutang extends React.Component {
     }
 
     printPDF() {
+        var title = 'MutasiHutang-'
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters.purchase_date != undefined && this.state.mode != undefined) {
+            if (this.state.mode == 'monthly') {
+                var bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                console.log(bulan)
+                title += 'Monthly-' + bulan
+            } else if (this.state.mode == 'annual') {
+                title += 'Annual-' + moment(filters.purchase_date).format('YYYY')
+            } else if (this.state.mode == 'period') {
+                var sampai_bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                title += 'Periode-' + sampai_bulan
+            }
+        }
+
         var pdfid = 'pdf'
         var source = document.getElementById(pdfid)
         var opt = {

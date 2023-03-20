@@ -256,14 +256,23 @@ class MutasiPersediaan extends React.Component {
     }
 
     printPDF() {
+        var title = 'MutasiPersediaan-'
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters.stock_date != undefined && this.state.mode != undefined) {
+            if (this.state.mode == 'monthly') {
+                var bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                console.log(bulan)
+                title += 'Monthly-' + bulan
+            } else if (this.state.mode == 'annual') {
+                title += 'Annual-' + moment(filters.stock_date).format('YYYY')
+            } else if (this.state.mode == 'period') {
+                var sampai_bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                title += 'Periode-' + sampai_bulan
+            }
+        }
+
         var pdfid = 'pdf'
-        var format = [559, 794]
-        var th = this
-        // var doc = new jsPDF({
-        //     orientation: 'p',
-        //     unit: 'pt',
-        //     format: format,
-        // });
         var source = document.getElementById(pdfid)
         var opt = {
             margin: [10, 0, 10, 0],
