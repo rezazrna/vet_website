@@ -379,17 +379,23 @@ class DetailPenjualanListRow extends React.Component {
                 </div>
                 <div className="row mx-0 fs14 fw600">
                     <div className="col d-flex">
-                        <span className="my-auto">{"Pot: " + item.potongan}</span>
+                        <span className="my-auto">Pot   :</span>
                     </div>
-                    <div className="col d-flex"></div>
                     <div className="col d-flex">
-                        <span className="my-auto">{"Pajak: 0"}</span>
+                        <span className="my-auto">{item.potongan}</span>
                     </div>
-                    <div className="col d-flex"></div>
                     <div className="col d-flex">
-                        <span className="my-auto">{"Biaya: 0"}</span>
+                        <span className="my-auto">Pajak :</span>
                     </div>
-                    <div className="col d-flex"></div>
+                    <div className="col d-flex">
+                        <span className="my-auto">0</span>
+                    </div>
+                    <div className="col d-flex">
+                        <span className="my-auto">Biaya :</span>
+                    </div>
+                    <div className="col d-flex">
+                        <span className="my-auto">0</span>
+                    </div>
                     <div className="col d-flex">
                         <span className="my-auto">{"Total Akhit: " + formatter.format(item.total)}</span>
                     </div>
