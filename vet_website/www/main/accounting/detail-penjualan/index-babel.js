@@ -301,7 +301,7 @@ class DetailPenjualanListRow extends React.Component {
         var row_style = {color: '#056EAD', background: '#84D1FF', 'boxShadow': '0px 6px 23px rgba(0, 0, 0, 0.1)', borderRadius: '5px'}
         var detail_style = {background: '#F5FBFF', padding: '20px 0'}
         var padding_style = {padding: '10px 0'}
-        var total_border = {borderTop: '1px solid #000', marginBottom: 5}
+        var total_border = {borderTop: '1px solid #000', margin: '3px 0'}
         var color = {color: '#056EAD'}
         var item = this.props.item
         var line_group
@@ -342,7 +342,7 @@ class DetailPenjualanListRow extends React.Component {
                 </div>
                 {rows}
                 <div className="row justify-content-end">
-                    <div className="col-5">
+                    <div className="col-8">
                         <div style={total_border}/>
                     </div>
                 </div>
