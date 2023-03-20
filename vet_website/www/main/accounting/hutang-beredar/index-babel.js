@@ -281,7 +281,7 @@ class HutangListRow extends React.Component {
         item.purchases.forEach((i, index) => rows.push(<PurchaseRow item={i} key={index.toString()}/>))
 
         var total = item.purchases.reduce((total, b) => total + b.total, 0)
-        var total_remaining = item.purchases.reduce((total, b) => total + (b.total - b.paid), 0)
+        var total_remaining = item.purchases.reduce((remaining, b) => remaining + (b.total - b.paid), 0)
 
         purchase_group = (
             <div style={detail_style}>
@@ -390,7 +390,7 @@ class PDF extends React.Component {
 
         data.forEach((d, index) => {
             var total = d.purchases.reduce((total, b) => total + b.total, 0)
-            var total_remaining = d.purchases.reduce((total, b) => total + (b.total - b.paid), 0)
+            var total_remaining = d.purchases.reduce((remaining, b) => remaining + (b.total - b.paid), 0)
 
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">

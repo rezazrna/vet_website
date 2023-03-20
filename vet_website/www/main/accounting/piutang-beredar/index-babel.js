@@ -282,7 +282,7 @@ class PiutangListRow extends React.Component {
         item.invoices.forEach((i, index) => rows.push(<InvoiceRow item={i} key={index.toString()}/>))
 
         var total = item.invoices.reduce((total, b) => total + (b.all_total || b.total), 0)
-        var total_remaining = item.invoices.reduce((total, b) => total + b.remaining, 0)
+        var total_remaining = item.invoices.reduce((remaining, b) => remaining + b.remaining, 0)
 
         invoice_group = (
             <div style={detail_style}>
@@ -398,7 +398,7 @@ class PDF extends React.Component {
 
         data.forEach((d, index) => {
             var total = d.invoices.reduce((total, b) => total + (b.all_total || b.total), 0)
-            var total_remaining = d.invoices.reduce((total, b) => total + b.remaining, 0)
+            var total_remaining = d.invoices.reduce((remaining, b) => remaining + b.remaining, 0)
 
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">
@@ -412,11 +412,11 @@ class PDF extends React.Component {
 
             table_rows.push(
                 <tr className="text-center fs10">
-                    <th className="fw500 py-2" width="58px" >No Invoice</th>
-                    <th className="fw500 py-2" width="91px" >Tanggal</th>
-                    <th className="fw500 py-2" width="101px" >Nama Hewan</th>
-                    <th className="fw500 py-2" width="73px" >Total</th>
-                    <th className="fw500 py-2" width="73px" >Remaining</th>
+                    <th className="fw600 py-2" width="58px" >No Invoice</th>
+                    <th className="fw600 py-2" width="91px" >Tanggal</th>
+                    <th className="fw600 py-2" width="101px" >Nama Hewan</th>
+                    <th className="fw600 py-2" width="73px" >Total</th>
+                    <th className="fw600 py-2" width="73px" >Remaining</th>
                 </tr>
             )
 
@@ -426,7 +426,7 @@ class PDF extends React.Component {
                         <td className="py-1">{i.name}</td>
                         <td className="py-1">{moment(i.is_refund ? i.refund_date : i.invoice_date).subtract(0, 'minute').format("DD-MM-YYYY")}</td>
                         <td className="py-1">{i.pet_name}</td>
-                        <td className="py-1">{formatter.format(i.total)}</td>
+                        <td className="py-1">{formatter.format((i.all_total || i.total))}</td>
                         <td className="py-1">{formatter.format(i.remaining)}</td>
                     </tr>
                 )
@@ -514,7 +514,7 @@ class PDFListPage extends React.Component {
 
         data.forEach((d, index) => {
             var total = d.invoices.reduce((total, b) => total + (b.all_total || b.total), 0)
-            var total_remaining = d.invoices.reduce((total, b) => total + b.remaining, 0)
+            var total_remaining = d.invoices.reduce((remaining, b) => remaining + b.remaining, 0)
 
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">
@@ -528,11 +528,11 @@ class PDFListPage extends React.Component {
 
             table_rows.push(
                 <tr className="text-center fs10">
-                    <th className="fw500 py-2" width="58px" >No Invoice</th>
-                    <th className="fw500 py-2" width="91px" >Tanggal</th>
-                    <th className="fw500 py-2" width="101px" >Nama Hewan</th>
-                    <th className="fw500 py-2" width="73px" >Total</th>
-                    <th className="fw500 py-2" width="73px" >Remaining</th>
+                    <th className="fw600 py-2" width="58px" >No Invoice</th>
+                    <th className="fw600 py-2" width="91px" >Tanggal</th>
+                    <th className="fw600 py-2" width="101px" >Nama Hewan</th>
+                    <th className="fw600 py-2" width="73px" >Total</th>
+                    <th className="fw600 py-2" width="73px" >Remaining</th>
                 </tr>
             )
 
@@ -542,7 +542,7 @@ class PDFListPage extends React.Component {
                         <td className="py-1">{i.name}</td>
                         <td className="py-1">{moment(i.is_refund ? i.refund_date : i.invoice_date).subtract(0, 'minute').format("DD-MM-YYYY")}</td>
                         <td className="py-1">{i.pet_name}</td>
-                        <td className="py-1">{formatter.format(i.total)}</td>
+                        <td className="py-1">{formatter.format((i.all_total || i.total))}</td>
                         <td className="py-1">{formatter.format(i.remaining)}</td>
                     </tr>
                 )
