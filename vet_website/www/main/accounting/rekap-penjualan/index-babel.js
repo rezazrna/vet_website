@@ -357,12 +357,6 @@ class RekapPenjualanListRow extends React.Component {
                             <span>{item.potongan + '%'}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{formatter2.format(0)}</span>
-                        </div>
-                        <div className="col text-center">
-                            <span>{formatter2.format(0)}</span>
-                        </div>
-                        <div className="col text-center">
                             <span>{formatter2.format((item.all_total || item.total))}</span>
                         </div>
                         <div className="col text-center">
@@ -420,15 +414,15 @@ class PDF extends React.Component {
         data.forEach((d, index) => {
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">
-                    <td className="py-1">{item.name}</td>
-                    <td className="py-1">{moment(item.is_refund ? item.refund_date : item.invoice_date).format("YYYY-MM-DD HH:mm:ss")}</td>
-                    <td className="py-1">{item.owner}</td>
-                    <td className="py-1">{item.all_quantity}</td>
-                    <td className="py-1">{formatter2.format(item.subtotal)}</td>
-                    <td className="py-1">{item.potongan + '%'}</td>
-                    <td className="py-1">{formatter2.format(item.total)}</td>
-                    <td className="py-1">{formatter2.format(item.paid)}</td>
-                    <td className="py-1">{formatter2.format(item.remaining)}</td>
+                    <td className="py-1">{d.name}</td>
+                    <td className="py-1">{moment(d.is_refund ? d.refund_date : d.invoice_date).format("YYYY-MM-DD HH:mm:ss")}</td>
+                    <td className="py-1">{d.owner}</td>
+                    <td className="py-1">{d.all_quantity}</td>
+                    <td className="py-1">{formatter2.format(d.subtotal)}</td>
+                    <td className="py-1">{d.potongan + '%'}</td>
+                    <td className="py-1">{formatter2.format(d.total)}</td>
+                    <td className="py-1">{formatter2.format(d.paid)}</td>
+                    <td className="py-1">{formatter2.format(d.remaining)}</td>
                 </tr>
             )
         })
