@@ -773,7 +773,7 @@ def get_rekap_penjualan(filters=None, mode=False, all=False):
 			invoice_filters.update({'invoice_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 	
 	try:
-		fields = ["name", "invoice_date", "owner", "subtotal", "potongan", "total"]
+		fields = ["name", "invoice_date", "owner", "owner_name", "subtotal", "potongan", "total"]
 		if all:
 			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields)
 		else: 

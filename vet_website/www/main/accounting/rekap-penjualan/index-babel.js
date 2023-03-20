@@ -288,6 +288,9 @@ class RekapPenjualanList extends React.Component {
                                     <span>ID Pemilik</span>
                                 </div>
                                 <div className="col text-center">
+                                    <span>Nama Pemilik</span>
+                                </div>
+                                <div className="col text-center">
                                     <span>Jumlah Item</span>
                                 </div>
                                 <div className="col text-center">
@@ -346,6 +349,9 @@ class RekapPenjualanListRow extends React.Component {
                         </div>
                         <div className="col text-center">
                             <span>{item.owner}</span>
+                        </div>
+                        <div className="col text-center">
+                            <span>{item.owner_name}</span>
                         </div>
                         <div className="col text-center">
                             <span>{item.all_quantity}</span>
@@ -417,6 +423,7 @@ class PDF extends React.Component {
                     <td className="py-1">{d.name}</td>
                     <td className="py-1">{moment(d.is_refund ? d.refund_date : d.invoice_date).format("YYYY-MM-DD HH:mm:ss")}</td>
                     <td className="py-1">{d.owner}</td>
+                    <td className="py-1">{d.owner_name}</td>
                     <td className="py-1">{d.all_quantity}</td>
                     <td className="py-1">{formatter2.format(d.subtotal)}</td>
                     <td className="py-1">{d.potongan + '%'}</td>
@@ -459,6 +466,7 @@ class PDF extends React.Component {
                                     <th className="fw700 py-2">No Invoice</th>
                                     <th className="fw700 py-2">Tanggal</th>
                                     <th className="fw700 py-2">ID Pemilik</th>
+                                    <th className="fw700 py-2">Nama Pemilik</th>
                                     <th className="fw700 py-2">Jumlah Item</th>
                                     <th className="fw700 py-2">Sub Total</th>
                                     <th className="fw700 py-2">Potongan %</th>
