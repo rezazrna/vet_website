@@ -418,13 +418,13 @@ class LineRow extends React.Component {
                     <span className="my-auto">{(line.uom_name || line.product_uom)}</span>
                 </div>
                 <div className="col d-flex">
-                    <span className="my-auto">{formatter.format(this.props.racikan_total || item.unit_price || 0)}</span>
+                    <span className="my-auto">{formatter.format(this.props.racikan_total || line.unit_price || 0)}</span>
                 </div>
                 <div className="col d-flex">
-                    <span className="my-auto">{item.potongan}</span>
+                    <span className="my-auto">{line.potongan}</span>
                 </div>
                 <div className="col d-flex">
-                    <span className="my-auto">{formatter.format(this.props.racikan_total || item.total || 0)}</span>
+                    <span className="my-auto">{formatter.format(this.props.racikan_total || line.total || 0)}</span>
                 </div>
             </div>
         )
