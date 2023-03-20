@@ -775,9 +775,9 @@ def get_rekap_penjualan(filters=None, mode=False, all=False):
 	try:
 		fields = "`tabVetCustomerInvoice`.name, `tabVetCustomerInvoice`.invoice_date, `tabVetCustomerInvoiceLine`.*"
 		if all:
-			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields)
+			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields, group_by="`tabVetCustomerInvoice`.name")
 		else: 
-			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields, start=(page - 1) * 30, page_length= 30)
+			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields, start=(page - 1) * 30, page_length= 30, group_by="`tabVetCustomerInvoice`.name")
 		datalength = len(frappe.get_all("VetCustomerInvoice", filters=invoice_filters, as_list=True))
 
 		# for i in invoices:
