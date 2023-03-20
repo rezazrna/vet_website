@@ -216,9 +216,9 @@ class DetailPenjualan extends React.Component {
             return (
                 <div>
                     <div className="row mx-0" style={row_style2}>
-                        <div className="col-auto my-auto">
+                        {/* <div className="col-auto my-auto">
                             <button type="button" className={this.state.print_loading ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2" : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3" />Loading...</span>) : "Print"}</button>
-                        </div>
+                        </div> */}
                         <div className="col-2 my-auto">
                             <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.setFilter(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
                         </div>
@@ -342,7 +342,7 @@ class DetailPenjualanListRow extends React.Component {
                 </div>
                 {rows}
                 <div className="row justify-content-end">
-                    <div className="col-10">
+                    <div className="col-9">
                         <div style={total_border}/>
                     </div>
                 </div>
