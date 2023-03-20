@@ -773,31 +773,48 @@ def get_rekap_penjualan(filters=None, mode=False, all=False):
 			invoice_filters.update({'invoice_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 	
 	try:
-		fields = "`tabVetCustomerInvoice`.name, `tabVetCustomerInvoice`.invoice_date, `tabVetCustomerInvoiceLine`.*"
+		fields = ["name", "invoice_date", "owner", "subtotal", "potongan", "total"]
 		if all:
-			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields, group_by="`tabVetCustomerInvoice`.name")
+			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields)
 		else: 
-			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields, start=(page - 1) * 30, page_length= 30, group_by="`tabVetCustomerInvoice`.name")
+			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields, start=(page - 1) * 30, page_length= 30)
 		datalength = len(frappe.get_all("VetCustomerInvoice", filters=invoice_filters, as_list=True))
 
-		# for i in invoices:
-		# 	customer_invoice_children = frappe.get_list('VetCustomerInvoiceChildren', filters={'parent': i['name']}, fields=['customer_invoice'])
-		# 	if len(customer_invoice_children) > 0:
-		# 		customer_invoice_name = list(c.customer_invoice for c in customer_invoice_children)
-		# 		all_total = frappe.get_list('VetCustomerInvoice', filters={'name': ['in', customer_invoice_name]}, fields=['sum(total) as all_total'])
+		for i in invoices:
+			customer_invoice_children = frappe.get_list('VetCustomerInvoiceChildren', filters={'parent': i['name']}, fields=['customer_invoice'])
+			if len(customer_invoice_children) > 0:
+				customer_invoice_name = list(c.customer_invoice for c in customer_invoice_children)
+				all_total = frappe.get_list('VetCustomerInvoice', filters={'name': ['in', customer_invoice_name]}, fields=['sum(total) as all_total'])
+
+				all_quantity = frappe.get_list('VetCustomerInvoiceLine', filters={'name': ['in', customer_invoice_name]}, fields=['sum(quantity) as all_quantity'])
+				if all_quantity[0]['all_quantity'] != None:
+					i['all_quantity'] = all_quantity[0]['all_quantity']
+				else:
+					i['all_quantity'] = 0
 				
-		# 		paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': ['in', customer_invoice_name]}, fields=['sum(jumlah) as paid'])
+				paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': ['in', customer_invoice_name]}, fields=['sum(jumlah) as paid'])
 
-		# 		debit += all_total[0].all_total
+				i['all_total'] = all_total[0].all_total
+				if paid_search[0]['paid'] != None:
+					i['paid'] = paid_search[0]['paid']
+					i['remaining'] = all_total[0].all_total - paid_search[0]['paid']
+				else:
+					i['paid'] = 0
+					i['remaining'] = all_total[0].all_total
+			else:
+				all_quantity = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': i['name']}, fields=['sum(quantity) as all_quantity'])
+				if all_quantity[0]['all_quantity'] != None:
+					i['all_quantity'] = all_quantity[0]['all_quantity']
+				else:
+					i['all_quantity'] = 0
 
-		# 		if paid_search[0]['paid'] != None:
-		# 			credit += paid_search[0]['paid']
-		# 	else:
-		# 		debit += i['total']
-
-		# 		paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': i['name']}, fields=['sum(jumlah) as paid'])
-		# 		if paid_search[0]['paid'] != None:
-		# 			credit += paid_search[0]['paid']
+				paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': i['name']}, fields=['sum(jumlah) as paid'])
+				if paid_search[0]['paid'] != None:
+					i['paid'] = paid_search[0]['paid']
+					i['remaining'] = i['total'] - paid_search[0]['paid']
+				else:
+					i['paid'] = 0
+					i['remaining'] = i['total']
 			
 		return {'data': invoices, 'datalength': datalength}
 		

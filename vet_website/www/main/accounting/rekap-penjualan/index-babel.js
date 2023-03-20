@@ -297,12 +297,6 @@ class RekapPenjualanList extends React.Component {
                                     <span>Potongan %</span>
                                 </div>
                                 <div className="col text-center">
-                                    <span>Pajak</span>
-                                </div>
-                                <div className="col text-center">
-                                    <span>Biaya Lain</span>
-                                </div>
-                                <div className="col text-center">
                                     <span>Total Akhir</span>
                                 </div>
                                 <div className="col text-center">
@@ -363,19 +357,19 @@ class RekapPenjualanListRow extends React.Component {
                             <span>{item.potongan + '%'}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{formatter2.format(item.pajak)}</span>
+                            <span>{formatter2.format(0)}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{formatter2.format(item.biaya_lain)}</span>
+                            <span>{formatter2.format(0)}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{formatter2.format(item.total)}</span>
+                            <span>{formatter2.format((item.all_total || item.total))}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{formatter2.format(item.bayar_tunai)}</span>
+                            <span>{formatter2.format(item.paid)}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{formatter2.format(item.bayar_kredit)}</span>
+                            <span>{formatter2.format(item.remaining)}</span>
                         </div>
                     </div>
                 </div>
@@ -432,11 +426,9 @@ class PDF extends React.Component {
                     <td className="py-1">{item.all_quantity}</td>
                     <td className="py-1">{formatter2.format(item.subtotal)}</td>
                     <td className="py-1">{item.potongan + '%'}</td>
-                    <td className="py-1">{formatter2.format(item.pajak)}</td>
-                    <td className="py-1">{formatter2.format(item.biaya_lain)}</td>
                     <td className="py-1">{formatter2.format(item.total)}</td>
-                    <td className="py-1">{formatter2.format(item.bayar_tunai)}</td>
-                    <td className="py-1">{formatter2.format(item.bayar_kredit)}</td>
+                    <td className="py-1">{formatter2.format(item.paid)}</td>
+                    <td className="py-1">{formatter2.format(item.remaining)}</td>
                 </tr>
             )
         })
@@ -476,8 +468,6 @@ class PDF extends React.Component {
                                     <th className="fw700 py-2">Jumlah Item</th>
                                     <th className="fw700 py-2">Sub Total</th>
                                     <th className="fw700 py-2">Potongan %</th>
-                                    <th className="fw700 py-2">Pajak</th>
-                                    <th className="fw700 py-2">Biaya Lain</th>
                                     <th className="fw700 py-2">Total Akhir</th>
                                     <th className="fw700 py-2">Bayar Tunai</th>
                                     <th className="fw700 py-2">Bayar Kredit</th>
