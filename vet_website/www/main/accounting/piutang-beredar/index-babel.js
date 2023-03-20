@@ -410,6 +410,16 @@ class PDF extends React.Component {
                 </tr>
             )
 
+            table_rows.push(
+                <tr className="text-center">
+                    <th className="fw700 py-2" width="58px" >No Invoice</th>
+                    <th className="fw700 py-2" width="91px" >Tanggal</th>
+                    <th className="fw700 py-2" width="101px" >Nama Hewan</th>
+                    <th className="fw700 py-2" width="73px" >Total</th>
+                    <th className="fw700 py-2" width="73px" >Remaining</th>
+                </tr>
+            )
+
             d.invoices.forEach((i, count) => {
                 table_rows.push(
                     <tr key={i.name} style={fs9} className="text-center">
@@ -464,9 +474,9 @@ class PDF extends React.Component {
                         <table className="fs12" style={row2}>
                             <thead className="text-uppercase" style={thead}>
                                 <tr className="text-center">
-                                    <th className="fw700 py-2" width="58px" >ID</th>
-                                    <th className="fw700 py-2" width="91px" >Tanggal</th>
-                                    <th className="fw700 py-2" width="101px" >Nama Pasien</th>
+                                    <th className="fw700 py-2" width="58px" >ID Pemilik</th>
+                                    <th className="fw700 py-2" width="91px" >Nama Pemilik</th>
+                                    <th className="fw700 py-2" width="101px" ></th>
                                     <th className="fw700 py-2" width="73px" >Total</th>
                                     <th className="fw700 py-2" width="73px" >Remaining</th>
                                 </tr>
@@ -513,6 +523,16 @@ class PDFListPage extends React.Component {
                     <td className="py-1"></td>
                     <td className="py-1">{formatter.format(total)}</td>
                     <td className="py-1">{formatter.format(total_remaining)}</td>
+                </tr>
+            )
+
+            table_rows.push(
+                <tr className="text-center">
+                    <th className="fw700 py-2" width="58px" >No Invoice</th>
+                    <th className="fw700 py-2" width="91px" >Tanggal</th>
+                    <th className="fw700 py-2" width="101px" >Nama Hewan</th>
+                    <th className="fw700 py-2" width="73px" >Total</th>
+                    <th className="fw700 py-2" width="73px" >Remaining</th>
                 </tr>
             )
 
