@@ -411,12 +411,12 @@ class PDF extends React.Component {
             )
 
             table_rows.push(
-                <tr className="text-center">
-                    <th className="fw700 py-2" width="58px" >No Invoice</th>
-                    <th className="fw700 py-2" width="91px" >Tanggal</th>
-                    <th className="fw700 py-2" width="101px" >Nama Hewan</th>
-                    <th className="fw700 py-2" width="73px" >Total</th>
-                    <th className="fw700 py-2" width="73px" >Remaining</th>
+                <tr className="text-center fs10">
+                    <th className="fw500 py-2" width="58px" >No Invoice</th>
+                    <th className="fw500 py-2" width="91px" >Tanggal</th>
+                    <th className="fw500 py-2" width="101px" >Nama Hewan</th>
+                    <th className="fw500 py-2" width="73px" >Total</th>
+                    <th className="fw500 py-2" width="73px" >Remaining</th>
                 </tr>
             )
 
@@ -527,12 +527,12 @@ class PDFListPage extends React.Component {
             )
 
             table_rows.push(
-                <tr className="text-center">
-                    <th className="fw700 py-2" width="58px" >No Invoice</th>
-                    <th className="fw700 py-2" width="91px" >Tanggal</th>
-                    <th className="fw700 py-2" width="101px" >Nama Hewan</th>
-                    <th className="fw700 py-2" width="73px" >Total</th>
-                    <th className="fw700 py-2" width="73px" >Remaining</th>
+                <tr className="text-center fs10">
+                    <th className="fw500 py-2" width="58px" >No Invoice</th>
+                    <th className="fw500 py-2" width="91px" >Tanggal</th>
+                    <th className="fw500 py-2" width="101px" >Nama Hewan</th>
+                    <th className="fw500 py-2" width="73px" >Total</th>
+                    <th className="fw500 py-2" width="73px" >Remaining</th>
                 </tr>
             )
 
