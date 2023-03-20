@@ -149,7 +149,7 @@ class MutasiPiutang extends React.Component {
     }
 
     printPDF() {
-        var title = 'MutasiPersediaan-'
+        var title = 'MutasiPiutang-'
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         if (filters.invoice_date != undefined && this.state.mode != undefined) {
@@ -169,7 +169,7 @@ class MutasiPiutang extends React.Component {
         var source = document.getElementById(pdfid)
         var opt = {
             margin: [10, 0, 10, 0],
-            filename: "MutasiPiutang-" + moment().format('MM-YYYY') + ".pdf",
+            filename: title + ".pdf",
             pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
             html2canvas: { scale: 3 },
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
