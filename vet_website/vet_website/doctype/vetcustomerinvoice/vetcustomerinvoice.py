@@ -1044,15 +1044,16 @@ def add_payment_multiple(data):
 					invoice_jumlah = jumlah if remaining >= jumlah else remaining
 				else:
 					invoice_jumlah = jumlah if remaining >= jumlah or len(invoices)-1 == index else remaining
-				payment_data = {
-					'name': item.name,
-					'jumlah': invoice_jumlah,
-					'payment_method': data_json.get('payment_method')
-				}
-				
-				result = add_payment(json.dumps(payment_data))
-				results.append(result)
-				jumlah -= invoice_jumlah
+				if invoice_jumlah > 0:
+					payment_data = {
+						'name': item.name,
+						'jumlah': invoice_jumlah,
+						'payment_method': data_json.get('payment_method')
+					}
+					
+					result = add_payment(json.dumps(payment_data))
+					results.append(result)
+					jumlah -= invoice_jumlah
 				
 		invoices = frappe.db.get_list('VetCustomerInvoice', filters={'name': ['in', data_json.get('name')]}, fields=['status', 'parent_customer_invoice'])
 		if all(i.status == 'Done' for i in invoices):
