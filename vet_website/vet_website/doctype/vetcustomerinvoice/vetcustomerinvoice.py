@@ -784,7 +784,7 @@ def get_rekap_penjualan(filters=None, mode=False, all=False):
 			customer_invoice_children = frappe.get_list('VetCustomerInvoiceChildren', filters={'parent': i['name']}, fields=['customer_invoice'])
 			if len(customer_invoice_children) > 0:
 				customer_invoice_name = list(c.customer_invoice for c in customer_invoice_children)
-				all_total = frappe.get_list('VetCustomerInvoice', filters={'name': ['in', customer_invoice_name]}, fields=['sum(total) as all_total'])
+				all_total = frappe.get_list('VetCustomerInvoice', filters={'name': ['in', customer_invoice_name]}, fields=['sum(total) as all_total', 'sum(subtotal) as all_subtotal'])
 
 				all_quantity = frappe.get_list('VetCustomerInvoiceLine', filters={'name': ['in', customer_invoice_name]}, fields=['sum(quantity) as all_quantity'])
 				if all_quantity[0]['all_quantity'] != None:
@@ -795,6 +795,7 @@ def get_rekap_penjualan(filters=None, mode=False, all=False):
 				paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': ['in', customer_invoice_name]}, fields=['sum(jumlah) as paid'])
 
 				i['all_total'] = all_total[0].all_total
+				i['all_subtotal'] = all_total[0].all_subtotal
 				if paid_search[0]['paid'] != None:
 					i['paid'] = paid_search[0]['paid']
 					i['remaining'] = all_total[0].all_total - paid_search[0]['paid']
@@ -869,8 +870,9 @@ def get_detail_penjualan(filters=None, mode=False, all=False):
 			customer_invoice_children = frappe.get_list('VetCustomerInvoiceChildren', filters={'parent': i['name']}, fields=['customer_invoice'])
 			if len(customer_invoice_children) > 0:
 				customer_invoice_name = list(c.customer_invoice for c in customer_invoice_children)
-				all_total = frappe.get_list('VetCustomerInvoice', filters={'name': ['in', customer_invoice_name]}, fields=['sum(total) as all_total'])
+				all_total = frappe.get_list('VetCustomerInvoice', filters={'name': ['in', customer_invoice_name]}, fields=['sum(total) as all_total', 'sum(subtotal) as all_subtotal'])
 				i['all_total'] = all_total[0].all_total
+				i['all_subtotal'] = all_total[0].all_subtotal
 
 				lines = frappe.get_list('VetCustomerInvoiceLine', filters={'name': ['in', customer_invoice_name]}, fields=['*'])
 				i['lines'] = lines

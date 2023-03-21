@@ -358,7 +358,7 @@ class DetailPenjualanListRow extends React.Component {
                     <div className="col d-flex"></div>
                     <div className="col d-flex"></div>
                     <div className="col d-flex">
-                        <span className="my-auto">{formatter.format(item.subtotal)}</span>
+                        <span className="my-auto">{formatter.format((item.all_subtotal || item.subtotal))}</span>
                     </div>
                 </div>
                 <div className="row mx-0 fs14 fw600" style={padding_style}>
@@ -379,7 +379,7 @@ class DetailPenjualanListRow extends React.Component {
                         <span className="my-auto">Total Akhir   :</span>
                     </div>
                     <div className="col d-flex">
-                        <span className="my-auto">{formatter.format(item.total)}</span>
+                        <span className="my-auto">{formatter.format(item.all_total || item.total)}</span>
                     </div>
                 </div>
             </div>

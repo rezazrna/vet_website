@@ -357,7 +357,7 @@ class RekapPenjualanListRow extends React.Component {
                             <span>{item.all_quantity}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{formatter2.format(item.subtotal)}</span>
+                            <span>{formatter2.format((item.all_subtotal || item.subtotal))}</span>
                         </div>
                         <div className="col text-center">
                             <span>{item.potongan + '%'}</span>
