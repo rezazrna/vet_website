@@ -131,7 +131,7 @@ class DetailPenjualan extends React.Component {
                 frappe.call({
                     type: "GET",
                     method: "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.get_detail_penjualan",
-                    args: { filters: JSON.parse(sessionStorage.getItem(window.location.pathname)), mode: td.state.mode, all: 1 },
+                    args: { filters: JSON.parse(sessionStorage.getItem(window.location.pathname)), mode: td.state.mode },
                     callback: function (r) {
                         if (r.message) {
                             console.log(r.message)
@@ -216,9 +216,9 @@ class DetailPenjualan extends React.Component {
             return (
                 <div>
                     <div className="row mx-0" style={row_style2}>
-                        {/* <div className="col-auto my-auto">
+                        <div className="col-auto my-auto">
                             <button type="button" className={this.state.print_loading ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2" : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3" />Loading...</span>) : "Print"}</button>
-                        </div> */}
+                        </div>
                         <div className="col-2 my-auto">
                             <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.setFilter(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
                         </div>
@@ -309,8 +309,16 @@ class DetailPenjualanListRow extends React.Component {
         var rows = []
         var all_quantity = 0
 
+        var racikan = []
+            
+        item.lines.forEach(l => !racikan.includes(l.racikan)?racikan.push(l.racikan):false)
+
         item.lines.forEach(function(i, index) {
-            var racikan_total = i.total + item.lines.filter(lf => lf.racikan == i.apotik_obat_id).reduce((total, item) => total += item.total, 0)
+            var racikan_total = undefined
+            if (i.apotik_obat_id != undefined && racikan.includes(i.apotik_obat_id)) {
+                racikan_total = i.total + item.lines.filter(lf => lf.racikan == i.apotik_obat_id).reduce((total, item) => total += item.total, 0)
+            }
+
             rows.push(<LineRow item={i} key={index.toString()} racikan_total={racikan_total}/>)
             all_quantity += Math.ceil(i.quantity || 0)
         })
@@ -352,9 +360,7 @@ class DetailPenjualanListRow extends React.Component {
                     <div className="col d-flex">
                         <span className="my-auto">{all_quantity}</span>
                     </div>
-                    <div className="col d-flex">
-                        <span className="my-auto">{}</span>
-                    </div>
+                    <div className="col d-flex"></div>
                     <div className="col d-flex"></div>
                     <div className="col d-flex"></div>
                     <div className="col d-flex">
@@ -469,6 +475,7 @@ class PDF extends React.Component {
     render() {
         var data = this.props.data
         var profile = this.state.profile
+        console.log(data)
         var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
         var borderStyle = { border: '1px solid #000', margin: '15px 0' }
         var row2 = { width: '100%' }
@@ -482,18 +489,88 @@ class PDF extends React.Component {
         var table_rows = []
 
         data.forEach((d, index) => {
+            var all_quantity = 0
+
             table_rows.push(
                 <tr key={d.name} style={fs9} className="text-center">
                     <td className="py-1">{d.name}</td>
-                    <td className="py-1">{moment(d.is_refund ? d.refund_date : d.invoice_date).format("YYYY-MM-DD HH:mm:ss")}</td>
+                    <td className="py-1">{moment(d.is_refund ? d.refund_date : d.invoice_date).subtract(0, 'minute').format("YYYY-MM-DD HH:mm:ss")}</td>
                     <td className="py-1">{d.owner}</td>
                     <td className="py-1">{d.owner_name}</td>
-                    <td className="py-1">{d.all_quantity}</td>
-                    <td className="py-1">{formatter2.format(d.subtotal)}</td>
-                    <td className="py-1">{d.potongan + '%'}</td>
-                    <td className="py-1">{formatter2.format(d.total)}</td>
-                    <td className="py-1">{formatter2.format(d.paid)}</td>
-                    <td className="py-1">{formatter2.format(d.remaining)}</td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                </tr>
+            )
+
+            table_rows.push(
+                <tr className="text-center fs10">
+                    <th className="fw600 py-2" width="58px" >Product Code</th>
+                    <th className="fw600 py-2" width="91px" >Product</th>
+                    <th className="fw600 py-2" width="101px" >Quantity</th>
+                    <th className="fw600 py-2" width="73px" >UOM</th>
+                    <th className="fw600 py-2" width="73px" >Price</th>
+                    <th className="fw600 py-2" width="73px" >Potongan</th>
+                    <th className="fw600 py-2" width="73px" >Total</th>
+                </tr>
+            )
+
+            d.lines.forEach((i, count) => {
+                table_rows.push(
+                    <tr key={i.name} style={fs9} className="text-center">
+                        <td className="py-1">{i.product}</td>
+                        <td className="py-1">{i.product_name}</td>
+                        <td className="py-1">{Math.ceil(i.quantity || 0)}</td>
+                        <td className="py-1">{(i.uom_name || i.product_uom)}</td>
+                        <td className="py-1">{formatter.format(this.props.racikan_total || i.unit_price || 0)}</td>
+                        <td className="py-1">{i.potongan}</td>
+                        <td className="py-1">{formatter.format(this.props.racikan_total || i.total || 0)}</td>
+                    </tr>
+                )
+                all_quantity += Math.ceil(i.quantity || 0)
+            })
+
+            // table_rows.push(
+            //     <div className="row justify-content-end">
+            //         <div className="col-9">
+            //             <div style={borderStyle}/>
+            //         </div>
+            //     </div>
+            // )
+
+            table_rows.push(
+                <tr style={fs9} className="text-center">
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1">{all_quantity}</td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1">{formatter.format((d.all_subtotal || d.subtotal))}</td>
+                </tr>
+            )
+
+            table_rows.push(
+                <tr style={fs9} className="text-center">
+                    <td className="py-1">Pot    :</td>
+                    <td className="py-1">{d.potongan}</td>
+                    <td className="py-1">Pajak  :</td>
+                    <td className="py-1">0</td>
+                    <td className="py-1"></td>
+                    <td className="py-1">Total Akhir    :</td>
+                    <td className="py-1">{formatter.format((d.all_total || d.total))}</td>
+                </tr>
+            )
+
+            table_rows.push(
+                <tr className="text-center">
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
                 </tr>
             )
         })
@@ -513,6 +590,7 @@ class PDF extends React.Component {
                         <div className="row">
                             <div className="col-2 px-0">
                                 {image}
+                                {/* <img className="mt-3" src="/static/img/main/menu/naturevet_logo_2x.png"/> */}
                             </div>
                             <div className="col-6">
                                 <p className="my-3 fwbold text-uppercase" style={fs13}>{profile.clinic_name}</p>
@@ -520,23 +598,21 @@ class PDF extends React.Component {
                                 <p className="my-0" style={fs9}>Telp. : {profile.phone}</p>
                             </div>
                             <div className="col-4 px-0">
-                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>Rekap Penjualan</p>
+                                <p className="fwbold text-right text-uppercase fs28" style={invoice}>{"Detail Penjualan"}</p>
+                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{moment().format("MM/YYYY")}</p>
                             </div>
                             <div className="col-12" style={borderStyle} />
                         </div>
                         <table className="fs12" style={row2}>
                             <thead className="text-uppercase" style={thead}>
                                 <tr className="text-center">
-                                    <th className="fw700 py-2">No Invoice</th>
-                                    <th className="fw700 py-2">Tanggal</th>
-                                    <th className="fw700 py-2">ID Pemilik</th>
-                                    <th className="fw700 py-2">Nama Pemilik</th>
-                                    <th className="fw700 py-2">Jumlah Item</th>
-                                    <th className="fw700 py-2">Sub Total</th>
-                                    <th className="fw700 py-2">Potongan %</th>
-                                    <th className="fw700 py-2">Total Akhir</th>
-                                    <th className="fw700 py-2">Bayar Tunai</th>
-                                    <th className="fw700 py-2">Bayar Kredit</th>
+                                    <th className="fw700 py-2" width="58px" >No Invoice</th>
+                                    <th className="fw700 py-2" width="91px" >Tanggal</th>
+                                    <th className="fw700 py-2" width="101px" >ID Pemilik</th>
+                                    <th className="fw700 py-2" width="73px" >Nama Pemilik</th>
+                                    <th className="fw700 py-2" width="73px" ></th>
+                                    <th className="fw700 py-2" width="73px" ></th>
+                                    <th className="fw700 py-2" width="73px" ></th>
                                 </tr>
                             </thead>
                             <tbody>
