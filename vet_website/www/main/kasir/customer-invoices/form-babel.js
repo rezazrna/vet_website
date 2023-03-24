@@ -1441,7 +1441,7 @@ class CustomerInvoiceLinesMultipleRow extends React.Component {
         				<div className="col-1 text-center"/>
         				<div className="col-1 text-center"/>
         				<div className="col-1 text-center">
-        					<span className="my-auto">{total}</span>
+        					<span className="my-auto">{formatter2.format(total || 0)}</span>
         				</div>
         				<div className="col-1 text-center"><i style={cursor} className={chevron_class} onClick={() => this.toggleShowDetail()}/></div>
         			</div>

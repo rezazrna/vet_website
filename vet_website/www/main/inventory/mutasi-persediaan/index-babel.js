@@ -272,8 +272,9 @@ class MutasiPersediaan extends React.Component {
             }
         }
 
-        var pdfid = 'pdf'
-        var source = document.getElementById(pdfid)
+        // var pdfid = 'pdf'
+        // var source = document.getElementById(pdfid)
+        var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
         var opt = {
             margin: [10, 0, 10, 0],
             filename: title + ".pdf",
@@ -281,8 +282,36 @@ class MutasiPersediaan extends React.Component {
             html2canvas: { scale: 3 },
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
         }
-        html2pdf().set(opt).from(source).save()
-        this.setState({ print_loading: false })
+
+        var worker = html2pdf()
+            .set(opt)
+            .from(elements[0])
+
+        if (elements.length > 1) {
+            worker = worker.toPdf()
+
+            elements.slice(1).forEach((element, index) => {
+            worker = worker
+                .get('pdf')
+                .then(pdf => {
+                    console.log('masuk pak eko')
+                    console.log(index)
+                    pdf.addPage()
+                })
+                .set(opt)
+                .from(element)
+                // .toContainer()
+                .toCanvas()
+                .toPdf()
+            })
+        }
+
+        worker = worker.save().then(e => {
+            this.setState({print_loading: false})
+        })
+
+        // html2pdf().set(opt).from(source).save()
+        // this.setState({ print_loading: false })
         // doc.html(source, {
         //   callback: function (doc) {
         //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
@@ -338,6 +367,30 @@ class MutasiPersediaan extends React.Component {
         // if (document.referrer.includes('/main/inventory/products/edit?n=' + product)) {
         //     back_button = <span className="fs16 fw600 mr-auto my-auto" style={color} onClick={() => { history.back() }}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
         // }
+
+        var item_pdf = []
+
+        if (this.state.print_data.length > 0) {
+            var chunk = []
+            for (i = 0; i < this.state.print_data.length; i += (i == 0 ? 255 : 275)) {
+                chunk.push(this.state.print_data.slice(i, i + (i == 0 ? 255 : 275)));
+            }
+
+            console.log(chunk)
+
+            for (i = 0; i < chunk.length; i++) {
+                if (i == 0) {
+                    console.log('masuk pdf page pertama')
+                    item_pdf.push(
+                        <PDF data={chunk[i]} mode={this.state.mode} month={this.state.month} year={this.state.year}/>
+                    )
+                } else {
+                    item_pdf.push(
+                        <PDFListPage data={chunk[i]} pdfPage={i + 1}/>
+                    )
+                }
+            }
+        }
 
         if (this.state.loaded) {
             var month_select, sd_period
@@ -404,7 +457,7 @@ class MutasiPersediaan extends React.Component {
                         </div>
                     </div>
                     <MutasiPersediaanList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.print_data} />
+                    {item_pdf}
                 </div>
             )
 
@@ -630,6 +683,21 @@ class PDF extends React.Component {
         var invoice2 = { letterSpacing: 0 }
         var thead = { background: '#d9d9d9', fontSize: 11 }
         var table_rows = []
+        var subtitle = ''
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters.stock_date != undefined && this.props.mode != undefined) {
+            if (this.props.mode == 'monthly') {
+                var bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                console.log(bulan)
+                subtitle = 'Monthly ' + bulan
+            } else if (this.props.mode == 'annual') {
+                subtitle = 'Annual ' + moment(filters.stock_date).format('YYYY')
+            } else if (this.props.mode == 'period') {
+                var sampai_bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                subtitle = 'Periode ' + sampai_bulan
+            }
+        }
 
         // const indexOfLastTodo = this.props.currentpage * 30;
         // const indexOfFirstTodo = indexOfLastTodo - 30;
@@ -679,7 +747,7 @@ class PDF extends React.Component {
                             </div>
                             <div className="col-4 px-0">
                                 <p className="fwbold text-right text-uppercase fs28" style={invoice}>Mutasi Persediaan</p>
-                                {/*<p className="fw600 text-right text-uppercase fs14" style={invoice2}>{moment().format("MM/YYYY")}</p>*/}
+                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{subtitle}</p>
                             </div>
                             <div className="col-12" style={borderStyle} />
                         </div>
@@ -714,6 +782,49 @@ class PDF extends React.Component {
                 </div>
             </div>
         }
+    }
+}
+
+class PDFListPage extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        var data = this.props.data
+        var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
+        var row2 = { margin: '0 -14px' }
+        var fs9 = { fontSize: 9 }
+        var table_rows = []
+        
+        data.forEach((d, index) => {
+            table_rows.push(
+                <tr key={d.name} style={fs9} className="text-center">
+                    {/* <td className="py-1">{d.product_name}</td> */}
+                    <td className="py-1">{d.default_code}</td>
+                    <td className="py-1">{d.product_name}</td>
+                    <td className="py-1">{d.uom_name}</td>
+                    <td className="py-1">{formatter2.format(d.saldo_awal)}</td>
+                    <td className="py-1">{formatter2.format(d.nilai_awal)}</td>
+                    <td className="py-1">{formatter2.format(d.masuk)}</td>
+                    <td className="py-1">{formatter2.format(d.keluar)}</td>
+                    <td className="py-1">{formatter2.format(d.saldo_akhir)}</td>
+                    <td className="py-1">{formatter2.format(d.nilai_akhir)}</td>
+                </tr>
+            )
+        })
+
+        return (
+            <div className="position-absolute d-none" style={page_dimension}>
+                <div id={"pdf-"+this.props.pdfPage} className="px-4" style={page_dimension}>
+                    <table className="fs12" style={row2}>
+                        <tbody>
+                            {table_rows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        )
     }
 }
 

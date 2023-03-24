@@ -1223,7 +1223,7 @@ class PDF extends React.Component {
                 } else if (period[1] == 'not like') {
                     tanggal = 'Tidak Seperti ' + period[2].replaceAll('%', '')
                 }
-                subtitle += 'Periode ' + period[2].replaceAll('%', '')
+                subtitle = 'Periode ' + period[2].replaceAll('%', '')
             } else if (filters.filters.some((element) => element[0] == 'date')) {
                 var date = filters.filters.find((e) => e[0] == 'date')
                 var tanggal = ''
@@ -1242,7 +1242,7 @@ class PDF extends React.Component {
                 } else if (date[1] == '<=') {
                     tanggal = 'Kurang Dari Sama Dengan ' + date[2]
                 }
-                subtitle += 'Tanggal ' + tanggal
+                subtitle = 'Tanggal ' + tanggal
             }
         }
 
