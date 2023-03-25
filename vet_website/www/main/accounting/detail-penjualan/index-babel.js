@@ -135,7 +135,7 @@ class DetailPenjualan extends React.Component {
                     callback: function (r) {
                         if (r.message) {
                             console.log(r.message)
-                            td.setState({ 'print_data': r.message.data, 'loaded': true, 'datalength': r.message.datalength });
+                            td.setState({ 'print_data': r.message.data, 'loaded': true, 'datalength': r.message.datalength, all: 1 });
                             setTimeout(function() {
                                 td.printPDF()
                             }, 3000);

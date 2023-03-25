@@ -483,7 +483,7 @@ class PDF extends React.Component {
 
             return (
                 <div className="position-absolute d-none" style={page_dimension}>
-                    <div id="pdf" className="px-4" style={page_dimension}>
+                    <div id="pdf-1" className="px-4" style={page_dimension}>
                         <div className="row">
                             <div className="col-2 px-0">
                                 {image}

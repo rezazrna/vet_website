@@ -245,7 +245,9 @@ class MutasiPersediaan extends React.Component {
                         if (r.message) {
                             console.log(r.message)
                             td.setState({ 'print_data': r.message.mutasi_persediaan, 'loaded': true, 'datalength': r.message.datalength });
-                            td.printPDF()
+                            setTimeout(function() {
+                                td.printPDF()
+                            }, 3000);
                         }
                     }
                 });
@@ -674,7 +676,7 @@ class PDF extends React.Component {
         var profile = this.state.profile
         var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
         var borderStyle = { border: '1px solid #000', margin: '15px 0' }
-        var row2 = { margin: '0 -14px' }
+        var row2 = { width: '100%' }
         var th = { border: '1px solid #000' }
         var td = { borderLeft: '1px solid #000', borderRight: '1px solid #000' }
         var fs13 = { fontSize: 13 }
@@ -734,7 +736,7 @@ class PDF extends React.Component {
 
             return (
                 <div className="position-absolute d-none" style={page_dimension}>
-                    <div id="pdf" className="px-4" style={page_dimension}>
+                    <div id="pdf-1" className="px-4" style={page_dimension}>
                         <div className="row">
                             <div className="col-2 px-0">
                                 {image}
@@ -793,7 +795,7 @@ class PDFListPage extends React.Component {
     render() {
         var data = this.props.data
         var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
-        var row2 = { margin: '0 -14px' }
+        var row2 = { width: '100%' }
         var fs9 = { fontSize: 9 }
         var table_rows = []
         
