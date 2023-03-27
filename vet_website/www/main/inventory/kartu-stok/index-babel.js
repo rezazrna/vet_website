@@ -225,15 +225,14 @@ class KartuStok extends React.Component {
 
     printPDF() {
         var title = 'KartuStok-'
-        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
-        if (filters.stock_date != undefined && this.state.mode != undefined) {
+        if (this.state.stock_date != undefined && this.state.mode != undefined) {
             if (this.state.mode == 'monthly') {
                 var bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
                 console.log(bulan)
                 title += 'Monthly-' + bulan
             } else if (this.state.mode == 'annual') {
-                title += 'Annual-' + moment(filters.stock_date).format('YYYY')
+                title += 'Annual-' + moment(this.state.stock_date).format('YYYY')
             } else if (this.state.mode == 'period') {
                 var sampai_bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
                 title += 'Periode-' + sampai_bulan
@@ -375,7 +374,7 @@ class KartuStok extends React.Component {
                     if (i == 0) {
                         console.log('masuk pdf page pertama')
                         item_pdf.push(
-                            <PDF data={chunk[i]} saldo_awal={this.state.saldo_awal} mode={this.state.mode} month={this.state.month} year={this.state.year}/>
+                            <PDF data={chunk[i]} saldo_awal={this.state.saldo_awal} stock_date={this.state.stock_date} mode={this.state.mode} month={this.state.month} year={this.state.year}/>
                         )
                     } else {
                         item_pdf.push(
@@ -681,15 +680,14 @@ class PDF extends React.Component {
         var table_rows = []
 
         var subtitle = ''
-        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
-        if (filters.stock_date != undefined && this.props.mode != undefined) {
+        if (this.props.stock_date != undefined && this.props.mode != undefined) {
             if (this.props.mode == 'monthly') {
                 var bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
                 console.log(bulan)
                 subtitle = 'Monthly ' + bulan
             } else if (this.props.mode == 'annual') {
-                subtitle = 'Annual ' + moment(filters.stock_date).format('YYYY')
+                subtitle = 'Annual ' + moment(this.props.stock_date).format('YYYY')
             } else if (this.props.mode == 'period') {
                 var sampai_bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
                 subtitle = 'Periode ' + sampai_bulan
