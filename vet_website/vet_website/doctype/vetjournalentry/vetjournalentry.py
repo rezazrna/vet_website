@@ -194,6 +194,7 @@ def new_journal_entry(data):
 			for s in data_json.get("journal_items"):
 				if s.get('account', False):
 					if s.get('name'):
+						set_total = False
 						if s.get('delete') == True:
 							ji = frappe.get_doc('VetJournalItem', s.get('name'))
 							ji.update({
@@ -202,6 +203,7 @@ def new_journal_entry(data):
 								'credit': 0,
 							})
 							ji.save()
+							set_total = True
 						else:
 							ji = frappe.get_doc('VetJournalItem', s.get('name'))
 							if ji.account != s.get('account', False):
@@ -210,6 +212,8 @@ def new_journal_entry(data):
 									'credit': 0,
 								})
 								ji.save()
+
+								set_total = True
 								
 								new_ji = frappe.new_doc('VetJournalItem')
 								new_ji.update({
@@ -225,14 +229,19 @@ def new_journal_entry(data):
 								set_journal_item_total(new_ji.name, new_ji.account)
 								
 							else:
+								set_total = ji.debit != s.get('debit', 0) or ji.credit != s.get('credit', 0)
+
 								ji.update({
 									'account': s.get('account', False),
 									'debit': s.get('debit', 0),
 									'credit': s.get('credit', 0),
 								})
 								ji.save()
-						
-						set_journal_item_total(ji.name, ji.account)
+
+						print('set_total')
+						print(set_total)
+						if set_total:
+							set_journal_item_total(ji.name, ji.account)
 					else :
 						new_ji = frappe.new_doc('VetJournalItem')
 						new_ji.update({
