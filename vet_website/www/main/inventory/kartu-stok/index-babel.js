@@ -224,9 +224,25 @@ class KartuStok extends React.Component {
     }
 
     printPDF() {
-        var pdfid = 'pdf'
-        var format = [559, 794]
-        var th = this
+        var title = 'KartuStok-'
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters.stock_date != undefined && this.state.mode != undefined) {
+            if (this.state.mode == 'monthly') {
+                var bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                console.log(bulan)
+                title += 'Monthly-' + bulan
+            } else if (this.state.mode == 'annual') {
+                title += 'Annual-' + moment(filters.stock_date).format('YYYY')
+            } else if (this.state.mode == 'period') {
+                var sampai_bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
+                title += 'Periode-' + sampai_bulan
+            }
+        }
+
+        // var pdfid = 'pdf'
+        // var format = [559, 794]
+        // var th = this
         // var doc = new jsPDF({
         //     orientation: 'p',
         //     unit: 'pt',
@@ -236,7 +252,7 @@ class KartuStok extends React.Component {
         var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
         var opt = {
             margin: [10, 0, 10, 0],
-            filename: "KartuStok-" + moment().format('MM-YYYY') + ".pdf",
+            filename: title + ".pdf",
             pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
             html2canvas: { scale: 3 },
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
@@ -359,7 +375,7 @@ class KartuStok extends React.Component {
                     if (i == 0) {
                         console.log('masuk pdf page pertama')
                         item_pdf.push(
-                            <PDF data={chunk[i]} saldo_awal={this.state.saldo_awal}/>
+                            <PDF data={chunk[i]} saldo_awal={this.state.saldo_awal} mode={this.state.mode} month={this.state.month} year={this.state.year}/>
                         )
                     } else {
                         item_pdf.push(
@@ -664,6 +680,22 @@ class PDF extends React.Component {
         var thead = { background: '#d9d9d9', fontSize: 11 }
         var table_rows = []
 
+        var subtitle = ''
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters.stock_date != undefined && this.props.mode != undefined) {
+            if (this.props.mode == 'monthly') {
+                var bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                console.log(bulan)
+                subtitle = 'Monthly ' + bulan
+            } else if (this.props.mode == 'annual') {
+                subtitle = 'Annual ' + moment(filters.stock_date).format('YYYY')
+            } else if (this.props.mode == 'period') {
+                var sampai_bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                subtitle = 'Periode ' + sampai_bulan
+            }
+        }
+
         // const indexOfLastTodo = this.props.currentpage * 30;
         // const indexOfFirstTodo = indexOfLastTodo - 30;
         // var currentItems
@@ -724,7 +756,7 @@ class PDF extends React.Component {
                             </div>
                             <div className="col-4 px-0">
                                 <p className="fwbold text-right text-uppercase fs28" style={invoice}>Kartu Stok</p>
-                                {/*<p className="fw600 text-right text-uppercase fs14" style={invoice2}>{moment().format("MM/YYYY")}</p>*/}
+                                <p className="fw600 text-right text-uppercase fs14" style={invoice2}>{subtitle}</p>
                             </div>
                             <div className="col-12" style={borderStyle} />
                         </div>
@@ -774,17 +806,9 @@ class PDFListPage extends React.Component {
         // }
 
         var data = this.props.data
-        var profile = this.state.profile
         var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
-        var borderStyle = { border: '1px solid #000', margin: '15px 0' }
         var row2 = { margin: '0 -14px' }
-        var th = { border: '1px solid #000' }
-        var td = { borderLeft: '1px solid #000', borderRight: '1px solid #000' }
-        var fs13 = { fontSize: 13 }
         var fs9 = { fontSize: 9 }
-        var invoice = { letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18 }
-        var invoice2 = { letterSpacing: 0 }
-        var thead = { background: '#d9d9d9', fontSize: 11 }
         var table_rows = []
 
         // const indexOfLastTodo = this.props.currentpage * 30;
