@@ -40,7 +40,7 @@ class PiutangBeredar extends React.Component {
             loaded: false,
         });
 
-        filters['currentpage'] = this.state.currentpage
+        filters['currentpage'] = Number(number)
 
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
