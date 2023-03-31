@@ -16,7 +16,9 @@ class PiutangBeredar extends React.Component {
     
     componentDidMount() {
         var po = this
-        var filters
+        var filters = {}
+
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
         frappe.call({
             type: "GET",
