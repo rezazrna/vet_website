@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 import frappe
 import json
+from numpy import diff
 import pytz
 from datetime import datetime as dt
 from frappe.model.document import Document
@@ -186,15 +187,18 @@ def submit_adjustment(data):
 			out_operation_move = []
 			
 			for inv in data_json.get('inventory_details', []):
-				move = {'product': inv.get('product'), 'quantity': inv.get('diff_quantity', 0), 'quantity_done': inv.get('diff_quantity', 0), 'date': data_json.get('inventory_date')}
-				if float(inv.get('diff_quantity', 0)) > 0:
+				diff_quantity = 0
+				if inv.get('diff_quantity') is not None:
+					diff_quantity = inv.get('diff_quantity')
+				move = {'product': inv.get('product'), 'quantity': diff_quantity, 'quantity_done': diff_quantity, 'date': data_json.get('inventory_date')}
+				if float(diff_quantity) > 0:
 					in_operation_move.append(move)
-					adjustment_value = increase_product_valuation(inv.get('product'), inv.get('diff_quantity', 0))
+					adjustment_value = increase_product_valuation(inv.get('product'), diff_quantity)
 					inv.update({'adjustment_value': adjustment_value})
-				elif float(inv.get('diff_quantity', 0)) < 0:
-					move.update({'quantity': -float(inv.get('diff_quantity', 0)), 'quantity_done': -float(inv.get('diff_quantity', 0))})
+				elif float(diff_quantity) < 0:
+					move.update({'quantity': -float(diff_quantity), 'quantity_done': -float(diff_quantity)})
 					out_operation_move.append(move)
-					adjustment_value = decrease_product_valuation(inv.get('product'), -float(inv.get('diff_quantity', 0)))
+					adjustment_value = decrease_product_valuation(inv.get('product'), -float(diff_quantity))
 					inv.update({'adjustment_value': adjustment_value})
 					
 			data_json.update({'status': 'Done'})
