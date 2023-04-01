@@ -16,6 +16,9 @@ class HutangBeredar extends React.Component {
     
     componentDidMount() {
         var po = this
+        var filters = {}
+
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
         frappe.call({
             type: "GET",
