@@ -35,7 +35,7 @@ web_include_js = [
 					"https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js",
 					"https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.14.0/umd/react-dom.production.min.js",
 					"https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js",
-					"https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/shim.min.js",
+					"https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js",
 					"/assets/frappe/node_modules/moment/min/moment.min.js",
 					"https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js",
 					"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js",
