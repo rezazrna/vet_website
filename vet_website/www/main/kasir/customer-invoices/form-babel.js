@@ -2086,7 +2086,7 @@ class PopupPay extends React.Component {
                                         if (m.error){
                                             frappe.msgprint(m.error)
                                             results.push(false)
-                                            return
+                                            // return
                                         } else if (m.name){
                                             results.push(true)
                                         }
