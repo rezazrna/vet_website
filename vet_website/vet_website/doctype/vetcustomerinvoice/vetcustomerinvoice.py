@@ -1067,6 +1067,7 @@ def add_payment_multiple(data):
 @frappe.whitelist()
 def add_payment(data):
 	try:
+		return {'error': Exception("Sorry, no numbers below zero")}
 		tz = pytz.timezone("Asia/Jakarta")
 		pos_session = False
 		data_json = json.loads(data)
