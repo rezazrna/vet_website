@@ -1067,7 +1067,6 @@ def add_payment_multiple(data):
 @frappe.whitelist()
 def add_payment(data):
 	try:
-		return {'error': Exception("Sorry, no numbers below zero")}
 		tz = pytz.timezone("Asia/Jakarta")
 		pos_session = False
 		data_json = json.loads(data)
@@ -1113,6 +1112,20 @@ def add_payment(data):
 				# deliver_to_customer(invoice.name)
 			invoice.save()
 			frappe.db.commit()
+
+			if not data_json.get('from_owner_credit'):
+				owner_credit = frappe.new_doc('VetOwnerCredit')
+				owner_credit.update({
+					'date': tanggal,
+					'register_number': invoice.register_number,
+					'invoice': invoice.name,
+					'type': 'Payment',
+					'nominal': float(data_json.get('jumlah')),
+					'metode_pembayaran': data_json.get('payment_method')
+				})
+				owner_credit.insert()
+				frappe.db.commit()
+				set_owner_credit_total(invoice.owner)
 			
 			create_sales_payment_journal_items(invoice.name, float(data_json.get('jumlah')), False, data_json.get('deposit', 0), data_json.get('payment_method'))
 			invoice.reload()
@@ -1127,20 +1140,6 @@ def add_payment(data):
 				session.difference = session.current_balance - session.closing_balance
 				session.save()
 				frappe.db.commit()
-			
-			if not data_json.get('from_owner_credit'):
-				owner_credit = frappe.new_doc('VetOwnerCredit')
-				owner_credit.update({
-					'date': tanggal,
-					'register_number': invoice.register_number,
-					'invoice': invoice.name,
-					'type': 'Payment',
-					'nominal': float(data_json.get('jumlah')),
-					'metode_pembayaran': data_json.get('payment_method')
-				})
-				owner_credit.insert()
-				frappe.db.commit()
-				set_owner_credit_total(invoice.owner)
 					
 			# if paid > invoice.total:
 			# 	exchange = paid - invoice.total
