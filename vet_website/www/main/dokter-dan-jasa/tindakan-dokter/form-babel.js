@@ -894,6 +894,7 @@ class TindakanDokter extends React.Component {
         var lh14 = {lineHeight: '14px'}
         var color = {color: '#056EAD', cursor: 'pointer'}
         var cursor = {cursor: 'pointer'}
+        var styleLanjut = {width: '130px', lineHeight: '14px'}
         var backButton = <span className="fs16 fw600 mr-4 my-auto" style={color} onClick={() => window.location.href="/main/dokter-dan-jasa/tindakan-dokter"}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
         var templateTindakan
         var actionButton = []
@@ -913,10 +914,10 @@ class TindakanDokter extends React.Component {
         	if(lanjut){
         	    actionButton.push(
                     <div className="col-auto d-flex" key="1">
-        				<button type="submit" 
+        				<button type="submit"
                             className={this.state.save_loading
                                 ? "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto disabled"
-                                : "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto"} style={lh14}>
+                                : "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto"} style={styleLanjut}>
                             {this.state.save_loading
                                 ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                                 : "Lanjut"}</button>
