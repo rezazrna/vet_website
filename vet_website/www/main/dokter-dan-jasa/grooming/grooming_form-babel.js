@@ -20,6 +20,7 @@ class Grooming extends React.Component {
             'checks': [],
             'show_actions': false,
             'currentUser': {},
+            'save_loading': false
         }
 
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -148,7 +149,9 @@ class Grooming extends React.Component {
         const name = event.target.name;
         var new_data = this.state.data
         new_data.grooming[name] = value
-        this.setState({ data: new_data });
+        this.setState({ data: new_data, save_loading: true });
+
+        var th = this
 
         frappe.call({
             type: "POST",
@@ -158,6 +161,8 @@ class Grooming extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -167,9 +172,11 @@ class Grooming extends React.Component {
         const name = event.target.name;
         var new_data = this.state.data
         new_data.grooming.actions[i][name] = value
-        this.setState({ data: new_data })
+        this.setState({ data: new_data, save_loading: true })
 
         console.log(new_data.grooming.actions)
+
+        var th = this
 
         frappe.call({
             type: "POST",
@@ -179,6 +186,8 @@ class Grooming extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -191,7 +200,9 @@ class Grooming extends React.Component {
             new_data.grooming.new_actions = {}
         }
         new_data.grooming.new_actions[name] = value
-        this.setState({ data: new_data })
+        this.setState({ data: new_data, save_loading: true })
+
+        var th = this
 
         if (new_data.grooming.new_actions['date'] && new_data.grooming.new_actions['note']) {
             frappe.call({
@@ -202,6 +213,8 @@ class Grooming extends React.Component {
                     if (r.message != true) {
                         frappe.msgprint(r.message.error)
                     }
+
+                    th.setState({save_loading: false})
                 }
             });
         }
@@ -325,6 +338,7 @@ class Grooming extends React.Component {
         var new_data = this.state.data
         var ap = this
         console.log(new_data)
+        ap.setState({save_loading: true})
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetproduct.vetproduct.get_product",
@@ -342,6 +356,7 @@ class Grooming extends React.Component {
                             if (r.message != true) {
                                 frappe.msgprint(r.message.error)
                             }
+                            ap.setState({save_loading: false})
                         }
                     });
                     ap.setState({ 'data': new_data })
@@ -393,6 +408,7 @@ class Grooming extends React.Component {
             })
 
             if (selected) {
+                ap.setState({save_loading: true})
                 e.target.selectedIndex = 0
                 frappe.call({
                     type: "POST",
@@ -409,6 +425,8 @@ class Grooming extends React.Component {
                                     if (r.message != true) {
                                         frappe.msgprint(r.message.error)
                                     }
+
+                                    ap.setState({save_loading: false})
                                 }
                             });
                             ap.setState({ 'data': new_data })
@@ -438,6 +456,10 @@ class Grooming extends React.Component {
             new_data.grooming.products[i].delete = true
         }
 
+        this.setState({save_loading: true})
+
+        var th = this
+
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetgrooming.vetgrooming.autosave",
@@ -446,6 +468,8 @@ class Grooming extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
         this.setState({ 'data': new_data })
@@ -508,7 +532,10 @@ class Grooming extends React.Component {
     addCheck(data) {
         var checks = this.state.checks.slice()
         checks.push(data)
-        this.setState({ checks: checks })
+        this.setState({ checks: checks, save_loading: true })
+
+        var th = this
+
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetgrooming.vetgrooming.autosave",
@@ -517,6 +544,8 @@ class Grooming extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -524,7 +553,10 @@ class Grooming extends React.Component {
     deleteCheck(i) {
         var checks = this.state.checks.slice()
         checks[i].delete = true
-        this.setState({ checks: checks })
+        this.setState({ checks: checks, save_loading: true })
+
+        var th = this
+
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetgrooming.vetgrooming.autosave",
@@ -533,6 +565,8 @@ class Grooming extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -547,6 +581,7 @@ class Grooming extends React.Component {
                 data.dataurl = reader.result
             data.attachment = URL.createObjectURL(data.attachment)
             new_data.grooming.attachments.push(data)
+            vr.setState({save_loading: true})
             frappe.call({
                 type: "POST",
                 method: "vet_website.vet_website.doctype.vetgrooming.vetgrooming.autosave",
@@ -555,6 +590,8 @@ class Grooming extends React.Component {
                     if (r.message != true) {
                         frappe.msgprint(r.message.error)
                     }
+
+                    vr.setState({save_loading: false})
                 }
             });
             vr.setState({ data: new_data })
@@ -570,7 +607,9 @@ class Grooming extends React.Component {
         else {
             new_data.grooming.attachments.splice(i, 1)
         }
-        this.setState({ data: new_data })
+        this.setState({ data: new_data, save_loading: true })
+
+        var th = this
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetgrooming.vetgrooming.autosave",
@@ -579,6 +618,8 @@ class Grooming extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -586,7 +627,8 @@ class Grooming extends React.Component {
     addMarker(marker) {
         var new_data = Object.assign({}, this.state.data)
         new_data.grooming.marker = marker
-        this.setState({ data: new_data })
+        this.setState({ data: new_data, save_loading: true })
+        var th = this
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetgrooming.vetgrooming.autosave",
@@ -595,12 +637,16 @@ class Grooming extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
 
     resetMarker() {
         var new_data = Object.assign({}, this.state.data)
+        this.setState({save_loading: true})
+        var th = this
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetgrooming.vetgrooming.autosave",
@@ -609,6 +655,8 @@ class Grooming extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
         delete new_data.grooming.marker
@@ -648,14 +696,28 @@ class Grooming extends React.Component {
                 if (proses) {
                     buttonMode.push(
                         <div className="col-auto my-auto" key="process">
-                            <button type="submit" id="to_done" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lineHeight_style} onClick={() => this.setState({ is_done: true })}>Proses</button>
+                            <button type="submit" id="to_done" 
+                                className={this.state.save_loading
+                                    ? "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2 disabled"
+                                    : "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2"} 
+                                style={lineHeight_style} onClick={() => this.setState({ is_done: true })}>
+                                {this.state.save_loading
+                                    ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                    : "Proses"}</button>
                         </div>
                     )
                 }
                 if (lanjut) {
                     buttonMode.push(
                         <div className="col-auto my-auto" key="1">
-                            <button type="submit" id="to_checked" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lineHeight_style}>Lanjut</button>
+                            <button type="submit" id="to_checked" 
+                                className={this.state.save_loading
+                                    ? "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2 disabled"
+                                    : "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2"} 
+                                style={lineHeight_style}>
+                                {this.state.save_loading
+                                    ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                    : "Lanjut"}</button>
                         </div>
                     )
                 }
@@ -668,7 +730,14 @@ class Grooming extends React.Component {
             else if (grooming.status == 'Checked' && proses) {
                 buttonMode.push(
                     <div className="col-auto my-auto" key="1">
-                        <button type="submit" id="to_done" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lineHeight_style}>Proses</button>
+                        <button type="submit" id="to_done" 
+                            className={this.state.save_loading
+                                ? "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2 disabled"
+                                : "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2"}
+                            style={lineHeight_style}>
+                            {this.state.save_loading
+                                ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                : "Proses"}</button>
                     </div>
                 )
             }

@@ -567,7 +567,7 @@ def autosave(field, value, name):
 			
 		frappe.db.commit()
 		return True
-	except PermissionError as e:
+	except Exception as e:
 		return {'error': e}
 		
 @frappe.whitelist()

@@ -11,6 +11,7 @@ class InstalasiMedis extends React.Component {
             'add_mode': 'jasa',
             'new_obat': {},
             'currentUser': {},
+            'save_loading': false,
         }
         this.toggleMainFormWide = this.toggleMainFormWide.bind(this)
         this.changeAddMode = this.changeAddMode.bind(this)
@@ -136,10 +137,12 @@ class InstalasiMedis extends React.Component {
     	var onSelectObat = this.state.onSelectObat
     	new_data.obat.splice(index, 1)
     	if (onSelectObat == index) {
-    		this.setState({data: new_data, onSelectObat: 'false'})
+    		this.setState({data: new_data, save_loading: true, onSelectObat: 'false'})
     	} else {
-    		this.setState({data: new_data})
+    		this.setState({data: new_data, save_loading: true})
     	}
+
+        var th = this
     	
     	frappe.call({
             type: "POST",
@@ -149,6 +152,8 @@ class InstalasiMedis extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -215,11 +220,13 @@ class InstalasiMedis extends React.Component {
             	    new_obat.quantity = new_obat.quantity.replace(/,/g, '.') 
             	}
         		new_data.obat.push(new_obat)
-            	this.setState({data: new_data, new_obat:{}})
+            	this.setState({data: new_data, new_obat:{}, save_loading: true})
             	var qty = document.getElementById("quantity")
             	var selectProduct = document.getElementById("obat_input")
             	qty.value = qty.defaultValue
             	selectProduct.value = ''
+
+                var th = this
             	
             	frappe.call({
                     type: "POST",
@@ -229,6 +236,8 @@ class InstalasiMedis extends React.Component {
                         if (r.message != true) {
                             frappe.msgprint(r.message.error)
                         }
+
+                        th.setState({save_loading: false})
                     }
                 });
             }
@@ -247,6 +256,8 @@ class InstalasiMedis extends React.Component {
         this.setState({data: new_data})
 
         if (name != 'nama_dokter') {
+            this.setState({save_loading: true})
+            var th = this
             frappe.call({
                 type: "POST",
                 method:"vet_website.vet_website.doctype.vetinstalasimedis.vetinstalasimedis.autosave",
@@ -255,6 +266,7 @@ class InstalasiMedis extends React.Component {
                     if (r.message != true) {
                         frappe.msgprint(r.message.error)
                     }
+                    th.setState({save_loading: false})
                 }
             });
         }
@@ -316,6 +328,7 @@ class InstalasiMedis extends React.Component {
         	})
         	
         	if (selected) {
+                this.setState({save_loading: true})
         	    e.target.selectedIndex = 0
                 frappe.call({
             		type: "POST",
@@ -334,6 +347,8 @@ class InstalasiMedis extends React.Component {
                                     if (r.message != true) {
                                         frappe.msgprint(r.message.error)
                                     }
+
+                                    jl.setState({save_loading: false})
                                 }
                             });
             			}
@@ -364,6 +379,7 @@ class InstalasiMedis extends React.Component {
         	})
         	
         	if (selected) {
+                this.setState({save_loading: true})
         	    e.target.selectedIndex = 0
                 frappe.call({
             		type: "POST",
@@ -382,6 +398,8 @@ class InstalasiMedis extends React.Component {
                                     if (r.message != true) {
                                         frappe.msgprint(r.message.error)
                                     }
+
+                                    tl.setState({save_loading: false})
                                 }
                             });
             			}
@@ -403,7 +421,9 @@ class InstalasiMedis extends React.Component {
         else {
             new_data.jasa.splice(i, 1)
         }
-        this.setState({data: new_data})
+        this.setState({data: new_data, save_loading: true})
+
+        var th = this
         
         frappe.call({
             type: "POST",
@@ -413,6 +433,8 @@ class InstalasiMedis extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -425,7 +447,9 @@ class InstalasiMedis extends React.Component {
         else {
             new_data.tindak_lanjut.splice(i, 1)
         }
-        this.setState({data: new_data})
+        this.setState({data: new_data, save_loading: true})
+
+        var th = this
         
         frappe.call({
             type: "POST",
@@ -435,6 +459,8 @@ class InstalasiMedis extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -497,7 +523,9 @@ class InstalasiMedis extends React.Component {
     addCheck(data){
         var checks = this.state.checks.slice()
         checks.push(data)
-        this.setState({checks: checks})
+        this.setState({checks: checks, save_loading: true})
+
+        var th = this
         
         frappe.call({
             type: "POST",
@@ -507,6 +535,7 @@ class InstalasiMedis extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+                th.setState({save_loading: false})
             }
         });
     }
@@ -514,7 +543,9 @@ class InstalasiMedis extends React.Component {
     deleteCheck(i){
         var checks = this.state.checks.slice()
         checks[i].delete = true
-        this.setState({checks: checks})
+        this.setState({checks: checks, save_loading: true})
+
+        var th = this
         
         frappe.call({
             type: "POST",
@@ -524,6 +555,7 @@ class InstalasiMedis extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+                th.setState({save_loading: false})
             }
         });
     }
@@ -538,7 +570,7 @@ class InstalasiMedis extends React.Component {
             data.dataurl = reader.result
             data.attachment =  URL.createObjectURL(data.attachment)
             new_data.attachments.push(data)
-            vr.setState({data: new_data})
+            vr.setState({data: new_data, save_loading: true})
             
             frappe.call({
                 type: "POST",
@@ -548,6 +580,7 @@ class InstalasiMedis extends React.Component {
                     if (r.message != true) {
                         frappe.msgprint(r.message.error)
                     }
+                    vr.setState({save_loading: false})
                 }
             });
         }
@@ -562,7 +595,9 @@ class InstalasiMedis extends React.Component {
         else {
             new_data.attachments.splice(i, 1)
         }
-        this.setState({data: new_data})
+        this.setState({data: new_data, save_loading: true})
+
+        var th = this
         
         frappe.call({
             type: "POST",
@@ -572,6 +607,8 @@ class InstalasiMedis extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -579,7 +616,9 @@ class InstalasiMedis extends React.Component {
     addMarker(marker){
         var new_data = Object.assign({}, this.state.data)
         new_data.marker = marker
-        this.setState({data: new_data})
+        this.setState({data: new_data, save_loading: true})
+
+        var th = this
         
         frappe.call({
             type: "POST",
@@ -589,6 +628,8 @@ class InstalasiMedis extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -596,7 +637,9 @@ class InstalasiMedis extends React.Component {
     resetMarker(){
         var new_data = Object.assign({}, this.state.data)
         delete new_data.marker
-        this.setState({data: new_data})
+        this.setState({data: new_data, save_loading: true})
+
+        var th = this
         
         frappe.call({
             type: "POST",
@@ -606,6 +649,8 @@ class InstalasiMedis extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -644,7 +689,14 @@ class InstalasiMedis extends React.Component {
         	if(lanjut){
         	    actionButton.push(
                     <div className="col-auto d-flex" key="1">
-        				<button type="submit" className="btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto" style={lh14}>Lanjut</button>
+        				<button type="submit" 
+                            className={this.state.save_loading
+                                ? "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto disabled"
+                                : "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto"} 
+                            style={lh14}>
+                            {this.state.save_loading
+                                ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                : "Lanjut"}</button>
         			</div>
             	)
         	}
