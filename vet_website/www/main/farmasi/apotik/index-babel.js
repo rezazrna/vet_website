@@ -38,7 +38,7 @@ class Apotik extends React.Component {
         }
 
         if (new_filters.hasOwnProperty("search")) {
-            this.setState({ 'search': filters['search'] })
+            this.setState({ 'search': new_filters['search'] })
         }
 
         if (register_number) {

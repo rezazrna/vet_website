@@ -30,7 +30,7 @@ class Asset extends React.Component {
         }
 
         if (new_filters.hasOwnProperty("search")) {
-            this.setState({ 'search': filters['search'] })
+            this.setState({ 'search': new_filters['search'] })
         }
 
         sessionStorage.setItem(window.location.pathname, JSON.stringify(new_filters))
