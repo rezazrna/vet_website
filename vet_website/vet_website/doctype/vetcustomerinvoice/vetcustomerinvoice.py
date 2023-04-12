@@ -585,7 +585,7 @@ def get_customer_open_invoice(filters=None, all_page=False):
 			owner_filters.append({'owner_name': ['like', '%'+search+'%']})
 	
 	try:
-		invoice_filters = {'status': 'Open', 'is_refund': False}
+		invoice_filters = {'status': 'Open', 'is_refund': False, 'already_refund': False}
 		open_invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["owner", "name"], group_by="owner")
 		owners_name = list(oi.owner for oi in open_invoices)
 		if owners_name:
@@ -679,7 +679,7 @@ def get_mutasi_piutang(filters=None, mode=False, all=False):
 		datalength = len(frappe.get_all("VetPetOwner", filters=owner_filters, as_list=True))
 
 		for o in owners:
-			invoice_filters.update({'status': 'Open', 'is_refund': False, 'owner': o['name']})
+			invoice_filters.update({'status': 'Open', 'is_refund': False, 'already_refund': False, 'owner': o['name']})
 			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["name", "total"])
 			debit = 0
 			credit = 0

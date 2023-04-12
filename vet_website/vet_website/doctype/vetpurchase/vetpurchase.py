@@ -215,7 +215,7 @@ def get_supplier_open_order(filters=None, all_page=False):
 			supplier_filters.append({'supplier_name': ['like', '%'+search+'%']})
 		
 	try:
-		purchase_filters = {'status': ['in', ['Purchase Order', 'Receive']], 'is_refund': False}
+		purchase_filters = {'status': ['in', ['Purchase Order', 'Receive']], 'is_refund': False, 'already_refund': False}
 		open_purchase = frappe.get_list("VetPurchase", filters=purchase_filters, fields=["name", 'supplier'], group_by="supplier")
 		suppliers_name = list(oi.supplier for oi in open_purchase)
 		if suppliers_name:
@@ -306,7 +306,7 @@ def get_mutasi_hutang(filters=None, mode=False, all=False):
 		datalength = len(frappe.get_all("VetSupplier", filters=supplier_filters, as_list=True))
 
 		for s in suppliers:
-			purchase_filters.update({'status': ['in', ['Purchase Order', 'Receive']], 'is_refund': False, 'supplier': s['name']})
+			purchase_filters.update({'status': ['in', ['Purchase Order', 'Receive']], 'is_refund': False, 'already_refund': False, 'supplier': s['name']})
 			purchases = frappe.get_list("VetPurchase", filters=purchase_filters, fields=["name"])
 			debit = 0
 			credit = 0
