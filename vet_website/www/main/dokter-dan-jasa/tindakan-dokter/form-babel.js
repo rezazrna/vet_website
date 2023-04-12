@@ -316,7 +316,7 @@ class TindakanDokter extends React.Component {
                                         frappe.msgprint(r.message.error)
                                     }
 
-                                    ji.setState({save_loading: false})
+                                    jl.setState({save_loading: false})
                                 }
                             });
             			}
