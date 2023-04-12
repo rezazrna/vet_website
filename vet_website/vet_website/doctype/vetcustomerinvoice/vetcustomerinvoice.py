@@ -1061,7 +1061,7 @@ def add_payment_multiple(data):
 				
 		return results
 		
-	except PermissionError as e:
+	except Exception as e:
 		return {'error': e}
 		
 @frappe.whitelist()
@@ -1154,7 +1154,7 @@ def add_payment(data):
 				
 			return invoice
 
-	except PermissionError as e:
+	except Exception as e:
 		return {'error': e}
 		
 @frappe.whitelist()

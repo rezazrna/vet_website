@@ -434,9 +434,6 @@ class TindakanDokter extends React.Component {
 
                     th.setState({save_loading: false})
                 },
-                error: function(e) {
-                    th.setState({save_loading: false})
-                }
             });
         }
 
