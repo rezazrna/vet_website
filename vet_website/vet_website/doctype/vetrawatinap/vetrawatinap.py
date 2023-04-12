@@ -457,7 +457,8 @@ def add_tindakan(data):
 			tindakan = tindakan_search[0]
 			tindakan.rekam_medis = get_rekam_medis(rekam_medis.name)
 			
-			update_invoice(json.dumps(products_invoice), rawat_inap.name)
+			if len(products_invoice) > 0:
+				update_invoice(json.dumps(products_invoice), rawat_inap.name)
 			
 			return tindakan
 		else:
