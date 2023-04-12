@@ -845,5 +845,5 @@ def autosave(field, value, name):
 			
 		frappe.db.commit()
 		return True
-	except Exception as e:
+	except PermissionError as e:
 		return {'error': e}

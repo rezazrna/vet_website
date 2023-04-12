@@ -247,7 +247,7 @@ class TindakanDokter extends React.Component {
                     frappe.msgprint(r.message.error)
                 }
                 th.setState({save_loading: false})
-            }
+            },
         });
     }
     
@@ -432,6 +432,9 @@ class TindakanDokter extends React.Component {
                         frappe.msgprint(r.message.error)
                     }
 
+                    th.setState({save_loading: false})
+                },
+                error: function(e) {
                     th.setState({save_loading: false})
                 }
             });
