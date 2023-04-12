@@ -738,7 +738,7 @@ def get_mutasi_piutang(filters=None, mode=False, all=False):
 	
 @frappe.whitelist()
 def get_rekap_penjualan(filters=None, mode=False, all=False):
-	invoice_filters = {'is_refund': False}
+	invoice_filters = {'is_refund': False, 'already_refund': False}
 
 	filter_json = False
 	page = 1
@@ -824,7 +824,7 @@ def get_rekap_penjualan(filters=None, mode=False, all=False):
 	
 @frappe.whitelist()
 def get_detail_penjualan(filters=None, mode=False, all=False):
-	invoice_filters = {'is_refund': False}
+	invoice_filters = {'is_refund': False, 'already_refund': False}
 
 	filter_json = False
 	page = 1
