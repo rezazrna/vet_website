@@ -24,6 +24,7 @@ class TindakanDokter extends React.Component {
             'show_template': false,
             'show_kunjungan_berikutnya': false,
             'currentUser': {},
+            'save_loading': false
         }
         
         this.addJasaLain = this.addJasaLain.bind(this)
@@ -233,6 +234,8 @@ class TindakanDokter extends React.Component {
 
         var th = this
 
+        this.setState({save_loading: true})
+
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
@@ -243,6 +246,7 @@ class TindakanDokter extends React.Component {
                 } else {
                     frappe.msgprint(r.message.error)
                 }
+                th.setState({save_loading: false})
             }
         });
     }
@@ -258,6 +262,8 @@ class TindakanDokter extends React.Component {
 
         var th = this
 
+        this.setState({save_loading: true})
+
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
@@ -268,6 +274,8 @@ class TindakanDokter extends React.Component {
                 } else {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -288,6 +296,7 @@ class TindakanDokter extends React.Component {
         	})
         	
         	if (selected) {
+                this.setState({save_loading: true})
         	    e.target.selectedIndex = 0
                 frappe.call({
             		type: "POST",
@@ -306,6 +315,8 @@ class TindakanDokter extends React.Component {
                                     } else {
                                         frappe.msgprint(r.message.error)
                                     }
+
+                                    ji.setState({save_loading: false})
                                 }
                             });
             			}
@@ -336,6 +347,7 @@ class TindakanDokter extends React.Component {
         	})
         	
         	if (selected) {
+                this.setState({save_loading: true})
         	    e.target.selectedIndex = 0
                 frappe.call({
             		type: "POST",
@@ -354,6 +366,8 @@ class TindakanDokter extends React.Component {
                                     } else {
                                         frappe.msgprint(r.message.error)
                                     }
+
+                                    tl.setState({save_loading: false})
                                 }
                             });
             			}
@@ -379,6 +393,7 @@ class TindakanDokter extends React.Component {
         var th = this
         
         if (new_data.layanan_berjadwal[i]['date'] && new_data.layanan_berjadwal[i]['note']) {
+            this.setState({save_loading: true})
             frappe.call({
                 type: "POST",
                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
@@ -389,6 +404,8 @@ class TindakanDokter extends React.Component {
                     } else {
                         frappe.msgprint(r.message.error)
                     }
+
+                    th.setState({save_loading: false})
                 }
             });
         }
@@ -402,7 +419,10 @@ class TindakanDokter extends React.Component {
         
         new_data[name] = value
 
+        var th = this
+
         if (name != 'nama_dokter') {
+            this.setState({save_loading: true})
             frappe.call({
                 type: "POST",
                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
@@ -411,6 +431,8 @@ class TindakanDokter extends React.Component {
                     if (r.message != true) {
                         frappe.msgprint(r.message.error)
                     }
+
+                    th.setState({save_loading: false})
                 }
             });
         }
@@ -479,6 +501,8 @@ class TindakanDokter extends React.Component {
     	new_data.obat.splice(index, 1)
 
         var th = this
+
+        this.setState({save_loading: true})
     	
     	frappe.call({
             type: "POST",
@@ -494,6 +518,8 @@ class TindakanDokter extends React.Component {
                 } else {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -571,6 +597,8 @@ class TindakanDokter extends React.Component {
             	} else {
             		new_data.obat.push(new_obat)
             	}
+
+                this.setState({save_loading: true})
             	
             	frappe.call({
                     type: "POST",
@@ -591,6 +619,8 @@ class TindakanDokter extends React.Component {
                         } else {
                             frappe.msgprint(r.message.error)
                         }
+
+                        th.setState({save_loading: false})
                     }
                 });
             } else {
@@ -617,6 +647,8 @@ class TindakanDokter extends React.Component {
     	var new_data = JSON.parse(JSON.stringify(this.state.data));
     	new_data.obat[indexParent].product_racikan.splice(indexChild, 1)
         var th = this
+
+        this.setState({save_loading: true})
     	
     	frappe.call({
             type: "POST",
@@ -628,6 +660,8 @@ class TindakanDokter extends React.Component {
                 } else {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -638,6 +672,8 @@ class TindakanDokter extends React.Component {
     	new_data.obat[racikanIndex].product_racikan.push(product)
     	new_data.obat.splice(productIndex,1)
         var th = this
+
+        this.setState({save_loading: true})
     	
     	frappe.call({
             type: "POST",
@@ -653,6 +689,8 @@ class TindakanDokter extends React.Component {
                 } else {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -661,6 +699,10 @@ class TindakanDokter extends React.Component {
         var checks = this.state.checks.slice()
         checks.push(data)
         console.log(data)
+
+        this.setState({save_loading: true})
+
+        var th = this
         
         frappe.call({
             type: "POST",
@@ -670,6 +712,8 @@ class TindakanDokter extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)   
                 }
+
+                th.setState({save_loading: false})
             }
         });
 
@@ -679,6 +723,10 @@ class TindakanDokter extends React.Component {
     deleteCheck(i){
         var checks = this.state.checks.slice()
         checks[i].delete = true
+
+        this.setState({save_loading: true})
+
+        var th = this
         
         frappe.call({
             type: "POST",
@@ -688,6 +736,8 @@ class TindakanDokter extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
 
@@ -704,6 +754,8 @@ class TindakanDokter extends React.Component {
             data.dataurl = reader.result
             data.attachment =  URL.createObjectURL(data.attachment)
             new_data.attachments.push(data)
+
+            vr.setState({save_loading: true})
             frappe.call({
                 type: "POST",
                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
@@ -714,6 +766,8 @@ class TindakanDokter extends React.Component {
                     } else {
                         frappe.msgprint(r.message.error)
                     }
+
+                    vr.setState({save_loading: false})
                 }
             });
         }
@@ -729,6 +783,8 @@ class TindakanDokter extends React.Component {
             new_data.attachments.splice(i, 1)
         }
         var th = this
+
+        this.setState({save_loading: true})
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
@@ -739,6 +795,8 @@ class TindakanDokter extends React.Component {
                 } else {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
     }
@@ -746,6 +804,10 @@ class TindakanDokter extends React.Component {
     addMarker(marker){
         var new_data = JSON.parse(JSON.stringify(this.state.data));
         new_data.marker = marker
+
+        this.setState({save_loading: true})
+
+        var th = this
 
         frappe.call({
             type: "POST",
@@ -755,6 +817,8 @@ class TindakanDokter extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
                 }
+
+                th.setState({save_loading: false})
             }
         });
 
@@ -764,6 +828,10 @@ class TindakanDokter extends React.Component {
     resetMarker(){
         var new_data = JSON.parse(JSON.stringify(this.state.data));
 
+        this.setState({save_loading: true})
+
+        var th = this
+
         frappe.call({
             type: "POST",
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
@@ -772,6 +840,8 @@ class TindakanDokter extends React.Component {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)   
                 }
+
+                th.setState({save_loading: false})
             }
         });
 
@@ -843,7 +913,13 @@ class TindakanDokter extends React.Component {
         	if(lanjut){
         	    actionButton.push(
                     <div className="col-auto d-flex" key="1">
-        				<button type="submit" className="btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto" style={lh14}>Lanjut</button>
+        				<button type="submit" 
+                            className={this.state.save_loading
+                                ? "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto disabled"
+                                : "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto"} style={lh14}>
+                            {this.state.save_loading
+                                ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                : "Lanjut"}</button>
         			</div>
             	)
         	}
