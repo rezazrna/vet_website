@@ -224,7 +224,8 @@ class TindakanDokter extends React.Component {
     }
     
     deleteJasaLain(i){
-        var new_data = JSON.parse(JSON.stringify(this.state.data));
+        // var new_data = JSON.parse(JSON.stringify(this.state.data));
+        var new_data = Object.create(this.state.data)
         if(new_data.jasa[i].name != undefined){
             new_data.jasa[i].deleted = true
         }
@@ -234,7 +235,7 @@ class TindakanDokter extends React.Component {
 
         var th = this
 
-        // this.setState({save_loading: true})
+        this.setState({save_loading: true})
 
         frappe.call({
             type: "POST",
@@ -246,7 +247,7 @@ class TindakanDokter extends React.Component {
                 } else {
                     frappe.msgprint(r.message.error)
                 }
-                // th.setState({save_loading: false})
+                th.setState({save_loading: false})
             },
         });
     }
