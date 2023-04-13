@@ -242,7 +242,7 @@ class TindakanDokter extends React.Component {
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'jasa', value: new_data.jasa.filter(i => !i.deleted), name: id},
             callback: function(r){
-                if (r.message) {
+                if (r.message == true) {
                     console.log('masuk sini')
                     th.setState({data: new_data})
                 } else {
