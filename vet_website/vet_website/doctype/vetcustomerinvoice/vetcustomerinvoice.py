@@ -1290,7 +1290,9 @@ def edit_payment(name, method):
 	try:
 		owner_credit_name = False
 		payment = frappe.get_doc('VetCustomerInvoicePay', name)
-		old_payment_method = payment.metode_pembayaran
+		# old_payment_method = payment.metode_pembayaran
+		new_method_name = frappe.db.get_value('VetPaymentMethod', method, 'method_name')
+		old_payment_method = frappe.db.get_value('VetPaymentMethod', {'method_name': old_payment_method}, 'name')
 		current_session = frappe.get_list('VetPosSessions', fields=['name', 'status'], order_by='creation desc', limit=1)
 		if len(current_session) > 0:
 			if payment.pos_session != current_session[0].name or current_session[0].status != 'In Progress':
@@ -1304,14 +1306,14 @@ def edit_payment(name, method):
 			if len(owner_credit) > 0:
 				owner_credit_name = owner_credit[0].name
 			
-		payment.metode_pembayaran = method
+		payment.metode_pembayaran = new_method_name
 		payment.save()
 		
 		edit_payment_journal_entry(payment.parent, payment.jumlah, old_payment_method, method)
 		
 		if owner_credit_name:
 			owner_credit = frappe.get_doc('VetOwnerCredit', owner_credit_name)
-			owner_credit.metode_pembayaran = method
+			owner_credit.metode_pembayaran = new_method_name
 			owner_credit.save()
 		return {'success': True}
 	except:
