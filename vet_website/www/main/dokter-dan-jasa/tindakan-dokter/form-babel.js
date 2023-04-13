@@ -234,7 +234,7 @@ class TindakanDokter extends React.Component {
 
         var th = this
 
-        this.setState({save_loading: true})
+        // this.setState({save_loading: true})
 
         frappe.call({
             type: "POST",
@@ -246,7 +246,7 @@ class TindakanDokter extends React.Component {
                 } else {
                     frappe.msgprint(r.message.error)
                 }
-                th.setState({save_loading: false})
+                // th.setState({save_loading: false})
             },
         });
     }
