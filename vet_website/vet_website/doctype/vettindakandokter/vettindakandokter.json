@@ -255,8 +255,7 @@
    "fieldname": "jasa",
    "fieldtype": "Table",
    "label": "Jasa",
-   "options": "VetTindakanDokterJasa",
-   "reqd": 1
+   "options": "VetTindakanDokterJasa"
   },
   {
    "fieldname": "tindak_lanjut",
@@ -304,7 +303,7 @@
    "label": "Lainnya Pemeriksaan"
   }
  ],
- "modified": "2022-08-31 19:59:01.392710",
+ "modified": "2023-04-13 19:16:01.936532",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetTindakanDokter",
