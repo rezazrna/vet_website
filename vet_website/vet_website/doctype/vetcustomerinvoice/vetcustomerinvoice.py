@@ -150,7 +150,7 @@ def open_invoice(data, saveonly=False):
 				
 			return results
 
-	except PermissionError as e:
+	except Exception as e:
 		return {'error': e}
 		
 def open_invoice_process(data, saveonly=False):
