@@ -667,7 +667,7 @@ class InstalasiMedis extends React.Component {
     
     render(){
         var bgstyle = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '15px 32px', marginBottom: '15px'}
-        var lh14 = {lineHeight: '14px'}
+        var button_style = {lineHeight: '14px', width: '130px'}
         var color = {color: '#056EAD', cursor: 'pointer'}
         var cursor = {cursor: 'pointer'}
         var backButton = <span className="fs16 fw600 mr-4 my-auto" style={color} onClick={() => window.location.href="/main/dokter-dan-jasa/instalasi-medis"}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
@@ -693,7 +693,7 @@ class InstalasiMedis extends React.Component {
                             className={this.state.save_loading
                                 ? "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto disabled"
                                 : "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto"} 
-                            style={lh14}>
+                            style={button_style}>
                             {this.state.save_loading
                                 ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                                 : "Lanjut"}</button>

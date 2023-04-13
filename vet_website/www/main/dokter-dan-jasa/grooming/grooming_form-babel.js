@@ -678,7 +678,7 @@ class Grooming extends React.Component {
 
     render() {
         var panel_style = { background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '2px 32px', marginBottom: '15px' }
-        var lineHeight_style = { lineHeight: '14px' }
+        var button_style = { lineHeight: '14px', width: '130px' }
         var buttonMode = []
         var grooming = this.state.data.grooming
         var color = { color: '#056EAD', cursor: 'pointer' }
@@ -700,7 +700,7 @@ class Grooming extends React.Component {
                                 className={this.state.save_loading
                                     ? "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2 disabled"
                                     : "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2"} 
-                                style={lineHeight_style} onClick={() => this.setState({ is_done: true })}>
+                                style={button_style} onClick={() => this.setState({ is_done: true })}>
                                 {this.state.save_loading
                                     ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                                     : "Proses"}</button>
@@ -714,7 +714,7 @@ class Grooming extends React.Component {
                                 className={this.state.save_loading
                                     ? "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2 disabled"
                                     : "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2"} 
-                                style={lineHeight_style}>
+                                style={button_style}>
                                 {this.state.save_loading
                                     ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                                     : "Lanjut"}</button>
@@ -734,7 +734,7 @@ class Grooming extends React.Component {
                             className={this.state.save_loading
                                 ? "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2 disabled"
                                 : "btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2"}
-                            style={lineHeight_style}>
+                            style={button_style}>
                             {this.state.save_loading
                                 ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                                 : "Proses"}</button>
