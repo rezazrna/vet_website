@@ -225,7 +225,6 @@ class TindakanDokter extends React.Component {
     
     deleteJasaLain(i){
         var new_data = JSON.parse(JSON.stringify(this.state.data));
-        // var new_data = Object.create(this.state.data)
         if(new_data.jasa[i].name != undefined){
             new_data.jasa[i].deleted = true
         }
@@ -243,10 +242,8 @@ class TindakanDokter extends React.Component {
             args: {field: 'jasa', value: new_data.jasa.filter(i => !i.deleted), name: id},
             callback: function(r){
                 if (r.message == true) {
-                    console.log('masuk sini')
                     th.setState({data: new_data})
                 } else {
-                    console.log('masuk error')
                     frappe.msgprint(r.message.error)
                 }
                 th.setState({save_loading: false})
@@ -272,7 +269,7 @@ class TindakanDokter extends React.Component {
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'tindak_lanjut', value: new_data.tindak_lanjut.filter(i => !i.deleted), name: id},
             callback: function(r){
-                if (r.message) {
+                if (r.message == true) {
                     th.setState({data: new_data})
                 } else {
                     frappe.msgprint(r.message.error)
@@ -313,7 +310,7 @@ class TindakanDokter extends React.Component {
                                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
                                 args: {field: 'jasa', value: new_data.jasa.filter(i => !i.deleted), name: id},
                                 callback: function(r){
-                                    if (r.message) {
+                                    if (r.message == true) {
                                         jl.setState({'data': new_data})
                                     } else {
                                         frappe.msgprint(r.message.error)
@@ -364,7 +361,7 @@ class TindakanDokter extends React.Component {
                                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
                                 args: {field: 'tindak_lanjut', value: new_data.tindak_lanjut.filter(i => !i.deleted), name: id},
                                 callback: function(r){
-                                    if (r.message) {
+                                    if (r.message == true) {
                                         tl.setState({'data': new_data})
                                     } else {
                                         frappe.msgprint(r.message.error)
@@ -402,7 +399,7 @@ class TindakanDokter extends React.Component {
                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
                 args: {field: 'layanan_berjadwal', value: new_data.layanan_berjadwal[i], name: id},
                 callback: function(r){
-                    if (r.message) {
+                    if (r.message == true) {
                         th.setState({data: new_data})
                     } else {
                         frappe.msgprint(r.message.error)
@@ -433,6 +430,7 @@ class TindakanDokter extends React.Component {
                 callback: function(r){
                     if (r.message != true) {
                         frappe.msgprint(r.message.error)
+                        th.setState({data: r.message.data})
                     }
 
                     th.setState({save_loading: false})
@@ -512,7 +510,7 @@ class TindakanDokter extends React.Component {
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'obat', value: new_data.obat, name: id},
             callback: function(r){
-                if (r.message) {
+                if (r.message == true) {
                     if (onSelectObat == index) {
                         th.setState({data: new_data, onSelectObat: 'false'})
                     } else {
@@ -609,7 +607,7 @@ class TindakanDokter extends React.Component {
                     args: {field: 'obat', value: new_data.obat, name: id},
                     callback: function(r){
                         console.log(r.message)
-                        if (r.message) {
+                        if (r.message == true) {
                             th.setState({data: new_data, new_obat:{}})
                             var qty = document.getElementById("quantity")
                             var selectObat = document.getElementById("obat_input")
@@ -658,7 +656,7 @@ class TindakanDokter extends React.Component {
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'obat', value: new_data.obat, name: id},
             callback: function(r){
-                if (r.message) {
+                if (r.message == true) {
                     th.setState({data: new_data})
                 } else {
                     frappe.msgprint(r.message.error)
@@ -683,7 +681,7 @@ class TindakanDokter extends React.Component {
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'obat', value: new_data.obat, name: id},
             callback: function(r){
-                if (r.message) {
+                if (r.message == true) {
                     if (racikanIndex > productIndex){
                         th.setState({onSelectObat: racikanIndex-1, data: new_data})
                     } else {
@@ -764,7 +762,7 @@ class TindakanDokter extends React.Component {
                 method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
                 args: {field: 'attachments', value: new_data.attachments.filter(i => !i.deleted), name: id},
                 callback: function(r){
-                    if (r.message) {
+                    if (r.message == true) {
                         vr.setState({data: new_data})
                     } else {
                         frappe.msgprint(r.message.error)
@@ -793,7 +791,7 @@ class TindakanDokter extends React.Component {
             method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
             args: {field: 'attachments', value: new_data.attachments.filter(i => !i.deleted), name: id},
             callback: function(r){
-                if (r.message) {
+                if (r.message == true) {
                     th.setState({data: new_data})
                 } else {
                     frappe.msgprint(r.message.error)
