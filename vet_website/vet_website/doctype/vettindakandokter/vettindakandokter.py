@@ -535,11 +535,12 @@ def confirm_tindakan_dokter(data):
 			rekam_medis.save()
 			
 			for jasa in data_json.get('jasa'):
-				new_jasa_doc = frappe.new_doc('VetRekamMedisJasa')
-				new_jasa_doc.update(jasa)
-				new_jasa_doc.update({'parent': rekam_medis.name, 'parenttype': 'VetRekamMedis', 'parentfield': 'jasa'})
-				rekam_medis.jasa.append(new_jasa_doc)
-				rekam_medis.save()
+				if not jasa.get('deleted'):
+					new_jasa_doc = frappe.new_doc('VetRekamMedisJasa')
+					new_jasa_doc.update(jasa)
+					new_jasa_doc.update({'parent': rekam_medis.name, 'parenttype': 'VetRekamMedis', 'parentfield': 'jasa'})
+					rekam_medis.jasa.append(new_jasa_doc)
+					rekam_medis.save()
 				
 			for obat in data_json.get('obat'):
 				product_data = {}
