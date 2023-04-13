@@ -329,7 +329,7 @@ def get_mutasi_hutang(filters=None, mode=False, all=False):
 			awal_purchases = frappe.get_list("VetPurchase", filters=awal_filters, fields=["name"])
 			awal = 0
 
-			for i,p in enumerate(purchases):
+			for i,p in enumerate(awal_purchases):
 				total = 0
 				
 				purchase_products = frappe.get_list("VetPurchaseProducts", filters={'parent': p.name}, fields=["*"])

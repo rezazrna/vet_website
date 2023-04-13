@@ -706,7 +706,7 @@ def get_mutasi_piutang(filters=None, mode=False, all=False):
 			o['debit'] = debit
 			o['credit'] = credit
 
-			awal_filters.update({'status': 'Open', 'is_refund': False, 'owner': o['name']})
+			awal_filters.update({'status': 'Open', 'is_refund': False, 'already_refund': False, 'owner': o['name']})
 			awal_invoices = frappe.get_list("VetCustomerInvoice", filters=awal_filters, fields=["name", "total"])
 			awal = 0
 
