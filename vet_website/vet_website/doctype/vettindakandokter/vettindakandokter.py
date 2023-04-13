@@ -468,13 +468,13 @@ def confirm_tindakan_dokter(data):
 			# 			jasa_doc.reload()
 			# 			jasa_doc.update({'product': jasa.get('product'), 'quantity': jasa.get('quantity')})
 			# 			jasa_doc.save()
-						
-				product_data = {
-					'product': jasa.get('product'),
-					# 'quantity': math.ceil(float(jasa.get('quantity'))),
-					'quantity': float(jasa.get('quantity')),
-				}
-				products_invoice.append(product_data)
+				if not jasa.get('deleted'):
+					product_data = {
+						'product': jasa.get('product'),
+						# 'quantity': math.ceil(float(jasa.get('quantity'))),
+						'quantity': float(jasa.get('quantity')),
+					}
+					products_invoice.append(product_data)
 						
 			# for tindak_lanjut in data_json.get('tindak_lanjut'):
 			# 	if not tindak_lanjut.get('name'):
