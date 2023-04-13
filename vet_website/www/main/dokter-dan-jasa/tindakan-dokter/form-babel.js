@@ -224,8 +224,8 @@ class TindakanDokter extends React.Component {
     }
     
     deleteJasaLain(i){
-        // var new_data = JSON.parse(JSON.stringify(this.state.data));
-        var new_data = Object.create(this.state.data)
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
+        // var new_data = Object.create(this.state.data)
         if(new_data.jasa[i].name != undefined){
             new_data.jasa[i].deleted = true
         }
@@ -243,8 +243,10 @@ class TindakanDokter extends React.Component {
             args: {field: 'jasa', value: new_data.jasa.filter(i => !i.deleted), name: id},
             callback: function(r){
                 if (r.message) {
+                    console.log('masuk sini')
                     th.setState({data: new_data})
                 } else {
+                    console.log('masuk error')
                     frappe.msgprint(r.message.error)
                 }
                 th.setState({save_loading: false})
