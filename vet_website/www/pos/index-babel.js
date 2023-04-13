@@ -39,7 +39,7 @@ class MainPOS extends React.Component {
             online: true,
             currentpage: 1,
             datalength: 0,
-            print_data: {}
+            print_data: undefined
         }
         
         this.enterSearch = this.enterSearch.bind(this)
@@ -524,22 +524,23 @@ class MainPOS extends React.Component {
                 args: {data: order_data},
                 callback: function(r){
                     new_data.orders = r.message.orders.order
-                    var print_data = new_data.orders[0]
+                    var print_data = new_data.orders[0].name
+                    console.log(print_data)
                     th.setState({print_data: print_data});
                     setTimeout(function() {
                         th.printPDF(true)
-                    }, 3000);
-                    var newSelectedOrder = th.state.selectedOrder
-                    new_data.currentOrders.splice(th.state.selectedOrder, 1)
-                    if(new_data.currentOrders.length == 0){
-                        new_data.currentOrders.push({items: [], order_date: r.message.datetime, selectedItem: 0})
-                    } else {
-                        if(th.state.selectedOrder > new_data.currentOrders.length-1){
-                            newSelectedOrder = new_data.currentOrders.length-1
+                        var newSelectedOrder = th.state.selectedOrder
+                        new_data.currentOrders.splice(th.state.selectedOrder, 1)
+                        if(new_data.currentOrders.length == 0){
+                            new_data.currentOrders.push({items: [], order_date: r.message.datetime, selectedItem: 0})
+                        } else {
+                            if(th.state.selectedOrder > new_data.currentOrders.length-1){
+                                newSelectedOrder = new_data.currentOrders.length-1
+                            }
                         }
-                    }
-                    th.setState({data: new_data, selectedOrder: newSelectedOrder})
-                    th.saveSession(new_data.currentOrders)
+                        th.setState({data: new_data, selectedOrder: newSelectedOrder})
+                        th.saveSession(new_data.currentOrders)
+                    }, 5000);
                 }
             })
         }
@@ -593,7 +594,7 @@ class MainPOS extends React.Component {
             // For instance (untested):
             pdfObj.autoPrint();
             window.open(pdfObj.output('bloburl'), '_blank');
-            th.setState({print_data: {}})
+            th.setState({print_data: undefined})
         });
         // doc.html(source, {
         //   callback: function (doc) {
@@ -637,8 +638,16 @@ class MainPOS extends React.Component {
                     {
                         this.state.historyTransaction?(<MainPOSHistoryTransaction toggleHistoryTransaction={() => this.toggleHistoryTransaction()} orders={this.state.data.orders}/>):false
                     }
-                    <PDF data={this.state.print_data}/>
-    		        <PDFMini data={this.state.print_data}/>
+                    {
+                        this.state.print_data != undefined
+                            ? <PDF data={this.state.print_data}/>
+                            : false
+                    }
+                    {
+                        this.state.print_data != undefined
+                            ? <PDFMini data={this.state.print_data}/>
+                            : false
+                    }
                 </div>
             )
         } else {
@@ -1524,6 +1533,7 @@ class PDF extends React.Component{
         this.state = {
             'profile': {},
             'loaded': false,
+            'data': undefined,
         }
     }
     
@@ -1536,14 +1546,26 @@ class PDF extends React.Component{
             args: {},
             callback: function(r){
                 if (r.message) {
-                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                    ci.setState({'profile': r.message.profile});
+                }
+            }
+        });
+
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetposorder.vetposorder.get_pos_order",
+            args: {name: this.props.data},
+            callback: function(r){
+                console.log(r.message)
+                if (r.message) {
+                    ci.setState({'data': r.message.order, 'loaded': true});
                 }
             }
         });
     }
 
     render(){
-        var data = this.props.data
+        var data = this.state.data
 		var profile = this.state.profile
         var page_dimension = {width: 700, minHeight: 948, top:0, left: 0, background: '#FFF', color: '#1B577B', zIndex: -1, letterSpacing: '2px'}
         var borderStyle = {border: '1px solid #1B577B', margin: '15px 0'}
@@ -1555,22 +1577,23 @@ class PDF extends React.Component{
         var fontSize2 = {fontSize: 12}
         
         var table_rows = []
-        if(data.produk.length != 0){
-            data.produk.forEach((f,index) => {
-                table_rows.push(
-                    <tr key={f+index.toString()}>
-                        <td className="px-2 py-1" style={td}>{f.nama_produk}</td>
-                        <td className="py-1 text-center" style={td}>{f.quantity}</td>
-                        <td className="py-1 text-center" style={td}>{f.uom_name}</td>
-                        <td className="py-1 text-center" style={td}>{formatter.format(f.price)}</td>
-                        <td className="py-1 text-center" style={td}>{f.disc?f.disc+"%":''}</td>
-                        <td className="py-1 text-center" style={td}>{formatter.format(f.amount)}</td>
-                    </tr>
-                )
-            })
-        }
 
 		if (this.state.loaded) {
+            if(data.produk.length != 0){
+                data.produk.forEach((f,index) => {
+                    table_rows.push(
+                        <tr key={f+index.toString()}>
+                            <td className="px-2 py-1" style={td}>{f.nama_produk}</td>
+                            <td className="py-1 text-center" style={td}>{f.quantity}</td>
+                            <td className="py-1 text-center" style={td}>{f.uom_name}</td>
+                            <td className="py-1 text-center" style={td}>{formatter.format(f.price)}</td>
+                            <td className="py-1 text-center" style={td}>{f.disc?f.disc+"%":''}</td>
+                            <td className="py-1 text-center" style={td}>{formatter.format(f.amount)}</td>
+                        </tr>
+                    )
+                })
+            }
+
 			var image
             if (profile.image != undefined){
                 var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
@@ -1678,6 +1701,7 @@ class PDFMini extends React.Component{
         this.state = {
             'profile': {},
             'loaded': false,
+            'data': undefined,
         }
     }
     
@@ -1690,14 +1714,26 @@ class PDFMini extends React.Component{
             args: {},
             callback: function(r){
                 if (r.message) {
-                    ci.setState({'profile': r.message.profile, 'loaded': true});
+                    ci.setState({'profile': r.message.profile});
+                }
+            }
+        });
+
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetposorder.vetposorder.get_pos_order",
+            args: {name: this.props.data},
+            callback: function(r){
+                console.log(r.message)
+                if (r.message) {
+                    ci.setState({'data': r.message.order, 'loaded': true});
                 }
             }
         });
     }
 
     render(){
-        var data = this.props.data
+        var data = this.state.data
 		var profile = this.state.profile
         console.log(data)
         var page_dimension = {width: 302, minHeight: 525, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
@@ -1712,19 +1748,20 @@ class PDFMini extends React.Component{
         var logo = {width: 72}
         
         var table_rows = []
-        if(data.produk.length != 0){
-            data.produk.forEach((f,index) => {
-                table_rows.push(
-                    <tr key={f+index.toString()}>
-                        <td className="px-2 py-1">{f.nama_produk}</td>
-                        <td className="py-1">{f.quantity+" x "+formatter.format(f.price)}</td>
-                        <td className="py-1 text-right">{formatter.format(f.amount)}</td>
-                    </tr>
-                )
-            })
-        }
 
 		if (this.state.loaded) {
+            if(data.produk.length != 0){
+                data.produk.forEach((f,index) => {
+                    table_rows.push(
+                        <tr key={f+index.toString()}>
+                            <td className="px-2 py-1">{f.nama_produk}</td>
+                            <td className="py-1">{f.quantity+" x "+formatter.format(f.price)}</td>
+                            <td className="py-1 text-right">{formatter.format(f.amount)}</td>
+                        </tr>
+                    )
+                })
+            }
+
 			var image
             if (profile.image != undefined){
                 var image_style = {position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%'}
