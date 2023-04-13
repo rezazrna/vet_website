@@ -739,6 +739,7 @@ class CustomerInvoice extends React.Component {
         //       scale: 1,
         //   }
         // });
+        // test
     }
 
     printExcel(e) {
