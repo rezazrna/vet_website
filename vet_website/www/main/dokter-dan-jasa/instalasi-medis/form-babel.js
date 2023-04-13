@@ -151,6 +151,7 @@ class InstalasiMedis extends React.Component {
             callback: function(r){
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -235,6 +236,7 @@ class InstalasiMedis extends React.Component {
                     callback: function(r){
                         if (r.message != true) {
                             frappe.msgprint(r.message.error)
+                            th.setState({data: r.message.data})
                         }
 
                         th.setState({save_loading: false})
@@ -265,6 +267,7 @@ class InstalasiMedis extends React.Component {
                 callback: function(r){
                     if (r.message != true) {
                         frappe.msgprint(r.message.error)
+                        th.setState({data: r.message.data})
                     }
                     th.setState({save_loading: false})
                 }
@@ -346,6 +349,7 @@ class InstalasiMedis extends React.Component {
                                 callback: function(r){
                                     if (r.message != true) {
                                         frappe.msgprint(r.message.error)
+                                        jl.setState({data: r.message.data})
                                     }
 
                                     jl.setState({save_loading: false})
@@ -397,6 +401,7 @@ class InstalasiMedis extends React.Component {
                                 callback: function(r){
                                     if (r.message != true) {
                                         frappe.msgprint(r.message.error)
+                                        tl.setState({data: r.message.data})
                                     }
 
                                     tl.setState({save_loading: false})
@@ -432,6 +437,7 @@ class InstalasiMedis extends React.Component {
             callback: function(r){
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -458,6 +464,7 @@ class InstalasiMedis extends React.Component {
             callback: function(r){
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -534,6 +541,7 @@ class InstalasiMedis extends React.Component {
             callback: function(r){
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
                 th.setState({save_loading: false})
             }
@@ -554,6 +562,7 @@ class InstalasiMedis extends React.Component {
             callback: function(r){
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
                 th.setState({save_loading: false})
             }
@@ -579,6 +588,7 @@ class InstalasiMedis extends React.Component {
                 callback: function(r){
                     if (r.message != true) {
                         frappe.msgprint(r.message.error)
+                        vr.setState({data: r.message.data})
                     }
                     vr.setState({save_loading: false})
                 }
@@ -606,6 +616,7 @@ class InstalasiMedis extends React.Component {
             callback: function(r){
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -627,6 +638,7 @@ class InstalasiMedis extends React.Component {
             callback: function(r){
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -648,6 +660,7 @@ class InstalasiMedis extends React.Component {
             callback: function(r){
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})

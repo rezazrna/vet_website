@@ -608,4 +608,4 @@ def autosave(field, value, name):
 		frappe.db.commit()
 		return True
 	except Exception as e:
-		return {'error': e}
+		return {'error': e, 'data': get_grooming(name)}

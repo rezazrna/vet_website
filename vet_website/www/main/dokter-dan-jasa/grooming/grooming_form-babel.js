@@ -160,6 +160,7 @@ class Grooming extends React.Component {
             callback: function (r) {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -185,6 +186,7 @@ class Grooming extends React.Component {
             callback: function (r) {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -212,6 +214,7 @@ class Grooming extends React.Component {
                 callback: function (r) {
                     if (r.message != true) {
                         frappe.msgprint(r.message.error)
+                        th.setState({data: r.message.data})
                     }
 
                     th.setState({save_loading: false})
@@ -355,6 +358,7 @@ class Grooming extends React.Component {
                         callback: function (r) {
                             if (r.message != true) {
                                 frappe.msgprint(r.message.error)
+                                ap.setState({data: r.message.data})
                             }
                             ap.setState({save_loading: false})
                         }
@@ -424,6 +428,7 @@ class Grooming extends React.Component {
                                 callback: function (r) {
                                     if (r.message != true) {
                                         frappe.msgprint(r.message.error)
+                                        ap.setState({data: r.message.data})
                                     }
 
                                     ap.setState({save_loading: false})
@@ -467,6 +472,7 @@ class Grooming extends React.Component {
             callback: function (r) {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -543,6 +549,7 @@ class Grooming extends React.Component {
             callback: function (r) {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -564,6 +571,7 @@ class Grooming extends React.Component {
             callback: function (r) {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -589,6 +597,7 @@ class Grooming extends React.Component {
                 callback: function (r) {
                     if (r.message != true) {
                         frappe.msgprint(r.message.error)
+                        vr.setState({data: r.message.data})
                     }
 
                     vr.setState({save_loading: false})
@@ -617,6 +626,7 @@ class Grooming extends React.Component {
             callback: function (r) {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -636,6 +646,7 @@ class Grooming extends React.Component {
             callback: function (r) {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
@@ -654,6 +665,7 @@ class Grooming extends React.Component {
             callback: function (r) {
                 if (r.message != true) {
                     frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
                 }
 
                 th.setState({save_loading: false})
