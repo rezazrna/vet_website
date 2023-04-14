@@ -540,7 +540,7 @@ class MainPOS extends React.Component {
                         }
                         th.setState({data: new_data, selectedOrder: newSelectedOrder})
                         th.saveSession(new_data.currentOrders)
-                    }, 5000);
+                    }, 3000);
                 }
             })
         }
