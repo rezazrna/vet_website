@@ -1,0 +1,8 @@
+{% set page_title=alt_page_title or "Hutang Beredar" %}
+{% extends "templates/main.html" %}
+{% block main_page %}
+<div id="hutang_beredar_list"></div>
+<script type="text/babel" src="/static/src/js/search-bar-babel.js"></script>
+<script type="text/babel" src="/static/src/js/pagination-babel.js"></script>
+<script type="text/babel" src="/main/purchases/hutang-beredar/index-babel.js"></script>
+{% endblock %}
