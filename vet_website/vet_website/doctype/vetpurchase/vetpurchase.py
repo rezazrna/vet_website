@@ -1099,7 +1099,7 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 	purchase_journal_credit = frappe.db.get_value('VetJournal', {'journal_name': 'Purchase Journal', 'type': 'Purchase'}, 'default_credit_account')
 	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Supplier'}, 'account')
 	if not deposit_account:
-		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '1-16204'}, 'name')
+		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '1-16301'}, 'name')
 	jis = []
 	total = 0
 	paid = sum(float(i.jumlah) for i in purchase.pembayaran)
@@ -1248,7 +1248,7 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 
 	deposit_account = frappe.db.get_value('VetPaymentMethod', {'method_type': 'Deposit Supplier'}, 'account')
 	if not deposit_account:
-		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '1-16204'}, 'name')
+		deposit_account = frappe.db.get_value('VetCoa', {'account_code': '1-16301'}, 'name')
 	
 	if refund:
 		jis = [
