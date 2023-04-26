@@ -155,6 +155,8 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 				# else:
 				# 	saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
 
+				### Terpengaruh ###
+
 				if journal_items[0]['account_type'] in ['Asset', 'Expense']:
 					saldo_awal = journal_items[0]['total'] + (journal_items[0]['credit'] - journal_items[0]['debit'])
 				else:

@@ -377,6 +377,8 @@ def get_coa_last_total(coa_name, max_date=False, journal_items=False):
 	# 			if (('4-' in coa.name or '5-' in coa.name or '6-' in coa.name or '7-' in coa.name or '8-' in coa.name) and ji.journal != 'CLS') or ('1-' in coa.name or '2-' in coa.name or '3-' in coa.name):
 	# 				total += ji.credit - ji.debit
 
+	### Terpengaruh ###
+
 	if journal_item:
 		total = total + journal_item.total
 		
@@ -431,6 +433,8 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False, i
 		if len(ji_list) > 0:
 			journal_item = ji_list[0]
 
+	### Terpengaruh ###
+
 	if is_coa_list:
 		if journal_item:
 			total = total + journal_item.total
@@ -469,6 +473,8 @@ def get_coa_total_debit_credit(name, journal_items=False):
 	if journal_items:
 		journal_item = next(filter(lambda item: item.account == name and ((('4-' in name or '5-' in name or '6-' in name or '7-' in name or '8-' in name) and item.journal != 'CLS') or ('1-' in name or '2-' in name or '3-' in name)), journal_items), None)
 
+	### Terpengaruh ###
+
 	if journal_item:
 		if coa.account_type in ['Asset','Expense']:
 			if '1-' in coa.account_code:
@@ -504,6 +510,8 @@ def get_coa_total_debit_credit_children(name, journal_items=False):
 	
 	if journal_items:
 		journal_item = next(filter(lambda item: item.account == name and ((('4-' in name or '5-' in name or '6-' in name or '7-' in name or '8-' in name) and item.journal != 'CLS') or ('1-' in name or '2-' in name or '3-' in name)), journal_items), None)
+
+	### Terpengaruh ###
 
 	if journal_item:
 		if coa.account_type in ['Asset','Expense']:
@@ -662,6 +670,8 @@ def closing_pendapatan(journal_entry_names, clearing_account, closing_journal, j
 		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': p['name']}, order_by="creation desc", fields=["total", "parent"])
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
+
+		### Terpengaruh ###
 			
 		journal_items.sort(key=lambda x: x['date'], reverse=True)
 		if journal_items:
@@ -697,6 +707,8 @@ def closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_
 		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["total", "parent"])
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
+
+		### Terpengaruh ###
 			
 		journal_items.sort(key=lambda x: x['date'], reverse=True)
 		if journal_items:
@@ -732,6 +744,8 @@ def closing_biaya(journal_entry_names, clearing_account, closing_journal, journa
 		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["total", "parent"])
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
+		
+		### Terpengaruh ###
 			
 		journal_items.sort(key=lambda x: x['date'], reverse=True)
 		if journal_items:
@@ -790,6 +804,8 @@ def reset_account_company_results(year):
 	jis = []
 	or_filters = [{'account_code': ['like', '4-%']}, {'account_code': ['like', '5-%']}, {'account_code': ['like', '6-%']}, {'account_code': ['like', '7-%']}, {'account_code': ['like', '8-%']}]
 	accounts = frappe.get_list('VetCoa', or_filters=or_filters, fields=['name'], order_by='creation desc')
+
+	### Terpengaruh ###
 
 	for a in accounts:
 		jis.append({'account': a['name'], 'debit': 0, 'credit': 0, 'total': 0})
