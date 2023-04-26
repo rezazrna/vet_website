@@ -825,6 +825,7 @@ class CustomerInvoice extends React.Component {
         var paid = 0
         var subtotal = 0
         var total = 0
+        var potongan = 0
         var invoice_name
         var write = checkPermission('VetCustomerInvoice', this.state.currentUser, 'write')
         var cancel = checkPermission('VetCustomerInvoice', this.state.currentUser, 'cancel')
@@ -835,6 +836,7 @@ class CustomerInvoice extends React.Component {
             var children_name = []
             subtotal = this.state.data.children_customer_invoice.reduce((total,a) => total+=a.customer_invoice.subtotal, 0)
             total = this.state.data.children_customer_invoice.reduce((total,a) => total+=a.customer_invoice.total, 0)
+            potongan = this.state.data.children_customer_invoice.reduce((total,a) => total+=a.customer_invoice.potongan, 0)
             this.state.data.children_customer_invoice.forEach(ci => all_payment = all_payment.concat(ci.customer_invoice.pembayaran))
             this.state.data.children_customer_invoice.forEach(ci => children_name.push(ci.customer_invoice.name))
             if(all_payment.length != 0){
@@ -845,6 +847,7 @@ class CustomerInvoice extends React.Component {
             invoice_name = this.state.data.name
             subtotal = this.state.data.subtotal
             total = this.state.data.total
+            potongan = this.state.data.potongan
             if(this.state.data.pembayaran.length != 0){
                 paid = this.state.data.pembayaran.map(p => p.jumlah).reduce((a,b) => a+b, 0)
             }
@@ -1020,9 +1023,9 @@ class CustomerInvoice extends React.Component {
             
             return (
                 <form id="customer_invoice_form" onSubmit={(e) => this.formSubmit(e)} className="position-relative">
-                    <PDF data={this.state.data} payment_method_list={this.state.payment_method_list} subtotal={subtotal} total={total} paid={paid} total_credit={this.state.total_credit}/>
-                    <ExcelPage data={this.state.data} payment_method_list={this.state.payment_method_list} subtotal={subtotal} total={total} paid={paid} total_credit={this.state.total_credit}/>
-                    <PDFMini data={this.state.data} payment_method_list={this.state.payment_method_list} subtotal={subtotal} total={total} paid={paid} total_credit={this.state.total_credit}/>
+                    <PDF data={this.state.data} payment_method_list={this.state.payment_method_list} subtotal={subtotal} total={total} paid={paid} total_credit={this.state.total_credit} potongan={potongan}/>
+                    <ExcelPage data={this.state.data} payment_method_list={this.state.payment_method_list} subtotal={subtotal} total={total} paid={paid} total_credit={this.state.total_credit} potongan={potongan}/>
+                    <PDFMini data={this.state.data} payment_method_list={this.state.payment_method_list} subtotal={subtotal} total={total} paid={paid} total_credit={this.state.total_credit} potongan={potongan}/>
                 	<div style={panel_style}>
                 		<div className="row mx-0 flex-row-reverse" style={rowMinHeight}>
                 			{buttonMode}
@@ -1037,7 +1040,7 @@ class CustomerInvoice extends React.Component {
 	            	    </div>
 	            	</div>
                 	<CustomerInvoiceForm data={this.state.data} pet_owner_list={this.state.pet_owner_list} pet_list={pet_list} task_list={this.state.task_list} changeInput={this.changeInput} inputBlur={this.inputBlur}/>
-                	<CustomerInvoiceLines name={this.state.data.name} list={this.state.data.invoice_line} children_customer_invoice={this.state.data.children_customer_invoice} edit_mode={this.state.edit_mode} no_exchange={this.state.data.no_exchange} is_refund={this.state.data.is_refund} product_list={this.state.product_list} uom_list={this.state.uom_list} status={this.state.data.status} payments={this.state.data.pembayaran} payment_method_list={this.state.payment_method_list} subtotal={this.state.data.subtotal} paid={paid} changeInput={this.changeInput} inputBlur={this.inputBlur} warehouse_list={this.state.warehouse_list} potongan={this.state.data.potongan} deleteRow={this.deleteRow} role={this.state.role} service={this.state.service} is_rawat_inap={this.state.data.is_rawat_inap} current_session={this.state.current_session} links={this.state.links} services={this.state.services} register_number={this.state.data.register_number}/>
+                	<CustomerInvoiceLines name={this.state.data.name} list={this.state.data.invoice_line} children_customer_invoice={this.state.data.children_customer_invoice} edit_mode={this.state.edit_mode} no_exchange={this.state.data.no_exchange} is_refund={this.state.data.is_refund} product_list={this.state.product_list} uom_list={this.state.uom_list} status={this.state.data.status} payments={this.state.data.pembayaran} payment_method_list={this.state.payment_method_list} subtotal={this.state.data.subtotal} paid={paid} changeInput={this.changeInput} inputBlur={this.inputBlur} warehouse_list={this.state.warehouse_list} potongan={potongan} deleteRow={this.deleteRow} role={this.state.role} service={this.state.service} is_rawat_inap={this.state.data.is_rawat_inap} current_session={this.state.current_session} links={this.state.links} services={this.state.services} register_number={this.state.data.register_number}/>
                 	<CustomerInvoiceVersion version={this.state.version || []} />
                 	{popup_pay}
                 	{popup_refund}
@@ -2477,6 +2480,7 @@ class PDF extends React.Component{
         var subtotal = this.props.subtotal
         var paid = this.props.paid
         var total = this.props.total
+        var potongan = this.props.potongan
         var total_credit = this.props.total_credit
         console.log(data)
         var page_dimension = {width: 559, minHeight: 794, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
@@ -2762,7 +2766,7 @@ class PDF extends React.Component{
                                         Diskon
                                     </div>
                                     <div className="col-6 text-right">
-                                        {formatter.format(data.potongan)}
+                                        {formatter.format(potongan)}
                                     </div>
                                 </div>
                             </div>
@@ -2853,6 +2857,7 @@ class PDFMini extends React.Component{
         var subtotal = this.props.subtotal
         var paid = this.props.paid
         var total = this.props.total
+        var potongan = this.props.potongan
         var total_credit = this.props.total_credit
         console.log(data)
         var page_dimension = {width: 361, minHeight: 525, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
@@ -3103,7 +3108,7 @@ class PDFMini extends React.Component{
                                         Diskon
                                     </div>
                                     <div className="col-6 text-right">
-                                        {formatter.format(data.potongan)}
+                                        {formatter.format(potongan)}
                                     </div>
                                 </div>
                             </div>
@@ -3188,6 +3193,7 @@ class ExcelPage extends React.Component{
         var subtotal = this.props.subtotal
         var paid = this.props.paid
         var total = this.props.total
+        var potongan = this.props.potongan
         var total_credit = this.props.total_credit
         console.log(data)
         var page_dimension = {width: 559, minHeight: 794, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
@@ -3481,7 +3487,7 @@ class ExcelPage extends React.Component{
                         <td></td>
                         <td></td>
                         <td>Diskon</td>
-                        <td>{formatter.format(data.potongan)}</td>
+                        <td>{formatter.format(potongan)}</td>
                     </tr>
                     <tr></tr>
                     <tr>
