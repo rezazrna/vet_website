@@ -231,7 +231,7 @@ def get_pet(name):
 			petTypeAll = frappe.get_list('VetPetType', fields=['name', 'type_name'])
 			total_visit = 0
 			total_spending = 0
-			last_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': o.name}, fields=['credit','debt'], order_by="creation desc")
+			last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': o.name}, {'credit_mutation': ['!=', 0]}], fields=['credit','debt'], order_by="creation desc")
 			if last_credit:
 				total_credit = last_credit[0]['credit']
 				total_debt = last_credit[0]['debt']
