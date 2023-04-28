@@ -94,7 +94,7 @@ def get_pet_owner(filters=None):
 		datalength = len(frappe.get_all("VetPetOwner", or_filters=owner_or_filters, filters=owner_filters, as_list=True))
 		
 		for o in owner:
-			last_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': o.name}, fields=['credit', 'debt'], order_by="creation desc")
+			last_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': o.name, 'credit_mutation': ['!=', 0]}, fields=['credit', 'debt'], order_by="creation desc")
 			if last_credit:
 				total_credit = last_credit[0]['credit']
 				total_debt = last_credit[0]['debt']
