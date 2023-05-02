@@ -253,6 +253,10 @@ class InstalasiMedis extends React.Component {
         var name = target.name
         var value = target.value
         var new_data = Object.assign({}, this.state.data)
+
+        if ((!this.isNumeric(value) || value == '') && (name == 'temperature' || name == 'weight')) {
+            value = 0
+        }
         
         new_data[name] = value
         this.setState({data: new_data})
@@ -273,6 +277,12 @@ class InstalasiMedis extends React.Component {
                 }
             });
         }
+    }
+
+    isNumeric(str) {
+        if (typeof str != "string") return false // we only process strings!  
+        return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+                !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
     }
     
     handleInputBlur(e, list) {

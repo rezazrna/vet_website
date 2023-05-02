@@ -145,9 +145,14 @@ class Grooming extends React.Component {
     }
 
     handleInputChange(event) {
-        const value = event.target.value;
+        var value = event.target.value;
         const name = event.target.name;
         var new_data = this.state.data
+
+        if ((!this.isNumeric(value) || value == '') && (name == 'temperature' || name == 'weight')) {
+            value = 0
+        }
+
         new_data.grooming[name] = value
         this.setState({ data: new_data, save_loading: true });
 
@@ -166,6 +171,12 @@ class Grooming extends React.Component {
                 th.setState({save_loading: false})
             }
         });
+    }
+
+    isNumeric(str) {
+        if (typeof str != "string") return false // we only process strings!  
+        return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+                !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
     }
 
     handleInputChangeActions(event, i) {

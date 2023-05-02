@@ -413,6 +413,10 @@ class TindakanDokter extends React.Component {
         var target = e.target
         var name = target.name
         var value = target.value
+        if ((!this.isNumeric(value) || value == '') && (name == 'temperature' || name == 'weight')) {
+            value = 0
+        }
+
         var new_data = JSON.parse(JSON.stringify(this.state.data));
         
         new_data[name] = value
@@ -437,6 +441,12 @@ class TindakanDokter extends React.Component {
                 },
             });
         }
+    }
+
+    isNumeric(str) {
+        if (typeof str != "string") return false // we only process strings!  
+        return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+                !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
     }
     
     toggleMainFormWide(){
