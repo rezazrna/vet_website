@@ -1956,7 +1956,7 @@ class CustomerInvoicePaymentRow extends React.Component {
                 {payment_method_options}
             </select>
             edit_button = <i className="fa fa-floppy-o ml-2" style={cursor} onClick={() => this.editPayment()}/>
-        } else if (!th.state.payment_method.includes('Deposit') && th.state.current_session.name == item.pos_session){
+        } else if (th.state.payment_method != null && !th.state.payment_method.includes('Deposit') && th.state.current_session.name == item.pos_session){
             payment_field = <span>{payment_method || ''}</span>
             edit_button = <i className="fa fa-pencil ml-2" style={cursor} onClick={() => this.toggleEditMode()}/>
         } else {
