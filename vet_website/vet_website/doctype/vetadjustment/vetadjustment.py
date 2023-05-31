@@ -198,7 +198,7 @@ def submit_adjustment(data):
 				elif float(diff_quantity) < 0:
 					move.update({'quantity': -float(diff_quantity), 'quantity_done': -float(diff_quantity)})
 					out_operation_move.append(move)
-					adjustment_value = decrease_product_valuation(inv.get('product'), -float(diff_quantity))
+					adjustment_value = decrease_product_valuation(inv.get('product'), -float(diff_quantity), inv.get('warehouse'))
 					inv.update({'adjustment_value': adjustment_value})
 					
 			data_json.update({'status': 'Done'})

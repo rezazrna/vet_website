@@ -191,6 +191,7 @@ def open_invoice_process(data, saveonly=False):
 						'unit_price': line.get('unit_price', False),
 						'discount': line.get('discount', 0),
 						'total': line.get('total', False),
+						'warehouse': line.get('warehouse'),
 					})
 					if(line.get('total') == None):
 						check_pack = frappe.get_list('VetProductPack', filters={'parent': line_doc.product}, fields=['harga_pack', 'quantity_pack'])
@@ -1242,7 +1243,7 @@ def deliver_to_customer(name, refund=False, refund_from=False):
 				if refund:
 					increase_product_valuation(name, m.product, m.quantity, m.product_uom, refund_from)
 				else:
-					decrease_product_valuation(m.product, m.quantity, m.product_uom, refund)
+					decrease_product_valuation(m.product, m.quantity, operation.get('from'), m.product_uom, refund)
 		
 		# date = customer_invoice.invoice_date.strftime("%Y-%m-%d")
 		
@@ -1342,15 +1343,24 @@ def edit_payment_journal_entry(customer_invoice, amount, old_payment_method, new
 	set_journal_item_total(journal_item.name, new_payment_method_account)
 
 @frappe.whitelist()
-def decrease_product_valuation(product, quantity, uom=False, reverse=False):
+def decrease_product_valuation(product, quantity, warehouse=False, uom=False, reverse=False):
 	adjustment_value = 0
+
+	gudang = frappe.get_list("VetGudang", fields=["name"])
+	default_warehouse = frappe.get_list('VetGudang', filters={'is_default': '1'}, fields=['name', 'gudang_name'], limit=1)
+
+	if not warehouse:
+		if default_warehouse:
+			warehouse = default_warehouse[0].name
+		else:
+			warehouse = gudang[0].name
 	
 	product_uom = uom
 	if not product_uom:
 		product_uom = frappe.db.get_value('VetProduct', product, 'product_uom')
 		
-	purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price'], order_by="creation asc")
-	purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
+	purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price', 'parent'], order_by="creation asc")
+	purchase_with_stock = list(p for p in purchase_with_stock_search if frappe.db.get_value('VetPurchase', p.parent, 'deliver_to') == warehouse and p.quantity_stocked)
 	if len(purchase_with_stock):
 		
 		current_quantity = float(quantity)
@@ -1716,8 +1726,26 @@ def create_sales_journal_entry(invoice_name, refund=False):
 							amount += purchase_product.price * current_quantity
 							current_quantity = 0
 			else:
-				purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.product}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price'], order_by="creation asc")
-				purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
+				warehouse = ''
+				gudang = frappe.get_list("VetGudang", fields=["name"])
+				default_warehouse = frappe.get_list('VetGudang', filters={'is_default': '1'}, fields=['name', 'gudang_name'], limit=1)
+
+				print('pp warehouse')
+				print(pp.warehouse)
+
+				if not pp.warehouse or pp.warehouse == '' or pp.warehouse == None:
+					if default_warehouse:
+						warehouse = default_warehouse[0].name
+					else:
+						warehouse = gudang[0].name
+				else:
+					warehouse = pp.warehouse
+
+				print('hasilnya')
+				print(warehouse)
+
+				purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.product}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price', 'parent'], order_by="creation asc")
+				purchase_with_stock = list(p for p in purchase_with_stock_search if frappe.db.get_value('VetPurchase', p.parent, 'deliver_to') == warehouse and p.quantity_stocked)
 				
 				for pws in purchase_with_stock:
 					if current_quantity != 0:

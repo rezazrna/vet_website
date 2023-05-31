@@ -635,7 +635,7 @@ def deliver_to_customer(name, refund=False, refund_from=False):
 				if refund:
 					increase_product_valuation(name, m.product, m.quantity, m.product_uom, refund_from)
 				else:
-					decrease_product_valuation(m.product, m.quantity, m.product_uom)
+					decrease_product_valuation(m.product, m.quantity, operation.get('from'), m.product_uom)
 
 	except PermissionError as e:
 		return {'error': e}
@@ -898,11 +898,22 @@ def create_pos_journal_entry(name, payment, refund=False):
 				'credit': amount,
 			})
 		if product_category.stockable:
+			warehouse = ''
+			gudang = frappe.get_list("VetGudang", fields=["name"])
+			default_warehouse = frappe.get_list('VetGudang', filters={'is_default': '1'}, fields=['name', 'gudang_name'], limit=1)
+
+			if not pp.warehouse or pp.warehouse == '' or pp.warehouse == None:
+				if default_warehouse:
+					warehouse = default_warehouse[0].name
+				else:
+					warehouse = gudang[0].name
+			else:
+				warehouse = pp.warehouse
 			order_produk = frappe.get_doc('VetPosOrderProduk', pp.name)
 			amount = 0
 			current_quantity = pp.quantity
 			purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': pp.produk}, fields=['*'], order_by="creation asc")
-			purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
+			purchase_with_stock = list(p for p in purchase_with_stock_search if frappe.db.get_value('VetPurchase', p.parent, 'deliver_to') == warehouse and p.quantity_stocked)
 			
 			for pws in purchase_with_stock:
 				if current_quantity != 0:

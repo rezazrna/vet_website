@@ -211,7 +211,7 @@ class Operation extends React.Component {
                         frappe.call({
                             type: "POST",
                             method:"vet_website.vet_website.doctype.vetoperation.vetoperation.usage_operation_submit",
-                            args: {name: new_data.name},
+                            args: {name: new_data.name, warehouse: this.state.gudang_list.find(i => i.name == new_data['from'] || i.gudang_name == new_data['from']).name},
                             callback: function(r){
                                 console.log(r.message)
                                 window.location.reload()

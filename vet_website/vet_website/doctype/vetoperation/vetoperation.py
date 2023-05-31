@@ -182,7 +182,7 @@ def new_operation(data):
 				new_move.insert()
 				
 		if(data_json.get('is_done', False)):
-			usage_operation_submit(new_operation.name)
+			usage_operation_submit(new_operation.name, new_operation.get('from'))
 		
 		return new_operation
 		
@@ -231,7 +231,7 @@ def edit_operation(data):
 					new_move.insert()
 					
 		if(data_json.get('is_done', False)):
-			usage_operation_submit(new_operation.name)
+			usage_operation_submit(new_operation.name, new_operation.get('from'))
 		
 		return new_operation
 		
@@ -239,7 +239,7 @@ def edit_operation(data):
 		return {'error': e}		
 
 @frappe.whitelist()
-def usage_operation_submit(name):
+def usage_operation_submit(name, warehouse=False):
 	operation = frappe.get_doc('VetOperation', name)
 	operation.update({'status': 'Delivery'})
 	operation.save()
@@ -248,7 +248,7 @@ def usage_operation_submit(name):
 		om['quantity_done'] = om['quantity']
 	action_receive(operation.name, json.dumps(operation_moves))
 	for om in operation_moves:
-		decrease_product_valuation(om['product'], om['quantity'], om['product_uom'])
+		decrease_product_valuation(om['product'], om['quantity'], warehouse, om['product_uom'])
 	create_usage_operation_journal_items(name)
 	
 @frappe.whitelist()
@@ -743,15 +743,24 @@ def count_nilai_awal(moves, gudang):
 	return nilai
 		
 @frappe.whitelist()
-def decrease_product_valuation(product, quantity, uom=False, reverse=False):
+def decrease_product_valuation(product, quantity, warehouse=False, uom=False, reverse=False):
 	adjustment_value = 0
+
+	gudang = frappe.get_list("VetGudang", fields=["name"])
+	default_warehouse = frappe.get_list('VetGudang', filters={'is_default': '1'}, fields=['name', 'gudang_name'], limit=1)
+
+	if not warehouse:
+		if default_warehouse:
+			warehouse = default_warehouse[0].name
+		else:
+			warehouse = gudang[0].name
 	
 	product_uom = uom
 	if not product_uom:
 		product_uom = frappe.db.get_value('VetProduct', product, 'product_uom')
 		
 	purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product}, fields=['*'], order_by="creation asc")
-	purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
+	purchase_with_stock = list(p for p in purchase_with_stock_search if frappe.db.get_value('VetPurchase', p.parent, 'deliver_to') == warehouse and  p.quantity_stocked)
 	if len(purchase_with_stock):
 		
 		current_quantity = float(quantity)

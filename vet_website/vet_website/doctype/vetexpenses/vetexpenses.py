@@ -151,7 +151,7 @@ def submit_expense(data, saveOnly=False):
 				
 				if(expense.product and stockable == 1):
 					create_expense_operation(expense.name)
-					decrease_product_valuation(expense.product, expense.quantity)
+					decrease_product_valuation(expense.product, expense.quantity, expense.warehouse)
 				create_expense_journal_items(data_json['name'])
 			
 		else :
