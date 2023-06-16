@@ -480,9 +480,9 @@ class JournalItems extends React.Component {
                 this.formatColumn(sheet, col, format)
             }
 
-            for (let col of [0]) {
-                this.formatColumn(sheet, col, 'dd-mm-yyyy')
-            }
+            // for (let col of [0]) {
+            //     this.formatColumn(sheet, col, 'dd-mm-yyyy')
+            // }
 
             var sheetcols = [
                 {wpx:90},
