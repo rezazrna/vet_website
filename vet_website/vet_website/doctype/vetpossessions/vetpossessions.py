@@ -68,7 +68,13 @@ def get_sessions_list(filters=None):
 		for index, s in enumerate(session):
 			kas_masuk = frappe.get_list("VetPosSessionsKasMasuk", filters={'parent': s['name']}, fields=["*"], order_by="kas_date desc")
 			kas_keluar = frappe.get_list("VetPosSessionsKasKeluar", filters={'parent': s['name']}, fields=["*"], order_by="kas_date desc")
-			order = frappe.get_list("VetPosOrder", filters={'session': s['name']}, fields=["name", "is_refund"])
+
+			# order_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz)]]
+			order_filters = [['order_date', 'between', [s['opening_session'], s['closing_session'] or datetime.now(tz)]], ['refund_date', 'between', [s['opening_session'], s['closing_session'] or datetime.now(tz)]]]
+
+			# order = frappe.get_list("VetPosOrder", filters={'session': s['name']}, fields=["name", "is_refund"])
+
+			order = frappe.get_list("VetPosOrder", or_filters=order_filters, fields=["name", "is_refund"])
 			non_cash_payment = []
 			cash_payment = []
 			
