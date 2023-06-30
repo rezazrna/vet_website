@@ -69,18 +69,18 @@ def get_sessions_list(filters=None):
 			kas_masuk = frappe.get_list("VetPosSessionsKasMasuk", filters={'parent': s['name']}, fields=["*"], order_by="kas_date desc")
 			kas_keluar = frappe.get_list("VetPosSessionsKasKeluar", filters={'parent': s['name']}, fields=["*"], order_by="kas_date desc")
 
-			order_filters = [['order_date', '>=', s['opening_session']], ['order_date', '<=', s['closing_session'] or datetime.now(tz)]]
-			refund_order_filters = [['refund_date', '>=', s['opening_session']], ['refund_date', '<=', s['closing_session'] or datetime.now(tz)]]
-			# order_filters = [['order_date', 'between', [s['opening_session'], s['closing_session'] or datetime.now(tz)]], ['refund_date', 'between', [s['opening_session'], s['closing_session'] or datetime.now(tz)]]]
+			# order_filters = [['order_date', '>=', s['opening_session']], ['order_date', '<=', s['closing_session'] or datetime.now(tz)]]
+			# refund_order_filters = [['refund_date', '>=', s['opening_session']], ['refund_date', '<=', s['closing_session'] or datetime.now(tz)]]
+			order_filters = [['order_date', 'between', [s['opening_session'], s['closing_session'] or datetime.now(tz)]], ['refund_date', 'between', [s['opening_session'], s['closing_session'] or datetime.now(tz)]]]
 
 			# order = frappe.get_list("VetPosOrder", filters={'session': s['name']}, fields=["name", "is_refund"])
 
-			# order = frappe.get_list("VetPosOrder", or_filters=order_filters, fields=["name", "is_refund"])
+			order = frappe.get_list("VetPosOrder", or_filters=order_filters, fields=["name", "is_refund"])
 
-			order = frappe.get_list("VetPosOrder", filters=order_filters, fields=["name", "is_refund"])
-			refund_order = frappe.get_list("VetPosOrder", filters=refund_order_filters, fields=["name", "is_refund"])
+			# order = frappe.get_list("VetPosOrder", filters=order_filters, fields=["name", "is_refund"])
+			# refund_order = frappe.get_list("VetPosOrder", filters=refund_order_filters, fields=["name", "is_refund"])
 
-			order += refund_order
+			# order += refund_order
 
 			non_cash_payment = []
 			cash_payment = []
