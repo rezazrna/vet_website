@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 import frappe
 import json
 import math
+from frappe.utils import data
 import pytz
 from datetime import datetime as dt
 from frappe.model.document import Document
@@ -2094,6 +2095,84 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 	new_journal_entry(json.dumps(je_data))
 	
 	return True
+
+@frappe.whitelist()
+def get_penjualan_produk(filters=None, mode=False):
+	invoice_filters = {"status": ['not in', ['Cancel', 'Draft']]}
+	line_filters = {}
+
+	filter_json = False
+	
+	if filters:
+		try:
+			filter_json = json.loads(filters)
+		except:
+			filter_json = False
+		
+	if filter_json:
+		search = filter_json.get('search', False)
+		invoice_date = filter_json.get('invoice_date', False)
+		
+		if search:
+			line_filters.update({'product_name': ['like', '%'+search+'%']})
+
+		if invoice_date:
+			if mode == 'monthly' or mode == 'period':
+				max_date_dt = dt.strptime(invoice_date, '%Y-%m-%d') - rd(days=1)
+			else:
+				max_date_dt = dt.strptime(invoice_date, '%Y-%m-%d')
+
+			if mode == 'monthly':
+				min_date = (max_date_dt).strftime('%Y-%m-01')
+			else:
+				min_date = max_date_dt.strftime('%Y-01-01')
+			invoice_filters.update({'invoice_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+	
+	try:
+		invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["name"])
+		invoice_names = list(j.name for j in invoices)
+
+		line_filters.update({'parent': ['in', invoice_names]})
+		lines = frappe.get_list("VetCustomerInvoiceLine", filters=line_filters, fields=['*'])
+
+		response = []
+		for l in lines:
+			is_refund = frappe.db.get_value('VetCustomerInvoice', l['parent'], 'is_refund')
+			if is_refund:
+				l['quantity'] = -l['quantity']
+				l['unit_price'] = -l['unit_price']
+			category_name = frappe.db.get_value('VetProduct', l['product'], 'category_name')
+			l['category_name'] = category_name
+			uom_name = frappe.db.get_value('VetUOM', l['product_uom'], 'uom_name')
+			l['uom_name'] = uom_name
+
+			invoice_purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': l['name']}, fields=['purchase_products_name'])
+			if len(invoice_purchase_products) > 0:
+				for ipp in invoice_purchase_products:
+					purchase_name = frappe.db.get_value('VetPurchaseProducts', ipp['purchase_products_name'], 'parent')
+					supplier, supplier_name = frappe.db.get_value('VetPurchase', purchase_name, ['supplier', 'supplier_name'])
+					l['supplier'] = supplier
+					l['supplier_name'] = supplier_name
+					index_same = [i for i, x in enumerate(response) if x.get('product') == l['product'] and x.get('supplier') == l['supplier']]
+					if len(index_same) > 0:
+						response[index_same[0]]['quantity'] += l['quantity']
+						response[index_same[0]]['unit_price'] += l['unit_price']
+					else:
+						response.append(l)
+			else:
+				l['supplier'] = ''
+				l['supplier_name'] = ''
+				index_same = [i for i, x in enumerate(response) if x.get('product') == l['product']]
+				if len(index_same) > 0:
+					response[index_same[0]]['quantity'] += l['quantity']
+					response[index_same[0]]['unit_price'] += l['unit_price']
+				else:
+					response.append(l)
+			
+		return {'data': response, 'datalength': len(response)}
+		
+	except PermissionError as e:
+		return {'error': e}
 	
 	
 def add_payment_from_deposit(data):
