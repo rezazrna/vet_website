@@ -2100,7 +2100,7 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 @frappe.whitelist()
 def get_penjualan_produk(filters=None, mode=False, all=False):
 	invoice_filters = {"status": ['not in', ['Cancel', 'Draft']]}
-	product_filters = {}
+	# product_filters = {}
 	line_filters = {}
 
 	filter_json = False
@@ -2121,7 +2121,7 @@ def get_penjualan_produk(filters=None, mode=False, all=False):
 			page = currentpage
 		
 		if search:
-			product_filters.update({'product_name': ['like', '%'+search+'%']})
+			line_filters.update({'product_name': ['like', '%'+search+'%']})
 
 		if invoice_date:
 			if mode == 'monthly' or mode == 'period':
