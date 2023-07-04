@@ -69,24 +69,24 @@ class PenjualanProduk extends React.Component {
 
         this.setState({
             currentpage: Number(number),
-            // loaded: false,
+            loaded: false,
         });
 
         filters['currentpage'] = Number(number)
 
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
-        // frappe.call({
-        //     type: "GET",
-        //     method: "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.get_penjualan_produk",
-        //     args: { filters: filters, mode: td.state.mode, },
-        //     callback: function (r) {
-        //         if (r.message) {
-        //             console.log(r.message)
-        //             td.setState({ 'data': r.message.data, 'loaded': true, 'datalength': r.message.datalength });
-        //         }
-        //     }
-        // });
+        frappe.call({
+            type: "GET",
+            method: "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.get_penjualan_produk",
+            args: { filters: filters, mode: td.state.mode, },
+            callback: function (r) {
+                if (r.message) {
+                    console.log(r.message)
+                    td.setState({ 'data': r.message.data, 'loaded': true, 'datalength': r.message.datalength });
+                }
+            }
+        });
     }
 
     setFilter(filters = false) {
@@ -213,13 +213,13 @@ class PenjualanProduk extends React.Component {
                 </div>
             }
 
-            var page_data = this.state.data.slice((this.state.currentpage - 1) * 30, this.state.currentpage * 30)
+            // var page_data = this.state.data.slice((this.state.currentpage - 1) * 30, this.state.currentpage * 30)
 
             return (
                 <div>
                     <div className="row mx-0" style={row_style2}>
                         <div className="col-auto my-auto">
-                            <button type="button" className={this.state.print_loading ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2" : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.printPDF()}>{this.state.print_loading ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3" />Loading...</span>) : "Print"}</button>
+                            <button type="button" className={this.state.print_loading ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2" : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3" />Loading...</span>) : "Print"}</button>
                         </div>
                         <div className="col-2 my-auto">
                             <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.setFilter(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
@@ -243,8 +243,8 @@ class PenjualanProduk extends React.Component {
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
                         </div>
                     </div>
-                    <PenjualanProdukList items={page_data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.data} />
+                    <PenjualanProdukList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
+                    <PDF data={this.state.print_data} />
                 </div>
             )
         }

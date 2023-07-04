@@ -3,6 +3,7 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
+from operator import index
 import frappe
 import json
 import math
@@ -2097,11 +2098,13 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 	return True
 
 @frappe.whitelist()
-def get_penjualan_produk(filters=None, mode=False):
+def get_penjualan_produk(filters=None, mode=False, all=False):
 	invoice_filters = {"status": ['not in', ['Cancel', 'Draft']]}
+	product_filters = {}
 	line_filters = {}
 
 	filter_json = False
+	page = 1
 	
 	if filters:
 		try:
@@ -2112,9 +2115,13 @@ def get_penjualan_produk(filters=None, mode=False):
 	if filter_json:
 		search = filter_json.get('search', False)
 		invoice_date = filter_json.get('invoice_date', False)
+		currentpage = filter_json.get('currentpage', False)
+
+		if currentpage:
+			page = currentpage
 		
 		if search:
-			line_filters.update({'product_name': ['like', '%'+search+'%']})
+			product_filters.update({'product_name': ['like', '%'+search+'%']})
 
 		if invoice_date:
 			if mode == 'monthly' or mode == 'period':
@@ -2129,48 +2136,104 @@ def get_penjualan_produk(filters=None, mode=False):
 			invoice_filters.update({'invoice_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 	
 	try:
+		# datalength = 0
+		# product_fields = ['name', 'product_name', 'category_name']
+		# if all:
+		# 	products = frappe.get_list("VetProduct", filters=product_filters, fields=product_fields)
+		# else:
+		# 	products = frappe.get_list("VetProduct", filters=product_filters, fields=product_fields, start=(page - 1) * 30, page_length= 30)
+		# 	datalength = len(frappe.get_all("VetProduct", filters=product_filters, as_list=True))
+
 		invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["name"])
 		invoice_names = list(j.name for j in invoices)
 
 		line_filters.update({'parent': ['in', invoice_names]})
-		lines = frappe.get_list("VetCustomerInvoiceLine", filters=line_filters, fields=['*'])
+
+		datalength = 0
+		if all:
+			line_products = frappe.get_list("VetCustomerInvoiceLine", filters=line_filters, fields=['product'], group_by='product')
+		else:
+			line_products = frappe.get_list("VetCustomerInvoiceLine", filters=line_filters, fields=['product'], start=(page - 1) * 30, page_length= 30, group_by='product')
+			datalength = len(frappe.get_all("VetCustomerInvoiceLine", filters=line_filters, group_by='product', as_list=True))
 
 		response = []
-		for l in lines:
-			is_refund = frappe.db.get_value('VetCustomerInvoice', l['parent'], 'is_refund')
-			if is_refund:
-				l['quantity'] = -l['quantity']
-				l['unit_price'] = -l['unit_price']
-			category_name = frappe.db.get_value('VetProduct', l['product'], 'category_name')
-			l['category_name'] = category_name
-			uom_name = frappe.db.get_value('VetUOM', l['product_uom'], 'uom_name')
-			l['uom_name'] = uom_name
+		for lp in line_products:
+			product, product_name, category_name = frappe.db.get_value('VetProduct', lp['product'], ['name', 'product_name', 'category_name'])
 
-			invoice_purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': l['name']}, fields=['purchase_products_name'])
-			if len(invoice_purchase_products) > 0:
-				for ipp in invoice_purchase_products:
-					purchase_name = frappe.db.get_value('VetPurchaseProducts', ipp['purchase_products_name'], 'parent')
-					supplier, supplier_name = frappe.db.get_value('VetPurchase', purchase_name, ['supplier', 'supplier_name'])
-					l['supplier'] = supplier
-					l['supplier_name'] = supplier_name
-					index_same = [i for i, x in enumerate(response) if x.get('product') == l['product'] and x.get('supplier') == l['supplier']]
+			line_filters.update({'product': lp['product']})
+			lines = frappe.get_list("VetCustomerInvoiceLine", filters=line_filters, fields=['name', 'quantity', 'unit_price', 'product_uom', 'parent', 'product'])
+			for l in lines:
+				is_refund = frappe.db.get_value('VetCustomerInvoice', l['parent'], 'is_refund')
+				if is_refund:
+					l['quantity'] = -l['quantity']
+					l['unit_price'] = -l['unit_price']
+				uom_name = frappe.db.get_value('VetUOM', l['product_uom'], 'uom_name')
+
+				invoice_purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': l['name']}, fields=['purchase_products_name'])
+				if len(invoice_purchase_products) > 0:
+					for ipp in invoice_purchase_products:
+						purchase_name = frappe.db.get_value('VetPurchaseProducts', ipp['purchase_products_name'], 'parent')
+						supplier, supplier_name = frappe.db.get_value('VetPurchase', purchase_name, ['supplier', 'supplier_name'])
+						index_same = [i for i, x in enumerate(response) if x.get('product') == l['product'] and x.get('supplier') == supplier]
+						if len(index_same) > 0:
+							response[index_same[0]]['quantity'] += l['quantity']
+							response[index_same[0]]['unit_price'] += l['unit_price']
+						else:
+							p = {'product': product, 'product_name': product_name, 'category_name': category_name, 'uom_name': uom_name}
+							p['supplier'] = supplier
+							p['supplier_name'] = supplier_name
+							p['quantity'] = l['quantity']
+							p['unit_price'] = l['unit_price']
+							response.append(p)
+				else:
+					index_same = [i for i, x in enumerate(response) if x.get('product') == l['product']]
 					if len(index_same) > 0:
 						response[index_same[0]]['quantity'] += l['quantity']
 						response[index_same[0]]['unit_price'] += l['unit_price']
 					else:
-						response.append(l)
-			else:
-				l['supplier'] = ''
-				l['supplier_name'] = ''
-				index_same = [i for i, x in enumerate(response) if x.get('product') == l['product']]
-				if len(index_same) > 0:
-					response[index_same[0]]['quantity'] += l['quantity']
-					response[index_same[0]]['unit_price'] += l['unit_price']
-				else:
-					response.append(l)
+						o = {'product': product, 'product_name': product_name, 'category_name': category_name, 'uom_name': uom_name}
+						o['supplier'] = ''
+						o['supplier_name'] = ''
+						o['quantity'] = l['quantity']
+						o['unit_price'] = l['unit_price']
+						response.append(o)
+
+		# response = []
+		# for l in lines:
+		# 	is_refund = frappe.db.get_value('VetCustomerInvoice', l['parent'], 'is_refund')
+		# 	if is_refund:
+		# 		l['quantity'] = -l['quantity']
+		# 		l['unit_price'] = -l['unit_price']
+		# 	category_name = frappe.db.get_value('VetProduct', l['product'], 'category_name')
+		# 	l['category_name'] = category_name
+		# 	uom_name = frappe.db.get_value('VetUOM', l['product_uom'], 'uom_name')
+		# 	l['uom_name'] = uom_name
+
+		# 	invoice_purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': l['name']}, fields=['purchase_products_name'])
+		# 	if len(invoice_purchase_products) > 0:
+		# 		for ipp in invoice_purchase_products:
+		# 			purchase_name = frappe.db.get_value('VetPurchaseProducts', ipp['purchase_products_name'], 'parent')
+		# 			supplier, supplier_name = frappe.db.get_value('VetPurchase', purchase_name, ['supplier', 'supplier_name'])
+		# 			l['supplier'] = supplier
+		# 			l['supplier_name'] = supplier_name
+		# 			index_same = [i for i, x in enumerate(response) if x.get('product') == l['product'] and x.get('supplier') == l['supplier']]
+		# 			if len(index_same) > 0:
+		# 				response[index_same[0]]['quantity'] += l['quantity']
+		# 				response[index_same[0]]['unit_price'] += l['unit_price']
+		# 			else:
+		# 				response.append(l)
+		# 	else:
+		# 		l['supplier'] = ''
+		# 		l['supplier_name'] = ''
+		# 		index_same = [i for i, x in enumerate(response) if x.get('product') == l['product']]
+		# 		if len(index_same) > 0:
+		# 			response[index_same[0]]['quantity'] += l['quantity']
+		# 			response[index_same[0]]['unit_price'] += l['unit_price']
+		# 		else:
+		# 			response.append(l)
 			
-		return {'data': response, 'datalength': len(response)}
-		
+		return {'data': response, 'datalength': datalength}
+		9
 	except PermissionError as e:
 		return {'error': e}
 	
