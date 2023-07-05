@@ -217,7 +217,7 @@ def get_rekam_medis_form(name):
 @frappe.whitelist()
 def get_rabies(filters=None, mode=False, all=False):
 	invoice_filters = {'is_refund': False}
-	line_or_filters = {'product_name': ['like', '%Rabies%'], 'product_name': ['like', '%Defensor%'], 'product_name': ['like', '%Rabisin%']}
+	line_or_filters = [['product_name', 'like', '%Defensor%'], ['product_name', 'like', '%Rabisin%']]
 	line_filters = {}
 
 	filter_json = False
