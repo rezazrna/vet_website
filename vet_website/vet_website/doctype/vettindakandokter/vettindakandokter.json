@@ -21,7 +21,7 @@
   "ausch",
   "pulse",
   "respiration",
-  "abdominal_palpas_pain",
+  "abdominal_palpasi_pain",
   "abdominal_palpasi_tension",
   "limfonodule",
   "mukosa",
@@ -135,11 +135,6 @@
    "fieldname": "respiration",
    "fieldtype": "Text",
    "label": "respirasi"
-  },
-  {
-   "fieldname": "abdominal_palpas_pain",
-   "fieldtype": "Text",
-   "label": "Abdominal Palpasi Pain"
   },
   {
    "fieldname": "abdominal_palpasi_tension",
@@ -301,9 +296,14 @@
    "fieldname": "other_pemeriksaan",
    "fieldtype": "Text",
    "label": "Lainnya Pemeriksaan"
+  },
+  {
+   "fieldname": "abdominal_palpasi_pain",
+   "fieldtype": "Text",
+   "label": "Abdominal Palpasi Pain"
   }
  ],
- "modified": "2023-04-13 19:16:01.936532",
+ "modified": "2023-07-05 13:55:38.742428",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetTindakanDokter",

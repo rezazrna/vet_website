@@ -249,7 +249,7 @@
   {
    "fieldname": "abdominal_palpasi_pain",
    "fieldtype": "Text",
-   "label": "Abdomnal Palpasi Pain"
+   "label": "Abdominal Palpasi Pain"
   },
   {
    "fieldname": "abdominal_palpasi_tension",

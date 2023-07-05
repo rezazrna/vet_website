@@ -14,7 +14,7 @@ var checks = [
     { 'label': 'Ausc. H', 'name': 'ausch' },
     { 'label': 'Pulsus', 'name': 'pulse' },
     { 'label': 'Respirasi', 'name': 'respiration' },
-    { 'label': 'Abdomnal Palpasi Pain', 'name': 'abdominal_palpasi_pain' },
+    { 'label': 'Abdominal Palpasi Pain', 'name': 'abdominal_palpasi_pain' },
     { 'label': 'Abdominal Palpasi Tension', 'name': 'abdominal_palpasi_tension' },
     { 'label': 'Limfonodule', 'name': 'limfonodule' },
     { 'label': 'Mukosa', 'name': 'mukosa' },
