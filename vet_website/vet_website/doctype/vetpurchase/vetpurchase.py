@@ -1156,7 +1156,8 @@ def create_purchase_journal_entry(purchase_name, refund=False, products=False, r
 		if paid > subtotal:
 			if (paid-subtotal) >= total:
 				jis.append({
-					'account': deposit_account,
+					# 'account': deposit_account,
+					'account': purchase_journal_credit,
 					'credit': total,
 				})
 			else:
@@ -1269,6 +1270,7 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 		jis = []
 		
 		if float(paid) > float(subtotal):
+			print('masuk kelebihan')
 			if deposit:
 				jis.append({'account': deposit_account, 'credit': deposit})
 			
@@ -1281,10 +1283,12 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 			else:
 				jas = [
 						{'account': credit_account, 'credit': amount},
-						{'account': deposit_account, 'debit': amount}
+						# {'account': deposit_account, 'debit': amount}
+						{'account': debit_account, 'debit': amount}
 					]
 			jis.extend(jas)
 		elif not all(t.quantity_receive == 0 for t in purchase.products) or purchase.first_action == 'Receive' or subtotal > paid:
+			print('masuk receive dulu')
 			if deposit:
 				jis.append({'account': deposit_account, 'credit': deposit})
 			
@@ -1301,6 +1305,9 @@ def create_purchase_payment_journal_items(purchase_name, amount, refund=False, d
 		else:
 			if deposit:
 				jis.append({'account': deposit_account, 'credit': deposit})
+
+			print('masuk pay dulu')
+			print(debit_account)
 				
 			jas = [
 				{
