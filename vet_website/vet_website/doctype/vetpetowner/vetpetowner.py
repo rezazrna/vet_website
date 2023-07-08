@@ -452,7 +452,7 @@ def get_credit_list(name=False, no_filter=False, filters=None, supplier=False, o
 	odd_filters = []
 	filter_json = False
 	session = ''
-	default_sort = 'creation desc'
+	default_sort = 'date desc'
 	pos_payment_sorts = []
 	page = 1
 	
