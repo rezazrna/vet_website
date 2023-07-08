@@ -759,9 +759,9 @@ def resize_image(file_url):
 
 def set_owner_credit_total(name, supplier=False):
 	if supplier:
-		owner_credit_search = frappe.get_list('VetOwnerCredit', filters={'supplier': name}, fields=['*'], order_by='creation asc')
+		owner_credit_search = frappe.get_list('VetOwnerCredit', filters={'supplier': name}, fields=['*'], order_by='date asc')
 	else:
-		owner_credit_search = frappe.get_list('VetOwnerCredit', filters={'pet_owner': name}, fields=['*'], order_by='creation asc')
+		owner_credit_search = frappe.get_list('VetOwnerCredit', filters={'pet_owner': name}, fields=['*'], order_by='date asc')
 		
 	credit = 0
 	debt = 0
