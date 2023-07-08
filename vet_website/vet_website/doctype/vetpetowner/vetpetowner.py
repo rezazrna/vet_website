@@ -945,6 +945,7 @@ def set_owner_credit_total(name, supplier=False):
 					prev_payment = frappe.get_doc('VetOwnerCredit', prev_payment_search[0].name)
 					purchase_credit = get_purchase_debit_credit(owner_credit.name)
 					print(purchase_credit)
+					purchase_credit -= o['nominal']
 					purchase_credit = purchase_credit if purchase_credit > 0 else 0
 					# if prev_payment.credit >= o['nominal']:
 					if purchase_credit >= o['nominal']:
