@@ -2100,7 +2100,8 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 @frappe.whitelist()
 def get_penjualan_produk(filters=None, mode=False, all=False):
 	invoice_filters = {"status": ['not in', ['Cancel', 'Draft']]}
-	order_filters = {}
+	invoice_or_filters = {}
+	order_or_filters = {}
 	line_filters = {}
 	order_product_filters = {}
 
@@ -2134,16 +2135,18 @@ def get_penjualan_produk(filters=None, mode=False, all=False):
 				min_date = (max_date_dt).strftime('%Y-%m-01')
 			else:
 				min_date = max_date_dt.strftime('%Y-01-01')
-			invoice_filters.update({'invoice_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
-			order_filters.update({'order_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			invoice_or_filters.update({'invoice_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			invoice_or_filters.update({'refund_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			order_or_filters.update({'order_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
+			order_or_filters.update({'refund_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 	
 	try:
-		invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["name"])
+		invoices = frappe.get_list("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, fields=["name"])
 		invoice_names = list(j.name for j in invoices)
 
 		line_filters.update({'parent': ['in', invoice_names]})
 
-		orders = frappe.get_list("VetPosOrder", filters=order_filters, fields=["name"])
+		orders = frappe.get_list("VetPosOrder", or_filters=order_or_filters, fields=["name"])
 		order_names = list(j.name for j in orders)
 
 		order_product_filters.update({'parent': ['in', order_names]})

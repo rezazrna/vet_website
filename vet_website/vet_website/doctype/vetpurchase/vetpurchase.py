@@ -1064,7 +1064,11 @@ def check_paid_purchase(name):
 	for p in purchase.products:
 		subtotal = subtotal + (float(p.quantity) * float(p.price) - ((p.discount or 0) / 100 * (float(p.quantity) * float(p.price))))
 	paid = sum(float(p.jumlah) for p in purchase.pembayaran)
-	if paid >= (subtotal - float(purchase.potongan)):
+	print('paid')
+	print(round(paid, 2))
+	print(round(subtotal, 2))
+	print(round(float(purchase.potongan), 2))
+	if round(paid, 2) >= round((subtotal - float(purchase.potongan)), 2):
 		return True
 	else:
 		return False
