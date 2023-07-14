@@ -353,7 +353,7 @@ class PenjualanProdukListRow extends React.Component {
                             <span>{item.uom_name}</span>
                         </div>
                         <div className="col text-center">
-                            <span>{formatter2.format(item.unit_price)}</span>
+                            <span>{formatter2.format(item.total)}</span>
                         </div>
                     </div>
                 </div>
@@ -410,7 +410,7 @@ class PDF extends React.Component {
                     <td className="py-1">{d.supplier_name}</td>
                     <td className="py-1">{formatter2.format(d.quantity)}</td>
                     <td className="py-1">{d.uom_name}</td>
-                    <td className="py-1">{formatter2.format(d.unit_price)}</td>
+                    <td className="py-1">{formatter2.format(d.total)}</td>
                 </tr>
             )
         })

@@ -2168,7 +2168,6 @@ def get_penjualan_produk(filters=None, mode=False, all=False):
 				is_refund = frappe.db.get_value('VetCustomerInvoice', l['parent'], 'is_refund')
 				if is_refund:
 					l['quantity'] = -l['quantity']
-					l['unit_price'] = -l['unit_price']
 				uom_name = frappe.db.get_value('VetUOM', l['product_uom'], 'uom_name')
 
 				invoice_purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': l['name']}, fields=['purchase_products_name'])
@@ -2179,25 +2178,25 @@ def get_penjualan_produk(filters=None, mode=False, all=False):
 						index_same = [i for i, x in enumerate(response) if x.get('product') == l['product'] and x.get('supplier') == supplier]
 						if len(index_same) > 0:
 							response[index_same[0]]['quantity'] += l['quantity']
-							response[index_same[0]]['unit_price'] += l['unit_price']
+							response[index_same[0]]['total'] += l['quantity'] * l['unit_price']
 						else:
 							p = {'product': product, 'product_name': product_name, 'category_name': category_name, 'uom_name': uom_name}
 							p['supplier'] = supplier
 							p['supplier_name'] = supplier_name
 							p['quantity'] = l['quantity']
-							p['unit_price'] = l['unit_price']
+							p['total'] = l['quantity'] * l['unit_price']
 							response.append(p)
 				else:
 					index_same = [i for i, x in enumerate(response) if x.get('product') == l['product']]
 					if len(index_same) > 0:
 						response[index_same[0]]['quantity'] += l['quantity']
-						response[index_same[0]]['unit_price'] += l['unit_price']
+						response[index_same[0]]['total'] += l['quantity'] * l['unit_price']
 					else:
 						o = {'product': product, 'product_name': product_name, 'category_name': category_name, 'uom_name': uom_name}
 						o['supplier'] = ''
 						o['supplier_name'] = ''
 						o['quantity'] = l['quantity']
-						o['unit_price'] = l['unit_price']
+						o['total'] = l['quantity'] * l['unit_price']
 						response.append(o)
 
 			order_product_filters.update({'produk': lp['product']})
@@ -2206,7 +2205,6 @@ def get_penjualan_produk(filters=None, mode=False, all=False):
 				is_refund = frappe.db.get_value('VetPosOrder', op['parent'], 'is_refund')
 				if is_refund:
 					op['quantity'] = -op['quantity']
-					op['price'] = -op['price']
 
 				order_purchase_products = frappe.get_list('VetPosOrderPurchaseProducts', filters={'order_produk_name': l['name']}, fields=['purchase_products_name'])
 				if len(order_purchase_products) > 0:
@@ -2216,25 +2214,25 @@ def get_penjualan_produk(filters=None, mode=False, all=False):
 						index_same = [i for i, x in enumerate(response) if x.get('product') == op['produk'] and x.get('supplier') == supplier]
 						if len(index_same) > 0:
 							response[index_same[0]]['quantity'] += op['quantity']
-							response[index_same[0]]['unit_price'] += op['price']
+							response[index_same[0]]['total'] += op['quantity'] * op['price']
 						else:
 							p = {'product': product, 'product_name': product_name, 'category_name': category_name, 'uom_name': op['uom_name']}
 							p['supplier'] = supplier
 							p['supplier_name'] = supplier_name
 							p['quantity'] = op['quantity']
-							p['unit_price'] = op['price']
+							p['total'] = op['quantity'] * op['price']
 							response.append(p)
 				else:
 					index_same = [i for i, x in enumerate(response) if x.get('product') == op['produk']]
 					if len(index_same) > 0:
 						response[index_same[0]]['quantity'] += op['quantity']
-						response[index_same[0]]['unit_price'] += op['price']
+						response[index_same[0]]['total'] += op['quantity'] * op['price']
 					else:
 						o = {'product': product, 'product_name': product_name, 'category_name': category_name, 'uom_name': op['uom_name']}
 						o['supplier'] = ''
 						o['supplier_name'] = ''
 						o['quantity'] = op['quantity']
-						o['unit_price'] = op['price']
+						o['total'] = op['quantity'] * op['price']
 						response.append(o)
 			
 		return {'data': response, 'datalength': datalength}
