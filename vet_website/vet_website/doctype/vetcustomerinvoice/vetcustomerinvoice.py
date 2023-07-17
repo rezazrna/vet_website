@@ -588,7 +588,7 @@ def get_customer_open_invoice(filters=None, all_page=False):
 			owner_filters.append({'owner_name': ['like', '%'+search+'%']})
 	
 	try:
-		invoice_filters = {'status': 'Open', 'is_refund': False, 'already_refund': False}
+		invoice_filters = {'status': 'Open', 'is_refund': False, 'already_refund': False, 'parent_customer_invoice': ['=', '']}
 		open_invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["owner", "name"], group_by="owner")
 		owners_name = list(oi.owner for oi in open_invoices)
 		if owners_name:
@@ -638,7 +638,7 @@ def get_customer_open_invoice(filters=None, all_page=False):
 @frappe.whitelist()
 def get_mutasi_piutang(filters=None, mode=False, all=False):
 	owner_filters = {}
-	invoice_filters = {}
+	invoice_filters = {'parent_customer_invoice': ['=', '']}
 	awal_filters = {}
 
 	filter_json = False
@@ -682,8 +682,9 @@ def get_mutasi_piutang(filters=None, mode=False, all=False):
 		datalength = len(frappe.get_all("VetPetOwner", filters=owner_filters, as_list=True))
 
 		for o in owners:
-			invoice_filters.update({'status': 'Open', 'is_refund': False, 'already_refund': False, 'owner': o['name']})
-			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["name", "total"])
+			# invoice_filters.update({'status': 'Open', 'is_refund': False, 'already_refund': False, 'owner': o['name']})
+			invoice_filters.update({'owner': o['name']})
+			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=["name", "total", "is_refund"])
 			debit = 0
 			credit = 0
 
@@ -695,22 +696,35 @@ def get_mutasi_piutang(filters=None, mode=False, all=False):
 					
 					paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': ['in', customer_invoice_name]}, fields=['sum(jumlah) as paid'])
 
-					debit += all_total[0].all_total
+					if i['is_refund']:
+						credit += all_total[0].all_total
+					else:
+						debit += all_total[0].all_total
 
 					if paid_search[0]['paid'] != None:
-						credit += paid_search[0]['paid']
+						if i['is_refund']:
+							debit += paid_search[0]['paid']
+						else:
+							credit += paid_search[0]['paid']
 				else:
-					debit += i['total']
+					if i['is_refund']:
+						credit += i['total']
+					else:
+						debit += i['total']
 
 					paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': i['name']}, fields=['sum(jumlah) as paid'])
 					if paid_search[0]['paid'] != None:
-						credit += paid_search[0]['paid']
+						if i['is_refund']:
+							debit += paid_search[0]['paid']
+						else:
+							credit += paid_search[0]['paid']
 
 			o['debit'] = debit
 			o['credit'] = credit
 
-			awal_filters.update({'status': 'Open', 'is_refund': False, 'already_refund': False, 'owner': o['name']})
-			awal_invoices = frappe.get_list("VetCustomerInvoice", filters=awal_filters, fields=["name", "total"])
+			# awal_filters.update({'status': 'Open', 'is_refund': False, 'already_refund': False, 'owner': o['name']})
+			awal_filters.update({'owner': o['name']})
+			awal_invoices = frappe.get_list("VetCustomerInvoice", filters=awal_filters, fields=["name", "total", "is_refund"])
 			awal = 0
 
 			for aw in awal_invoices:
@@ -722,15 +736,28 @@ def get_mutasi_piutang(filters=None, mode=False, all=False):
 					paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': ['in', customer_invoice_name]}, fields=['sum(jumlah) as paid'])
 
 					if paid_search[0]['paid'] != None:
-						awal += all_total[0].all_total - paid_search[0]['paid']
+						if aw['is_refund']:
+							awal -= all_total[0].all_total - paid_search[0]['paid']
+						else:
+							awal += all_total[0].all_total - paid_search[0]['paid']
 					else:
-						awal += all_total[0].all_total
+						if aw['is_refund']:
+							awal -= all_total[0].all_total
+						else:
+							awal += all_total[0].all_total
 				else:
 					paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': aw['name']}, fields=['sum(jumlah) as paid'])
 					if paid_search[0]['paid'] != None:
-						awal += aw['total'] - paid_search[0]['paid']
+						if aw['is_refund']:
+							awal -= aw['total'] - paid_search[0]['paid']
+						else:
+							awal += aw['total'] - paid_search[0]['paid']
 					else:
-						awal += aw['total']
+						if aw['is_refund']:
+							awal -= aw['total']
+						else:
+							awal += aw['total']
+
 			o['awal'] = awal
 			o['akhir'] = awal + debit - credit
 			
