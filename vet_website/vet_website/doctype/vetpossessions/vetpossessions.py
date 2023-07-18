@@ -143,8 +143,8 @@ def get_sessions_list(filters=None):
 							
 			credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz)], ['type', 'in', ['Payment', 'Refund']]]
 			sales_credit_filters = [['date', '>=', s['opening_session']], ['date', '<=', s['closing_session'] or datetime.now(tz)], ['type', '=', 'Sales']]
-			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by='creation desc')
-			sales_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=sales_credit_filters, fields=['*'], order_by='creation desc')
+			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by='date desc')
+			sales_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=sales_credit_filters, fields=['*'], order_by='date desc')
 
 			for ow in owner_credit_list:
 				# print(ow.metode_pembayaran)
@@ -262,7 +262,7 @@ def create_session():
 						r['credit_mutation'] = 0
 						cash_payment.append(r)
 			credit_filters = [['date', '>=', last_session[0]['opening_session']], ['date', '<=', last_session[0]['closing_session'] or datetime.now(tz)], ['type', '=', 'Payment']]
-			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by='creation desc')
+			owner_credit_list = frappe.get_list('VetOwnerCredit', or_filters={'pet_owner': ['!=', ''], 'invoice': ['!=', '']}, filters=credit_filters, fields=['*'], order_by='date desc')
 			for ow in owner_credit_list:
 				method_name = frappe.db.get_value('VetPaymentMethod', ow['metode_pembayaran'], 'method_name')
 				if ow.metode_pembayaran == 'Cash':

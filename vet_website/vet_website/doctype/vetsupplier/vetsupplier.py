@@ -80,7 +80,7 @@ def get_supplier_list(filters=None):
 			credit = 0
 			debt = 0
 			purchase = frappe.get_list("VetPurchase", fields=["*"], filters={'supplier': sl.name})
-			last_credit = frappe.get_list("VetOwnerCredit", fields=["credit", "debt"], filters={'supplier': sl.name}, order_by="creation desc")
+			last_credit = frappe.get_list("VetOwnerCredit", fields=["credit", "debt"], filters={'supplier': sl.name}, order_by="date desc")
 			if last_credit:
 				credit = last_credit[0]['credit']
 				debt = last_credit[0]['debt']

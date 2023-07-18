@@ -446,7 +446,7 @@ def get_purchase(name=None):
 			purchase['pembayaran'] = purchase_pay
 			
 			credit = 0
-			last_credit = frappe.get_list("VetOwnerCredit", fields=["credit"], filters={'supplier': purchase.supplier}, order_by="creation desc")
+			last_credit = frappe.get_list("VetOwnerCredit", fields=["credit"], filters={'supplier': purchase.supplier}, order_by="date desc")
 			if last_credit:
 				credit = last_credit[0]['credit']
 			purchase['total_credit'] = credit
@@ -1347,7 +1347,7 @@ def get_supplier_true_credit(supplier_name):
 	credit = 0
 	total_reduced_credit = 0
 	
-	last_credit = frappe.get_list("VetOwnerCredit", fields=["credit"], filters={'supplier': supplier_name}, order_by="creation desc")
+	last_credit = frappe.get_list("VetOwnerCredit", fields=["credit"], filters={'supplier': supplier_name}, order_by="date desc")
 	if last_credit:
 		credit = last_credit[0]['credit']
 		

@@ -25,7 +25,7 @@ def submit_piutang(action, nominal, petOwner, method, tanggal=False):
 			if len(session_search) < 1:
 				return {'error': "Belum ada POS Session yang dibuka, bukan POS Session terlebih dahulu"}
 			last_credit = 0
-			last_credit_search = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': petOwner}, {'credit_mutation': ['!=', 0]}], fields=['credit'], order_by="creation desc")
+			last_credit_search = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': petOwner}, {'credit_mutation': ['!=', 0]}], fields=['credit'], order_by="date desc")
 			if len(last_credit_search) != 0:
 				last_credit = last_credit_search[0].credit
 				if last_credit < float(nominal):
@@ -138,7 +138,7 @@ def submit_piutang(action, nominal, petOwner, method, tanggal=False):
 			# 	}
 			# 	create_je(data)
 			
-		credit_list = frappe.get_list('VetOwnerCredit', filters={'pet_owner': petOwner}, fields=['*'], order_by='creation desc')
+		credit_list = frappe.get_list('VetOwnerCredit', filters={'pet_owner': petOwner}, fields=['*'], order_by='date desc')
 	
 		return credit_list
 	except PermissionError as e:
@@ -161,8 +161,8 @@ def process_invoice(data):
 					set_owner_credit_total(credit.pet_owner)
 					create_journal_entry('Sales', credit.nominal, credit.name)
 				elif credit.type == 'Payment':
-					owner_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': credit.pet_owner}, order_by="creation asc", fields=['*'])
-					sales_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': credit.pet_owner, 'type': 'Sales'}, order_by="creation asc", fields=['*'])
+					owner_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': credit.pet_owner}, order_by="date asc", fields=['*'])
+					sales_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': credit.pet_owner, 'type': 'Sales'}, order_by="date asc", fields=['*'])
 					list_credit = []
 					
 					for i in owner_credit:
@@ -231,7 +231,7 @@ def process_invoice(data):
 						}
 						create_je(data)
 		
-		credit_list = frappe.get_list('VetOwnerCredit', filters={'pet_owner': credit.pet_owner}, fields=['*'], order_by='creation desc')
+		credit_list = frappe.get_list('VetOwnerCredit', filters={'pet_owner': credit.pet_owner}, fields=['*'], order_by='date desc')
 	
 		return credit_list
 	except PermissionError as e:
@@ -243,7 +243,7 @@ def submit_piutang_purchase(action, nominal, supplier, method, tanggal=False):
 		tz = pytz.timezone("Asia/Jakarta")
 		if action == 'Buat':
 			last_credit = 0
-			last_credit_search = frappe.get_list('VetOwnerCredit', filters={'supplier': supplier}, fields=['credit'], order_by="creation desc")
+			last_credit_search = frappe.get_list('VetOwnerCredit', filters={'supplier': supplier}, fields=['credit'], order_by="date desc")
 			if len(last_credit_search) != 0:
 				last_credit = last_credit_search[0].credit
 				if last_credit < float(nominal):
@@ -352,7 +352,7 @@ def submit_piutang_purchase(action, nominal, supplier, method, tanggal=False):
 			# 	}
 			# 	create_je(data)
 			
-		credit_list = frappe.get_list('VetOwnerCredit', filters={'supplier': supplier}, fields=['*'], order_by='creation desc')
+		credit_list = frappe.get_list('VetOwnerCredit', filters={'supplier': supplier}, fields=['*'], order_by='date desc')
 	
 		return credit_list
 	except PermissionError as e:
@@ -365,7 +365,7 @@ def bayar_hutang_purchase(nominal, supplier, method):
 	tz = pytz.timezone("Asia/Jakarta")
 	
 	all_debt = 0
-	last_debt = frappe.get_list("VetOwnerCredit", fields=["debt"], filters={'supplier': supplier}, order_by="creation desc")
+	last_debt = frappe.get_list("VetOwnerCredit", fields=["debt"], filters={'supplier': supplier}, order_by="date desc")
 	if last_debt:
 		all_debt = last_debt[0]['debt']
 	
@@ -442,7 +442,7 @@ def bayar_hutang_invoice(nominal, pet_owner, method):
 	tz = pytz.timezone("Asia/Jakarta")
 	
 	all_debt = 0
-	last_debt = frappe.get_list("VetOwnerCredit", fields=["debt"], filters={'pet_owner': pet_owner}, order_by="creation desc")
+	last_debt = frappe.get_list("VetOwnerCredit", fields=["debt"], filters={'pet_owner': pet_owner}, order_by="date desc")
 	if last_debt:
 		all_debt = last_debt[0]['debt']
 	
@@ -528,8 +528,8 @@ def process_purchase(data):
 					set_owner_credit_total(credit.supplier, True)
 					create_journal_entry('Purchase', credit.nominal, credit.name)
 				elif credit.type == 'Payment':
-					owner_credit = frappe.get_list('VetOwnerCredit', filters={'supplier': credit.supplier}, order_by="creation asc", fields=['*'])
-					sales_credit = frappe.get_list('VetOwnerCredit', filters={'supplier': credit.supplier, 'type': 'Purchase'}, order_by="creation asc", fields=['*'])
+					owner_credit = frappe.get_list('VetOwnerCredit', filters={'supplier': credit.supplier}, order_by="date asc", fields=['*'])
+					sales_credit = frappe.get_list('VetOwnerCredit', filters={'supplier': credit.supplier, 'type': 'Purchase'}, order_by="date asc", fields=['*'])
 					list_credit = []
 					
 					for i in owner_credit:
@@ -598,7 +598,7 @@ def process_purchase(data):
 						}
 						create_je(data)
 			
-		credit_list = frappe.get_list('VetOwnerCredit', filters={'supplier': credit.supplier}, fields=['*'], order_by='creation desc')
+		credit_list = frappe.get_list('VetOwnerCredit', filters={'supplier': credit.supplier}, fields=['*'], order_by='date desc')
 	
 		return credit_list
 	except PermissionError as e:
