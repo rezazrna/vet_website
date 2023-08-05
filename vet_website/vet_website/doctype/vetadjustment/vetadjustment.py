@@ -183,57 +183,57 @@ def submit_adjustment(data):
 		data_json = json.loads(data)
 		
 		if data_json.get('name') :
-			in_operation_move = []
-			out_operation_move = []
+			# in_operation_move = []
+			# out_operation_move = []
 			
-			for inv in data_json.get('inventory_details', []):
-				diff_quantity = 0
-				if inv.get('diff_quantity') is not None:
-					diff_quantity = inv.get('diff_quantity')
-				move = {'product': inv.get('product'), 'quantity': diff_quantity, 'quantity_done': diff_quantity, 'date': data_json.get('inventory_date')}
-				if float(diff_quantity) > 0:
-					in_operation_move.append(move)
-					adjustment_value = increase_product_valuation(inv.get('product'), diff_quantity)
-					inv.update({'adjustment_value': adjustment_value})
-				elif float(diff_quantity) < 0:
-					move.update({'quantity': -float(diff_quantity), 'quantity_done': -float(diff_quantity)})
-					out_operation_move.append(move)
-					adjustment_value = decrease_product_valuation(inv.get('product'), -float(diff_quantity), inv.get('warehouse'))
-					inv.update({'adjustment_value': adjustment_value})
+			# for inv in data_json.get('inventory_details', []):
+			# 	diff_quantity = 0
+			# 	if inv.get('diff_quantity') is not None:
+			# 		diff_quantity = inv.get('diff_quantity')
+			# 	move = {'product': inv.get('product'), 'quantity': diff_quantity, 'quantity_done': diff_quantity, 'date': data_json.get('inventory_date')}
+			# 	if float(diff_quantity) > 0:
+			# 		in_operation_move.append(move)
+			# 		adjustment_value = increase_product_valuation(inv.get('product'), diff_quantity)
+			# 		inv.update({'adjustment_value': adjustment_value})
+			# 	elif float(diff_quantity) < 0:
+			# 		move.update({'quantity': -float(diff_quantity), 'quantity_done': -float(diff_quantity)})
+			# 		out_operation_move.append(move)
+			# 		adjustment_value = decrease_product_valuation(inv.get('product'), -float(diff_quantity), inv.get('warehouse'))
+			# 		inv.update({'adjustment_value': adjustment_value})
 					
-			data_json.update({'status': 'Done'})
+			# data_json.update({'status': 'Done'})
 			
 			save = adjustment_save(data_json)
 			adjustment = save.get('adjustment')
 			
-			if len(in_operation_move):
-				in_operation = frappe.new_doc("VetOperation")
-				in_operation.update({
-					'reference': adjustment.name,
-					'to': adjustment.warehouse,
-					'date': adjustment.inventory_date,
-					'status': 'Delivery',
-					'moves': in_operation_move,
-				})
-				in_operation.insert()
-				frappe.db.commit()
-				in_moves = frappe.get_list('VetOperationMove', filters={'parent': in_operation.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
-				action_receive(in_operation.name, json.dumps(in_moves))
-			if len(out_operation_move):
-				out_operation = frappe.new_doc("VetOperation")
-				out_operation.update({
-					'reference': adjustment.name,
-					'from': adjustment.warehouse,
-					'date': adjustment.inventory_date,
-					'status': 'Delivery',
-					'moves': out_operation_move,
-				})
-				out_operation.insert()
-				frappe.db.commit()
-				out_moves = frappe.get_list('VetOperationMove', filters={'parent': out_operation.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
-				action_receive(out_operation.name, json.dumps(out_moves))
+			# if len(in_operation_move):
+			# 	in_operation = frappe.new_doc("VetOperation")
+			# 	in_operation.update({
+			# 		'reference': adjustment.name,
+			# 		'to': adjustment.warehouse,
+			# 		'date': adjustment.inventory_date,
+			# 		'status': 'Delivery',
+			# 		'moves': in_operation_move,
+			# 	})
+			# 	in_operation.insert()
+			# 	frappe.db.commit()
+			# 	in_moves = frappe.get_list('VetOperationMove', filters={'parent': in_operation.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
+			# 	action_receive(in_operation.name, json.dumps(in_moves))
+			# if len(out_operation_move):
+			# 	out_operation = frappe.new_doc("VetOperation")
+			# 	out_operation.update({
+			# 		'reference': adjustment.name,
+			# 		'from': adjustment.warehouse,
+			# 		'date': adjustment.inventory_date,
+			# 		'status': 'Delivery',
+			# 		'moves': out_operation_move,
+			# 	})
+			# 	out_operation.insert()
+			# 	frappe.db.commit()
+			# 	out_moves = frappe.get_list('VetOperationMove', filters={'parent': out_operation.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
+			# 	action_receive(out_operation.name, json.dumps(out_moves))
 				
-			frappe.db.commit()
+			# frappe.db.commit()
 			
 			selisih_stock_account = frappe.db.get_value('VetCoa', {'account_code': '5-30004'}, 'name')
 			ji_list = [{'account': selisih_stock_account, 'debit': sum(i['adjustment_value'] for i in data_json.get('inventory_details'))}]
