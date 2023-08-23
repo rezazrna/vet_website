@@ -24,11 +24,15 @@ class ScheduledService extends React.Component {
         var po = this
         var filters
 
-        if (sessionStorage.getItem(window.location.pathname) != null) {
-            filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
-        } else {
-            filters = { filters: [], sorts: [] }
-        }
+        // if (sessionStorage.getItem(window.location.pathname) != null) {
+        //     filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+        // } else {
+            var firstDate = moment().subtract(7, 'days').format("YYYY-MM-DD");
+            var lastDate = moment().add(7, 'days').format("YYYY-MM-DD");
+            filters = { filters: [
+                ['schedule_date', 'between', [firstDate, lastDate]]
+            ], sorts: [] }
+        // }
 
         if (document.location.href.includes('?')) {
             var url = document.location.href,
@@ -190,29 +194,21 @@ class ScheduledService extends React.Component {
         this.state.data.forEach(d => !service_options.map(t => t.value).includes(d.service) ? service_options.push({ label: d.service, value: d.service }) : false)
 
         var sorts = [
-            { 'label': 'Tanggal Pendaftaran DESC', 'value': 'create_date desc' },
-            { 'label': 'Tanggal Pendaftaran ASC', 'value': 'create_date asc' },
             { 'label': 'NIP DESC', 'value': 'pet desc' },
             { 'label': 'NIP ASC', 'value': 'pet asc' },
             { 'label': 'Nama Pasien DESC', 'value': 'pet_name desc' },
             { 'label': 'Nama Pasien ASC', 'value': 'pet_name asc' },
-            { 'label': 'No Pendaftaran DESC', 'value': 'register_number desc' },
-            { 'label': 'No Pendaftaran ASC', 'value': 'register_number asc' },
             { 'label': 'Nama Pemilik DESC', 'value': 'pet_owner_name desc' },
             { 'label': 'Nama Pemilik ASC', 'value': 'pet_owner_name asc' },
         ]
         var field_list = [
-            { 'label': 'Tgl Pendaftaran', 'field': 'create_date', 'type': 'date' },
             { 'label': 'NIP', 'field': 'pet', 'type': 'char' },
             { 'label': 'Nama Pasien', 'field': 'pet_name', 'type': 'char' },
-            { 'label': 'No Pendaftaran', 'field': 'register_number', 'type': 'char' },
             { 'label': 'Nama Pemilik', 'field': 'pet_owner_name', 'type': 'char' },
             { 'label': 'Telepon', 'field': 'pet_owner_phone', 'type': 'char' },
             { 'label': 'Jenis Hewan', 'field': 'type_name', 'type': 'select', 'options': pet_types },
-            { 'label': 'Layanan Asal', 'field': 'service', 'type': 'select', 'options': service_options },
             { 'label': 'Tanggal Jadwal', 'field': 'schedule_date', 'type': 'date' },
-            //  {'label': 'Keterangan', 'field': 'description', 'type': 'char'},
-            { 'label': 'Status', 'field': 'status', 'type': 'char' },
+            { 'label': 'Catatan', 'field': 'description', 'type': 'char'},
         ]
 
         var backButton, delete_button
@@ -299,19 +295,14 @@ class ScheduledServiceList extends React.Component {
                         </div>
                         <div className="col row-header">
                             <div className="row mx-0 fs12 fw600">
-                                <div className="col-auto d-flex">
-                                    <div style={col_style2} className="my-auto">
-                                        Tgl Pendaftaran
-                                    </div>
+                                <div className="col d-flex">
+                                    <span className="my-auto">Tanggal Jadwal</span>
                                 </div>
                                 <div className="col d-flex">
                                     <span className="my-auto">NIP</span>
                                 </div>
                                 <div className="col-1 d-flex">
                                     <span className="my-auto">Nama Pasien</span>
-                                </div>
-                                <div className="col d-flex">
-                                    <span className="my-auto">No Pendaftaran</span>
                                 </div>
                                 <div className="col-1 d-flex">
                                     <span className="my-auto">Nama Pemilik</span>
@@ -323,19 +314,13 @@ class ScheduledServiceList extends React.Component {
                                     <span className="my-auto">Jenis Hewan</span>
                                 </div>
                                 <div className="col d-flex">
-                                    <span className="my-auto">Layanan Asal</span>
-                                </div>
-                                <div className="col d-flex">
-                                    <span className="my-auto">Tanggal Jadwal</span>
-                                </div>
-                                <div className="col d-flex">
-                                    <span className="my-auto">Status</span>
+                                    <span className="my-auto">Catatan</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     {schedule_rows}
-                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10' />
+                    <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='30' />
                 </div>
             )
         }
@@ -386,19 +371,14 @@ class ScheduledServiceListRow extends React.Component {
                 </div>
                 <div className="col row-list">
                     <div className="row mx-0 fs12 fw600">
-                        <div className="col-auto d-flex">
-                            <div style={col_style} className="my-auto">
-                                {moment(scheduled_service.create_date).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}
-                            </div>
+                        <div className="col d-flex">
+                            <span className="my-auto">{moment(scheduled_service.schedule_date).format("YYYY-MM-DD")}</span>
                         </div>
                         <div className="col d-flex">
                             <span className="my-auto">{scheduled_service.pet}</span>
                         </div>
                         <div className="col-1 d-flex">
                             <span className="my-auto">{scheduled_service.pet_name}</span>
-                        </div>
-                        <div className="col d-flex">
-                            <span className="my-auto">{scheduled_service.register_number}</span>
                         </div>
                         <div className="col-1 d-flex">
                             <span className="my-auto">{scheduled_service.pet_owner_name}</span>
@@ -410,15 +390,7 @@ class ScheduledServiceListRow extends React.Component {
                             <span className="my-auto">{scheduled_service.type_name}</span>
                         </div>
                         <div className="col d-flex">
-                            <span className="my-auto">{scheduled_service.service}</span>
-                        </div>
-                        <div className="col d-flex">
-                            <span className="my-auto">{scheduled_service.schedule_date}</span>
-                        </div>
-                        <div className="col d-flex">
-                            <span className={type + " fs12 py-1 rounded-pill text-center text-white px-3 my-auto"}>
-                                {scheduled_service.status}
-                            </span>
+                            <span className="my-auto">{scheduled_service.description}</span>
                         </div>
                     </div>
                 </div>

@@ -110,7 +110,6 @@ def get_tindakan_dokter(name):
 	try:
 		tindakan_dokter_search = frappe.get_list("VetTindakanDokter", filters={'name': name}, fields=["*"])
 		tindakan_dokter = tindakan_dokter_search[0]
-		layanan_berjadwal = frappe.get_list("VetTindakanDokterAction", filters={'parent': name}, fields=["*"])
 		jasa = frappe.get_list("VetTindakanDokterJasa", filters={'parent': name}, fields=["*"])
 		tindak_lanjut = frappe.get_list("VetTindakanDokterTindakLanjut", filters={'parent': name}, fields=["*"])
 		attachments = frappe.get_list("VetTindakanDokterAttachments", filters={'parent': name}, fields=["*"])
@@ -205,7 +204,6 @@ def get_tindakan_dokter(name):
 		tindakan_dokter.update({
 			'jasa': jasa,
 			'tindak_lanjut': tindak_lanjut,
-			'layanan_berjadwal': layanan_berjadwal,
 			'rekam_medis_count': rekam_medis_count,
 			'attachments': attachments,
 			'obat': list_product,
@@ -603,21 +601,21 @@ def confirm_tindakan_dokter(data):
 					grooming.insert()
 					frappe.db.commit()
 				
-			for action in tindakan_dokter.layanan_berjadwal:
-				now = dt.now(tz)
-				scheduled_service_data = {
-					'create_date': dt.strftime(now, "%Y-%m-%d %H:%M:%S"),
-					'register_number': tindakan_dokter.register_number,
-					'pet': tindakan_dokter.pet,
-					'service': 'Dokter',
-					'user': data_json.get('dokter'),
-					'description': action.note,
-					'schedule_date': action.date,
-				}
+			# for action in tindakan_dokter.layanan_berjadwal:
+			# 	now = dt.now(tz)
+			# 	scheduled_service_data = {
+			# 		'create_date': dt.strftime(now, "%Y-%m-%d %H:%M:%S"),
+			# 		'register_number': tindakan_dokter.register_number,
+			# 		'pet': tindakan_dokter.pet,
+			# 		'service': 'Dokter',
+			# 		'user': data_json.get('dokter'),
+			# 		'description': action.note,
+			# 		'schedule_date': action.date,
+			# 	}
 
-				new_scheduled_service = frappe.new_doc("VetScheduledService")
-				new_scheduled_service.update(scheduled_service_data)
-				new_scheduled_service.insert()
+			# 	new_scheduled_service = frappe.new_doc("VetScheduledService")
+			# 	new_scheduled_service.update(scheduled_service_data)
+			# 	new_scheduled_service.insert()
 			
 			tindakan_dokter.reload()
 				

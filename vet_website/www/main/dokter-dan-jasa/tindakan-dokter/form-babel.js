@@ -31,7 +31,6 @@ class TindakanDokter extends React.Component {
         this.addTindakLanjut = this.addTindakLanjut.bind(this)
         this.deleteJasaLain = this.deleteJasaLain.bind(this)
         this.deleteTindakLanjut = this.deleteTindakLanjut.bind(this)
-        this.changeKunjunganBerikutnya = this.changeKunjunganBerikutnya.bind(this)
         this.changeTindakanDokter = this.changeTindakanDokter.bind(this)
         this.toggleMainFormWide = this.toggleMainFormWide.bind(this)
         this.changeAddMode = this.changeAddMode.bind(this)
@@ -377,35 +376,6 @@ class TindakanDokter extends React.Component {
             	});
             	e.target.value = e.target.defaultValue
         	}
-        }
-    }
-    
-    changeKunjunganBerikutnya(e, i){
-        var target = e.target
-        var name = target.name
-        var value = target.value
-        var new_data = JSON.parse(JSON.stringify(this.state.data));
-        if(new_data.layanan_berjadwal[i] == undefined){
-            new_data.layanan_berjadwal[i] = {}
-        }
-        new_data.layanan_berjadwal[i][name] = value
-        var th = this
-        
-        if (new_data.layanan_berjadwal[i]['date'] && new_data.layanan_berjadwal[i]['note']) {
-            this.setState({save_loading: true, data: new_data})
-            frappe.call({
-                type: "POST",
-                method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
-                args: {field: 'layanan_berjadwal', value: new_data.layanan_berjadwal[i], name: id},
-                callback: function(r){
-                    if (r.message != true) {
-                        frappe.msgprint(r.message.error)
-                        th.setState({data: r.message.data})
-                    }
-
-                    th.setState({save_loading: false})
-                }
-            });
         }
     }
     
@@ -1003,7 +973,7 @@ class TindakanDokter extends React.Component {
                 	    </div>
                 	    <div className="col-6">
                 	        <TindakanDokterJasaLain write={write} main_form_wide={this.state.main_form_wide} jasa={this.state.data.jasa} tindak_lanjut={this.state.data.tindak_lanjut} status={this.state.data.status} register_number={this.state.data.register_number} instalasi_medis={this.state.data.instalasi_medis} rawat_inap={this.state.data.rawat_inap} grooming={this.state.data.grooming} apotik={this.state.data.apotik} deleteJasaLain={this.deleteJasaLain} deleteTindakLanjut={this.deleteTindakLanjut} addJasaLain={this.addJasaLain} addTindakLanjut={this.addTindakLanjut} changeAddMode={this.changeAddMode} list_jasa={this.state.products} add_mode={this.state.add_mode} handleInputBlur={this.handleInputBlur} obat={this.state.data.obat} deleteObat={this.deleteObat} handleInputChangeObat={this.handleInputChangeObat} pressEnter={this.pressEnter} toggleSelectObat={this.toggleSelectObat} onSelectObat={this.state.onSelectObat} deleteObatRacikan={this.deleteObatRacikan} addToRacikan={this.addToRacikan} toggleTemplateTindakan={this.toggleTemplateTindakan}/>
-                	        {this.state.show_kunjungan_berikutnya?<KunjunganBerikutnya write={write} items={this.state.data.layanan_berjadwal} status={this.state.data.status} changeKunjunganBerikutnya={this.changeKunjunganBerikutnya} toggleShowKunjunganBerikutnya={() => this.toggleShowKunjunganBerikutnya()}/>:false}
+                	        {this.state.show_kunjungan_berikutnya?<KunjunganBerikutnya write={write} parent={this.state.data} toggleShowKunjunganBerikutnya={() => this.toggleShowKunjunganBerikutnya()}/>:false}
                 	    </div>
                 	</div>
                 	<TindakanDokterVersion version={this.state.version || []} />
@@ -1797,75 +1767,181 @@ class TemplateTindakanRow extends React.Component {
 }
 
 class KunjunganBerikutnya extends React.Component {
-    render() {
-        var items = {}
-        if(this.props.items != undefined && this.props.items.length != 0){
-            items = this.props.items[0]
+    constructor(props) {
+        super(props);
+        this.state = {
+            'data': {},
+            'loaded': false,
+            'edit': true,
+            'save_loading': false,
         }
-        var item_rows = []
+        
+        this.changeKunjunganBerikutnya = this.changeKunjunganBerikutnya.bind(this)
+        this.addLayananBerjadwal = this.addLayananBerjadwal.bind(this)
+    }
+
+    componentDidMount() {
+        var td = this
+        var parent = this.props.parent
+        
+        frappe.call({
+            type: "GET",
+            method:"vet_website.vet_website.doctype.vetscheduledservice.vetscheduledservice.get_scheduled_service",
+            args: {parent: parent.register_number},
+            callback: function(r){
+                console.log(r.message)
+                td.setState({'data': r.message || {
+                    'register_number': parent.register_number,
+                    'pet': parent.pet,
+                    'service': 'Dokter',
+                }, 'loaded': true, 'edit': r.message == undefined});
+            }
+        });
+    }
+
+    changeKunjunganBerikutnya(e){
+        var target = e.target
+        var name = target.name
+        var value = target.value
+        var new_data = JSON.parse(JSON.stringify(this.state.data));
+        new_data[name] = value
+        this.setState({data: new_data})
+        // var th = this
+        
+        // if (new_data.layanan_berjadwal[i]['date'] && new_data.layanan_berjadwal[i]['note']) {
+        //     this.setState({save_loading: true, data: new_data})
+        //     frappe.call({
+        //         type: "POST",
+        //         method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
+        //         args: {field: 'layanan_berjadwal', value: new_data.layanan_berjadwal[i], name: id},
+        //         callback: function(r){
+        //             if (r.message != true) {
+        //                 frappe.msgprint(r.message.error)
+        //                 th.setState({data: r.message.data})
+        //             }
+
+        //             th.setState({save_loading: false})
+        //         }
+        //     });
+        // }
+    }
+
+    addLayananBerjadwal(e){
+        e.preventDefault();
+        var th = this
+
+        if (this.state.save_loading) return
+        
+        if (th.state.data['schedule_date'] && th.state.data['description']) {
+            this.setState({save_loading: true})
+            frappe.call({
+                type: "POST",
+                method:"vet_website.vet_website.doctype.vetscheduledservice.vetscheduledservice.create_scheduled_service",
+                args: {data: th.state.data},
+                callback: function(r){
+                    console.log(r.message)
+                    if (r.message != true) {
+                        frappe.msgprint(r.message.error)
+                    }
+
+                    // th.setState({save_loading: false})
+                    th.props.toggleShowKunjunganBerikutnya()
+                }
+            });
+        }
+    }
+
+    render() {
+        var data = this.state.data
         var boxShadow_style = {background: '#fff', borderRadius: 10, maxWidth: 480, boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
         var cursor = {cursor: 'pointer'}
         var newActionRow
-    	
-    	if(this.props.status != 'Done' && this.props.write){
-    	    if (items.date) {
-    	        var formatted_date = moment(items.date).format('YYYY-MM-DD');
-    	    }
-    	    newActionRow = (
-    	        <div>
-    				<div id="new_action" className="mx-0 mb-3 fs12 fw600 grooming_actions">
-                    	<div className="row mb-1">
-                	        <div className="col-6">
-                	            <label htmlFor="new_date" className="fw600">Tanggal</label>
-                	        </div>
-                	        <div className="col-6">
-                	            <input type="date" id="new_date" name='date' className="form-control fs14" value={formatted_date || items.date || ''} onChange={e => this.props.changeKunjunganBerikutnya(e, 0)}/>
-                	        </div>
-                	    </div>
-                	    <div className="row mb-1">
-                	        <div className="col-6">
-                	            <label htmlFor="new_note" className="fw600">Catatan</label>
-                	        </div>
-                	        <div className="col-6">
-                	            <input name='note' id="new_note" className="form-control fs14 lightbg" placeholder="Masukkan bila ada" value={items.note || ''} onChange={e => this.props.changeKunjunganBerikutnya(e, 0)}/>
-                	        </div>
-                	    </div>
+        var item_rows = []
+
+        if (this.state.loaded) {
+            if(this.props.write && this.state.edit){
+                if (data.schedule_date) {
+                    var formatted_date = moment(data.schedule_date).format('YYYY-MM-DD');
+                }
+                newActionRow = (
+                    <div>
+                        <div id="new_action" className="mx-0 mb-3 fs12 fw600 grooming_actions">
+                            <div className="row mb-1">
+                                <div className="col-6">
+                                    <label htmlFor="schedule_date" className="fw600">Tanggal</label>
+                                </div>
+                                <div className="col-6">
+                                    <input type="date" id="schedule_date" name='schedule_date' className="form-control fs14" value={formatted_date || data.schedule_date || ''} onChange={e => this.changeKunjunganBerikutnya(e)}/>
+                                </div>
+                            </div>
+                            <div className="row mb-3">
+                                <div className="col-6">
+                                    <label htmlFor="description" className="fw600">Catatan</label>
+                                </div>
+                                <div className="col-6">
+                                    <input name='description' id="description" className="form-control fs14 lightbg" placeholder="Masukkan bila ada" value={data.description || ''} onChange={e => this.changeKunjunganBerikutnya(e)}/>
+                                </div>
+                            </div>
+                            <div className="row mb-1 justify-content-end">
+                                <div className="col-auto d-flex" key="9">
+                                    <button type="button" className="btn btn-sm fs12 btn-outline-danger text-uppercase px-3 py-2 my-auto" onClick={(e) => this.addLayananBerjadwal(e)}>
+                                        {this.state.save_loading
+                                            ? 'Loading...'
+                                            : 'Tambah'}</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-    			</div>
-        	)
-    	}
-    	else {
-    	    if (items.date) {
-                item_rows.push(<KunjunganBerikutnyaRow key='0' item={items}/>)
-        	}
-        	else {
-        	    item_rows.push(
-        	        <div className="col-auto d-flex p-3" key='999'>
-                        <span className="fs16 fw500 mx-auto">Tidak Ada Layanan Berjadwal</span>
-                    </div>
-        	    )
-        	}
-    	}
-        
-        return (
+                )
+            }
+            else {
+                if (data.schedule_date) {
+                    item_rows.push(<KunjunganBerikutnyaRow key='0' item={data}/>)
+                }
+                else {
+                    item_rows.push(
+                        <div className="col-auto d-flex p-3" key='999'>
+                            <span className="fs16 fw500 mx-auto">Tidak Ada Layanan Berjadwal</span>
+                        </div>
+                    )
+                }
+            }
+
+            return (
             <div className="menu-popup">
                 <div className="container p-3" style={boxShadow_style}>
                     <p className="fs18 fw600 text-dark">
-                		Kunjungan Berikutnya
-                		<i className="fa fa-times-circle text-danger fs20 float-right" style={cursor} onClick={this.props.toggleShowKunjunganBerikutnya}/>
-                	</p>
-                	<div className="p-2 mb-3">
-        				<div>
-        					<div id="action_list">
-        					    {item_rows}
-        					</div>
-        					{newActionRow}
-        				</div>
-        			</div>
-        		</div>
-    			<div className="menu-popup-close" onClick={this.props.toggleShowKunjunganBerikutnya}/>
+                        Kunjungan Berikutnya
+                        <i className="fa fa-times-circle text-danger fs20 float-right" style={cursor} onClick={this.props.toggleShowKunjunganBerikutnya}/>
+                    </p>
+                    <div className="p-2 mb-3">
+                        <div>
+                            <div id="action_list">
+                                {item_rows}
+                            </div>
+                            {newActionRow}
+                        </div>
+                    </div>
+                </div>
+                <div className="menu-popup-close" onClick={this.props.toggleShowKunjunganBerikutnya}/>
             </div>
-        	)
+            )
+        } else {
+            return <div className="menu-popup">
+                <div className="container p-3" style={boxShadow_style}>
+                    <div className="row justify-content-center" key='0'>
+                        <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                            <p className="mb-0 fs24md fs16 fw600 text-muted">
+                                <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className="menu-popup-close" onClick={this.props.toggleShowKunjunganBerikutnya}/>
+            </div>
+        }
+        
+        
     }
 }
 
@@ -1876,18 +1952,18 @@ class KunjunganBerikutnyaRow extends React.Component {
             <div className="mb-3 fs14 grooming_actions">
         	    <div className="row">
         	        <div className="col-6">
-        	            <label htmlFor="date" className="fw600">Tanggal</label>
+        	            <label htmlFor="schedule_date" className="fw600">Tanggal</label>
         	        </div>
         	        <div className="col-6">
-        	            <p>{moment(item.date).format("DD-MM-YYYY hh:mm:ss")}</p>
+        	            <p>{moment(item.schedule_date).format("DD-MM-YYYY")}</p>
         	        </div>
         	    </div>
         	    <div className="row">
         	        <div className="col-6">
-        	            <label htmlFor="note" className="fw600">Catatan</label>
+        	            <label htmlFor="description" className="fw600">Catatan</label>
         	        </div>
         	        <div className="col-6">
-        	            <p>{item.note}</p>
+        	            <p>{item.description}</p>
         	        </div>
         	    </div>
             </div>
