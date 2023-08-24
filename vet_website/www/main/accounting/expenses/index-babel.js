@@ -587,12 +587,12 @@ class PopupAdd extends React.Component {
 }
 
 class ExpenseMainForm extends React.Component {
-    journalEntryClick(e) {
-        e.stopPropagation()
-        if (this.props.journal_entry && this.props.journal_entry.length > 0) {
-            window.location.href = '/main/accounting/journal-entries/edit?n=' + this.props.journal_entry[0]
-        }
-    }
+    // journalEntryClick(e) {
+    //     e.stopPropagation()
+    //     if (this.props.journal_entry && this.props.journal_entry.length > 0) {
+    //         window.location.href = '/main/accounting/journal-entries/edit?n=' + this.props.journal_entry[0]
+    //     }
+    // }
 
     render() {
         var bgstyle2 = { background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)' }
@@ -750,11 +750,17 @@ class ExpenseMainForm extends React.Component {
                 inputPrice = <input required style={input_style} type="text" id="price" name='price' className="form-control border-0 col-6" onChange={this.props.handleInputChange} value={data.price || ''} />
             }
 
+            var jeHref = ''
+
+            if (this.props.journal_entry && this.props.journal_entry.length > 0) {
+                jeHref = '/main/accounting/journal-entries/edit?n=' + this.props.journal_entry[0]
+            }
+
             var journal_entry = (
-                <div className="row mb-3 mx-4">
+                <a href={jeHref} className="row mb-3 mx-4">
                     <div className="col-6 fs16 fw600">Journal Entry</div>
-                    <div className="col-6"><img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={e => this.journalEntryClick(e)} style={cursor} /></div>
-                </div>
+                    <div className="col-6"><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor} /></div>
+                </a>
             )
 
             content = <div className="row" style={color}>
@@ -927,12 +933,12 @@ class ExpensesList extends React.Component {
 }
 
 class ExpensesListRow extends React.Component {
-    journalEntryClick(e) {
-        e.stopPropagation()
-        if (this.props.item.journal_entry && this.props.item.journal_entry.length > 0) {
-            window.location.href = '/main/accounting/journal-entries/edit?n=' + this.props.item.journal_entry[0]
-        }
-    }
+    // journalEntryClick(e) {
+    //     e.stopPropagation()
+    //     if (this.props.item.journal_entry && this.props.item.journal_entry.length > 0) {
+    //         window.location.href = '/main/accounting/journal-entries/edit?n=' + this.props.item.journal_entry[0]
+    //     }
+    // }
 
     render() {
         var checked = false
@@ -942,8 +948,12 @@ class ExpensesListRow extends React.Component {
         if (this.props.item.checked) {
             checked = true
         }
+        var jeHref = ''
+        if (this.props.item.journal_entry && this.props.item.journal_entry.length > 0) {
+            jeHref = '/main/accounting/journal-entries/edit?n=' + this.props.item.journal_entry[0]
+        }
 
-        var link_je = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={e => this.journalEntryClick(e)} style={cursor} />
+        var link_je = <a href={jeHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor} /></a>
 
         return (
             <div className="row mx-0" style={cursor}>

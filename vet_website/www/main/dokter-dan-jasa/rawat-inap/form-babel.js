@@ -292,13 +292,13 @@ class RawatInap extends React.Component {
         this.setState({data: new_data})
     }
     
-    customerInvoiceClick(){
-        if(this.state.data.customer_invoice && this.state.data.customer_invoice.length > 1){
-            window.location.href = '/main/kasir/rawat-inap-invoices?register_number='+encodeURIComponent(this.state.data.register_number)
-        } else if(this.state.data.customer_invoice && this.state.data.customer_invoice.length == 1) {
-            window.location.href = '/main/kasir/rawat-inap-invoices/edit?n='+encodeURIComponent(this.state.data.customer_invoice[0])
-        }
-    }
+    // customerInvoiceClick(){
+    //     if(this.state.data.customer_invoice && this.state.data.customer_invoice.length > 1){
+    //         window.location.href = '/main/kasir/rawat-inap-invoices?register_number='+encodeURIComponent(this.state.data.register_number)
+    //     } else if(this.state.data.customer_invoice && this.state.data.customer_invoice.length == 1) {
+    //         window.location.href = '/main/kasir/rawat-inap-invoices/edit?n='+encodeURIComponent(this.state.data.customer_invoice[0])
+    //     }
+    // }
     
     render() {
         var bgstyle = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '2px 32px', marginBottom: '15px'}
@@ -318,15 +318,22 @@ class RawatInap extends React.Component {
         }
         
         if (this.state.loaded) {
+            var ciHref = ''
+            if(this.state.data.customer_invoice && this.state.data.customer_invoice.length > 1){
+                ciHref = '/main/kasir/rawat-inap-invoices?register_number='+encodeURIComponent(this.state.data.register_number)
+            } else if(this.state.data.customer_invoice && this.state.data.customer_invoice.length == 1) {
+                ciHref = '/main/kasir/rawat-inap-invoices/edit?n='+encodeURIComponent(this.state.data.customer_invoice[0])
+            }
+
             var customer_invoice = (
-                    <div className="col-auto" style={cursor} onClick={() => this.customerInvoiceClick()}>
+                    <a href={ciHref} className="col-auto" style={cursor}>
                         <div className="row mx-0">
                             <div className="col-auto px-3">
                                 <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/cashier.png"/>
                                 <p className="mb-0 fs12 text-muted text-center">Rawat Inap Invoice</p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 )
         	
         	if (rawat_inap.status != 'Done') {
@@ -989,19 +996,19 @@ class RawatInapMainForm extends React.Component {
         });
 	}
 	
-	sourceClick(tipe){
-        if (tipe == 'pasien') {
-            window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet
-        }
-    }
+	// sourceClick(tipe){
+    //     if (tipe == 'pasien') {
+    //         window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet
+    //     }
+    // }
     
-    dokterClick(){
-    	if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length > 1){
-            window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
-        } else if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length == 1){
-            window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.data.tindakan_dokter[0])
-        }
-    }
+    // dokterClick(){
+    // 	if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length > 1){
+    //         window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
+    //     } else if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length == 1){
+    //         window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.data.tindakan_dokter[0])
+    //     }
+    // }
 	
     render() {
         var bgstyle2 = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
@@ -1009,8 +1016,15 @@ class RawatInapMainForm extends React.Component {
         var kandang
         var kandang_options = []
         var cursor = {cursor: 'pointer'}
-        var link_pasien = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pasien')} style={cursor}/>
-        var link_dokter = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.dokterClick()} style={cursor}/>
+        var link_pasien = <a href={'/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+
+        var diHref = ''
+        if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length > 1){
+            diHref = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
+        } else if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length == 1){
+            diHref = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.data.tindakan_dokter[0])
+        }
+        var link_dokter = <a href={diHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
         
         if (this.state.loaded) {
             if (this.state.template_tindakan.length == 0) {
@@ -1428,10 +1442,10 @@ class ListExpandable extends React.Component {
 }
 
 class ListRowExpandable extends React.Component {
-    clickRow() {
-        var pathname = "/main/rekam-medis/rekam-medis/detail?n="+this.props.data.name
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/rekam-medis/rekam-medis/detail?n="+this.props.data.name
+    //     window.location = pathname
+    // }
     
     render() {
         var data = this.props.data

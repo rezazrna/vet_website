@@ -357,19 +357,19 @@ class ApotikList extends React.Component {
 }
 
 class ApotikListRow extends React.Component {
-    clickRow() {
-        var type
-        var apotik = this.props.apotik
+    // clickRow() {
+    //     var type
+    //     var apotik = this.props.apotik
 
-        if (['Draft'].includes(apotik.status)) {
-            type = 'edit'
-        } else {
-            type = 'detail'
-        }
+    //     if (['Draft'].includes(apotik.status)) {
+    //         type = 'edit'
+    //     } else {
+    //         type = 'detail'
+    //     }
 
-        var pathname = "/main/farmasi/apotik/" + type + "?n=" + apotik.name
-        window.location = pathname
-    }
+    //     var pathname = "/main/farmasi/apotik/" + type + "?n=" + apotik.name
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -391,12 +391,23 @@ class ApotikListRow extends React.Component {
 
         var tgl = <span className="my-auto">{apotik.reception ? moment(apotik.reception.reception_date).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss") : moment(apotik.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}</span>
 
+        var type
+        var apotik = this.props.apotik
+
+        if (['Draft'].includes(apotik.status)) {
+            type = 'edit'
+        } else {
+            type = 'detail'
+        }
+
+        var pathname = "/main/farmasi/apotik/" + type + "?n=" + apotik.name
+
         return (
             <div className="row mx-0">
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                <a href={pathname} className="col row-list row-list-link">
                     <div className="row mx-0 fs12 fw600">
                         <div className="col d-flex">
                             {/* <span className="my-auto">{moment(apotik.creation).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}</span> */}
@@ -426,7 +437,7 @@ class ApotikListRow extends React.Component {
                             </span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }

@@ -337,19 +337,19 @@ class GroomingList extends React.Component {
 }
 
 class GroomingListRow extends React.Component {
-    clickRow() {
-        var type
-        var grooming = this.props.grooming
+    // clickRow() {
+    //     var type
+    //     var grooming = this.props.grooming
 
-        if (['Draft', 'Checked'].includes(grooming.status)) {
-            type = 'edit'
-        } else {
-            type = 'detail'
-        }
+    //     if (['Draft', 'Checked'].includes(grooming.status)) {
+    //         type = 'edit'
+    //     } else {
+    //         type = 'detail'
+    //     }
 
-        var pathname = "/main/dokter-dan-jasa/grooming/" + type + "?n=" + grooming.name
-        window.location = pathname
-    }
+    //     var pathname = "/main/dokter-dan-jasa/grooming/" + type + "?n=" + grooming.name
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -369,12 +369,23 @@ class GroomingListRow extends React.Component {
             statusClass = 'bg-info'
         }
 
+        var type
+        var grooming = this.props.grooming
+
+        if (['Draft', 'Checked'].includes(grooming.status)) {
+            type = 'edit'
+        } else {
+            type = 'detail'
+        }
+
+        var pathname = "/main/dokter-dan-jasa/grooming/" + type + "?n=" + grooming.name
+
         return (
             <div className="row mx-0">
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                <a href={pathname} className="col row-list row-list-link">
                     <div className="row mx-0 fs12 fw600">
                         <div className="col d-flex">
                             <span className="my-auto">{moment(grooming.reception_date).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}</span>
@@ -400,7 +411,7 @@ class GroomingListRow extends React.Component {
                             </span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }

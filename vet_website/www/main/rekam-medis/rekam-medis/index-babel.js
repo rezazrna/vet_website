@@ -456,10 +456,10 @@ class RekamMedisList extends React.Component {
 }
 
 class RekamMedisListRow extends React.Component {
-    clickRow() {
-        var pathname = "/main/rekam-medis/rekam-medis/detail?n=" + this.props.data.name
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/rekam-medis/rekam-medis/detail?n=" + this.props.data.name
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -475,7 +475,7 @@ class RekamMedisListRow extends React.Component {
                 <div className="col-auto pl-2 pr-3 d-flex">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                <a className="col row-list row-list-link" href={"/main/rekam-medis/rekam-medis/detail?n=" + this.props.data.name}>
                     <div className="row mx-0 fs12 fw600" style={color_style}>
                         <div className="col d-flex">
                             <span className="my-auto">{moment(data.record_date).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}</span>
@@ -502,7 +502,7 @@ class RekamMedisListRow extends React.Component {
                             <span className="my-auto">{data.weight}</span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }
@@ -561,10 +561,10 @@ class RekamMedisListExpandable extends React.Component {
 }
 
 class RekamMedisListRowExpandable extends React.Component {
-    clickRow() {
-        var pathname = "/main/rekam-medis/rekam-medis/detail?n=" + this.props.data.name
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/rekam-medis/rekam-medis/detail?n=" + this.props.data.name
+    //     window.location = pathname
+    // }
 
     render() {
         var data = this.props.data
@@ -592,6 +592,9 @@ class RekamMedisListRowExpandable extends React.Component {
                         </div>
                         <div className="col d-flex">
                             <span className="my-auto">{data.condition}</span>
+                        </div>
+                        <div className="col d-flex">
+                            <span className="my-auto">{data.description}</span>
                         </div>
                         <div className="col d-flex">
                             <span className="my-auto">{data.nama_dokter}</span>

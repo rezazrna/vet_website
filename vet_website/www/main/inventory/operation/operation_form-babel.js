@@ -298,9 +298,9 @@ class Operation extends React.Component {
         this.setState({show_receive: !this.state.show_receive})
     }
     
-    goToJournalEntries(){
-        window.location.href = '/main/accounting/journal-entries?reference=' + this.state.data.name
-    }
+    // goToJournalEntries(){
+    //     window.location.href = '/main/accounting/journal-entries?reference=' + this.state.data.name
+    // }
     
     toggleEditMode(e){
         e.preventDefault()
@@ -499,10 +499,10 @@ class Operation extends React.Component {
                 }
             } else if (id != undefined && this.state.data.status == 'Done' && this.state.data.is_usage){
                 var cursor = {cursor: 'pointer'}
-                buttonMode.push(<div className="col-auto mr-auto" key="journal_entry" style={cursor} onClick={() => this.goToJournalEntries()}>
+                buttonMode.push(<a href={'/main/accounting/journal-entries?reference=' + this.state.data.name} className="col-auto mr-auto" key="journal_entry" style={cursor}>
                 			            <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/journal_entries.png"/>
                 			            <p className="mb-0 fs12 text-muted text-center">Journal Entries</p>
-                			        </div>)
+                			        </a>)
             }
 
             buttonMode.push(<div key="999" className="col-auto d-flex mr-auto">{backButton}</div>)
@@ -663,21 +663,21 @@ class PopupReceive extends React.Component {
 }
 
 class FormOperation extends React.Component {
-    sourceClick(){
-        var source = this.props.data.reference
-        var source_filter = [
-            {regexp: /^VAJ-.*$/, location:"/main/inventory/adjustment/edit?n="},
-            {regexp: /^VE-.*$/, location:"/main/accounting/expenses?n="},
-            {regexp: /^VCI-.*$/, location:"/main/kasir/customer-invoices/edit?n="},
-            {regexp: /^PO.*$/, location:"/main/purchases/purchase-order/edit?n="},
-            {regexp: /^POSORDER.*$/, location:"/main/kasir/pos-order/form?n="}
-        ]
-        source_filter.forEach(sf => {
-            if(source.match(sf.regexp)){
-                window.location.href = sf.location+source
-            }
-        })
-    }
+    // sourceClick(){
+    //     var source = this.props.data.reference
+    //     var source_filter = [
+    //         {regexp: /^VAJ-.*$/, location:"/main/inventory/adjustment/edit?n="},
+    //         {regexp: /^VE-.*$/, location:"/main/accounting/expenses?n="},
+    //         {regexp: /^VCI-.*$/, location:"/main/kasir/customer-invoices/edit?n="},
+    //         {regexp: /^PO.*$/, location:"/main/purchases/purchase-order/edit?n="},
+    //         {regexp: /^POSORDER.*$/, location:"/main/kasir/pos-order/form?n="}
+    //     ]
+    //     source_filter.forEach(sf => {
+    //         if(source.match(sf.regexp)){
+    //             window.location.href = sf.location+source
+    //         }
+    //     })
+    // }
     
     render() {
         var panel_style = {background: '#fff', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
@@ -749,7 +749,21 @@ class FormOperation extends React.Component {
                     
             var source_filter = [/^VAJ-.*$/,/^VE-.*$/,/^VCI-.*$/,/^PO.*$/]
             if(source_filter.some(sf => data.reference.match(sf))){
-                link_icon = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick()} style={cursor}/>
+                var seHref = ''
+                var source = this.props.data.reference
+                var source_filter = [
+                    {regexp: /^VAJ-.*$/, location:"/main/inventory/adjustment/edit?n="},
+                    {regexp: /^VE-.*$/, location:"/main/accounting/expenses?n="},
+                    {regexp: /^VCI-.*$/, location:"/main/kasir/customer-invoices/edit?n="},
+                    {regexp: /^PO.*$/, location:"/main/purchases/purchase-order/edit?n="},
+                    {regexp: /^POSORDER.*$/, location:"/main/kasir/pos-order/form?n="}
+                ]
+                source_filter.forEach(sf => {
+                    if(source.match(sf.regexp)){
+                        seHref = sf.location+source
+                    }
+                })
+                link_icon = <a href={seHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick()} style={cursor}/></a>
             }
         }
         

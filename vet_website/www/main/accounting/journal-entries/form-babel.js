@@ -350,26 +350,26 @@ class JournalEntry extends React.Component {
 }
 
 class JournalEntryMainForm extends React.Component {
-    referenceClick(e){
-    e.stopPropagation()
-    var reference = this.props.data.reference
-    var regexes = [
-        {regex: /(POSORDER-\d)/g, pathname: '/main/kasir/pos-order/form?n='},
-        {regex: /(PO\d)/g, pathname: '/main/purchases/purchase-order/edit?n='},
-        {regex: /(VCI-\d)/g, pathname: '/main/kasir/customer-invoices/edit?n='},
-        {regex: /(VOC-\d)/g, pathname: '/main/kasir/deposit?id='},
-        {regex: /(VE-\d)/g, pathname: '/main/accounting/expenses?n='},
-        {regex: /(VAS-\d)/g, pathname: '/main/accounting/asset/edit?n='},
-        {regex: /(VAJ-\d)/g, pathname: '/main/inventory/adjustment/edit?n='},
-        {regex: /(VO-\d)/g, pathname: '/main/inventory/operation/edit?n='},
-    ]
-    regexes.forEach(r => {
-        console.log(r.regex)
-        if(reference.match(r.regex)){
-            window.location.href = r.pathname+reference
-        }
-    })
-}
+//     referenceClick(e){
+//     e.stopPropagation()
+//     var reference = this.props.data.reference
+//     var regexes = [
+//         {regex: /(POSORDER-\d)/g, pathname: '/main/kasir/pos-order/form?n='},
+//         {regex: /(PO\d)/g, pathname: '/main/purchases/purchase-order/edit?n='},
+//         {regex: /(VCI-\d)/g, pathname: '/main/kasir/customer-invoices/edit?n='},
+//         {regex: /(VOC-\d)/g, pathname: '/main/kasir/deposit?id='},
+//         {regex: /(VE-\d)/g, pathname: '/main/accounting/expenses?n='},
+//         {regex: /(VAS-\d)/g, pathname: '/main/accounting/asset/edit?n='},
+//         {regex: /(VAJ-\d)/g, pathname: '/main/inventory/adjustment/edit?n='},
+//         {regex: /(VO-\d)/g, pathname: '/main/inventory/operation/edit?n='},
+//     ]
+//     regexes.forEach(r => {
+//         console.log(r.regex)
+//         if(reference.match(r.regex)){
+//             window.location.href = r.pathname+reference
+//         }
+//     })
+// }
     
     render() {
         var moment_date = moment()
@@ -405,7 +405,25 @@ class JournalEntryMainForm extends React.Component {
 			reference = <input required type="text" id="reference" name='reference' className="form-control border-0 lightbg" onChange={this.props.handleInputChange} value={data.reference || ''}/>
             keterangan = <textarea id="keterangan" name='keterangan' rows='4' className="form-control border-0 lightbg" onChange={this.props.handleInputChange} value={data.keterangan || ''}></textarea>
         } else {
-            var link_reference = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={e => this.referenceClick(e)} style={cursor}/>
+            var reHref = ''
+            var reference = this.props.data.reference
+            var regexes = [
+                {regex: /(POSORDER-\d)/g, pathname: '/main/kasir/pos-order/form?n='},
+                {regex: /(PO\d)/g, pathname: '/main/purchases/purchase-order/edit?n='},
+                {regex: /(VCI-\d)/g, pathname: '/main/kasir/customer-invoices/edit?n='},
+                {regex: /(VOC-\d)/g, pathname: '/main/kasir/deposit?id='},
+                {regex: /(VE-\d)/g, pathname: '/main/accounting/expenses?n='},
+                {regex: /(VAS-\d)/g, pathname: '/main/accounting/asset/edit?n='},
+                {regex: /(VAJ-\d)/g, pathname: '/main/inventory/adjustment/edit?n='},
+                {regex: /(VO-\d)/g, pathname: '/main/inventory/operation/edit?n='},
+            ]
+            regexes.forEach(r => {
+                console.log(r.regex)
+                if(reference.match(r.regex)){
+                    reHref = r.pathname+reference
+                }
+            })
+            var link_reference = <a href={reHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={e => this.referenceClick(e)} style={cursor}/></a>
             
             journal = <span className="fs16 px-0 d-block">{data.journal_name}</span>
             period = <span className="fs16 px-0 d-block">{data.period}</span>

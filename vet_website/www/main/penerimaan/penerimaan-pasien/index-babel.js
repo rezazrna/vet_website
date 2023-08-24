@@ -374,10 +374,10 @@ class ReceptionList extends React.Component {
 }
 
 class ReceptionListRow extends React.Component {
-    clickRow() {
-        var pathname = "/main/penerimaan/penerimaan-pasien/detail?n=" + this.props.reception.name
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/penerimaan/penerimaan-pasien/detail?n=" + this.props.reception.name
+    //     window.location = pathname
+    // }
 
     render() {
         var col_style = { 'width': '40px' }
@@ -392,7 +392,7 @@ class ReceptionListRow extends React.Component {
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                <a className="col row-list row-list-link" href={"/main/penerimaan/penerimaan-pasien/detail?n=" + this.props.reception.name}>
                     <div className="row mx-0 fs12 fw600">
                         <div className="col d-flex">
                             <span className="my-auto">{moment(reception.reception_date).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}</span>
@@ -419,7 +419,7 @@ class ReceptionListRow extends React.Component {
                             <span className="my-auto">{reception.owner}</span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }

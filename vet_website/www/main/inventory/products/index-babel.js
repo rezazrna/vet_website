@@ -312,10 +312,10 @@ class ProductGrid extends React.Component {
 }
 
 class ProductGridCol extends React.Component {
-    clickRow() {
-        var pathname = "/main/inventory/products/edit?n=" + encodeURIComponent(this.props.item.name)
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/inventory/products/edit?n=" + encodeURIComponent(this.props.item.name)
+    //     window.location = pathname
+    // }
 
     render() {
         var panel_style = { height: '100%', minHeight: '215px', background: '#FFFFFF', color: '#056EAD', boxShadow: '0px 10px 40px rgba(0, 0, 0, 0.1)', borderRadius: '18px' }
@@ -341,7 +341,7 @@ class ProductGridCol extends React.Component {
                 <div style={panel_style} className="text-center p-4 row mx-0">
                     <div className="col-12 mb-auto pb-4 d-flex text-truncate">
                         <input type="checkbox" className="my-auto mr-auto" checked={checked} onChange={this.props.checkRow} />
-                        <span className="fs16 fwbold text-uppercase mr-auto" title={product_name} style={cursor} onClick={() => this.clickRow()}>{product_name}</span>
+                        <a href={"/main/inventory/products/edit?n=" + encodeURIComponent(this.props.item.name)}><span className="fs16 fwbold text-uppercase mr-auto" title={product_name} style={cursor}>{product_name}</span></a>
                     </div>
                     <div className="col-12 my-auto">
                         <div className="row">

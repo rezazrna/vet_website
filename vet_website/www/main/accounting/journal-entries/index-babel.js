@@ -302,28 +302,28 @@ class JournalEntriesList extends React.Component {
 }
 
 class JournalEntriesListRow extends React.Component {
-    clickRow() {
-        var pathname = "/main/accounting/journal-entries/edit?n=" + this.props.item.name
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/accounting/journal-entries/edit?n=" + this.props.item.name
+    //     window.location = pathname
+    // }
 
-    referenceClick(e) {
-        e.stopPropagation()
-        var reference = this.props.item.reference
-        var regexes = [
-            { regex: /(POSORDER-\d)/g, pathname: '/main/kasir/pos-order/form?n=' },
-            { regex: /(PO\d)/g, pathname: '/main/purchases/purchase-order/edit?n=' },
-            { regex: /(VCI-\d)/g, pathname: '/main/kasir/customer-invoices/edit?n=' },
-            { regex: /(VOC-\d)/g, pathname: '/main/kasir/deposit?id=' },
-            { regex: /(VE-\d)/g, pathname: '/main/accounting/expenses?n=' },
-        ]
-        regexes.forEach(r => {
-            console.log(r.regex)
-            if (reference.match(r.regex)) {
-                window.location.href = r.pathname + reference
-            }
-        })
-    }
+    // referenceClick(e) {
+    //     e.stopPropagation()
+    //     var reference = this.props.item.reference
+    //     var regexes = [
+    //         { regex: /(POSORDER-\d)/g, pathname: '/main/kasir/pos-order/form?n=' },
+    //         { regex: /(PO\d)/g, pathname: '/main/purchases/purchase-order/edit?n=' },
+    //         { regex: /(VCI-\d)/g, pathname: '/main/kasir/customer-invoices/edit?n=' },
+    //         { regex: /(VOC-\d)/g, pathname: '/main/kasir/deposit?id=' },
+    //         { regex: /(VE-\d)/g, pathname: '/main/accounting/expenses?n=' },
+    //     ]
+    //     regexes.forEach(r => {
+    //         console.log(r.regex)
+    //         if (reference.match(r.regex)) {
+    //             window.location.href = r.pathname + reference
+    //         }
+    //     })
+    // }
 
     render() {
         var item = this.props.item
@@ -375,11 +375,27 @@ class JournalEntriesListRow extends React.Component {
             style = 'bg-success'
         }
 
-        var link_reference = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={e => this.referenceClick(e)} style={cursor} />
+        var reHref = ''
+        var reference = this.props.item.reference
+        var regexes = [
+            { regex: /(POSORDER-\d)/g, pathname: '/main/kasir/pos-order/form?n=' },
+            { regex: /(PO\d)/g, pathname: '/main/purchases/purchase-order/edit?n=' },
+            { regex: /(VCI-\d)/g, pathname: '/main/kasir/customer-invoices/edit?n=' },
+            { regex: /(VOC-\d)/g, pathname: '/main/kasir/deposit?id=' },
+            { regex: /(VE-\d)/g, pathname: '/main/accounting/expenses?n=' },
+        ]
+        regexes.forEach(r => {
+            console.log(r.regex)
+            if (reference.match(r.regex)) {
+                reHref = r.pathname + reference
+            }
+        })
+
+        var link_reference = <a href={reHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor} /></a>
 
         return (
             <div className="mb-3">
-                <div className="row mx-0 px-3 fs14 fw600 py-2 mb-2" style={row_style} onClick={() => this.clickRow()}>
+                <a href={"/main/accounting/journal-entries/edit?n=" + this.props.item.name} className="row mx-0 px-3 fs14 fw600 py-2 mb-2" style={row_style}>
                     <div className="col-auto text-center my-auto px-1">
                         <p className="bg-white mb-0 rounded-lg px-2 py-1 text-truncate">{item.name}</p>
                     </div>
@@ -407,7 +423,7 @@ class JournalEntriesListRow extends React.Component {
                         </span>
                         <i className={chevron_class} style={cursor} onClick={e => this.props.toggleShow(e, this.props.index)} />
                     </div>
-                </div>
+                </a>
                 <div style={detail_style}>
                     {detail_row}
                     {total_detail}

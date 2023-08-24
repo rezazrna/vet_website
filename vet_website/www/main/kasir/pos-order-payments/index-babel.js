@@ -237,10 +237,10 @@ class OrderPaymentList extends React.Component {
 }
 
 class OrderPaymentListRow extends React.Component {
-    clickRow(e){
-        e.stopPropagation()
-        window.location.href = "/main/kasir/pos-order/form?n="+ this.props.item.parent
-    }
+    // clickRow(e){
+    //     e.stopPropagation()
+    //     window.location.href = "/main/kasir/pos-order/form?n="+ this.props.item.parent
+    // }
     
     render() {
         var item = this.props.item
@@ -248,7 +248,7 @@ class OrderPaymentListRow extends React.Component {
         
          return(
             <div className="row mx-0">
-                <div className="col row-list row-list-link" onClick={e => this.clickRow(e)}>
+                <a className="col row-list row-list-link" href={"/main/kasir/pos-order/form?n="+ this.props.item.parent}>
         			<div className="row mx-0 fs12 fw600">
         				<div className="col d-flex">
         					<span className="my-auto">{moment(item.order_date).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}</span>
@@ -269,7 +269,7 @@ class OrderPaymentListRow extends React.Component {
         					<span className="my-auto">{item.method_type || ''}</span>
         				</div>
         			</div>
-        		</div>
+        		</a>
             </div>
         )
     }

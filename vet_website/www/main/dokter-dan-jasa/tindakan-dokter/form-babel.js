@@ -217,10 +217,10 @@ class TindakanDokter extends React.Component {
     	});
     }
     
-    rekamMedisClick(e){
-        e.preventDefault();
-        window.location.href = "/main/rekam-medis/rekam-medis?pet="+this.state.data.pet
-    }
+    // rekamMedisClick(e){
+    //     e.preventDefault();
+    //     window.location.href = "/main/rekam-medis/rekam-medis?pet="+this.state.data.pet
+    // }
     
     deleteJasaLain(i){
         var new_data = JSON.parse(JSON.stringify(this.state.data));
@@ -848,19 +848,20 @@ class TindakanDokter extends React.Component {
         this.setState({show_kunjungan_berikutnya: !this.state.show_kunjungan_berikutnya})
     }
     
-    customerInvoiceClick(){
-        if(this.state.data.customer_invoice && this.state.data.customer_invoice.length > 1){
-            window.location.href = '/main/kasir/customer-invoices?register_number='+encodeURIComponent(this.state.data.register_number)
-        } else if(this.state.data.customer_invoice && this.state.data.customer_invoice.length == 1) {
-            window.location.href = '/main/kasir/customer-invoices/edit?n='+encodeURIComponent(this.state.data.customer_invoice[0])
-        }
-    }
+    // customerInvoiceClick(){
+    //     if(this.state.data.customer_invoice && this.state.data.customer_invoice.length > 1){
+    //         window.location.href = '/main/kasir/customer-invoices?register_number='+encodeURIComponent(this.state.data.register_number)
+    //     } else if(this.state.data.customer_invoice && this.state.data.customer_invoice.length == 1) {
+    //         window.location.href = '/main/kasir/customer-invoices/edit?n='+encodeURIComponent(this.state.data.customer_invoice[0])
+    //     }
+    // }
     
     render() {
         var bgstyle = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '2px 32px', marginBottom: '15px'}
         var lh14 = {lineHeight: '14px'}
         var color = {color: '#056EAD', cursor: 'pointer'}
         var cursor = {cursor: 'pointer'}
+        var aStyle = {testDecoration: 'none', display: 'block', color: 'black'}
         var styleLanjut = {width: '130px', lineHeight: '14px'}
         var backButton = <span className="fs16 fw600 mr-4 my-auto" style={color} onClick={() => window.location.href="/main/dokter-dan-jasa/tindakan-dokter"}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
         var templateTindakan
@@ -906,7 +907,7 @@ class TindakanDokter extends React.Component {
     	)
         
         var rekam_medis = (
-            <div className="col-auto" style={cursor} onClick={e => this.rekamMedisClick(e)}>
+            <a className="col-auto" href={"/main/rekam-medis/rekam-medis?pet=" + this.state.data.pet}>
                 <div className="row mx-0">
                     <div className="col-auto px-3">
                         <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/rekam-medis.png"/>
@@ -918,18 +919,25 @@ class TindakanDokter extends React.Component {
                         </span>
                     </div>
                 </div>
-            </div>
+            </a>
         )
+
+        var ciHref = '#'
+        if(this.state.data.customer_invoice && this.state.data.customer_invoice.length > 1){
+            ciHref = '/main/kasir/customer-invoices?register_number='+encodeURIComponent(this.state.data.register_number)
+        } else if(this.state.data.customer_invoice && this.state.data.customer_invoice.length == 1) {
+            ciHref = '/main/kasir/customer-invoices/edit?n='+encodeURIComponent(this.state.data.customer_invoice[0])
+        }
         
         var customer_invoice = (
-            <div className="col-auto" style={cursor} onClick={() => this.customerInvoiceClick()}>
+            <a href={ciHref} className="col-auto" style={cursor}>
                 <div className="row mx-0">
                     <div className="col-auto px-3">
                         <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/cashier.png"/>
                         <p className="mb-0 fs12 text-muted text-center">Customer Invoice</p>
                     </div>
                 </div>
-            </div>
+            </a>
         )
         
         var rekam_medis_class = "col-6"
@@ -994,15 +1002,15 @@ class TindakanDokter extends React.Component {
 }
 
 class TindakanDokterMainForm extends React.Component {
-    sourceClick(tipe){
-        if (tipe == 'penerimaan') {
-            window.location.href = '/main/penerimaan/penerimaan-pasien/detail?n=' + this.props.data.reception
-        } else if (tipe == 'pemilik') {
-            window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.data.pet_owner
-        } else if (tipe == 'pasien') {
-            window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet
-        }
-    }
+    // sourceClick(tipe){
+    //     if (tipe == 'penerimaan') {
+    //         window.location.href = '/main/penerimaan/penerimaan-pasien/detail?n=' + this.props.data.reception
+    //     } else if (tipe == 'pemilik') {
+    //         window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.data.pet_owner
+    //     } else if (tipe == 'pasien') {
+    //         window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet
+    //     }
+    // }
     
     render() {
         var readOnly = false
@@ -1014,9 +1022,9 @@ class TindakanDokterMainForm extends React.Component {
         }
         var bgstyle = {background: '#fff', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
         var cursor = {cursor: 'pointer'}
-        var link_pemilik = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pemilik')} style={cursor}/>
-        var link_pasien = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pasien')} style={cursor}/>
-        var link_penerimaan = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('penerimaan')} style={cursor}/>
+        var link_pemilik = <a href={'/main/penerimaan/data-pemilik/edit?n=' + this.props.data.pet_owner} ><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+        var link_pasien = <a href={'/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet} ><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+        var link_penerimaan = <a href={'/main/penerimaan/penerimaan-pasien/detail?n=' + this.props.data.reception} ><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
 
         var option_dokter = [];
 
@@ -1335,14 +1343,35 @@ class TindakanDokterJasaLainRow extends React.Component {
                 </div>
             )
             if (item.product_category.is_rawat) {
-                linkIcon = <img className="px-3" src="/static/img/main/menu/tautan.png" style={cursor} onClick={() => this.tindakLanjutClick('rawat_inap')}/>
+                var riHref = ''
+                if(this.props.rawat_inap && this.props.rawat_inap.length > 1){
+                    riHref = '/main/dokter-dan-jasa/rawat-inap?register_number='+encodeURIComponent(this.props.register_number)
+                } else if(this.props.rawat_inap && this.props.rawat_inap.length == 1) {
+                    riHref = '/main/dokter-dan-jasa/rawat-inap/edit?n='+encodeURIComponent(this.props.rawat_inap[0])
+                }
+
+                linkIcon = <a href={riHref}><img className="px-3" src="/static/img/main/menu/tautan.png" style={cursor}/></a>
                 rawatInapButton = <img className="mx-3" src="/static/img/main/menu/is_rawat_inap.png" style={cursor} onClick={this.props.toggleTemplateTindakan}/>
                 categoryName = <div><span className="ml-3 fs14">Rawat Inap</span>{this.props.status=='Done'?linkIcon:false}</div>
             } else if (item.product_category.is_grooming){
-                linkIcon = <img className="px-3" src="/static/img/main/menu/tautan.png" style={cursor} onClick={() => this.tindakLanjutClick('grooming')}/>
+                var grHref = ''
+                if(this.props.grooming && this.props.grooming.length > 1){
+                    grHref = '/main/dokter-dan-jasa/grooming?register_number='+encodeURIComponent(this.props.register_number)
+                } else if(this.props.grooming && this.props.grooming.length == 1){
+                    grHref = '/main/dokter-dan-jasa/grooming/edit?n='+encodeURIComponent(this.props.grooming[0])
+                }
+
+                linkIcon = <a href={grHref}><img className="px-3" src="/static/img/main/menu/tautan.png" style={cursor} /></a>
                 categoryName = <div><span className="ml-3 fs14">Grooming</span>{this.props.status=='Done'?linkIcon:false}</div>
             } else {
-                linkIcon = <img className="px-3" src="/static/img/main/menu/tautan.png" style={cursor} onClick={() => this.tindakLanjutClick('operation')}/>
+                var imHref = ''
+                if(this.props.instalasi_medis && this.props.instalasi_medis.length > 1){
+                    imHref = '/main/dokter-dan-jasa/instalasi-medis?register_number='+encodeURIComponent(this.props.register_number)
+                } else if(this.props.instalasi_medis && this.props.instalasi_medis.length == 1){
+                    imHref = '/main/dokter-dan-jasa/instalasi-medis/edit?n='+encodeURIComponent(this.props.instalasi_medis[0])
+                }
+
+                linkIcon = <a href={imHref}><img className="px-3" src="/static/img/main/menu/tautan.png" style={cursor} /></a>
                 categoryName = <div><span className="ml-3 fs14">Instalasi Medis</span>{this.props.status=='Done'?linkIcon:false}</div>
             }
         }
@@ -2294,13 +2323,13 @@ class TindakanDokterRekamMedisList extends React.Component {
 }
 
 class TindakanDokterObat extends React.Component {
-    apotikClick(){
-        if(this.props.apotik && this.props.apotik.length > 1){
-            window.location.href = "/main/farmasi/apotik?register_number="+encodeURIComponent(this.props.register_number)
-        } else if(this.props.apotik && this.props.apotik.length == 1) {
-            window.location.href = "/main/farmasi/apotik/edit?n="+encodeURIComponent(this.props.apotik[0])
-        }
-    }
+    // apotikClick(){
+    //     if(this.props.apotik && this.props.apotik.length > 1){
+    //         window.location.href = "/main/farmasi/apotik?register_number="+encodeURIComponent(this.props.register_number)
+    //     } else if(this.props.apotik && this.props.apotik.length == 1) {
+    //         window.location.href = "/main/farmasi/apotik/edit?n="+encodeURIComponent(this.props.apotik[0])
+    //     }
+    // }
     
     render() {
         var color = {color: "#056EAD"}
@@ -2358,9 +2387,16 @@ class TindakanDokterObat extends React.Component {
     	
     	var apotik_link
     	if (status == 'Done'){
+            var apHref = ''
+            if(this.props.apotik && this.props.apotik.length > 1){
+                apHref = "/main/farmasi/apotik?register_number="+encodeURIComponent(this.props.register_number)
+            } else if(this.props.apotik && this.props.apotik.length == 1) {
+                apHref = "/main/farmasi/apotik/edit?n="+encodeURIComponent(this.props.apotik[0])
+            }
+
     	    apotik_link = (
-    	        <div className="row justify-content-end">
-    	            <div className="col-auto text-center" style={cursor} onClick={() => this.apotikClick()}>
+    	        <a href={apHref} className="row justify-content-end">
+    	            <div className="col-auto text-center" style={cursor}>
     	                <div className="row mx-0">
     	                    <div className="col-auto px-0">
     	                        <img className="d-block mb-2" src='/static/img/main/menu/apotik.png'/>
@@ -2373,7 +2409,7 @@ class TindakanDokterObat extends React.Component {
     	                    </div>
     	                </div>
     	            </div>
-    	        </div>
+    	        </a>
     	    )
     	}
     	

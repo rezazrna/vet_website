@@ -345,13 +345,13 @@ class OperationList extends React.Component {
 }
 
 class OperationListRow extends React.Component {
-    clickRow() {
-        var pathname = "/main/inventory/operation/edit?n=" + this.props.item.name
-        if (this.props.usage) {
-            pathname = "/main/inventory/usage/edit?n=" + this.props.item.name
-        }
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/inventory/operation/edit?n=" + this.props.item.name
+    //     if (this.props.usage) {
+    //         pathname = "/main/inventory/usage/edit?n=" + this.props.item.name
+    //     }
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -372,12 +372,17 @@ class OperationListRow extends React.Component {
             statusClass = 'bg-info'
         }
 
+        var pathname = "/main/inventory/operation/edit?n=" + this.props.item.name
+        if (this.props.usage) {
+            pathname = "/main/inventory/usage/edit?n=" + this.props.item.name
+        }
+
         return (
             <div className="row mx-0">
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                <a href={pathname} className="col row-list row-list-link">
                     <div className="row mx-0 fs12 fw600">
                         <div className="col">
                             <span>{item.name}</span>
@@ -400,7 +405,7 @@ class OperationListRow extends React.Component {
                             </span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }

@@ -392,11 +392,11 @@ class PosOrderList extends React.Component {
 }
 
 class PosOrderListRow extends React.Component {
-    clickRow(e) {
-        e.preventDefault()
-        var pathname = "/main/kasir/pos-order/form?n=" + this.props.item.name
-        window.location = pathname
-    }
+    // clickRow(e) {
+    //     e.preventDefault()
+    //     var pathname = "/main/kasir/pos-order/form?n=" + this.props.item.name
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -411,7 +411,7 @@ class PosOrderListRow extends React.Component {
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list row-list-link" onClick={(e) => this.clickRow(e)}>
+                <a className="col row-list row-list-link" href={"/main/kasir/pos-order/form?n=" + this.props.item.name}>
                     <div className="row mx-0 fs12 fw600">
                         <div className="col text-center">
                             <span className="my-auto">{moment(item.order_date || item.refund_date).subtract(tzOffset, 'minute').format('YYYY-MM-DD HH:mm')}</span>
@@ -438,7 +438,7 @@ class PosOrderListRow extends React.Component {
                             <span className="my-auto">{formatter2.format(item.total)}</span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }

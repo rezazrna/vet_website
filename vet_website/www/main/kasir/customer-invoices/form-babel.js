@@ -993,17 +993,17 @@ class CustomerInvoice extends React.Component {
             if (this.state.data.status) {
                 var cursor = {cursor: 'pointer'}
                 if (this.state.data.status != 'Draft'){
-                    buttonMode.push( <div className="col-auto mr-auto cursor-pointer" onClick={() => this.goToJournalEntries()} key='10' style={cursor}>
+                    buttonMode.push( <a href={'/main/accounting/journal-entries?reference=' + this.state.data.name} className="col-auto mr-auto cursor-pointer" key='10' style={cursor}>
             			            <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/journal_entries.png"/>
             			            <p className="mb-0 fs12 text-muted text-center">Journal Entries</p>
-            			        </div>)
+            			        </a>)
                 }
                 buttonMode.push(<div className={this.state.data.status=='Draft'?"col-auto mr-auto":"col-auto"} key="deposit_info">
                                     <div className="row mx-0">
-                                        <div className="col-auto px-3 cursor-pointer" onClick={() => (window.location.href = '/main/kasir/deposit?n=' + encodeURIComponent(this.state.data.owner))} style={cursor}>
+                                        <a className="col-auto px-3 cursor-pointer" href={'/main/kasir/deposit?n=' + encodeURIComponent(this.state.data.owner)} style={cursor}>
                                             <img className="d-block mx-auto header-icon mt-2" src="/static/img/main/menu/credit.png"/>
                                             <p className="mb-0 fs12 text-muted text-center">Deposit</p>
-                                        </div>
+                                        </a>
                                         <div className="col-auto px-2 d-flex my-auto">
                                             <span className="fs26 fw600">
                                                 {/*formatter.format(this.state.total_credit-this.state.total_remaining)*/}
@@ -1061,15 +1061,15 @@ class CustomerInvoice extends React.Component {
 }
 
 class CustomerInvoiceForm extends React.Component {
-    sourceClick(tipe){
-        if (tipe == 'origin') {
-            window.location.href = '/main/kasir/customer-invoices/edit?n=' + this.props.data.origin
-        } else if (tipe == 'pemilik') {
-            window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.data.owner
-        } else if (tipe == 'pasien') {
-            window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet
-        }
-    }
+    // sourceClick(tipe){
+    //     if (tipe == 'origin') {
+    //         window.location.href = '/main/kasir/customer-invoices/edit?n=' + this.props.data.origin
+    //     } else if (tipe == 'pemilik') {
+    //         window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.data.owner
+    //     } else if (tipe == 'pasien') {
+    //         window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet
+    //     }
+    // }
     
     render() {
         var panel_style = {background: '#fff', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
@@ -1111,8 +1111,8 @@ class CustomerInvoiceForm extends React.Component {
         )
         
         if (id != undefined) {
-            var link_pemilik = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pemilik')} style={cursor}/>
-            var link_pasien = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pasien')} style={cursor}/>
+            var link_pemilik = <a href={'/main/penerimaan/data-pemilik/edit?n=' + this.props.data.owner}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+            var link_pasien = <a href={'/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
             title = <p className="fs18 fw600 text-dark mb-2">{data.name}</p>
             pet = <span className="fs16 px-0" id="pet">{data.pet_name||data.pet}{link_pasien}</span>
             owner_name = <span className="fs16 px-0" id="owner_name">{data.owner_name}{link_pemilik}</span>
@@ -1131,7 +1131,7 @@ class CustomerInvoiceForm extends React.Component {
         }
         
         if (data.is_refund) {
-            link_icon = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('origin')} style={cursor}/>
+            link_icon = <a href={'/main/kasir/customer-invoices/edit?n=' + this.props.data.origin}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
         }
         
         return (
@@ -1393,11 +1393,11 @@ class CustomerInvoiceLinesMultipleRow extends React.Component {
         this.setState({show_detail: !this.state.show_detail})
     }
     
-    goToDetail(){
-        this.props.is_rawat_inap?
-        window.location.href = "/main/kasir/rawat-inap-invoices/edit?n="+this.props.name:
-        window.location.href = "/main/kasir/customer-invoices/edit?n="+this.props.name
-    }
+    // goToDetail(){
+    //     this.props.is_rawat_inap?
+    //     window.location.href = "/main/kasir/rawat-inap-invoices/edit?n="+this.props.name:
+    //     window.location.href = "/main/kasir/customer-invoices/edit?n="+this.props.name
+    // }
     
     render(){
         var th = this
@@ -1426,6 +1426,13 @@ class CustomerInvoiceLinesMultipleRow extends React.Component {
                 <CustomerInvoiceLinesContent key={index.toString()} list={d.rows} edit_mode={th.props.edit_mode} product_list={th.props.product_list} uom_list={th.props.uom_list} status={th.props.status} payments={th.props.payments} subtotal={th.props.subtotal} paid={th.props.paid} changeInput={th.props.changeInput} inputBlur={th.props.inputBlur} service_name={d.date} service="rawat_inap" warehouse_list={th.props.warehouse_list} is_refund={th.props.is_refund} no_exchange={th.props.no_exchange} potongan={th.props.potongan} deleteRow={(index) => th.props.deleteRow(index, 'rawat_inap')} role={th.props.role} links={links} register_number={th.props.register_number}/>
             )
         })
+        var riHref = ''
+
+        if (this.props.is_rawat_inap) {
+            riHref = "/main/kasir/rawat-inap-invoices/edit?n="+this.props.name
+        } else {
+            riHref = "/main/kasir/customer-invoices/edit?n="+this.props.name
+        }
         
         
         return(
@@ -1433,7 +1440,7 @@ class CustomerInvoiceLinesMultipleRow extends React.Component {
                 <div className="col-12 fs16 fw600" style={rowStyle}>
                     <div className="row">
                         <div className="col">
-        					<span className="my-auto">{this.props.pet_name}<i className={this.props.status=='Draft'?"fa fa-pencil fs18 mx-2":"fa fa-external-link fs18 mx-2"} style={cursor} onClick={() => this.goToDetail()}/></span>
+        					<a href={riHref}><span className="my-auto">{this.props.pet_name}<i className={this.props.status=='Draft'?"fa fa-pencil fs18 mx-2":"fa fa-external-link fs18 mx-2"} style={cursor}/></span></a>
         				</div>
                         <div className="col-1 text-center"/>
         				<div className="col-2 text-center"/>
@@ -1499,46 +1506,46 @@ class CustomerInvoiceLinesContent extends React.Component {
         this.setState({show_list: !this.state.show_list})
     }
     
-    contentClick(){
-        console.log('HAlo')
-        var links = this.props.links.links
-        var register_number = this.props.register_number
-        if(this.props.service=='rawat_inap'){
-            if(links.rawat_inap && links.rawat_inap.length > 1){
-                window.location.href = '/main/dokter-dan-jasa/rawat-inap?register_number='+encodeURIComponent(register_number)
-            } else if(links.rawat_inap && links.rawat_inap.length == 1) {
-                window.location.href = '/main/dokter-dan-jasa/rawat-inap/edit?n='+encodeURIComponent(links.rawat_inap[0])
-            }
-        } else if (this.props.service=='jasa'){
-            if(this.props.service_name=='Grooming'){
-                console.log('Grooming')
-                console.log(links)
-                if(links.grooming && links.grooming.length > 1){
-                    window.location.href = '/main/dokter-dan-jasa/grooming?register_number='+encodeURIComponent(register_number)
-                } else if(links.grooming && links.grooming.length == 1){
-                    window.location.href = '/main/dokter-dan-jasa/grooming/edit?n='+encodeURIComponent(links.grooming[0])
-                }
-            } else {
-                if(links.dokter && links.dokter.length > 1){
-                    window.location.href = '/main/dokter-dan-jasa/tindakan-dokter?register_number='+encodeURIComponent(register_number)
-                } else if(links.dokter && links.dokter.length == 1){
-                    window.location.href = '/main/dokter-dan-jasa/tindakan-dokter/edit?n='+encodeURIComponent(links.dokter[0])
-                }
-            }
-        } else if (this.props.service=='farmasi') {
-            if(links.apotik && links.apotik.length > 1){
-                window.location.href = '/main/farmasi/apotik?register_number='+encodeURIComponent(register_number)
-            } else if(links.apotik && links.apotik.length == 1){
-                window.location.href = '/main/farmasi/apotik/edit?n='+encodeURIComponent(links.apotik[0])
-            }
-        } else if (this.props.service=='instalasi_medis') {
-            if(links.instalasi_medis && links.instalasi_medis.length > 1){
-                window.location.href = '/main/dokter-dan-jasa/instalasi-medis?register_number='+encodeURIComponent(register_number)
-            } else if(links.instalasi_medis && links.instalasi_medis.length == 1){
-                window.location.href = '/main/dokter-dan-jasa/instalasi-medis/edit?n='+encodeURIComponent(links.instalasi_medis[0])
-            }
-        }
-    }
+    // contentClick(){
+    //     console.log('HAlo')
+    //     var links = this.props.links.links
+    //     var register_number = this.props.register_number
+    //     if(this.props.service=='rawat_inap'){
+    //         if(links.rawat_inap && links.rawat_inap.length > 1){
+    //             window.location.href = '/main/dokter-dan-jasa/rawat-inap?register_number='+encodeURIComponent(register_number)
+    //         } else if(links.rawat_inap && links.rawat_inap.length == 1) {
+    //             window.location.href = '/main/dokter-dan-jasa/rawat-inap/edit?n='+encodeURIComponent(links.rawat_inap[0])
+    //         }
+    //     } else if (this.props.service=='jasa'){
+    //         if(this.props.service_name=='Grooming'){
+    //             console.log('Grooming')
+    //             console.log(links)
+    //             if(links.grooming && links.grooming.length > 1){
+    //                 window.location.href = '/main/dokter-dan-jasa/grooming?register_number='+encodeURIComponent(register_number)
+    //             } else if(links.grooming && links.grooming.length == 1){
+    //                 window.location.href = '/main/dokter-dan-jasa/grooming/edit?n='+encodeURIComponent(links.grooming[0])
+    //             }
+    //         } else {
+    //             if(links.dokter && links.dokter.length > 1){
+    //                 window.location.href = '/main/dokter-dan-jasa/tindakan-dokter?register_number='+encodeURIComponent(register_number)
+    //             } else if(links.dokter && links.dokter.length == 1){
+    //                 window.location.href = '/main/dokter-dan-jasa/tindakan-dokter/edit?n='+encodeURIComponent(links.dokter[0])
+    //             }
+    //         }
+    //     } else if (this.props.service=='farmasi') {
+    //         if(links.apotik && links.apotik.length > 1){
+    //             window.location.href = '/main/farmasi/apotik?register_number='+encodeURIComponent(register_number)
+    //         } else if(links.apotik && links.apotik.length == 1){
+    //             window.location.href = '/main/farmasi/apotik/edit?n='+encodeURIComponent(links.apotik[0])
+    //         }
+    //     } else if (this.props.service=='instalasi_medis') {
+    //         if(links.instalasi_medis && links.instalasi_medis.length > 1){
+    //             window.location.href = '/main/dokter-dan-jasa/instalasi-medis?register_number='+encodeURIComponent(register_number)
+    //         } else if(links.instalasi_medis && links.instalasi_medis.length == 1){
+    //             window.location.href = '/main/dokter-dan-jasa/instalasi-medis/edit?n='+encodeURIComponent(links.instalasi_medis[0])
+    //         }
+    //     }
+    // }
     
     render() {
         var list = this.props.list
@@ -1555,8 +1562,48 @@ class CustomerInvoiceLinesContent extends React.Component {
             console.log(this.props.status)
             list = list.sort((a, b) => moment(a.creation) < moment(b.creation)?-1:1)
         }
+
+        var coHref = ''
+
+        var links = this.props.links.links
+        var register_number = this.props.register_number
+        if(this.props.service=='rawat_inap'){
+            if(links.rawat_inap && links.rawat_inap.length > 1){
+                coHref = '/main/dokter-dan-jasa/rawat-inap?register_number='+encodeURIComponent(register_number)
+            } else if(links.rawat_inap && links.rawat_inap.length == 1) {
+                coHref = '/main/dokter-dan-jasa/rawat-inap/edit?n='+encodeURIComponent(links.rawat_inap[0])
+            }
+        } else if (this.props.service=='jasa'){
+            if(this.props.service_name=='Grooming'){
+                console.log('Grooming')
+                console.log(links)
+                if(links.grooming && links.grooming.length > 1){
+                    coHref = '/main/dokter-dan-jasa/grooming?register_number='+encodeURIComponent(register_number)
+                } else if(links.grooming && links.grooming.length == 1){
+                    coHref = '/main/dokter-dan-jasa/grooming/edit?n='+encodeURIComponent(links.grooming[0])
+                }
+            } else {
+                if(links.dokter && links.dokter.length > 1){
+                    coHref = '/main/dokter-dan-jasa/tindakan-dokter?register_number='+encodeURIComponent(register_number)
+                } else if(links.dokter && links.dokter.length == 1){
+                    coHref = '/main/dokter-dan-jasa/tindakan-dokter/edit?n='+encodeURIComponent(links.dokter[0])
+                }
+            }
+        } else if (this.props.service=='farmasi') {
+            if(links.apotik && links.apotik.length > 1){
+                coHref = '/main/farmasi/apotik?register_number='+encodeURIComponent(register_number)
+            } else if(links.apotik && links.apotik.length == 1){
+                coHref = '/main/farmasi/apotik/edit?n='+encodeURIComponent(links.apotik[0])
+            }
+        } else if (this.props.service=='instalasi_medis') {
+            if(links.instalasi_medis && links.instalasi_medis.length > 1){
+                coHref = '/main/dokter-dan-jasa/instalasi-medis?register_number='+encodeURIComponent(register_number)
+            } else if(links.instalasi_medis && links.instalasi_medis.length == 1){
+                coHref = '/main/dokter-dan-jasa/instalasi-medis/edit?n='+encodeURIComponent(links.instalasi_medis[0])
+            }
+        }
         
-        var linkIcon = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.contentClick()} style={cursor}/>
+        var linkIcon = <a href={coHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.contentClick()} style={cursor}/></a>
         
         if (list.length != 0){
             var sl = this

@@ -360,19 +360,19 @@ class RawatInapList extends React.Component {
 }
 
 class RawatInapListRow extends React.Component {
-    clickRow() {
-        var type
-        var item = this.props.item
+    // clickRow() {
+    //     var type
+    //     var item = this.props.item
 
-        if (['Draft', 'On Progress'].includes(item.status)) {
-            type = 'edit'
-        } else {
-            type = 'detail'
-        }
+    //     if (['Draft', 'On Progress'].includes(item.status)) {
+    //         type = 'edit'
+    //     } else {
+    //         type = 'detail'
+    //     }
 
-        var pathname = "/main/dokter-dan-jasa/rawat-inap/" + type + "?n=" + item.name
-        window.location = pathname
-    }
+    //     var pathname = "/main/dokter-dan-jasa/rawat-inap/" + type + "?n=" + item.name
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -395,12 +395,23 @@ class RawatInapListRow extends React.Component {
             row_style = { 'color': '#BEBEBE' }
         }
 
+        var type
+        var item = this.props.item
+
+        if (['Draft', 'On Progress'].includes(item.status)) {
+            type = 'edit'
+        } else {
+            type = 'detail'
+        }
+
+        var pathname = "/main/dokter-dan-jasa/rawat-inap/" + type + "?n=" + item.name
+
         return (
             <div className="row mx-0">
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list row-list-link" style={row_style} onClick={() => this.clickRow()}>
+                <a href={pathname} className="col row-list row-list-link" style={row_style}>
                     <div className="row mx-0 fs12 fw600">
                         <div className="col-2 d-flex">
                             <span className="my-auto">{moment(item.creation).format("YYYY-MM-DD HH:mm:ss")}</span>
@@ -426,7 +437,7 @@ class RawatInapListRow extends React.Component {
                             </span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }

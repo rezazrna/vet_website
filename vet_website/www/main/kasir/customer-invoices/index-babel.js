@@ -637,11 +637,11 @@ class CustomerInvoiceList extends React.Component {
 }
 
 class CustomerInvoiceListRow extends React.Component {
-    clickRow() {
-        var pathname = "/main/kasir/customer-invoices/edit?n=" + this.props.invoice.name
-        this.props.rawat_inap ? pathname = "/main/kasir/rawat-inap-invoices/edit?n=" + this.props.invoice.name : false
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/kasir/customer-invoices/edit?n=" + this.props.invoice.name
+    //     this.props.rawat_inap ? pathname = "/main/kasir/rawat-inap-invoices/edit?n=" + this.props.invoice.name : false
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -685,12 +685,19 @@ class CustomerInvoiceListRow extends React.Component {
             <span className="my-auto">{formatter.format(credit)}</span>
         </div>
 
+        var pathname = ''
+        if (this.props.rawat_inap) {
+            pathname = "/main/kasir/rawat-inap-invoices/edit?n=" + this.props.invoice.name
+        } else {
+            pathname = "/main/kasir/customer-invoices/edit?n=" + this.props.invoice.name
+        }
+
         return (
             <div className="row mx-0">
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                <a href={pathname} className="col row-list row-list-link">
                     <div className="row mx-0 fs12 fw600">
                         <div className="col d-flex">
                             <span className="my-auto">{invoice.name}</span>
@@ -720,7 +727,7 @@ class CustomerInvoiceListRow extends React.Component {
                             </span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }

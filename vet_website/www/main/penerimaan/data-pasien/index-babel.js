@@ -397,10 +397,10 @@ class PetList extends React.Component {
 }
 
 class PetListRow extends React.Component {
-    clickRow() {
-        var pathname = "/main/penerimaan/data-pasien/edit?n=" + this.props.pet.name
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/penerimaan/data-pasien/edit?n=" + this.props.pet.name
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -419,7 +419,7 @@ class PetListRow extends React.Component {
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list row-list-link" style={row_style} onClick={() => this.clickRow()}>
+                <a href={"/main/penerimaan/data-pasien/edit?n=" + this.props.pet.name} className="col row-list row-list-link" style={row_style}>
                     <div className="row mx-0 fs12 fw600">
                         <div className="col-2 d-flex">
                             <span className="my-auto">{moment(pet.register_date).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}</span>
@@ -440,7 +440,7 @@ class PetListRow extends React.Component {
                             <span className="my-auto">{pet.pet_description}</span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }

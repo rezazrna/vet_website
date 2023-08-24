@@ -936,34 +936,34 @@ class CreditList extends React.Component {
 }
 
 class CreditListRow extends React.Component {
-    clickRow(e) {
-        e.stopPropagation()
-        var item = this.props.item
+    // clickRow(e) {
+    //     e.stopPropagation()
+    //     var item = this.props.item
 
-        if (item.invoice) {
-            if (item.invoice.includes('POSORDER')) {
-                window.location.href = "/main/kasir/pos-order/form?n=" + item.invoice
-            } else {
-                window.location.href = "/main/kasir/customer-invoices/edit?n=" + item.invoice
-            }
-        } else if (item.purchase) {
-            window.location.href = "/main/purchases/purchase-order/edit?n=" + item.purchase
-        } else {
-            window.location.href = "/main/accounting/journal-entries?reference=" + item.name
-            // this.clickRowCredit(e, true)
-        }
-    }
+    //     if (item.invoice) {
+    //         if (item.invoice.includes('POSORDER')) {
+    //             window.location.href = "/main/kasir/pos-order/form?n=" + item.invoice
+    //         } else {
+    //             window.location.href = "/main/kasir/customer-invoices/edit?n=" + item.invoice
+    //         }
+    //     } else if (item.purchase) {
+    //         window.location.href = "/main/purchases/purchase-order/edit?n=" + item.purchase
+    //     } else {
+    //         window.location.href = "/main/accounting/journal-entries?reference=" + item.name
+    //         // this.clickRowCredit(e, true)
+    //     }
+    // }
 
-    clickRowCredit(e, deposit) {
-        e.stopPropagation()
-        var item = this.props.item
+    // clickRowCredit(e, deposit) {
+    //     e.stopPropagation()
+    //     var item = this.props.item
 
-        if (item.invoice || item.pet_owner) {
-            deposit ? window.location.href = "/main/kasir/deposit?n=" + item.pet_owner : window.location.href = "/main/penerimaan/data-pemilik/edit?n=" + item.pet_owner
-        } else if (item.purchase || item.supplier) {
-            deposit ? window.location.href = "/main/purchases/deposit?n=" + item.supplier : window.location.href = "/main/purchases/suppliers/edit?n=" + item.supplier
-        }
-    }
+    //     if (item.invoice || item.pet_owner) {
+    //         deposit ? window.location.href = "/main/kasir/deposit?n=" + item.pet_owner : window.location.href = "/main/penerimaan/data-pemilik/edit?n=" + item.pet_owner
+    //     } else if (item.purchase || item.supplier) {
+    //         deposit ? window.location.href = "/main/purchases/deposit?n=" + item.supplier : window.location.href = "/main/purchases/suppliers/edit?n=" + item.supplier
+    //     }
+    // }
 
     render() {
         var item = this.props.item
@@ -984,10 +984,32 @@ class CreditListRow extends React.Component {
             style = 'bg-success'
         }
 
+        var clrHref = ''
+        if (item.invoice || item.pet_owner) {
+            clrHref = "/main/penerimaan/data-pemilik/edit?n=" + item.pet_owner
+        } else if (item.purchase || item.supplier) {
+            clrHref = "/main/purchases/suppliers/edit?n=" + item.supplier
+        }
+
         if (this.props.supplier) {
-            supplier_row = <div className="col d-flex">
-                <span className="my-auto">{item.supplier_name} <img onClick={e => this.clickRowCredit(e)} src="/static/img/main/menu/tautan.png" className="ml-2" style={link_icon} /></span>
-            </div>
+            supplier_row = <a href={clrHref} className="col d-flex">
+                <span className="my-auto">{item.supplier_name} <img src="/static/img/main/menu/tautan.png" className="ml-2" style={link_icon} /></span>
+            </a>
+        }
+
+        var clHref = ''
+
+        if (item.invoice) {
+            if (item.invoice.includes('POSORDER')) {
+                clHref = "/main/kasir/pos-order/form?n=" + item.invoice
+            } else {
+                clHref = "/main/kasir/customer-invoices/edit?n=" + item.invoice
+            }
+        } else if (item.purchase) {
+            clHref = "/main/purchases/purchase-order/edit?n=" + item.purchase
+        } else {
+            clHref = "/main/accounting/journal-entries?reference=" + item.name
+            // this.clickRowCredit(e, true)
         }
 
         if (item.invoice || item.pet_owner) {
@@ -1057,7 +1079,8 @@ class CreditListRow extends React.Component {
 
             var credit_link
             if (this.props.no_filter) {
-                credit_link = <img onClick={e => this.clickRowCredit(e)} src="/static/img/main/menu/tautan.png" className="ml-2" style={link_icon} />
+                
+                credit_link = <a href={clrHref}><img src="/static/img/main/menu/tautan.png" className="ml-2" style={link_icon} /></a>
             }
 
 
@@ -1086,9 +1109,9 @@ class CreditListRow extends React.Component {
                             <div className="col d-flex">
                                 <span className="my-auto">{this.props.no_filter ? item.pet_owner_name : item.register_number} {item.pet_owner_name || item.register_number ? credit_link : false}</span>
                             </div>
-                            <div className="col d-flex">
-                                <span className="my-auto">{item.type} {item.invoice} <img onClick={e => this.clickRow(e)} src="/static/img/main/menu/tautan.png" className="ml-2" style={link_icon} /></span>
-                            </div>
+                            <a href={clHref} className="col d-flex">
+                                <span className="my-auto">{item.type} {item.invoice} <img src="/static/img/main/menu/tautan.png" className="ml-2" style={link_icon} /></span>
+                            </a>
                             {nominalRow}
                             {debitRow}
                             {creditRow}
@@ -1196,9 +1219,9 @@ class CreditListRow extends React.Component {
                                 <span className="my-auto">{moment(item.date).subtract(tzOffset, 'minute').format("YYYY-MM-DD HH:mm:ss")}</span>
                             </div>
                             {supplier_row}
-                            <div className="col d-flex">
-                                <span className="my-auto">{item.type} {item.purchase} <img onClick={e => this.clickRow(e)} src="/static/img/main/menu/tautan.png" className="ml-2" style={link_icon} /></span>
-                            </div>
+                            <a href={clHref} className="col d-flex">
+                                <span className="my-auto">{item.type} {item.purchase} <img src="/static/img/main/menu/tautan.png" className="ml-2" style={link_icon} /></span>
+                            </a>
                             {nominalRow}
                             {debitRow}
                             {creditRow}

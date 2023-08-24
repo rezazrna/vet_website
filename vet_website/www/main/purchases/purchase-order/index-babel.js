@@ -441,10 +441,10 @@ class PurchaseOrderList extends React.Component {
 }
 
 class PurchaseOrderListRow extends React.Component {
-    clickRow() {
-        var pathname = "/main/purchases/purchase-order/edit?n=" + this.props.item.name
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/purchases/purchase-order/edit?n=" + this.props.item.name
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -480,7 +480,7 @@ class PurchaseOrderListRow extends React.Component {
                     <div className="col-auto pl-2 pr-3">
                         <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                     </div>
-                    <div className="col row-list" onClick={() => this.clickRow()}>
+                    <a className="col row-list" href={"/main/purchases/purchase-order/edit?n=" + this.props.item.name}>
                         <div className="row mx-0 fs12 fw600">
                             <div className="col d-flex">
                                 <span className="my-auto">{moment(item.is_refund == 1 ? item.refund_date : item.order_date).format("DD-MM-YYYY")}</span>
@@ -512,7 +512,7 @@ class PurchaseOrderListRow extends React.Component {
                                 </span>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             )
         }

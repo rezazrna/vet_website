@@ -270,14 +270,14 @@ class Inventory extends React.Component {
         var product_info, col_class
         if(!this.state.valuation){
             product_info = (
-                <div className="col-auto ml-auto" style={cursor} key="product-info" onClick={() => window.location.pathname = "/main/inventory/products"}>
+                <a className="col-auto ml-auto" style={cursor} key="product-info" href="/main/inventory/products">
                     <div className="row mx-0">
                         <div className="col-auto px-0">
                             <img className="d-block mx-auto header-icon mt-2" src="/static/img/main/menu/product-info.png"/>
                             <p className="mb-0 fs12 text-muted text-center">Informasi Produk</p>
                         </div>
                     </div>
-                </div>
+                </a>
             )
         }
         else {

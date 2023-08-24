@@ -678,15 +678,15 @@ class InstalasiMedis extends React.Component {
         });
     }
     
-    customerInvoiceClick(){
-        var location
-        this.state.data.reference='Rawat Inap'?location = '/main/kasir/rawat-inap-invoices':location = '/main/kasir/customer-invoices'
-        if(this.state.data.customer_invoice && this.state.data.customer_invoice.length > 1){
-            window.location.href = location+'?register_number='+encodeURIComponent(this.state.data.register_number)
-        } else if(this.state.data.customer_invoice && this.state.data.customer_invoice.length == 1) {
-            window.location.href = location+'/edit?n='+encodeURIComponent(this.state.data.customer_invoice[0])
-        }
-    }
+    // customerInvoiceClick(){
+    //     var location
+    //     this.state.data.reference='Rawat Inap'?location = '/main/kasir/rawat-inap-invoices':location = '/main/kasir/customer-invoices'
+    //     if(this.state.data.customer_invoice && this.state.data.customer_invoice.length > 1){
+    //         window.location.href = location+'?register_number='+encodeURIComponent(this.state.data.register_number)
+    //     } else if(this.state.data.customer_invoice && this.state.data.customer_invoice.length == 1) {
+    //         window.location.href = location+'/edit?n='+encodeURIComponent(this.state.data.customer_invoice[0])
+    //     }
+    // }
     
     render(){
         var bgstyle = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '15px 32px', marginBottom: '15px'}
@@ -731,16 +731,25 @@ class InstalasiMedis extends React.Component {
         } else {
             statuses = ['Draft', 'Checked', 'Done']
         }
+
+        var ciHref = ''
+        var location
+        this.state.data.reference='Rawat Inap'?location = '/main/kasir/rawat-inap-invoices':location = '/main/kasir/customer-invoices'
+        if(this.state.data.customer_invoice && this.state.data.customer_invoice.length > 1){
+            ciHref = location+'?register_number='+encodeURIComponent(this.state.data.register_number)
+        } else if(this.state.data.customer_invoice && this.state.data.customer_invoice.length == 1) {
+            ciHref = location+'/edit?n='+encodeURIComponent(this.state.data.customer_invoice[0])
+        }
         
         var customer_invoice = (
-            <div className="col-auto" style={cursor} onClick={() => this.customerInvoiceClick()}>
+            <a href={ciHref} className="col-auto" style={cursor}>
                 <div className="row mx-0">
                     <div className="col-auto px-3">
                         <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/cashier.png"/>
                         <p className="mb-0 fs12 text-muted text-center">{this.state.data.reference=='Rawat Inap'?'Rawat Inap Invoice':'Customer Invoice'}</p>
                     </div>
                 </div>
-            </div>
+            </a>
         )
         
         if(this.state.loaded) {
@@ -790,29 +799,29 @@ class InstalasiMedis extends React.Component {
 }
 
 class InstalasiMedisMainForm extends React.Component {
-    sourceClick(tipe){
-        if (tipe == 'pemilik') {
-            window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.data.pet_owner
-        } else if (tipe == 'pasien') {
-            window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet
-        }
-    }
+    // sourceClick(tipe){
+    //     if (tipe == 'pemilik') {
+    //         window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.data.pet_owner
+    //     } else if (tipe == 'pasien') {
+    //         window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet
+    //     }
+    // }
     
-    dokterClick(){
-    	if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length > 1){
-            window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
-        } else if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length == 1){
-            window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.data.tindakan_dokter[0])
-        }
-    }
+    // dokterClick(){
+    // 	if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length > 1){
+    //         window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
+    //     } else if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length == 1){
+    //         window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.data.tindakan_dokter[0])
+    //     }
+    // }
     
-    rawatInapClick(){
-    	if(this.props.data.rawat_inap && this.props.data.rawat_inap.length > 1){
-            window.location.href = "/main/dokter-dan-jasa/rawat-inap?register_number="+encodeURIComponent(this.props.reception.register_number)
-        } else if(this.props.data.rawat_inap && this.props.data.rawat_inap.length == 1){
-            window.location.href = "/main/dokter-dan-jasa/rawat-inap/edit?n="+encodeURIComponent(this.props.data.rawat_inap[0])
-        }
-    }
+    // rawatInapClick(){
+    // 	if(this.props.data.rawat_inap && this.props.data.rawat_inap.length > 1){
+    //         window.location.href = "/main/dokter-dan-jasa/rawat-inap?register_number="+encodeURIComponent(this.props.reception.register_number)
+    //     } else if(this.props.data.rawat_inap && this.props.data.rawat_inap.length == 1){
+    //         window.location.href = "/main/dokter-dan-jasa/rawat-inap/edit?n="+encodeURIComponent(this.props.data.rawat_inap[0])
+    //     }
+    // }
     
     render() {
         var readOnly = false
@@ -824,10 +833,24 @@ class InstalasiMedisMainForm extends React.Component {
         }
         var bgstyle = {background: '#fff', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
         var cursor = {cursor: 'pointer'}
-        var link_pemilik = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pemilik')} style={cursor}/>
-        var link_pasien = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pasien')} style={cursor}/>
-        var link_dokter = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.dokterClick()} style={cursor}/>
-        var link_rawat_inap = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.rawatInapClick()} style={cursor}/>
+        var link_pemilik = <a href={'/main/penerimaan/data-pemilik/edit?n=' + this.props.data.pet_owner}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+        var link_pasien = <a href={window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+        
+        var diHref = ''
+        if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length > 1){
+            diHref = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
+        } else if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length == 1){
+            diHref = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.data.tindakan_dokter[0])
+        }
+        var link_dokter = <a href={diHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+
+        var riHref = ''
+        if(this.props.data.rawat_inap && this.props.data.rawat_inap.length > 1){
+            riHref = "/main/dokter-dan-jasa/rawat-inap?register_number="+encodeURIComponent(this.props.reception.register_number)
+        } else if(this.props.data.rawat_inap && this.props.data.rawat_inap.length == 1){
+            riHref = "/main/dokter-dan-jasa/rawat-inap/edit?n="+encodeURIComponent(this.props.data.rawat_inap[0])
+        }
+        var link_rawat_inap = <a href={riHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.rawatInapClick()} style={cursor}/></a>
 
         var option_dokter = [];
 

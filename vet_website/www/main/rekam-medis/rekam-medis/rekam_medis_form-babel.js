@@ -212,21 +212,21 @@ class RekamMedisForm extends React.Component {
 }
 
 class DataPasien extends React.Component {
-    sourceClick(tipe){
-        if (tipe == 'pemilik') {
-            window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.rekam_medis.pet_owner
-        } else if (tipe == 'pasien') {
-            window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.rekam_medis.pet
-        }
-    }
+    // sourceClick(tipe){
+    //     if (tipe == 'pemilik') {
+    //         window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.rekam_medis.pet_owner
+    //     } else if (tipe == 'pasien') {
+    //         window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.rekam_medis.pet
+    //     }
+    // }
     
     render() {
         var panel_style = {background: '#fff', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
         var cursor = {cursor: 'pointer'}
         var rekam_medis = this.props.rekam_medis
         var cursor = {cursor: 'pointer'}
-        var link_pemilik = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pemilik')} style={cursor}/>
-        var link_pasien = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pasien')} style={cursor}/>
+        var link_pemilik = <a href={'/main/penerimaan/data-pemilik/edit?n=' + this.props.rekam_medis.pet_owner}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+        var link_pasien = <a href={'/main/penerimaan/data-pasien/edit?n=' + this.props.rekam_medis.pet}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
         
         var row, button
         if (this.props.main_form_wide){

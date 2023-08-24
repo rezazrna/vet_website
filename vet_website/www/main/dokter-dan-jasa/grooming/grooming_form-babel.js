@@ -690,14 +690,14 @@ class Grooming extends React.Component {
         this.setState({ show_actions: !this.state.show_actions })
     }
 
-    customerInvoiceClick() {
-        var grooming = this.state.data.grooming
-        if (grooming.customer_invoice && grooming.customer_invoice.length > 1) {
-            window.location.href = '/main/kasir/customer-invoices?register_number=' + encodeURIComponent(grooming.register_number)
-        } else if (grooming.customer_invoice && grooming.customer_invoice.length == 1) {
-            window.location.href = '/main/kasir/customer-invoices/edit?n=' + encodeURIComponent(grooming.customer_invoice[0])
-        }
-    }
+    // customerInvoiceClick() {
+    //     var grooming = this.state.data.grooming
+    //     if (grooming.customer_invoice && grooming.customer_invoice.length > 1) {
+    //         window.location.href = '/main/kasir/customer-invoices?register_number=' + encodeURIComponent(grooming.register_number)
+    //     } else if (grooming.customer_invoice && grooming.customer_invoice.length == 1) {
+    //         window.location.href = '/main/kasir/customer-invoices/edit?n=' + encodeURIComponent(grooming.customer_invoice[0])
+    //     }
+    // }
 
     render() {
         var panel_style = { background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '2px 32px', marginBottom: '15px' }
@@ -767,15 +767,22 @@ class Grooming extends React.Component {
             buttonMode.push(<div className="col-auto my-auto" key="9"><button type="button" className="btn btn-sm fs12 btn-outline-danger text-uppercase h-100 fwbold py-2" onClick={() => this.toggleShowActions()}>Kunjungan Berikutnya</button></div>)
             buttonMode.push(<div className="col-auto mr-auto px-0" key="spacer" />)
             if (grooming.status == 'Done') {
+                var grHref = ''
+                if (grooming.customer_invoice && grooming.customer_invoice.length > 1) {
+                    grHref = '/main/kasir/customer-invoices?register_number=' + encodeURIComponent(grooming.register_number)
+                } else if (grooming.customer_invoice && grooming.customer_invoice.length == 1) {
+                    grHref = '/main/kasir/customer-invoices/edit?n=' + encodeURIComponent(grooming.customer_invoice[0])
+                }
+
                 buttonMode.push(
-                    <div className="col-auto" key="customer-invoice" style={cursor} onClick={() => this.customerInvoiceClick()}>
+                    <a href={grHref} className="col-auto" key="customer-invoice" style={cursor}>
                         <div className="row mx-0">
                             <div className="col-auto px-3">
                                 <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/cashier.png" />
                                 <p className="mb-0 fs12 text-muted text-center">Customer Invoice</p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 )
             }
             buttonMode.push(
@@ -845,23 +852,23 @@ class Grooming extends React.Component {
 }
 
 class FormGrooming extends React.Component {
-    sourceClick(tipe) {
-        if (tipe == 'penerimaan') {
-            window.location.href = '/main/penerimaan/penerimaan-pasien/detail?n=' + this.props.grooming.reception
-        } else if (tipe == 'pemilik') {
-            window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.grooming.pet_owner
-        } else if (tipe == 'pasien') {
-            window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.grooming.pet
-        }
-    }
+    // sourceClick(tipe) {
+    //     if (tipe == 'penerimaan') {
+    //         window.location.href = '/main/penerimaan/penerimaan-pasien/detail?n=' + this.props.grooming.reception
+    //     } else if (tipe == 'pemilik') {
+    //         window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.grooming.pet_owner
+    //     } else if (tipe == 'pasien') {
+    //         window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.grooming.pet
+    //     }
+    // }
 
-    dokterClick() {
-        if (this.props.grooming.tindakan_dokter && this.props.grooming.tindakan_dokter.length > 1) {
-            window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number=" + encodeURIComponent(this.props.reception.register_number)
-        } else if (this.props.grooming.tindakan_dokter && this.props.grooming.tindakan_dokter.length == 1) {
-            window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n=" + encodeURIComponent(this.props.grooming.tindakan_dokter[0])
-        }
-    }
+    // dokterClick() {
+    //     if (this.props.grooming.tindakan_dokter && this.props.grooming.tindakan_dokter.length > 1) {
+    //         window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number=" + encodeURIComponent(this.props.reception.register_number)
+    //     } else if (this.props.grooming.tindakan_dokter && this.props.grooming.tindakan_dokter.length == 1) {
+    //         window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n=" + encodeURIComponent(this.props.grooming.tindakan_dokter[0])
+    //     }
+    // }
 
     render() {
         var panel_style = { background: '#fff', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)' }
@@ -869,10 +876,17 @@ class FormGrooming extends React.Component {
         var grooming = this.props.grooming
         var pet_owner = this.props.pet_owner
         var cursor = { cursor: 'pointer' }
-        var link_pemilik = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pemilik')} style={cursor} />
-        var link_pasien = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pasien')} style={cursor} />
-        var link_penerimaan = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('penerimaan')} style={cursor} />
-        var link_dokter = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.dokterClick()} style={cursor} />
+        var link_pemilik = <a href={'/main/penerimaan/data-pemilik/edit?n=' + this.props.grooming.pet_owner}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor} /></a>
+        var link_pasien = <a href={'/main/penerimaan/data-pasien/edit?n=' + this.props.grooming.pet}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor} /></a>
+        var link_penerimaan = <a href={'/main/penerimaan/penerimaan-pasien/detail?n=' + this.props.grooming.reception}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor} /></a>
+
+        var dcHref = ''
+        if (this.props.grooming.tindakan_dokter && this.props.grooming.tindakan_dokter.length > 1) {
+            dcHref = "/main/dokter-dan-jasa/tindakan-dokter?register_number=" + encodeURIComponent(this.props.reception.register_number)
+        } else if (this.props.grooming.tindakan_dokter && this.props.grooming.tindakan_dokter.length == 1) {
+            dcHref = "/main/dokter-dan-jasa/tindakan-dokter/edit?n=" + encodeURIComponent(this.props.grooming.tindakan_dokter[0])
+        }
+        var link_dokter = <a href={dcHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor} /></a>
 
         var inputUser = <span className="fs16 px-2" id="owner">{frappe.session.user}{link_dokter}</span>
 
@@ -1061,13 +1075,13 @@ class Jasa extends React.Component {
 }
 
 class GroomingProductList extends React.Component {
-    dokterClick() {
-        if (this.props.tindakan_dokter && this.props.tindakan_dokter.length > 1) {
-            window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number=" + encodeURIComponent(this.props.register_number)
-        } else if (this.props.tindakan_dokter && this.props.tindakan_dokter.length == 1) {
-            window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n=" + encodeURIComponent(this.props.tindakan_dokter[0])
-        }
-    }
+    // dokterClick() {
+    //     if (this.props.tindakan_dokter && this.props.tindakan_dokter.length > 1) {
+    //         window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number=" + encodeURIComponent(this.props.register_number)
+    //     } else if (this.props.tindakan_dokter && this.props.tindakan_dokter.length == 1) {
+    //         window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n=" + encodeURIComponent(this.props.tindakan_dokter[0])
+    //     }
+    // }
 
     render() {
         var panel_style = { background: '#D2EEFF', padding: '10px 20px', color: '#056EAD' }
@@ -1081,8 +1095,15 @@ class GroomingProductList extends React.Component {
         var link_dokter
 
         if (mode == 'Detail' || ['Checked', 'Done'].includes(status)) {
+            var dcHref = ''
+            if (this.props.tindakan_dokter && this.props.tindakan_dokter.length > 1) {
+                dcHref = "/main/dokter-dan-jasa/tindakan-dokter?register_number=" + encodeURIComponent(this.props.register_number)
+            } else if (this.props.tindakan_dokter && this.props.tindakan_dokter.length == 1) {
+                dcHref = "/main/dokter-dan-jasa/tindakan-dokter/edit?n=" + encodeURIComponent(this.props.tindakan_dokter[0])
+            }
+
             product_name = <span className="fs14">{product.product_name}</span>
-            link_dokter = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.dokterClick()} style={cursor} />
+            link_dokter = <a href={dcHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor} /></a>
         } else if (mode == 'Edit' && status == 'Draft') {
             var option_product = [];
 

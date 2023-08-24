@@ -232,9 +232,9 @@ class Adjustment extends React.Component {
     //     this.setState({edit_mode: !this.state.edit_mode})
     // }
     
-    goToJournalEntries(){
-        window.location.href = '/main/accounting/journal-entries?reference=' + this.state.data.name
-    }
+    // goToJournalEntries(){
+    //     window.location.href = '/main/accounting/journal-entries?reference=' + this.state.data.name
+    // }
     
     printPDF() {
         var pdfid = 'pdf'
@@ -335,10 +335,10 @@ class Adjustment extends React.Component {
         	    }
         	    var cursor = {cursor: 'pointer'}
         	    headerButton = <div className="row mx-0 flex-row-reverse" style={rowMinHeight}>
-        	                        <div className="col-auto mx-auto" style={cursor} onClick={() => this.goToJournalEntries()}>
+        	                        <a href={'/main/accounting/journal-entries?reference=' + this.state.data.name} className="col-auto mx-auto" style={cursor} >
                 			            <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/journal_entries.png"/>
                 			            <p className="mb-0 fs12 text-muted text-center">Journal Entries</p>
-                			        </div>
+                			        </a>
                 			        {print_button}
 			            			{backButton}
 			            		</div>

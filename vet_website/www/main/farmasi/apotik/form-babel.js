@@ -469,18 +469,18 @@ class Apotik extends React.Component {
     	this.setState({'apotik_obat_wide': !this.state.apotik_obat_wide})
     }
     
-    customerInvoiceClick(){
-    	var apotik = this.state.data.apotik
-        if(apotik.customer_invoice && apotik.customer_invoice.length > 1){
-        	if(apotik.register_number){
-        		window.location.href = '/main/kasir/customer-invoices?register_number='+encodeURIComponent(apotik.register_number)
-        	} else {
-        		window.location.href = '/main/kasir/customer-invoices?petAll='+encodeURIComponent(apotik.pet)
-        	}
-        } else if(apotik.customer_invoice && apotik.customer_invoice.length == 1) {
-            window.location.href = '/main/kasir/customer-invoices/edit?n='+encodeURIComponent(apotik.customer_invoice[0])
-        }
-    }
+    // customerInvoiceClick(){
+    // 	var apotik = this.state.data.apotik
+    //     if(apotik.customer_invoice && apotik.customer_invoice.length > 1){
+    //     	if(apotik.register_number){
+    //     		window.location.href = '/main/kasir/customer-invoices?register_number='+encodeURIComponent(apotik.register_number)
+    //     	} else {
+    //     		window.location.href = '/main/kasir/customer-invoices?petAll='+encodeURIComponent(apotik.pet)
+    //     	}
+    //     } else if(apotik.customer_invoice && apotik.customer_invoice.length == 1) {
+    //         window.location.href = '/main/kasir/customer-invoices/edit?n='+encodeURIComponent(apotik.customer_invoice[0])
+    //     }
+    // }
     
     render() {
         var bgstyle = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '2px 32px', marginBottom: '15px'}
@@ -537,15 +537,26 @@ class Apotik extends React.Component {
 			            			{backButton}
 			            		</div>
         	} else {
+				var ciHref = ''
+				var apotik = this.state.data.apotik
+				if(apotik.customer_invoice && apotik.customer_invoice.length > 1){
+					if(apotik.register_number){
+						ciHref = '/main/kasir/customer-invoices?register_number='+encodeURIComponent(apotik.register_number)
+					} else {
+						ciHref = '/main/kasir/customer-invoices?petAll='+encodeURIComponent(apotik.pet)
+					}
+				} else if(apotik.customer_invoice && apotik.customer_invoice.length == 1) {
+					ciHref = '/main/kasir/customer-invoices/edit?n='+encodeURIComponent(apotik.customer_invoice[0])
+				}
         		var customer_invoice = (
-        			<div className="col-auto mr-auto" style={cursor} onClick={() => this.customerInvoiceClick()}>
+        			<a href={ciHref} className="col-auto mr-auto" style={cursor}>
 		                <div className="row mx-0">
 		                    <div className="col-auto px-3">
 		                        <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/cashier.png"/>
 		                        <p className="mb-0 fs12 text-muted text-center">Customer Invoice</p>
 		                    </div>
 		                </div>
-		            </div>
+		            </a>
         		)
         		
         		headerButton = <div className="row mx-0 flex-row-reverse" style={rowMinHeight}>
@@ -607,23 +618,23 @@ class Apotik extends React.Component {
 }
 
 class ApotikMainForm extends React.Component {
-	sourceClick(tipe){
-        if (tipe == 'penerimaan') {
-            window.location.href = '/main/penerimaan/penerimaan-pasien/detail?n=' + this.props.reception.name
-        } else if (tipe == 'pemilik') {
-            window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.reception.pet_owner.name
-        } else if (tipe == 'pasien') {
-            window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.reception.pet.name
-        }
-    }
+	// sourceClick(tipe){
+    //     if (tipe == 'penerimaan') {
+    //         window.location.href = '/main/penerimaan/penerimaan-pasien/detail?n=' + this.props.reception.name
+    //     } else if (tipe == 'pemilik') {
+    //         window.location.href = '/main/penerimaan/data-pemilik/edit?n=' + this.props.reception.pet_owner.name
+    //     } else if (tipe == 'pasien') {
+    //         window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.reception.pet.name
+    //     }
+    // }
     
-    dokterClick(){
-    	if(this.props.apotik.tindakan_dokter && this.props.apotik.tindakan_dokter.length > 1){
-            window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
-        } else if(this.props.apotik.tindakan_dokter && this.props.apotik.tindakan_dokter.length == 1){
-            window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.apotik.tindakan_dokter[0])
-        }
-    }
+    // dokterClick(){
+    // 	if(this.props.apotik.tindakan_dokter && this.props.apotik.tindakan_dokter.length > 1){
+    //         window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
+    //     } else if(this.props.apotik.tindakan_dokter && this.props.apotik.tindakan_dokter.length == 1){
+    //         window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.apotik.tindakan_dokter[0])
+    //     }
+    // }
     
     render() {
         var bgstyle2 = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
@@ -631,10 +642,17 @@ class ApotikMainForm extends React.Component {
         var reception = this.props.reception
         var inputCatatan, inputWarehouse, inputReception, inputRegisterNumber, inputDate, inputPet, inputPetOwner
         var cursor = {cursor: 'pointer'}
-        var link_pemilik = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pemilik')} style={cursor}/>
-        var link_pasien = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('pasien')} style={cursor}/>
-        var link_penerimaan = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.sourceClick('penerimaan')} style={cursor}/>
-        var link_dokter = <img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={() => this.dokterClick()} style={cursor}/>
+        var link_pemilik = <a href={'/main/penerimaan/data-pemilik/edit?n=' + this.props.reception.pet_owner.name}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+        var link_pasien = <a href={'/main/penerimaan/data-pasien/edit?n=' + this.props.reception.pet.name}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+        var link_penerimaan = <a href={'/main/penerimaan/penerimaan-pasien/detail?n=' + this.props.reception.name} ><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+
+		var diHref = ''
+		if(this.props.apotik.tindakan_dokter && this.props.apotik.tindakan_dokter.length > 1){
+            diHref = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
+        } else if(this.props.apotik.tindakan_dokter && this.props.apotik.tindakan_dokter.length == 1){
+            diHref = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.apotik.tindakan_dokter[0])
+        }
+        var link_dokter = <a href={diHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
         
         var warehouse_options = []
         this.props.warehouseAll.forEach((item, index) => warehouse_options.push(<option value={item.gudang_name} key={index.toString()} />))

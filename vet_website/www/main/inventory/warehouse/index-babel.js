@@ -403,18 +403,18 @@ class WarehouseGridCol extends React.Component {
                     <div className="col-12 my-auto">
                         <div className="row">
                             <div className="col-3 px-2">
-                                <div style={cursor} onClick={(e) => this.goToPage(e, 'receipts')}>
+                                <a href={'/main/inventory/operation?receipts=' + encodeURIComponent(this.props.item.name)} style={cursor}>
                                     {receipts_counter}
                                     <img src="/static/img/main/menu/receipts.png" className="img img-fluid" />
                                     <span className="fs10 d-block mt-2">Receipts</span>
-                                </div>
+                                </a>
                             </div>
                             <div className="col-3 px-2" style={border_right}>
-                                <div style={cursor} onClick={(e) => this.goToPage(e, 'delivery_orders')}>
+                                <a href={'/main/inventory/operation?delivery_orders=' + encodeURIComponent(this.props.item.name)} style={cursor}>
                                     {delivery_orders_counter}
                                     <img src="/static/img/main/menu/delivery-orders.png" className="img img-fluid" />
                                     <span className="fs10 d-block mt-2">Delivery Orders</span>
-                                </div>
+                                </a>
                             </div>
                             <div className="col-3 px-2" style={border_left}>
                                 <div style={cursor}>
@@ -423,10 +423,10 @@ class WarehouseGridCol extends React.Component {
                                 </div>
                             </div>
                             <div className="col-3 px-2">
-                                <div style={cursor} onClick={() => window.location.href = "/main/inventory/inventory?gudang=" + item.name}>
+                                <a style={cursor} href={"/main/inventory/inventory?gudang=" + item.name}>
                                     <img src="/static/img/main/menu/inventory.png" className="img img-fluid" />
                                     <span className="fs10 d-block mt-2">Inventory</span>
-                                </div>
+                                </a>
                             </div>
                         </div>
                     </div>

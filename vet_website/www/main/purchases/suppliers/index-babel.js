@@ -324,17 +324,17 @@ class SupplierGrid extends React.Component {
 }
 
 class SupplierGridCol extends React.Component {
-    clickRow() {
-        var pathname = "/main/purchases/suppliers/edit?n=" + this.props.item.name
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/purchases/suppliers/edit?n=" + this.props.item.name
+    //     window.location = pathname
+    // }
 
-    goToCredit(e, mode) {
-        e.preventDefault()
-        mode == 'debt' ? window.location.href = '/main/purchases/hutang?n=' + encodeURIComponent(this.props.item.name) :
-            mode == 'credit' ? window.location.href = '/main/purchases/deposit?n=' + encodeURIComponent(this.props.item.name) :
-                false
-    }
+    // goToCredit(e, mode) {
+    //     e.preventDefault()
+    //     mode == 'debt' ? window.location.href = '/main/purchases/hutang?n=' + encodeURIComponent(this.props.item.name) :
+    //         mode == 'credit' ? window.location.href = '/main/purchases/deposit?n=' + encodeURIComponent(this.props.item.name) :
+    //             false
+    // }
 
     render() {
         var panel_style = { height: '100%', minHeight: '215px', background: '#FFFFFF', color: '#056EAD', boxShadow: '0px 10px 40px rgba(0, 0, 0, 0.1)', borderRadius: '18px' }
@@ -358,7 +358,7 @@ class SupplierGridCol extends React.Component {
                 <div style={panel_style} className="text-center p-4 row mx-0">
                     <div className="col-12 mb-auto pb-4 d-flex text-truncate">
                         <input type="checkbox" className="my-auto mr-auto" checked={checked} onChange={this.props.checkRow} />
-                        <span className="fs16 fwbold text-uppercase mr-auto" title={item.supplier_name} style={cursor} onClick={() => this.clickRow()}>{item.supplier_name}</span>
+                        <a href={"/main/purchases/suppliers/edit?n=" + this.props.item.name}><span className="fs16 fwbold text-uppercase mr-auto" title={item.supplier_name} style={cursor} >{item.supplier_name}</span></a>
                     </div>
                     <div className="col-12 my-auto">
                         <div className="row">
@@ -377,14 +377,14 @@ class SupplierGridCol extends React.Component {
                                     </div>
                                 </div>
                                 <div className="row text-left mb-2">
-                                    <div className="col-auto fs14" onClick={e => this.goToCredit(e, 'credit')} style={cursor}>
+                                    <a className="col-auto fs14" href={'/main/purchases/deposit?n=' + encodeURIComponent(this.props.item.name)} style={cursor}>
                                         {'Deposit : ' + formatter.format(item.credit)}
-                                    </div>
+                                    </a>
                                 </div>
                                 <div className="row text-left mb-2">
-                                    <div className="col-auto fs14" onClick={e => this.goToCredit(e, 'debt')} style={cursor}>
+                                    <a className="col-auto fs14" href={'/main/purchases/hutang?n=' + encodeURIComponent(this.props.item.name)} style={cursor}>
                                         {'Hutang : ' + formatter.format(item.debt)}
-                                    </div>
+                                    </a>
                                 </div>
                                 <div className="row text-left mb-2">
                                     <div className="col-auto fs14 text-uppercase">

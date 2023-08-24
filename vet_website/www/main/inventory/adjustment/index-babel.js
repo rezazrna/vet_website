@@ -298,10 +298,10 @@ class AdjustmentList extends React.Component {
 }
 
 class AdjustmentListRow extends React.Component {
-    clickRow() {
-        var pathname = "/main/inventory/adjustment/edit?n=" + this.props.item.name
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/inventory/adjustment/edit?n=" + this.props.item.name
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -317,7 +317,7 @@ class AdjustmentListRow extends React.Component {
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list" onClick={() => this.clickRow()}>
+                <a href={"/main/inventory/adjustment/edit?n=" + this.props.item.name} className="col row-list">
                     <div className="row mx-0 fs12 fw600">
                         <div className="col d-flex">
                             <span className="my-auto">{formatter.format(item.adjustment_value || 0)}</span>
@@ -329,7 +329,7 @@ class AdjustmentListRow extends React.Component {
                             <span className="my-auto ml-auto">{item.status}</span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }

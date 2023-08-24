@@ -346,19 +346,19 @@ class InstalasiMedisList extends React.Component {
 }
 
 class InstalasiMedisListRow extends React.Component {
-    clickRow() {
-        var type
-        var item = this.props.item
+    // clickRow() {
+    //     var type
+    //     var item = this.props.item
 
-        if (['Draft', 'Checked'].includes(item.status)) {
-            type = 'edit'
-        } else {
-            type = 'detail'
-        }
+    //     if (['Draft', 'Checked'].includes(item.status)) {
+    //         type = 'edit'
+    //     } else {
+    //         type = 'detail'
+    //     }
 
-        var pathname = "/main/dokter-dan-jasa/instalasi-medis/" + type + "?n=" + item.name
-        window.location = pathname
-    }
+    //     var pathname = "/main/dokter-dan-jasa/instalasi-medis/" + type + "?n=" + item.name
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -378,12 +378,23 @@ class InstalasiMedisListRow extends React.Component {
             statusClass = 'bg-secondary'
         }
 
+        var type
+        var item = this.props.item
+
+        if (['Draft', 'Checked'].includes(item.status)) {
+            type = 'edit'
+        } else {
+            type = 'detail'
+        }
+
+        var pathname = "/main/dokter-dan-jasa/instalasi-medis/" + type + "?n=" + item.name
+
         return (
             <div className="row mx-0">
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                <a href={pathname} className="col row-list row-list-link">
                     <div className="row mx-0 fs12 fw600">
                         <div className="col d-flex">
                             <span className="m-auto text-center">{moment(item.date).format("DD-MM-YYYY")}</span>
@@ -412,7 +423,7 @@ class InstalasiMedisListRow extends React.Component {
                             </span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }

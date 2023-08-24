@@ -850,25 +850,25 @@ class PenerimaanPasien extends React.Component {
         }
     }
     
-    customerInvoiceClick(){
-        if(this.state.new_reception.customer_invoice && this.state.new_reception.customer_invoice.length > 1){
-            window.location.href = '/main/kasir/customer-invoices?register_number='+encodeURIComponent(this.state.new_reception.register_number)
-        } else if(this.state.new_reception.customer_invoice && this.state.new_reception.customer_invoice.length == 1) {
-            window.location.href = '/main/kasir/customer-invoices/edit?n='+encodeURIComponent(this.state.new_reception.customer_invoice[0])
-        } else {
-            frappe.msgprint('Belum ada Transaksi')
-        }
-    }
+    // customerInvoiceClick(){
+    //     if(this.state.new_reception.customer_invoice && this.state.new_reception.customer_invoice.length > 1){
+    //         window.location.href = '/main/kasir/customer-invoices?register_number='+encodeURIComponent(this.state.new_reception.register_number)
+    //     } else if(this.state.new_reception.customer_invoice && this.state.new_reception.customer_invoice.length == 1) {
+    //         window.location.href = '/main/kasir/customer-invoices/edit?n='+encodeURIComponent(this.state.new_reception.customer_invoice[0])
+    //     } else {
+    //         frappe.msgprint('Belum ada Transaksi')
+    //     }
+    // }
     
-    rawatInapInvoiceClick(){
-        if(this.state.new_reception.rawat_inap_invoice && this.state.new_reception.rawat_inap_invoice.length > 1){
-            window.location.href = '/main/kasir/rawat-inap-invoices?register_number='+encodeURIComponent(this.state.new_reception.register_number)
-        } else if(this.state.new_reception.rawat_inap_invoice && this.state.new_reception.rawat_inap_invoice.length == 1) {
-            window.location.href = '/main/kasir/rawat-inap-invoices/edit?n='+encodeURIComponent(this.state.new_reception.rawat_inap_invoice[0])
-        } else {
-            frappe.msgprint('Belum ada Transaksi')
-        }
-    }
+    // rawatInapInvoiceClick(){
+    //     if(this.state.new_reception.rawat_inap_invoice && this.state.new_reception.rawat_inap_invoice.length > 1){
+    //         window.location.href = '/main/kasir/rawat-inap-invoices?register_number='+encodeURIComponent(this.state.new_reception.register_number)
+    //     } else if(this.state.new_reception.rawat_inap_invoice && this.state.new_reception.rawat_inap_invoice.length == 1) {
+    //         window.location.href = '/main/kasir/rawat-inap-invoices/edit?n='+encodeURIComponent(this.state.new_reception.rawat_inap_invoice[0])
+    //     } else {
+    //         frappe.msgprint('Belum ada Transaksi')
+    //     }
+    // }
     
     render() {
         var write = checkPermission('VetPetOwner', this.state.currentUser, 'write')
@@ -967,27 +967,41 @@ class PenerimaanPasien extends React.Component {
                                         </div>
                                     </div>
                                 </div>
+
+        var ciHref = ''
+        if(this.state.new_reception.customer_invoice && this.state.new_reception.customer_invoice.length > 1){
+            ciHref = '/main/kasir/customer-invoices?register_number='+encodeURIComponent(this.state.new_reception.register_number)
+        } else if(this.state.new_reception.customer_invoice && this.state.new_reception.customer_invoice.length == 1) {
+            ciHref = '/main/kasir/customer-invoices/edit?n='+encodeURIComponent(this.state.new_reception.customer_invoice[0])
+        }
         
         var customer_invoice = (
-            <div className="col-auto" style={cursor} onClick={() => this.customerInvoiceClick()}>
+            <a href={ciHref} className="col-auto" style={cursor}>
                 <div className="row mx-0">
                     <div className="col-auto px-3">
                         <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/cashier.png"/>
                         <p className="mb-0 fs12 text-muted text-center">Customer Invoice</p>
                     </div>
                 </div>
-            </div>
+            </a>
         )
+
+        var riHref = ''
+        if(this.state.new_reception.rawat_inap_invoice && this.state.new_reception.rawat_inap_invoice.length > 1){
+            riHref = '/main/kasir/rawat-inap-invoices?register_number='+encodeURIComponent(this.state.new_reception.register_number)
+        } else if(this.state.new_reception.rawat_inap_invoice && this.state.new_reception.rawat_inap_invoice.length == 1) {
+            riHref = '/main/kasir/rawat-inap-invoices/edit?n='+encodeURIComponent(this.state.new_reception.rawat_inap_invoice[0])
+        }
         
         var rawat_inap_invoice = (
-            <div className="col-auto" style={cursor} onClick={() => this.rawatInapInvoiceClick()}>
+            <a href={riHref} className="col-auto" style={cursor}>
                 <div className="row mx-0">
                     <div className="col-auto px-3">
                         <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/cashier.png"/>
                         <p className="mb-0 fs12 text-muted text-center">Rawat Inap Invoice</p>
                     </div>
                 </div>
-            </div>
+            </a>
         )
         
         if (mode == 'New') {
@@ -1309,9 +1323,9 @@ class DataPemilik extends React.Component {
             inputNo = <span className="fs16 px-2">{newOwner.phone}</span>
             inputEmail = <span className="fs16 px-2">{newOwner.email}</span>
             inputAlamat = <div className="row mx-0"><span className="fs16 px-2">{newOwner.address}</span></div>
-            tautan = <div style={cursor} onClick={() => window.location.href = "/main/penerimaan/data-pemilik/edit?n="+newOwner.name}>
+            tautan = <a style={cursor} href={"/main/penerimaan/data-pemilik/edit?n="+newOwner.name}>
 					    <img className="d-block m-auto" src="/static/img/main/menu/tautan.png"/>
-				    </div>
+				    </a>
 			inputTanggalLahir = <span className="fs16 px-2">{newOwner.tanggal_lahir}</span>
             inputTempatLahir = <span className="fs16 px-2">{newOwner.tempat_lahir}</span>
             inputJenisKelamin = <span className="fs16 px-2">{newOwner.jenis_kelamin}</span>
@@ -1529,22 +1543,22 @@ class DataPasien extends React.Component {
 }
 
 class DataPenerimaan extends React.Component {
-    serviceClick(){
-        if(this.props.reception.service_name == "Dokter"){
-            if(this.props.reception.tindakan_dokter && this.props.reception.tindakan_dokter.length > 1){
-                window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
-            } else if(this.props.reception.tindakan_dokter && this.props.reception.tindakan_dokter.length == 1){
-                window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.reception.tindakan_dokter[0])
-            }
+    // serviceClick(){
+    //     if(this.props.reception.service_name == "Dokter"){
+    //         if(this.props.reception.tindakan_dokter && this.props.reception.tindakan_dokter.length > 1){
+    //             window.location.href = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
+    //         } else if(this.props.reception.tindakan_dokter && this.props.reception.tindakan_dokter.length == 1){
+    //             window.location.href = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.reception.tindakan_dokter[0])
+    //         }
             
-        } else if (this.props.reception.service_name == "Grooming") {
-            if(this.props.reception.grooming && this.props.reception.grooming.length > 1){
-                window.location.href = "/main/dokter-dan-jasa/grooming?register_number="+encodeURIComponent(this.props.reception.register_number)
-            } else if(this.props.reception.grooming && this.props.reception.grooming.length == 1){
-                window.location.href = "/main/dokter-dan-jasa/grooming/edit?n="+encodeURIComponent(this.props.reception.grooming[0])
-            }
-        }
-    }
+    //     } else if (this.props.reception.service_name == "Grooming") {
+    //         if(this.props.reception.grooming && this.props.reception.grooming.length > 1){
+    //             window.location.href = "/main/dokter-dan-jasa/grooming?register_number="+encodeURIComponent(this.props.reception.register_number)
+    //         } else if(this.props.reception.grooming && this.props.reception.grooming.length == 1){
+    //             window.location.href = "/main/dokter-dan-jasa/grooming/edit?n="+encodeURIComponent(this.props.reception.grooming[0])
+    //         }
+    //     }
+    // }
     
     render() {
         var background_style = {background: '#fff', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
@@ -1602,8 +1616,24 @@ class DataPenerimaan extends React.Component {
 								<textarea id="description" name='description' className="form-control border-0 lightbg" rows="3" onChange={this.props.handleInputChange}></textarea>
 							</div>
         } else if (mode == 'Detail') {
+            var seHref = ''
+            if(this.props.reception.service_name == "Dokter"){
+                if(this.props.reception.tindakan_dokter && this.props.reception.tindakan_dokter.length > 1){
+                    seHref = "/main/dokter-dan-jasa/tindakan-dokter?register_number="+encodeURIComponent(this.props.reception.register_number)
+                } else if(this.props.reception.tindakan_dokter && this.props.reception.tindakan_dokter.length == 1){
+                    seHref = "/main/dokter-dan-jasa/tindakan-dokter/edit?n="+encodeURIComponent(this.props.reception.tindakan_dokter[0])
+                }
+                
+            } else if (this.props.reception.service_name == "Grooming") {
+                if(this.props.reception.grooming && this.props.reception.grooming.length > 1){
+                    seHref = "/main/dokter-dan-jasa/grooming?register_number="+encodeURIComponent(this.props.reception.register_number)
+                } else if(this.props.reception.grooming && this.props.reception.grooming.length == 1){
+                    seHref = "/main/dokter-dan-jasa/grooming/edit?n="+encodeURIComponent(this.props.reception.grooming[0])
+                }
+            }
+
             inputNoPendaftaran = <div className="row mx-0"><span className="fs16 px-2">{reception.register_number}</span></div>
-            inputLayanan = <div className="row mx-0"><span className="fs16 px-2">{reception.service_name}</span><span style={cursor} onClick={() => this.serviceClick()}><img src="/static/img/main/menu/tautan.png"/></span></div>
+            inputLayanan = <a href={seHref} className="row mx-0"><span className="fs16 px-2">{reception.service_name}</span><span style={cursor} ><img src="/static/img/main/menu/tautan.png"/></span></a>
             inputNoAntrian = <div className="row mx-0"><span className="fs16 px-2">{reception.queue}</span></div>
             inputDetailJasa = <div className="row mx-0"><span className="fs16 px-2">{reception.product_name}</span></div>
             inputTanggalPenerimaan = <div>

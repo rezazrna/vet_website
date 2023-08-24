@@ -152,9 +152,9 @@ class Asset extends React.Component {
         this.setState({data: data, popup_sell: false})
     }
     
-    goToJournalEntries(){
-        window.location.href = '/main/accounting/journal-entries?reference=' + this.state.data.name
-    }
+    // goToJournalEntries(){
+    //     window.location.href = '/main/accounting/journal-entries?reference=' + this.state.data.name
+    // }
     
     render() {
         var bgstyle = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '2px 32px', marginBottom: '15px'}
@@ -187,18 +187,18 @@ class Asset extends React.Component {
         	    headerButton = <div className="row mx-0 flex-row-reverse" style={rowMinHeight}>
 			            			{write?<div className="col-auto my-auto"><button type="button" className="btn btn-sm btn-danger fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} onClick={this.toggleMode}>Edit</button></div>:false}
 			            			{sell_dispose?<div className="col-auto my-auto"><button type="button" className="btn btn-sm btn-success fs12 text-uppercase h-100 px-3 fwbold py-2" style={lh14} onClick={this.toggleSell}>Sell/Dispose</button></div>:false}
-			            			<div className="col-auto mr-auto" style={cursor} onClick={() => this.goToJournalEntries()}>
+			            			<a href={'/main/accounting/journal-entries?reference=' + this.state.data.name} className="col-auto mr-auto" style={cursor}>
                 			            <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/journal_entries.png"/>
                 			            <p className="mb-0 fs12 text-muted text-center">Journal Entries</p>
-                			        </div>
+                			        </a>
 			            			{backButton}
 			            		</div>
         	} else {
         	    headerButton = <div className="row mx-0 flex-row-reverse" style={rowMinHeight}>
-        	                        <div className="col-auto mr-auto" style={cursor} onClick={() => this.goToJournalEntries()}>
+        	                        <a href={'/main/accounting/journal-entries?reference=' + this.state.data.name} className="col-auto mr-auto" style={cursor}>
                 			            <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/journal_entries.png"/>
                 			            <p className="mb-0 fs12 text-muted text-center">Journal Entries</p>
-                			        </div>
+                			        </a>
 			            			{backButton}
 			            		</div>
         	}

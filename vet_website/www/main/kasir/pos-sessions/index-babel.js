@@ -481,25 +481,25 @@ class PosSessionsListRow extends React.Component {
         this.setState({ showCloseConfirmation: !this.state.showCloseConfirmation })
     }
 
-    goToOrder() {
-        var pathname = "/main/kasir/pos-order?session=" + this.props.session.name
-        window.location = pathname
-    }
+    // goToOrder() {
+    //     var pathname = "/main/kasir/pos-order?session=" + this.props.session.name
+    //     window.location = pathname
+    // }
 
-    goToCustomerInvoice() {
-        var pathname = "/main/kasir/customer-invoices?session=" + this.props.session.name
-        window.location = pathname
-    }
+    // goToCustomerInvoice() {
+    //     var pathname = "/main/kasir/customer-invoices?session=" + this.props.session.name
+    //     window.location = pathname
+    // }
 
-    goToRawatInapInvoice() {
-        var pathname = "/main/kasir/rawat-inap-invoices?session=" + this.props.session.name
-        window.location = pathname
-    }
+    // goToRawatInapInvoice() {
+    //     var pathname = "/main/kasir/rawat-inap-invoices?session=" + this.props.session.name
+    //     window.location = pathname
+    // }
 
-    goToPayment() {
-        var pathname = "/main/kasir/customer-payments?session=" + this.props.session.name
-        window.location = pathname
-    }
+    // goToPayment() {
+    //     var pathname = "/main/kasir/customer-payments?session=" + this.props.session.name
+    //     window.location = pathname
+    // }
 
     printPDF() {
         var pdfid = 'pdf' + this.props.session.name
@@ -600,14 +600,14 @@ class PosSessionsListRow extends React.Component {
             var customer_invoice_button = (
                 <div className="row">
                     <div className="col-12">
-                        <button className="btn text-center fs14 py-2 px-0" style={styles.btnMain} onClick={() => this.goToCustomerInvoice()}>Customer Invoice</button>
+                        <a href={"/main/kasir/customer-invoices?session=" + this.props.session.name}><button className="btn text-center fs14 py-2 px-0" style={styles.btnMain} >Customer Invoice</button></a>
                     </div>
                 </div>
             )
             var rawat_inap_invoice_button = (
                 <div className="row">
                     <div className="col-12">
-                        <button className="btn text-center fs14 py-2 px-0" style={styles.btnMain} onClick={() => this.goToRawatInapInvoice()}>Rawat Inap Invoice</button>
+                        <a href={"/main/kasir/rawat-inap-invoices?session=" + this.props.session.name}><button className="btn text-center fs14 py-2 px-0" style={styles.btnMain}>Rawat Inap Invoice</button></a>
                     </div>
                 </div>
             )
@@ -620,10 +620,10 @@ class PosSessionsListRow extends React.Component {
                         <div className="col-12">
                             <div className="row">
                                 <div className="col pr-2">
-                                    <button className="btn text-center fs14 py-2 px-0" style={styles.btnMain} onClick={() => this.goToOrder()}>Order</button>
+                                    <a href={"/main/kasir/pos-order?session=" + this.props.session.name}><button className="btn text-center fs14 py-2 px-0" style={styles.btnMain}>Order</button></a>
                                 </div>
                                 <div className="col pl-2">
-                                    <button className="btn text-center fs14 py-2 px-0" style={styles.btnMain} onClick={() => this.goToPayment()}>Payment</button>
+                                    <a href={"/main/kasir/customer-payments?session=" + this.props.session.name}><button className="btn text-center fs14 py-2 px-0" style={styles.btnMain} >Payment</button></a>
                                 </div>
                             </div>
                             <div className="mt-2">

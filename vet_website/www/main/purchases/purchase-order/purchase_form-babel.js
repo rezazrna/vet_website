@@ -408,9 +408,9 @@ class PurchaseOrder extends React.Component {
         this.setState({data: new_data})
     }
     
-    goToJournalEntries(){
-        window.location.href = '/main/accounting/journal-entries?reference=' + this.state.data.name
-    }
+    // goToJournalEntries(){
+    //     window.location.href = '/main/accounting/journal-entries?reference=' + this.state.data.name
+    // }
     
     refundPurchase(e) {
         e.preventDefault()
@@ -590,10 +590,10 @@ class PurchaseOrder extends React.Component {
         	} else if (['Purchase Order', 'Receive', 'Paid', 'Cancel', 'Refund', 'Done'].includes(data.status)) {
         	    var receive_button, pay_button, refundButton
         	    var cursor = {cursor: 'pointer'}
-        	    journal_entries = <div className="col-auto mr-auto" style={cursor} onClick={() => this.goToJournalEntries()}>
+        	    journal_entries = <a className="col-auto mr-auto" style={cursor} href={'/main/accounting/journal-entries?reference=' + this.state.data.name}>
                 			            <img className="d-block mx-auto mt-2 header-icon" src="/static/img/main/menu/journal_entries.png"/>
                 			            <p className="mb-0 fs12 text-muted text-center">Journal Entries</p>
-                			        </div>
+                			        </a>
         	    if(data.status == 'Purchase Order'){
         	        if(receive){
         	            receive_button = <div className="col-auto my-auto">

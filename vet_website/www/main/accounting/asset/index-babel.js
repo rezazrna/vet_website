@@ -307,10 +307,10 @@ class AssetList extends React.Component {
 }
 
 class AssetListRow extends React.Component {
-    clickRow() {
-        var pathname = "/main/accounting/asset/edit?n=" + this.props.item.name
-        window.location = pathname
-    }
+    // clickRow() {
+    //     var pathname = "/main/accounting/asset/edit?n=" + this.props.item.name
+    //     window.location = pathname
+    // }
 
     render() {
         var checked = false
@@ -324,7 +324,7 @@ class AssetListRow extends React.Component {
                 <div className="col-auto pl-2 pr-3">
                     <input type="checkbox" className="d-block my-3" checked={checked} onChange={this.props.checkRow} />
                 </div>
-                <div className="col row-list row-list-link" onClick={() => this.clickRow()}>
+                <a href={"/main/accounting/asset/edit?n=" + this.props.item.name} className="col row-list row-list-link">
                     <div className="row mx-0 fs12 fw600">
                         <div className="col-4 d-flex">
                             <span className="my-auto">{item.asset_name}</span>
@@ -339,7 +339,7 @@ class AssetListRow extends React.Component {
                             <span className="my-auto">{item.status}</span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         )
     }
