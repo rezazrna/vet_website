@@ -108,9 +108,6 @@ class TypeOfAnimals extends React.Component {
     }
     
     render(){
-        var type_options = []
-        this.state.data.forEach(d => !type_options.map(o => o.value).includes(d.type_name.split('/')[0])?type_options.push({label: d.type_name.split('/')[0], value: d.type_name.split('/')[0]}):false)
-        
         var sorts = [
     					{'label': 'Jenis Hewan DESC', 'value': 'type desc'},
     					{'label': 'Jenis Hewan ASC', 'value': 'type asc'},
@@ -119,7 +116,6 @@ class TypeOfAnimals extends React.Component {
 					]
 					
 		var field_list = [
-		                {'label': 'Jenis Hewan', 'field': 'type', 'type': 'select', 'options': type_options},
 		                {'label': 'Ras Hewan', 'field': 'race', 'type': 'char'},
 		            ]
 		            

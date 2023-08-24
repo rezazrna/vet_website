@@ -64,7 +64,10 @@ def get_rekam_medis_list(filters=None, no_pagination=False):
 			datalength = len(frappe.get_all("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, as_list=True))
 		for r in rekam_medis:
 			r['diagnose_name'] = r['diagnosa_utama']
-		return {'rekam_medis': rekam_medis, 'datalength': datalength}
+
+		service_list = frappe.get_list("VetService", fields=["name","service_name"])
+
+		return {'rekam_medis': rekam_medis, 'datalength': datalength, 'service_list': service_list}
 		
 	except PermissionError as e:
 		return {'error': e}

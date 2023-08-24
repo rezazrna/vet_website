@@ -11,6 +11,7 @@ class Reception extends React.Component {
             'currentpage': 1,
             'search': false,
             'datalength': 0,
+            'service_list': []
         }
 
         this.receptionSearch = this.receptionSearch.bind(this);
@@ -61,7 +62,7 @@ class Reception extends React.Component {
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({ 'data': r.message.reception, 'loaded': true, 'datalength': r.message.datalength });
+                        po.setState({ 'data': r.message.reception, 'loaded': true, 'datalength': r.message.datalength, 'service_list': r.message.service_list });
                     }
                 }
             });
@@ -102,7 +103,7 @@ class Reception extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.reception, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.reception, 'loaded': true, 'datalength': r.message.datalength, 'service_list': r.message.service_list });
                 }
             }
         });
@@ -138,7 +139,7 @@ class Reception extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.reception, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.reception, 'loaded': true, 'datalength': r.message.datalength, 'service_list': r.message.service_list });
                 }
             }
         });
@@ -210,7 +211,9 @@ class Reception extends React.Component {
 
     render() {
         var service_options = []
-        this.state.data.forEach(d => !service_options.map(s => s.value).includes(d.service.name) ? service_options.push({ label: d.service.service_name, value: d.service.name }) : false)
+        this.state.service_list.forEach(function (item) {
+            service_options.push({'label': item.service_name, 'value': item.name})
+        })
 
         var sorts = [
             { 'label': 'Tanggal Pendaftaran DESC', 'value': 'reception_date desc' },

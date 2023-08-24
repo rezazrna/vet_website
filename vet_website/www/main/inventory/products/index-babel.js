@@ -9,6 +9,7 @@ class Products extends React.Component {
             'currentpage': 1,
             'search': false,
             'datalength': 0,
+            'category_list': [],
         }
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -41,7 +42,7 @@ class Products extends React.Component {
             callback: function (r) {
                 console.log(r.message)
                 if (r.message) {
-                    td.setState({ 'data': r.message.product, 'loaded': true, 'datalength': r.message.datalength });
+                    td.setState({ 'data': r.message.product, 'loaded': true, 'datalength': r.message.datalength, 'category_list': r.message.category_list });
                 }
             }
         });
@@ -69,7 +70,7 @@ class Products extends React.Component {
             callback: function (r) {
                 console.log(r.message)
                 if (r.message) {
-                    po.setState({ 'data': r.message.product, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.product, 'loaded': true, 'datalength': r.message.datalength, 'category_list': r.message.category_list });
                 }
             }
         });
@@ -93,7 +94,7 @@ class Products extends React.Component {
             args: { filters: filters },
             callback: function (r) {
                 if (r.message) {
-                    po.setState({ 'data': r.message.product, 'datalength': r.message.datalength, 'loaded': true });
+                    po.setState({ 'data': r.message.product, 'datalength': r.message.datalength, 'loaded': true, 'category_list': r.message.category_list });
                 }
             }
         });
@@ -195,7 +196,9 @@ class Products extends React.Component {
 
     render() {
         var category_options = []
-        this.state.data.forEach(d => !category_options.map(o => o.value).includes(d.category_name) ? category_options.push({ label: d.category_name, value: d.category_name }) : false)
+        this.state.category_list.forEach(function (item) {
+            category_options.push({'label': item.name, 'value': item.name})
+        })
 
         var sorts = [
             { 'label': 'Product DESC', 'value': 'product_name desc' },

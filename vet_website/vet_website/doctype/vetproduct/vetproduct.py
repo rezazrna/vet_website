@@ -117,8 +117,10 @@ def get_product_list(filters=None):
 			sales_name_map = map(lambda x: x.parent, salesproduct)
 			sales_number = frappe.get_list("VetCustomerInvoice", filters={'name': ['in', list(sales_name_map)]}, fields=["name"])
 			p.update({'uom_name': uom_name, 'tags': tags, 'quantity': sum(q.quantity for q in quantity), 'purchase_number': len(purchase_number), 'sales_number': len(sales_number)})
+
+		category_list = frappe.get_all("VetProductCategory")
 			
-		return {'product': product_list, 'datalength': datalength}
+		return {'product': product_list, 'datalength': datalength, 'category_list': category_list}
 		
 	except PermissionError as e:
 		return {'error': e}

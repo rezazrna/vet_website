@@ -409,8 +409,14 @@ class CustomerInvoice extends React.Component {
     }
 
     render() {
-        var status_options = []
-        this.state.data.forEach(d => !status_options.map(o => o.value).includes(d.status) ? status_options.push({ label: d.status, value: d.status }) : false)
+        var status_options = [
+            { label: 'Draft', value: 'Draft' },
+            { label: 'Open', value: 'Open' },
+            { label: 'Paid', value: 'Paid' },
+            { label: 'Refund', value: 'Refund' },
+            { label: 'Cancel', value: 'Cancel' },
+            { label: 'Done', value: 'Done' },
+        ]
 
         var sorts = [
             { 'label': 'ID DESC', 'value': 'name desc' },

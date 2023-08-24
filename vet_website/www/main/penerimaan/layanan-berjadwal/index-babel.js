@@ -12,6 +12,7 @@ class ScheduledService extends React.Component {
             'currentpage': 1,
             'search': false,
             'datalength': 0,
+            'pet_type_list': []
         }
 
         this.scheduledSearch = this.scheduledSearch.bind(this);
@@ -62,7 +63,7 @@ class ScheduledService extends React.Component {
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({ 'data': r.message.scheduled, 'loaded': true, 'datalength': r.message.datalength });
+                        po.setState({ 'data': r.message.scheduled, 'loaded': true, 'datalength': r.message.datalength, 'pet_type_list': r.message.pet_type_list });
                     }
                 }
             });
@@ -88,7 +89,7 @@ class ScheduledService extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.scheduled, 'filter': true, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.scheduled, 'filter': true, 'loaded': true, 'datalength': r.message.datalength, 'pet_type_list': r.message.pet_type_list });
                 }
             }
         });
@@ -116,7 +117,7 @@ class ScheduledService extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.scheduled, 'filter': true, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.scheduled, 'filter': true, 'loaded': true, 'datalength': r.message.datalength, 'pet_type_list': r.message.pet_type_list });
                 }
             }
         });
@@ -189,9 +190,9 @@ class ScheduledService extends React.Component {
 
     render() {
         var pet_types = []
-        var service_options = []
-        this.state.data.forEach(d => !pet_types.map(t => t.value).includes(d.type_name) ? pet_types.push({ label: d.type_name, value: d.type_name }) : false)
-        this.state.data.forEach(d => !service_options.map(t => t.value).includes(d.service) ? service_options.push({ label: d.service, value: d.service }) : false)
+        this.state.pet_type_list.forEach(function (item) {
+            pet_types.push({'label': item.name, 'value': item.name})
+        })
 
         var sorts = [
             { 'label': 'NIP DESC', 'value': 'pet desc' },

@@ -133,8 +133,11 @@ def get_purchase_order_list(filters=None):
 		for fj in odd_filters:
 			result_filter = process_odd_filter(fj)
 			purchase = filter(result_filter, purchase)
+
+		meta = frappe.get_meta('VetPurchase')
+		df = meta.get('fields', {'fieldname': 'status'})[0]
 			
-		return {'purchase': purchase, 'datalength': datalength}
+		return {'purchase': purchase, 'datalength': datalength, 'status_list': df.get('options')}
 		
 	except PermissionError as e:
 		return {'error': e}

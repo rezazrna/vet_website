@@ -12,6 +12,7 @@ class PurchaseOrder extends React.Component {
             'currentpage': 1,
             'search': false,
             'datalength': 0,
+            'status_list': [],
         }
 
         this.purchaseSearch = this.purchaseSearch.bind(this);
@@ -59,7 +60,7 @@ class PurchaseOrder extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.purchase, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.purchase, 'loaded': true, 'datalength': r.message.datalength, 'status_list': r.message.status_list.split('\n') });
                 }
             }
         });
@@ -86,7 +87,7 @@ class PurchaseOrder extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.purchase, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.purchase, 'loaded': true, 'datalength': r.message.datalength, 'status_list': r.message.status_list.split('\n') });
                 }
             }
         });
@@ -111,7 +112,7 @@ class PurchaseOrder extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.purchase, 'filter': true, 'datalength': r.message.datalength, 'loaded': true });
+                    po.setState({ 'data': r.message.purchase, 'filter': true, 'datalength': r.message.datalength, 'loaded': true, 'status_list': r.message.status_list.split('\n') });
                 }
             }
         });
@@ -219,7 +220,10 @@ class PurchaseOrder extends React.Component {
 
     render() {
         var status_options = []
-        this.state.data.forEach(d => !status_options.map(o => o.value).includes(d.status) ? status_options.push({ label: d.status, value: d.status }) : false)
+        this.state.status_list.forEach(function (item) {
+            status_options.push({'label': item, 'value': item})
+        })
+
         var color = { color: '#056EAD', cursor: 'pointer' }
         var sorts = [
             { 'label': 'Tanggal DESC', 'value': 'order_date desc' },

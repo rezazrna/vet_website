@@ -220,8 +220,12 @@ class PaymentMethod extends React.Component {
 
     render() {
         var write = checkPermission('VetPaymentMethod', this.state.currentUser, 'write')
-        var type_options = []
-        this.state.data.forEach(d => !type_options.map(o => o.value).includes(d.method_type) ? type_options.push({ label: d.method_type, value: d.method_type }) : false)
+        var type_options = [
+            { label: 'Cash', value: 'Cash' },
+            { label: 'Card', value: 'Card' },
+            { label: 'Deposit Customer', value: 'Deposit Customer' },
+            { label: 'Deposit Supplier', value: 'Deposit Supplier' },
+        ]
 
         var sorts = [
             { 'label': 'Name DESC', 'value': 'method_name desc' },

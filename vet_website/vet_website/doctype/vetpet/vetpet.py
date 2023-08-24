@@ -98,8 +98,10 @@ def get_pet(filters=None):
 		if sort_filter != False:
 			pet.sort(key=sort_filter, reverse=sort_filter_reverse)
 		# pet = filter(result_filter, pet)
+
+		pet_type_list = frappe.get_all("VetPetType")
 		
-		return {'pet': pet, 'datalength': datalength}
+		return {'pet': pet, 'datalength': datalength, 'pet_type_list': pet_type_list}
 		
 	except PermissionError as e:
 		return {'error': e}

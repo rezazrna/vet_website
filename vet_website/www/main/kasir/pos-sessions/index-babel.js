@@ -303,8 +303,10 @@ class PosSessions extends React.Component {
     render() {
         var write = checkPermission('VetPosSessions', this.state.currentUser, 'write')
         console.log(this.state)
-        var status_options = []
-        this.state.data.forEach(d => !status_options.map(o => o.value).includes(d.status) ? status_options.push({ label: d.status, value: d.status }) : false)
+        var status_options = [
+            { label: 'In Progress', value: 'In Progress' },
+            { label: 'Closed & Posted', value: 'Closed & Posted' },
+        ]
 
         var sorts = [
             { 'label': 'Opening Session DESC', 'value': 'opening_session desc' },

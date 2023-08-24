@@ -46,6 +46,7 @@ class RekamMedis extends React.Component {
             'search': false,
             'datalength': 0,
             'noPagination': false,
+            'service_list': []
         }
 
         this.rekamMedisSearch = this.rekamMedisSearch.bind(this);
@@ -96,7 +97,7 @@ class RekamMedis extends React.Component {
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message);
-                        po.setState({ 'data': r.message.rekam_medis, 'loaded': true, 'datalength': r.message.datalength });
+                        po.setState({ 'data': r.message.rekam_medis, 'loaded': true, 'datalength': r.message.datalength, 'service_list': r.message.service_list });
                     }
                 }
             });
@@ -125,7 +126,7 @@ class RekamMedis extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.rekam_medis, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.rekam_medis, 'loaded': true, 'datalength': r.message.datalength, 'service_list': r.message.service_list });
                 }
             }
         });
@@ -154,7 +155,7 @@ class RekamMedis extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.rekam_medis, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.rekam_medis, 'loaded': true, 'datalength': r.message.datalength, 'service_list': r.message.service_list });
                 }
             }
         });
@@ -284,7 +285,9 @@ class RekamMedis extends React.Component {
 
     render() {
         var service_options = []
-        this.state.data.forEach(d => !service_options.map(o => o.value).includes(d.service) ? service_options.push({ label: d.service, value: d.service }) : false)
+        this.state.service_list.forEach(function (item) {
+            service_options.push({'label': item.service_name, 'value': item.name})
+        })
 
         var sorts = [
             { 'label': 'Tanggal Rekam Medis DESC', 'value': 'record_date desc' },

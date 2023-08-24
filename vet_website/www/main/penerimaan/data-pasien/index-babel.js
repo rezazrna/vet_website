@@ -14,6 +14,7 @@ class Pet extends React.Component {
             'search': false,
             'currentUser': {},
             'datalength': 0,
+            'pet_type_list': [],
         }
 
         this.petSearch = this.petSearch.bind(this);
@@ -61,7 +62,7 @@ class Pet extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.pet, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.pet, 'loaded': true, 'datalength': r.message.datalength, 'pet_type_list': r.message.pet_type_list });
                 }
             }
         });
@@ -88,7 +89,7 @@ class Pet extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.pet, 'loaded': true, 'datalength': r.message.datalength });
+                    po.setState({ 'data': r.message.pet, 'loaded': true, 'datalength': r.message.datalength, 'pet_type_list': r.message.pet_type_list });
                 }
             }
         });
@@ -113,7 +114,7 @@ class Pet extends React.Component {
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message);
-                    po.setState({ 'data': r.message.pet, 'datalength': r.message.datalength, 'loaded': true });
+                    po.setState({ 'data': r.message.pet, 'datalength': r.message.datalength, 'loaded': true, 'pet_type_list': r.message.pet_type_list });
                 }
             }
         });
@@ -242,7 +243,9 @@ class Pet extends React.Component {
 
     render() {
         var pet_types = []
-        this.state.data.forEach(d => !pet_types.map(t => t.value).includes(d.pet_type.type_name) ? pet_types.push({ label: d.pet_type.type_name, value: d.pet_type.type_name }) : false)
+        this.state.pet_type_list.forEach(function (item) {
+            pet_types.push({'label': item.name, 'value': item.name})
+        })
 
         var sorts = [
             { 'label': 'Tanggal Pendaftaran DESC', 'value': 'register_date desc' },

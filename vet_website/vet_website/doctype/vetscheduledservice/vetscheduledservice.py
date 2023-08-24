@@ -58,7 +58,10 @@ def get_scheduled_service_list(filters=None):
 	try:
 		scheduled = frappe.get_list("VetScheduledService", or_filters=scheduled_or_filters, filters=scheduled_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
 		datalength = len(frappe.get_all("VetScheduledService", or_filters=scheduled_or_filters, filters=scheduled_filters, as_list=True))
-		return {'scheduled': scheduled, 'datalength': datalength}
+
+		pet_type_list = frappe.get_all("VetPetType")
+
+		return {'scheduled': scheduled, 'datalength': datalength, 'pet_type_list': pet_type_list}
 		
 	except PermissionError as e:
 		return {'error': e}

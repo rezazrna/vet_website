@@ -344,7 +344,10 @@ def get_reception_list(filters=None):
 			reception[r]['pet'] = pet[0]
 			reception[r]['pet_owner'] = pet_owner[0]
 			reception[r]['service'] = service[0]
-		return {'reception' : reception, 'datalength': datalength}
+
+		service_list = frappe.get_list("VetService", fields=["name","service_name"])
+		
+		return {'reception' : reception, 'datalength': datalength, "service_list": service_list}
 		
 	except PermissionError as e:
 		return {'error': e}
