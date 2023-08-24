@@ -10,36 +10,36 @@ var kondisiOptions = [
     ]
     
 var checks = [
-        {'label': 'Riwayat Vaksin', 'name': 'vaccine_history'},
-        {'label': 'Riwayat Makanan', 'name': 'food_history'},
-        {'label': 'Anamnese', 'name': 'anamnese'},
-        {'label': 'Diagnosa Utama', 'name': 'diagnosa_utama'},
-        {'label': 'Prognosa', 'name': 'prognosa'},
-        {'label': 'Diagnosa Banding', 'name': 'diagnosa_banding'},
-        {'label': 'BCS', 'name': 'bcs'},
-        {'label': 'Vomit', 'name': 'vomit'},
-        {'label': 'Ausc. L', 'name': 'auscl'},
-        {'label': 'Ausc. H', 'name': 'ausch'},
-        {'label': 'Pulsus', 'name': 'pulse'},
-        {'label': 'Respirasi', 'name': 'respiration'},
-        {'label': 'Abdominal Palpasi Pain', 'name': 'abdominal_palpasi_pain'},
-        {'label': 'Abdominal Palpasi Tension', 'name': 'abdominal_palpasi_tension'},
-        {'label': 'Limfonodule', 'name': 'limfonodule'},
-        {'label': 'Mukosa', 'name': 'mukosa'},
-        {'label': 'Mata', 'name': 'mata'},
-        {'label': 'Hidung', 'name': 'hidung'},
-        {'label': 'Mulut', 'name': 'mulut'},
-        {'label': 'Telinga', 'name': 'telinga'},
-        {'label': 'Kulit', 'name': 'kulit'},
-        {'label': 'Ekstremitas', 'name': 'ekstremitas'},
-        {'label': 'Sensasi Refleks', 'name': 'reflex'},
-        {'label': 'Lainnya', 'name': 'other'},
-        {'label': 'Tindakan', 'name': 'action'},
-        {'label': 'Suhu', 'name': 'temperature'},
-        {'label': 'Berat', 'name': 'weight'},
-        {'label': 'Lainnya Pemeriksaan', 'name': 'other_pemeriksaan'},
-        {'label': 'Lainnya Diagnosa', 'name': 'other_diagnosa'},
-    ]
+    {'label': 'Keluhan/Alasan Visit', 'name': 'keluhan_alasan'},
+    {'label': 'Riwayat Penyakit dan Pengibatan', 'name': 'riwayat_penyakit'},
+    {'label': 'Riwayat Vaksin', 'name': 'vaccine_history'},
+    {'label': 'Riwayat Makanan', 'name': 'food_history'},
+    {'label': 'Informasi Lainnya', 'name': 'other'},
+    {'label': 'Status Mental', 'name': 'status_mental'},
+    {'label': 'BCS', 'name': 'bcs'},
+    {'label': 'Status Hidrasi', 'name': 'status_hidrasi'},
+    {'label': 'Membran Mukosa', 'name': 'mukosa'},
+    {'label': 'Respirasi', 'name': 'respiration'},
+    {'label': 'Auskultasi', 'name': 'auskultasi'},
+    {'label': 'Palpasi Abdominal', 'name': 'palpasi_abdominal'},
+    {'label': 'Pulsus', 'name': 'pulse'},
+    {'label': 'Mata', 'name': 'mata'},
+    {'label': 'Hidung', 'name': 'hidung'},
+    {'label': 'Telinga', 'name': 'telinga'},
+    {'label': 'Mulut', 'name': 'mulut'},
+    {'label': 'Kulit', 'name': 'kulit'},
+    {'label': 'Ekstremitas', 'name': 'ekstremitas'},
+    {'label': 'Pemeriksaan Neurologis', 'name': 'reflex'},
+    {'label': 'Informasi Pemeriksaan Lainnya', 'name': 'other_pemeriksaan'},
+    {'label': 'Diagnosis Utama', 'name': 'diagnosa_utama'},
+    {'label': 'Prognosis', 'name': 'prognosa'},
+    {'label': 'Diagnosis Banding', 'name': 'diagnosa_banding'},
+    {'label': 'Tindakan', 'name': 'action'},
+    {'label': 'Advis', 'name': 'advis'},
+    {'label': 'Diagnosis Lainnya', 'name': 'other_diagnosa'},
+    {'label': 'Suhu', 'name': 'temperature' },
+    {'label': 'Berat', 'name': 'weight' },
+]
 
 class RawatInap extends React.Component {
     constructor(props) {
@@ -190,8 +190,8 @@ class RawatInap extends React.Component {
                 }
                 else{
                     new_data.tindakan[i].expand = true
-                    this.setState({data: new_data})
-                    this.checkExpand()
+                    aa.setState({data: new_data})
+                    aa.checkExpand()
                 }
             })
             
@@ -778,6 +778,7 @@ class PopupTindakan extends React.Component {
 				return <div className="menu-popup">
 	                    <div className="container" style={maxwidth}>
 	                        <form className="bg-white p-4" onSubmit={e => this.formSubmit(e)}>
+                                <i className="fa fa-times-circle text-danger fs20 float-right" style={cursor} onClick={this.props.togglePopupTindakan}/>
 		        				<ul className="nav nav-tabs justify-content-around" id="tindakanTab" role="tablist">
 		        				    <li className="nav-item">
 		                				<a className="nav-link py-1 active" id="pemeriksaan-tab" data-toggle="tab" href="#pemeriksaan" role="tab"><span>Pemeriksaan</span></a>
@@ -813,7 +814,7 @@ class PopupTindakan extends React.Component {
 		    					</div>
 	                        </form>
 	                    </div>
-	                    <div className="menu-popup-close" onClick={this.props.togglePopupTindakan}></div>
+	                    <div className="menu-popup-close"></div>
 	                </div>
 			} else {
 				return <div className="menu-popup">
@@ -1098,35 +1099,35 @@ class Pemeriksaan extends React.Component {
         this.state = {
             'new_check': {},
             'available_check': [
+                {'label': 'Keluhan/Alasan Visit', 'name': 'keluhan_alasan'},
+                {'label': 'Riwayat Penyakit dan Pengibatan', 'name': 'riwayat_penyakit'},
                 {'label': 'Riwayat Vaksin', 'name': 'vaccine_history'},
                 {'label': 'Riwayat Makanan', 'name': 'food_history'},
-                {'label': 'Anamnese', 'name': 'anamnese'},
-                {'label': 'Diagnosa Utama', 'name': 'diagnosa_utama'},
-                {'label': 'Prognosa', 'name': 'prognosa'},
-                {'label': 'Diagnosa Banding', 'name': 'diagnosa_banding'},
+                {'label': 'Informasi Lainnya', 'name': 'other'},
+                {'label': 'Status Mental', 'name': 'status_mental'},
                 {'label': 'BCS', 'name': 'bcs'},
-                {'label': 'Vomit', 'name': 'vomit'},
-                {'label': 'Ausc. L', 'name': 'auscl'},
-                {'label': 'Ausc. H', 'name': 'ausch'},
-                {'label': 'Pulsus', 'name': 'pulse'},
+                {'label': 'Status Hidrasi', 'name': 'status_hidrasi'},
+                {'label': 'Membran Mukosa', 'name': 'mukosa'},
                 {'label': 'Respirasi', 'name': 'respiration'},
-                {'label': 'Abdominal Palpasi Pain', 'name': 'abdominal_palpasi_pain'},
-                {'label': 'Abdominal Palpasi Tension', 'name': 'abdominal_palpasi_tension'},
-                {'label': 'Limfonodule', 'name': 'limfonodule'},
-                {'label': 'Mukosa', 'name': 'mukosa'},
+                {'label': 'Auskultasi', 'name': 'auskultasi'},
+                {'label': 'Palpasi Abdominal', 'name': 'palpasi_abdominal'},
+                {'label': 'Pulsus', 'name': 'pulse'},
                 {'label': 'Mata', 'name': 'mata'},
                 {'label': 'Hidung', 'name': 'hidung'},
-                {'label': 'Mulut', 'name': 'mulut'},
                 {'label': 'Telinga', 'name': 'telinga'},
+                {'label': 'Mulut', 'name': 'mulut'},
                 {'label': 'Kulit', 'name': 'kulit'},
                 {'label': 'Ekstremitas', 'name': 'ekstremitas'},
-                {'label': 'Sensasi Refleks', 'name': 'reflex'},
-                {'label': 'Lainnya', 'name': 'other'},
+                {'label': 'Pemeriksaan Neurologis', 'name': 'reflex'},
+                {'label': 'Informasi Pemeriksaan Lainnya', 'name': 'other_pemeriksaan'},
+                {'label': 'Diagnosis Utama', 'name': 'diagnosa_utama'},
+                {'label': 'Prognosis', 'name': 'prognosa'},
+                {'label': 'Diagnosis Banding', 'name': 'diagnosa_banding'},
                 {'label': 'Tindakan', 'name': 'action'},
-                {'label': 'Suhu', 'name': 'temperature'},
-                {'label': 'Berat', 'name': 'weight'},
-                {'label': 'Lainnya Pemeriksaan', 'name': 'other_pemeriksaan'},
-                {'label': 'Lainnya Diagnosa', 'name': 'other_diagnosa'},
+                {'label': 'Advis', 'name': 'advis'},
+                {'label': 'Diagnosis Lainnya', 'name': 'other_diagnosa'},
+                {'label': 'Suhu', 'name': 'temperature' },
+                {'label': 'Berat', 'name': 'weight' },
             ],
             'selected_check': false
         }
@@ -1233,9 +1234,9 @@ class Pemeriksaan extends React.Component {
             var available_check_anamnese = []
             var available_check_pemeriksaan = []
             var available_check_diagnosa = []
-            var anamnese_options = ['vaccine_history', 'food_history', 'bcs', 'vomit', 'auscl', 'ausch', 'temperature', 'weight', 'other']
-		    var pemeriksaan_options = ['pulse', 'respiration', 'abdominal_palpasi_pain','abdominal_palpasi_tension','limfonodule','mukosa','mata','hidung','mulut','telinga','kulit','ekstermitas','reflex','other_pemeriksaan']
-		    var diagnosa_options = ['diagnosa_utama','prognosa','diagnosa_banding','action','other_diagnosa']
+            var anamnese_options = ['keluhan_alasan', 'riwayat_penyakit', 'vaccine_history', 'food_history', 'temperature', 'weight', 'other']
+		    var pemeriksaan_options = ['status_mental', 'bcs', 'status_hidrasi', 'mukosa', 'respiration', 'auskultasi', 'palpasi_abdominal', 'pulse', 'mata', 'hidung', 'telinga', 'mulut', 'kulit', 'ekstremitas', 'reflex', 'other_pemeriksaan']
+		    var diagnosa_options = ['diagnosa_utama', 'prognosa', 'diagnosa_banding', 'action', 'advus', 'other_diagnosa']
 			var check_name = data.checks.filter(c => c.delete == undefined).map(c => c.name)
     		this.state.available_check.forEach(function(item, index) {
 			    if(!check_name.includes(item.name) && anamnese_options.includes(item.name)){
@@ -1289,7 +1290,7 @@ class Pemeriksaan extends React.Component {
                         
             var newSelect = <div className="row mb-3">
     							<div className="col-4 my-1">
-    								<input autoComplete="off" name='field_name' list="anamnese_options" id="field_name_anamnese" className="form-control fs14 fw600" style={inputStyle} onChange={e => this.handleInputChangeRekamMedis(e)} placeholder="Anamnese" onBlur={e => this.handleInputBlurRekamMedis(e, this.state.available_check.filter(i => anamnese_options.includes(i.name)))}/>
+    								<input autoComplete="off" name='field_name' list="anamnese_options" id="field_name_anamnese" className="form-control fs14 fw600" style={inputStyle} onChange={e => this.handleInputChangeRekamMedis(e)} placeholder="Anamnesis" onBlur={e => this.handleInputBlurRekamMedis(e, this.state.available_check.filter(i => anamnese_options.includes(i.name)))}/>
     								<datalist id="anamnese_options">
     									{available_check_anamnese}
     								</datalist>
@@ -1301,7 +1302,7 @@ class Pemeriksaan extends React.Component {
     								</datalist>
     							</div>
     							<div className="col-4 my-1">
-    								<input autoComplete="off" name='field_name' list="diagnosa_options" id="field_name_diagnosa" className="form-control fs14 fw600" style={inputStyle} onChange={e => this.handleInputChangeRekamMedis(e)} placeholder="Diagnosa" onBlur={e => this.handleInputBlurRekamMedis(e, this.state.available_check.filter(i => diagnosa_options.includes(i.name)))}/>
+    								<input autoComplete="off" name='field_name' list="diagnosa_options" id="field_name_diagnosa" className="form-control fs14 fw600" style={inputStyle} onChange={e => this.handleInputChangeRekamMedis(e)} placeholder="Diagnosis" onBlur={e => this.handleInputBlurRekamMedis(e, this.state.available_check.filter(i => diagnosa_options.includes(i.name)))}/>
     								<datalist id="diagnosa_options">
     									{available_check_diagnosa}
     								</datalist>
@@ -1493,7 +1494,7 @@ class ListRowExpandableDetail extends React.Component {
         var jasa_obat_list = []
         var rekam_medis_list = []
         
-        var rekam_medis_display
+        var rekam_medis_display, attachment_display
         
         checks.forEach((c, index) => {
             if (![null, undefined, '-', '', 0].includes(data.rekam_medis[c.name])){
@@ -1509,6 +1510,27 @@ class ListRowExpandableDetail extends React.Component {
             	)
             }
         })
+
+        var attachment_buttons = []
+        if (data.rekam_medis.rekam_medis_attachments != undefined && data.rekam_medis.rekam_medis_attachments.length != 0) {
+            console.log('masuk attach')
+            data.rekam_medis.rekam_medis_attachments.forEach((a, i) => {
+                var buttonStyle = { background: '#076FAD', color: '#FFF' }
+                attachment_buttons.push(
+                    <div className="col-auto my-1" key={i.toString()}>
+                        <a title={a.title} className="btn fs14 fw600 rounded-lg px-3" style={buttonStyle} onClick={() => { window.open(a.attachment, '_blank') }}>{a.title}</a>
+                    </div>
+                )
+            })
+        }
+
+        if (attachment_buttons.length > 0) {
+            attachment_display = (
+                <div className="row mx-4 pt-3 my-2">
+                    {attachment_buttons}
+                </div>
+            )
+        }
         
         if (rekam_medis_list.length > 0){
             rekam_medis_display = (
@@ -1614,6 +1636,7 @@ class ListRowExpandableDetail extends React.Component {
                     	</div>
                     </div>
                     {rekam_medis_display}
+                    {attachment_display}
                     <div className="row mx-0 py-3">
                     	{jasa_obat_list}
                     </div>
@@ -2189,6 +2212,7 @@ class TemplateTindakan extends React.Component {
         var cage_options = []
         var tindakan_options = []
         var tindakan_rows = []
+        var cursor = {cursor: 'pointer'}
         var select_style = {color: '#056EAD', border: '1px solid #056EAD'}
         var list_product = this.props.list_product
         var th = this
@@ -2236,14 +2260,17 @@ class TemplateTindakan extends React.Component {
                 <div className="menu-popup">
                     <div className="container" style={maxwidth}>
                         <div className="bg-white p-4">
-        					<div className="fs20 fw600 mb-2">Template Tindakan</div>
+        					<div className="fs20 fw600 mb-2">
+                                Template Tindakan
+                                <i className="fa fa-times-circle text-danger fs20 float-right" style={cursor} onClick={this.props.toggleTemplateTindakan}/>
+                            </div>
                             {tindakanDesc}
                             {tindakanSelect}
         					{tindakan_rows}
         					{rowButton}
                         </div>
                     </div>
-                    <div className="menu-popup-close" onClick={this.props.toggleTemplateTindakan}></div>
+                    <div className="menu-popup-close"></div>
                 </div>
             )
         } else {

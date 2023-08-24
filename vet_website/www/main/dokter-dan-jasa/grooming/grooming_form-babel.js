@@ -76,33 +76,33 @@ class Grooming extends React.Component {
                 if (r.message) {
                     console.log(r.message)
                     var checks = [
-                        { 'label': 'Riwayat Vaksin', 'name': 'vaccine_history' },
-                        { 'label': 'Riwayat Makanan', 'name': 'food_history' },
-                        { 'label': 'Anamnese', 'name': 'anamnese' },
-                        { 'label': 'Diagnosa Utama', 'name': 'diagnosa_utama' },
-                        { 'label': 'Prognosa', 'name': 'prognosa' },
-                        { 'label': 'Diagnosa Banding', 'name': 'diagnosa_banding' },
-                        { 'label': 'BCS', 'name': 'bcs' },
-                        { 'label': 'Vomit', 'name': 'vomit' },
-                        { 'label': 'Ausc. L', 'name': 'auscl' },
-                        { 'label': 'Ausc. H', 'name': 'ausch' },
-                        { 'label': 'Pulsus', 'name': 'pulse' },
-                        { 'label': 'Respirasi', 'name': 'respiration' },
-                        { 'label': 'Abdominal Palpasi Pain', 'name': 'abdominal_palpasi_pain' },
-                        { 'label': 'Abdominal Palpasi Tension', 'name': 'abdominal_palpasi_tension' },
-                        { 'label': 'Limfonodule', 'name': 'limfonodule' },
-                        { 'label': 'Mukosa', 'name': 'mukosa' },
-                        { 'label': 'Mata', 'name': 'mata' },
-                        { 'label': 'Hidung', 'name': 'hidung' },
-                        { 'label': 'Mulut', 'name': 'mulut' },
-                        { 'label': 'Telinga', 'name': 'telinga' },
-                        { 'label': 'Kulit', 'name': 'kulit' },
-                        { 'label': 'Ekstremitas', 'name': 'ekstremitas' },
-                        { 'label': 'Sensasi Refleks', 'name': 'reflex' },
-                        { 'label': 'Lainnya', 'name': 'other' },
-                        { 'label': 'Tindakan', 'name': 'action' },
-                        { 'label': 'Lainnya Pemeriksaan', 'name': 'other_pemeriksaan' },
-                        { 'label': 'Lainnya Diagnosa', 'name': 'other_diagnosa' },
+                        {'label': 'Keluhan/Alasan Visit', 'name': 'keluhan_alasan'},
+                        {'label': 'Riwayat Penyakit dan Pengibatan', 'name': 'riwayat_penyakit'},
+                        {'label': 'Riwayat Vaksin', 'name': 'vaccine_history'},
+                        {'label': 'Riwayat Makanan', 'name': 'food_history'},
+                        {'label': 'Informasi Lainnya', 'name': 'other'},
+                        {'label': 'Status Mental', 'name': 'status_mental'},
+                        {'label': 'BCS', 'name': 'bcs'},
+                        {'label': 'Status Hidrasi', 'name': 'status_hidrasi'},
+                        {'label': 'Membran Mukosa', 'name': 'mukosa'},
+                        {'label': 'Respirasi', 'name': 'respiration'},
+                        {'label': 'Auskultasi', 'name': 'auskultasi'},
+                        {'label': 'Palpasi Abdominal', 'name': 'palpasi_abdominal'},
+                        {'label': 'Pulsus', 'name': 'pulse'},
+                        {'label': 'Mata', 'name': 'mata'},
+                        {'label': 'Hidung', 'name': 'hidung'},
+                        {'label': 'Telinga', 'name': 'telinga'},
+                        {'label': 'Mulut', 'name': 'mulut'},
+                        {'label': 'Kulit', 'name': 'kulit'},
+                        {'label': 'Ekstremitas', 'name': 'ekstremitas'},
+                        {'label': 'Pemeriksaan Neurologis', 'name': 'reflex'},
+                        {'label': 'Informasi Pemeriksaan Lainnya', 'name': 'other_pemeriksaan'},
+                        {'label': 'Diagnosis Utama', 'name': 'diagnosa_utama'},
+                        {'label': 'Prognosis', 'name': 'prognosa'},
+                        {'label': 'Diagnosis Banding', 'name': 'diagnosa_banding'},
+                        {'label': 'Tindakan', 'name': 'action'},
+                        {'label': 'Advis', 'name': 'advis'},
+                        {'label': 'Diagnosis Lainnya', 'name': 'other_diagnosa'},
                     ]
 
                     var new_checks = []
@@ -1144,33 +1144,33 @@ class Pengecekan extends React.Component {
         this.state = {
             'new_check': {},
             'available_check': [
-                { 'label': 'Riwayat Vaksin', 'name': 'vaccine_history' },
-                { 'label': 'Riwayat Makanan', 'name': 'food_history' },
-                { 'label': 'Anamnese', 'name': 'anamnese' },
-                { 'label': 'Diagnosa Utama', 'name': 'diagnosa_utama' },
-                { 'label': 'Prognosa', 'name': 'prognosa' },
-                { 'label': 'Diagnosa Banding', 'name': 'diagnosa_banding' },
-                { 'label': 'BCS', 'name': 'bcs' },
-                { 'label': 'Vomit', 'name': 'vomit' },
-                { 'label': 'Ausc. L', 'name': 'auscl' },
-                { 'label': 'Ausc. H', 'name': 'ausch' },
-                { 'label': 'Pulsus', 'name': 'pulse' },
-                { 'label': 'Respirasi', 'name': 'respiration' },
-                { 'label': 'Abdominal Palpasi Pain', 'name': 'abdominal_palpasi_pain' },
-                { 'label': 'Abdominal Palpasi Tension', 'name': 'abdominal_palpasi_tension' },
-                { 'label': 'Limfonodule', 'name': 'limfonodule' },
-                { 'label': 'Mukosa', 'name': 'mukosa' },
-                { 'label': 'Mata', 'name': 'mata' },
-                { 'label': 'Hidung', 'name': 'hidung' },
-                { 'label': 'Mulut', 'name': 'mulut' },
-                { 'label': 'Telinga', 'name': 'telinga' },
-                { 'label': 'Kulit', 'name': 'kulit' },
-                { 'label': 'Ekstremitas', 'name': 'ekstremitas' },
-                { 'label': 'Sensasi Refleks', 'name': 'reflex' },
-                { 'label': 'Lainnya', 'name': 'other' },
-                { 'label': 'Tindakan', 'name': 'action' },
-                { 'label': 'Lainnya Pemeriksaan', 'name': 'other_pemeriksaan' },
-                { 'label': 'Lainnya Diagnosa', 'name': 'other_diagnosa' },
+                {'label': 'Keluhan/Alasan Visit', 'name': 'keluhan_alasan'},
+                {'label': 'Riwayat Penyakit dan Pengibatan', 'name': 'riwayat_penyakit'},
+                {'label': 'Riwayat Vaksin', 'name': 'vaccine_history'},
+                {'label': 'Riwayat Makanan', 'name': 'food_history'},
+                {'label': 'Informasi Lainnya', 'name': 'other'},
+                {'label': 'Status Mental', 'name': 'status_mental'},
+                {'label': 'BCS', 'name': 'bcs'},
+                {'label': 'Status Hidrasi', 'name': 'status_hidrasi'},
+                {'label': 'Membran Mukosa', 'name': 'mukosa'},
+                {'label': 'Respirasi', 'name': 'respiration'},
+                {'label': 'Auskultasi', 'name': 'auskultasi'},
+                {'label': 'Palpasi Abdominal', 'name': 'palpasi_abdominal'},
+                {'label': 'Pulsus', 'name': 'pulse'},
+                {'label': 'Mata', 'name': 'mata'},
+                {'label': 'Hidung', 'name': 'hidung'},
+                {'label': 'Telinga', 'name': 'telinga'},
+                {'label': 'Mulut', 'name': 'mulut'},
+                {'label': 'Kulit', 'name': 'kulit'},
+                {'label': 'Ekstremitas', 'name': 'ekstremitas'},
+                {'label': 'Pemeriksaan Neurologis', 'name': 'reflex'},
+                {'label': 'Informasi Pemeriksaan Lainnya', 'name': 'other_pemeriksaan'},
+                {'label': 'Diagnosis Utama', 'name': 'diagnosa_utama'},
+                {'label': 'Prognosis', 'name': 'prognosa'},
+                {'label': 'Diagnosis Banding', 'name': 'diagnosa_banding'},
+                {'label': 'Tindakan', 'name': 'action'},
+                {'label': 'Advis', 'name': 'advis'},
+                {'label': 'Diagnosis Lainnya', 'name': 'other_diagnosa'},
             ],
             'selected_check': false
         }
@@ -1280,9 +1280,9 @@ class Pengecekan extends React.Component {
             var available_check_anamnese = []
             var available_check_pemeriksaan = []
             var available_check_diagnosa = []
-            var anamnese_options = ['vaccine_history', 'food_history', 'bcs', 'vomit', 'auscl', 'ausch', 'temperature', 'weight', 'other']
-            var pemeriksaan_options = ['pulse', 'respiration', 'abdominal_palpasi_pain', 'abdominal_palpasi_tension', 'limfonodule', 'mukosa', 'mata', 'hidung', 'mulut', 'telinga', 'kulit', 'ekstermitas', 'reflex', 'other_pemeriksaan']
-            var diagnosa_options = ['diagnosa_utama', 'prognosa', 'diagnosa_banding', 'action', 'other_diagnosa']
+            var anamnese_options = ['keluhan_alasan', 'riwayat_penyakit', 'vaccine_history', 'food_history', 'temperature', 'weight', 'other']
+		    var pemeriksaan_options = ['status_mental', 'bcs', 'status_hidrasi', 'mukosa', 'respiration', 'auskultasi', 'palpasi_abdominal', 'pulse', 'mata', 'hidung', 'telinga', 'mulut', 'kulit', 'ekstremitas', 'reflex', 'other_pemeriksaan']
+		    var diagnosa_options = ['diagnosa_utama', 'prognosa', 'diagnosa_banding', 'action', 'advus', 'other_diagnosa']
             var check_name = this.props.checks.filter(c => c.delete == undefined).map(c => c.name)
             this.state.available_check.forEach(function (item, index) {
                 if (!check_name.includes(item.name) && anamnese_options.includes(item.name)) {
@@ -1305,7 +1305,7 @@ class Pengecekan extends React.Component {
             newCheckSelect = (
                 <div className="row mb-3">
                     <div className="col-4 my-1">
-                        <input autoComplete="off" name='field_name' list="anamnese_options" id="field_name_anamnese" className="form-control fs14 fw600" style={input_style} onChange={e => this.handleInputChangeProduct(e)} placeholder="Anamnese" onBlur={e => this.handleInputBlur(e, this.state.available_check.filter(i => anamnese_options.includes(i.name)))} />
+                        <input autoComplete="off" name='field_name' list="anamnese_options" id="field_name_anamnese" className="form-control fs14 fw600" style={input_style} onChange={e => this.handleInputChangeProduct(e)} placeholder="Anamnesis" onBlur={e => this.handleInputBlur(e, this.state.available_check.filter(i => anamnese_options.includes(i.name)))} />
                         <datalist id="anamnese_options">
                             {available_check_anamnese}
                         </datalist>
@@ -1317,7 +1317,7 @@ class Pengecekan extends React.Component {
                         </datalist>
                     </div>
                     <div className="col-4 my-1">
-                        <input autoComplete="off" name='field_name' list="diagnosa_options" id="field_name_diagnosa" className="form-control fs14 fw600" style={input_style} onChange={e => this.handleInputChangeProduct(e)} placeholder="Diagnosa" onBlur={e => this.handleInputBlur(e, this.state.available_check.filter(i => diagnosa_options.includes(i.name)))} />
+                        <input autoComplete="off" name='field_name' list="diagnosa_options" id="field_name_diagnosa" className="form-control fs14 fw600" style={input_style} onChange={e => this.handleInputChangeProduct(e)} placeholder="Diagnosis" onBlur={e => this.handleInputBlur(e, this.state.available_check.filter(i => diagnosa_options.includes(i.name)))} />
                         <datalist id="diagnosa_options">
                             {available_check_diagnosa}
                         </datalist>

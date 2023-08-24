@@ -51,7 +51,14 @@
   "jasa",
   "obat",
   "other_pemeriksaan",
-  "other_diagnosa"
+  "other_diagnosa",
+  "keluhan_alasan",
+  "riwayat_penyakit",
+  "status_mental",
+  "advis",
+  "palpasi_abdominal",
+  "status_hidrasi",
+  "auskultasi"
  ],
  "fields": [
   {
@@ -115,7 +122,7 @@
   {
    "fieldname": "anamnese",
    "fieldtype": "Text",
-   "label": "Anamnese"
+   "label": "Anamnesis"
   },
   {
    "fieldname": "prognosa",
@@ -318,9 +325,44 @@
    "fieldname": "other_diagnosa",
    "fieldtype": "Text",
    "label": "Lainnya  Diagnosa"
-  }
+  },
+  {
+    "fieldname": "keluhan_alasan",
+    "fieldtype": "Data",
+    "label": "Keluhan/Alasan Visit"
+   },
+   {
+    "fieldname": "riwayat_penyakit",
+    "fieldtype": "Data",
+    "label": "Riwayat Penyakit dan Pengobatan"
+   },
+   {
+    "fieldname": "status_mental",
+    "fieldtype": "Data",
+    "label": "Status Mental"
+   },
+   {
+    "fieldname": "advis",
+    "fieldtype": "Data",
+    "label": "Advis"
+   },
+   {
+    "fieldname": "palpasi_abdominal",
+    "fieldtype": "Data",
+    "label": "Palpasi Abdominal"
+   },
+   {
+    "fieldname": "status_hidrasi",
+    "fieldtype": "Data",
+    "label": "Status Hidrasi"
+   },
+   {
+    "fieldname": "auskultasi",
+    "fieldtype": "Data",
+    "label": "Auskultasi"
+   }
  ],
- "modified": "2023-01-07 13:24:15.921616",
+ "modified": "2023-08-24 17:56:30.561336",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetRekamMedis",

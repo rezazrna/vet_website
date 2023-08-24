@@ -179,61 +179,63 @@ def delete_rawat_inap(data):
 	
 @frappe.whitelist()
 def get_rawat_inap(name):
-	try:
-		rawat_inap_search = frappe.get_list('VetRawatInap', filters={'name': name}, fields=['*'])
-		rawat_inap = rawat_inap_search[0]
-		tindakan_dokter = frappe.get_list('VetTindakanDokter', filters={'register_number': rawat_inap.register_number}, fields=['*'])
-		rawat_inap_tindakan = frappe.get_list('VetRawatInapTindakan', filters={'parent': rawat_inap.name}, fields=['*'], order_by="modified desc")
+	# try:
+	rawat_inap_search = frappe.get_list('VetRawatInap', filters={'name': name}, fields=['*'])
+	rawat_inap = rawat_inap_search[0]
+	tindakan_dokter = frappe.get_list('VetTindakanDokter', filters={'register_number': rawat_inap.register_number}, fields=['*'])
+	rawat_inap_tindakan = frappe.get_list('VetRawatInapTindakan', filters={'parent': rawat_inap.name}, fields=['*'], order_by="modified desc")
+	
+	rawat_inap['pet_name'] = tindakan_dokter[0]['pet_name']
+	rawat_inap['pet'] = tindakan_dokter[0]['pet']
+	
+	tindakan_dokter = frappe.get_list('VetTindakanDokter', filters={'register_number': rawat_inap.register_number}, fields=['name'])
+	if len(tindakan_dokter) > 0:
+		rawat_inap['tindakan_dokter'] = list(t.name for t in tindakan_dokter)
+	customer_invoice = frappe.get_list('VetCustomerInvoice', filters={'register_number': rawat_inap.register_number, 'is_rawat_inap': '1'}, fields=['name'])
+	if len(customer_invoice) > 0:
+		rawat_inap['customer_invoice'] = list(c.name for c in customer_invoice)
+	
+	tindakan_list = []
+	for rit in rawat_inap_tindakan:
+		rekam_medis = frappe.get_list('VetRekamMedis', filters={'name': rit.rekam_medis}, fields=['*'])
+		attachments = frappe.get_list("VetRekamMedisAttachments", filters={'parent': rit.rekam_medis}, fields=["*"])
+		rekam_medis[0]['rekam_medis_attachments'] = attachments
+		rit['rekam_medis'] = rekam_medis[0]
 		
-		rawat_inap['pet_name'] = tindakan_dokter[0]['pet_name']
-		rawat_inap['pet'] = tindakan_dokter[0]['pet']
-		
-		tindakan_dokter = frappe.get_list('VetTindakanDokter', filters={'register_number': rawat_inap.register_number}, fields=['name'])
-		if len(tindakan_dokter) > 0:
-			rawat_inap['tindakan_dokter'] = list(t.name for t in tindakan_dokter)
-		customer_invoice = frappe.get_list('VetCustomerInvoice', filters={'register_number': rawat_inap.register_number, 'is_rawat_inap': '1'}, fields=['name'])
-		if len(customer_invoice) > 0:
-			rawat_inap['customer_invoice'] = list(c.name for c in customer_invoice)
-		
-		tindakan_list = []
-		for rit in rawat_inap_tindakan:
-			rekam_medis = frappe.get_list('VetRekamMedis', filters={'name': rit.rekam_medis}, fields=['*'])
-			rit['rekam_medis'] = rekam_medis[0]
-			
-			if not tindakan_list:
+		if not tindakan_list:
+			tindakan_list.append([rit])
+		else:
+			add = True
+			for tl in tindakan_list:
+				name = []
+				for t in tl:
+					name.append(t.name)
+				if dt.date(tl[0]['rekam_medis']['record_date']) == dt.date(rit['rekam_medis']['record_date']):
+					tl.append(rit)
+					add = False
+					break
+					
+			if add:
 				tindakan_list.append([rit])
-			else:
-				add = True
-				for tl in tindakan_list:
-					name = []
-					for t in tl:
-						name.append(t.name)
-					if dt.date(tl[0]['rekam_medis']['record_date']) == dt.date(rit['rekam_medis']['record_date']):
-						tl.append(rit)
-						add = False
-						break
-						
-				if add:
-					tindakan_list.append([rit])
 
-		for i in tindakan_list:
-			i.sort(key = lambda a: a['rekam_medis']['record_date'])
+	for i in tindakan_list:
+		i.sort(key = lambda a: a['rekam_medis']['record_date'])
 
-		tindakan_list.sort(key = lambda a: a[0]['rekam_medis']['record_date'])
-			
-		rawat_inap.tindakan = tindakan_list
-		# products = frappe.get_list("VetProduct", fields=["*"])
-		# for p in products:
-		# 	pr = get_product(p.name)
-		# 	p.product_category = pr.get('product').get('product_category')
+	tindakan_list.sort(key = lambda a: a[0]['rekam_medis']['record_date'])
 		
-		kandang = frappe.get_list('VetKandang', filters={'register_number': '', 'status': 'Active'}, fields=['*'])
-			
-		res = {'rawat_inap': rawat_inap, 'products': [], 'kandang': kandang}
+	rawat_inap.tindakan = tindakan_list
+	# products = frappe.get_list("VetProduct", fields=["*"])
+	# for p in products:
+	# 	pr = get_product(p.name)
+	# 	p.product_category = pr.get('product').get('product_category')
+	
+	kandang = frappe.get_list('VetKandang', filters={'register_number': '', 'status': 'Active'}, fields=['*'])
 		
-		return res
-	except PermissionError as e:
-		return {'error': e}
+	res = {'rawat_inap': rawat_inap, 'products': [], 'kandang': kandang}
+	
+	return res
+	# except PermissionError as e:
+	# 	return {'error': e}
 		
 @frappe.whitelist()
 def get_all_products():
