@@ -297,16 +297,13 @@ class RekapPenjualanList extends React.Component {
                                     <span>Sub Total</span>
                                 </div>
                                 <div className="col text-center">
-                                    <span>Potongan %</span>
-                                </div>
-                                <div className="col text-center">
                                     <span>Total Akhir</span>
                                 </div>
                                 <div className="col text-center">
-                                    <span>Bayar Tunai</span>
+                                    <span>Terbayar</span>
                                 </div>
                                 <div className="col text-center">
-                                    <span>Bayar Kredit</span>
+                                    <span>Sisa</span>
                                 </div>
                             </div>
                         </div>
@@ -358,9 +355,6 @@ class RekapPenjualanListRow extends React.Component {
                         </div>
                         <div className="col text-center">
                             <span>{formatter2.format((item.all_subtotal || item.subtotal))}</span>
-                        </div>
-                        <div className="col text-center">
-                            <span>{item.potongan + '%'}</span>
                         </div>
                         <div className="col text-center">
                             <span>{formatter2.format((item.all_total || item.total))}</span>
@@ -426,7 +420,6 @@ class PDF extends React.Component {
                     <td className="py-1">{d.owner_name}</td>
                     <td className="py-1">{d.all_quantity}</td>
                     <td className="py-1">{formatter2.format(d.subtotal)}</td>
-                    <td className="py-1">{d.potongan + '%'}</td>
                     <td className="py-1">{formatter2.format(d.total)}</td>
                     <td className="py-1">{formatter2.format(d.paid)}</td>
                     <td className="py-1">{formatter2.format(d.remaining)}</td>
@@ -469,10 +462,9 @@ class PDF extends React.Component {
                                     <th className="fw700 py-2">Nama Pemilik</th>
                                     <th className="fw700 py-2">Jumlah Item</th>
                                     <th className="fw700 py-2">Sub Total</th>
-                                    <th className="fw700 py-2">Potongan %</th>
                                     <th className="fw700 py-2">Total Akhir</th>
-                                    <th className="fw700 py-2">Bayar Tunai</th>
-                                    <th className="fw700 py-2">Bayar Kredit</th>
+                                    <th className="fw700 py-2">Terbayar</th>
+                                    <th className="fw700 py-2">Sisa</th>
                                 </tr>
                             </thead>
                             <tbody>

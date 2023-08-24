@@ -93,6 +93,7 @@ def get_product_list(filters=None):
 
 		if search:
 			td_or_filters.append({'product_name': ['like', '%'+search+'%']})
+			td_or_filters.append({'name': ['like', '%'+search+'%']})
 			td_or_filters.append({'category_name': ['like', '%'+search+'%']})
 			td_or_filters.append({'price': ['like', '%'+search+'%']})
 		

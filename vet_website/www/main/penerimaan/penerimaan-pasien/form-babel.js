@@ -2148,9 +2148,9 @@ class PetRow extends React.Component {
         var tautan
         if (mode == 'Detail') {
             var cursor = {cursor: 'pointer'}
-            tautan = <div style={cursor} onClick={() => window.location.href = "/main/penerimaan/data-pasien/edit?n="+pet.name}>
+            tautan = <a style={cursor} href={"/main/penerimaan/data-pasien/edit?n="+pet.name}>
 					    <img className="d-block m-auto" src="/static/img/main/menu/tautan.png"/>
-				    </div>
+				    </a>
         }
         
         var detail

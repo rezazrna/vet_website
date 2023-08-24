@@ -369,12 +369,12 @@ class SupplierGridCol extends React.Component {
                             </div>
                             <div className="col-8 my-auto">
                                 <div className="row text-left mb-2">
-                                    <div className="col-auto" style={cursor} onClick={() => window.location.href = "/main/purchases/purchase-order?supplier=" + item.name}>
+                                    <a className="col-auto" style={cursor} href={"/main/purchases/purchase-order?supplier=" + item.name}>
                                         <p><img className="pr-2" src="/static/img/main/menu/purchases_blue.png"></img>{item.purchase_count}</p>
-                                    </div>
-                                    <div className="col-auto" style={cursor} onClick={() => window.location.href = "/main/purchases/purchase-order?supplier=" + item.name + "&unpaid=1"}>
+                                    </a>
+                                    <a className="col-auto" style={cursor} href={"/main/purchases/purchase-order?supplier=" + item.name + "&unpaid=1"}>
                                         <p><img className="pr-2" src="/static/img/main/menu/invoice_blue.png"></img>{item.unpaid_purchase_count}</p>
-                                    </div>
+                                    </a>
                                 </div>
                                 <div className="row text-left mb-2">
                                     <a className="col-auto fs14" href={'/main/purchases/deposit?n=' + encodeURIComponent(this.props.item.name)} style={cursor}>

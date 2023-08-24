@@ -769,6 +769,7 @@ def get_mutasi_piutang(filters=None, mode=False, all=False):
 @frappe.whitelist()
 def get_rekap_penjualan(filters=None, mode=False, all=False):
 	invoice_filters = {'is_refund': False, 'already_refund': False}
+	invoice_or_filters = {}
 
 	filter_json = False
 	page = 1
@@ -785,7 +786,8 @@ def get_rekap_penjualan(filters=None, mode=False, all=False):
 		currentpage = filter_json.get('currentpage', False)
 		
 		if search:
-			invoice_filters.update({'owner_name': ['like', '%'+search+'%']})
+			invoice_or_filters.update({'owner_name': ['like', '%'+search+'%']})
+			invoice_or_filters.update({'name': ['like', '%'+search+'%']})
 
 		if currentpage:
 			page = currentpage
@@ -805,10 +807,10 @@ def get_rekap_penjualan(filters=None, mode=False, all=False):
 	try:
 		fields = ["name", "invoice_date", "owner", "owner_name", "subtotal", "potongan", "total", "is_refund"]
 		if all:
-			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields)
+			invoices = frappe.get_list("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, fields=fields)
 		else: 
-			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields, start=(page - 1) * 30, page_length= 30)
-		datalength = len(frappe.get_all("VetCustomerInvoice", filters=invoice_filters, as_list=True))
+			invoices = frappe.get_list("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, fields=fields, start=(page - 1) * 30, page_length= 30)
+		datalength = len(frappe.get_all("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, as_list=True))
 
 		for i in invoices:
 			customer_invoice_children = frappe.get_list('VetCustomerInvoiceChildren', filters={'parent': i['name']}, fields=['customer_invoice'])
@@ -855,6 +857,7 @@ def get_rekap_penjualan(filters=None, mode=False, all=False):
 @frappe.whitelist()
 def get_detail_penjualan(filters=None, mode=False, all=False):
 	invoice_filters = {'is_refund': False, 'already_refund': False}
+	invoice_or_filters = {}
 
 	filter_json = False
 	page = 1
@@ -871,7 +874,8 @@ def get_detail_penjualan(filters=None, mode=False, all=False):
 		currentpage = filter_json.get('currentpage', False)
 		
 		if search:
-			invoice_filters.update({'owner_name': ['like', '%'+search+'%']})
+			invoice_or_filters.update({'owner_name': ['like', '%'+search+'%']})
+			invoice_or_filters.update({'name': ['like', '%'+search+'%']})
 
 		if currentpage:
 			page = currentpage
@@ -891,10 +895,10 @@ def get_detail_penjualan(filters=None, mode=False, all=False):
 	try:
 		fields = ["name", "invoice_date", "owner", "owner_name", "subtotal", "potongan", "total", "is_refund"]
 		if all:
-			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields)
+			invoices = frappe.get_list("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, fields=fields)
 		else: 
-			invoices = frappe.get_list("VetCustomerInvoice", filters=invoice_filters, fields=fields, start=(page - 1) * 30, page_length= 30)
-		datalength = len(frappe.get_all("VetCustomerInvoice", filters=invoice_filters, as_list=True))
+			invoices = frappe.get_list("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, fields=fields, start=(page - 1) * 30, page_length= 30)
+		datalength = len(frappe.get_all("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, as_list=True))
 
 		for i in invoices:
 			customer_invoice_children = frappe.get_list('VetCustomerInvoiceChildren', filters={'parent': i['name']}, fields=['customer_invoice'])

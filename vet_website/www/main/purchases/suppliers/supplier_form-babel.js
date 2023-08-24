@@ -146,7 +146,7 @@ class Suppliers extends React.Component {
             }
             else{
                 var purchases = (
-                    <div className="col-auto mr-auto" style={cursor} key="purchases" onClick={() => window.location.href = "/main/purchases/purchase-order?supplier="+this.state.data.name}>
+                    <a className="col-auto mr-auto" style={cursor} key="purchases" href={"/main/purchases/purchase-order?supplier="+this.state.data.name}>
                         <div className="row mx-0">
                             <div className="col-auto px-0">
                                 <img className="d-block mx-auto header-icon mt-2" src="/static/img/main/menu/purchases.png"/>
@@ -158,7 +158,7 @@ class Suppliers extends React.Component {
                                 </span>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 )
                 
                 if(write){

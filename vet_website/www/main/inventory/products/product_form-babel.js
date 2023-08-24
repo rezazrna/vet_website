@@ -335,7 +335,7 @@ class Products extends React.Component {
         var write = checkPermission('VetProduct', this.state.currentUser, 'write')
         
         var on_hand = (
-            <a className="col-auto mr-4" style={cursor} key="on_hand" href={window.location.href = '/main/inventory/inventory?product='+this.state.data.name}>
+            <a className="col-auto mr-4" style={cursor} key="on_hand" href={'/main/inventory/inventory?product='+this.state.data.name}>
                 <div className="row mx-0">
                     <div className="col-auto px-0">
                         <img className="d-block mx-auto header-icon mt-2" src="/static/img/main/menu/product-on-hand.png"/>

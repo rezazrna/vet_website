@@ -51,6 +51,7 @@ def get_journal_entry_list(filters=None):
 			je_or_filters.append({'journal_name': ['like', '%'+search+'%']})
 			je_or_filters.append({'reference': ['like', '%'+search+'%']})
 			je_or_filters.append({'status': ['like', '%'+search+'%']})
+			je_or_filters.append({'keterangan': ['like', '%'+search+'%']})
 			
 		if reference:
 			je_filters.append({'reference': reference})

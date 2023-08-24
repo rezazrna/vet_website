@@ -438,7 +438,7 @@ class LineRow extends React.Component {
                     <span className="my-auto">{formatter.format(this.props.racikan_total || line.unit_price || 0)}</span>
                 </div>
                 <div className="col d-flex">
-                    <span className="my-auto">{line.potongan}</span>
+                    <span className="my-auto">{line.discount}%</span>
                 </div>
                 <div className="col d-flex">
                     <span className="my-auto">{formatter.format(this.props.racikan_total || line.total || 0)}</span>
@@ -523,7 +523,7 @@ class PDF extends React.Component {
                         <td className="py-1">{Math.ceil(i.quantity || 0)}</td>
                         <td className="py-1">{(i.uom_name || i.product_uom)}</td>
                         <td className="py-1">{formatter.format(this.props.racikan_total || i.unit_price || 0)}</td>
-                        <td className="py-1">{i.potongan}</td>
+                        <td className="py-1">{i.discount}%</td>
                         <td className="py-1">{formatter.format(this.props.racikan_total || i.total || 0)}</td>
                     </tr>
                 )

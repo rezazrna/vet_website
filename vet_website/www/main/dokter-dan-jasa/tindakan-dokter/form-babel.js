@@ -1294,27 +1294,27 @@ class TindakanDokterJasaLain extends React.Component {
 }
 
 class TindakanDokterJasaLainRow extends React.Component {
-    tindakLanjutClick(mode){
-        if(mode=='rawat_inap'){
-            if(this.props.rawat_inap && this.props.rawat_inap.length > 1){
-                window.location.href = '/main/dokter-dan-jasa/rawat-inap?register_number='+encodeURIComponent(this.props.register_number)
-            } else if(this.props.rawat_inap && this.props.rawat_inap.length == 1) {
-                window.location.href = '/main/dokter-dan-jasa/rawat-inap/edit?n='+encodeURIComponent(this.props.rawat_inap[0])
-            }
-        } else if (mode=='grooming'){
-            if(this.props.grooming && this.props.grooming.length > 1){
-                window.location.href = '/main/dokter-dan-jasa/grooming?register_number='+encodeURIComponent(this.props.register_number)
-            } else if(this.props.grooming && this.props.grooming.length == 1){
-                window.location.href = '/main/dokter-dan-jasa/grooming/edit?n='+encodeURIComponent(this.props.grooming[0])
-            }
-        } else if (mode=='operation') {
-            if(this.props.instalasi_medis && this.props.instalasi_medis.length > 1){
-                window.location.href = '/main/dokter-dan-jasa/instalasi-medis?register_number='+encodeURIComponent(this.props.register_number)
-            } else if(this.props.instalasi_medis && this.props.instalasi_medis.length == 1){
-                window.location.href = '/main/dokter-dan-jasa/instalasi-medis/edit?n='+encodeURIComponent(this.props.instalasi_medis[0])
-            }
-        }
-    }
+    // tindakLanjutClick(mode){
+    //     if(mode=='rawat_inap'){
+    //         if(this.props.rawat_inap && this.props.rawat_inap.length > 1){
+    //             window.location.href = '/main/dokter-dan-jasa/rawat-inap?register_number='+encodeURIComponent(this.props.register_number)
+    //         } else if(this.props.rawat_inap && this.props.rawat_inap.length == 1) {
+    //             window.location.href = '/main/dokter-dan-jasa/rawat-inap/edit?n='+encodeURIComponent(this.props.rawat_inap[0])
+    //         }
+    //     } else if (mode=='grooming'){
+    //         if(this.props.grooming && this.props.grooming.length > 1){
+    //             window.location.href = '/main/dokter-dan-jasa/grooming?register_number='+encodeURIComponent(this.props.register_number)
+    //         } else if(this.props.grooming && this.props.grooming.length == 1){
+    //             window.location.href = '/main/dokter-dan-jasa/grooming/edit?n='+encodeURIComponent(this.props.grooming[0])
+    //         }
+    //     } else if (mode=='operation') {
+    //         if(this.props.instalasi_medis && this.props.instalasi_medis.length > 1){
+    //             window.location.href = '/main/dokter-dan-jasa/instalasi-medis?register_number='+encodeURIComponent(this.props.register_number)
+    //         } else if(this.props.instalasi_medis && this.props.instalasi_medis.length == 1){
+    //             window.location.href = '/main/dokter-dan-jasa/instalasi-medis/edit?n='+encodeURIComponent(this.props.instalasi_medis[0])
+    //         }
+    //     }
+    // }
     
     render() {
         var item = this.props.item
