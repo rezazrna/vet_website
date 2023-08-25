@@ -11,7 +11,10 @@ class PenjualanProduk extends React.Component {
             'year': '',
             'print_loading': false,
             'print_data': [],
-            'list_year': []
+            'list_year': [],
+            'list_tags': [],
+            'tag': '',
+            'mode': '',
         }
 
         this.setFilter = this.setFilter.bind(this);
@@ -28,6 +31,17 @@ class PenjualanProduk extends React.Component {
                 if (r.message) {
                     console.log(r.message);
                     td.setState({ 'list_year': r.message });
+                }
+            }
+        });
+
+        frappe.call({
+            type: "GET",
+            method: "vet_website.methods.get_list_tag",
+            callback: function (r) {
+                if (r.message) {
+                    console.log(r.message);
+                    td.setState({ 'list_tags': r.message });
                 }
             }
         });
@@ -54,6 +68,8 @@ class PenjualanProduk extends React.Component {
             }
 
             th.setState({ invoice_date: invoice_date })
+        } else if (name == 'tag') {
+            th.setState({'tag': value})
         }
     }
 
@@ -79,7 +95,7 @@ class PenjualanProduk extends React.Component {
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.get_penjualan_produk",
-            args: { filters: filters, mode: td.state.mode, },
+            args: { filters: filters, mode: td.state.mode, tag: td.state.tag},
             callback: function (r) {
                 if (r.message) {
                     console.log(r.message)
@@ -109,7 +125,7 @@ class PenjualanProduk extends React.Component {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.get_penjualan_produk",
-                args: { filters: filters, mode: td.state.mode, },
+                args: { filters: filters, mode: td.state.mode, tag: td.state.tag},
                 callback: function (r) {
                     if (r.message) {
                         console.log(r.message)
@@ -179,11 +195,11 @@ class PenjualanProduk extends React.Component {
     }
 
     render() {
-
         var row_style2 = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px', 'height': '72px' }
         var formStyle = { border: '1px solid #397DA6', color: '#397DA6' }
-        var month_options = [<option className="d-none" key="99999"></option>]
-        var year_options = [<option className="d-none" key="99999"></option>]
+        var month_options = [<option className="d-none" key="99999" value="" disabled hidden>Month</option>]
+        var year_options = [<option className="d-none" key="99999" value="" disabled hidden>Year</option>]
+        var tags_options = [<option className="d-none" key="99999" value="" disabled hidden>Product Tag</option>]
 
         var i
         for (i = 0; i <= 11; i++) {
@@ -193,6 +209,10 @@ class PenjualanProduk extends React.Component {
 
         this.state.list_year.forEach(function(e, index) {
             year_options.push(<option key={e}>{e}</option>)
+        })
+
+        this.state.list_tags.forEach(function(e, index) {
+            tags_options.push(<option key={e.name}>{e.name}</option>)
         })
 
         if (this.state.loaded) {
@@ -226,7 +246,7 @@ class PenjualanProduk extends React.Component {
                         </div>
                         <div className="col-2 my-auto">
                             <select name="mode" placeholder="Periode" className="form-control" value={this.state.mode} onChange={e => this.setMode(e)}>
-                                <option className="d-none" key="99999"></option>
+                                <option className="d-none" key="99999" value="" disabled hidden>Type</option>
                                 <option value="monthly">Monthly</option>
                                 <option value="annual">Annual</option>
                                 <option value="period">Period</option>
@@ -237,6 +257,11 @@ class PenjualanProduk extends React.Component {
                         <div className="col-2 my-auto">
                             <select name="year" placeholder="Year" className="form-control" value={this.state.year} onChange={e => this.filterChange(e)}>
                                 {year_options}
+                            </select>
+                        </div>
+                        <div className="col-2 my-auto">
+                            <select name="tag" placeholder="Product Tag" className="form-control" value={this.state.tag} onChange={e => this.filterChange(e)}>
+                                {tags_options}
                             </select>
                         </div>
                         <div className="col-2 my-auto">

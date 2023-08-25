@@ -1107,6 +1107,15 @@ def get_list_year():
 	except:
 		return {'error': "Gagal mengambil list tahun"}
 
+@frappe.whitelist()
+def get_list_tag():
+	try:
+		tags = frappe.get_list("VetTag")
+
+		return tags
+	except:
+		return {'error': "Gagal mengambil list tahun"}
+
 # @frappe.whitelist()
 # def run_every_two_mins():
 # 	try:

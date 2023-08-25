@@ -2129,7 +2129,7 @@ def create_sales_exchange_journal(invoice_name, amount, method, deposit=False):
 	return True
 
 @frappe.whitelist()
-def get_penjualan_produk(filters=None, mode=False, all=False):
+def get_penjualan_produk(filters=None, mode=False, all=False, tag=False):
 	invoice_filters = {"status": ['not in', ['Cancel', 'Draft']]}
 	invoice_or_filters = {}
 	order_or_filters = {}
@@ -2181,6 +2181,12 @@ def get_penjualan_produk(filters=None, mode=False, all=False):
 		order_names = list(j.name for j in orders)
 
 		order_product_filters.update({'parent': ['in', order_names]})
+
+		if tag != None and tag != False and tag != '':
+			product_filtered =  frappe.get_list("VetProductTags", filters={'tag_id': tag}, fields=["name", "parent"])
+			product_names = list(p.parent for p in product_filtered)
+			line_filters.update({'product': ['in', product_names]})
+			order_product_filters.update({'produk': ['in', product_names]})
 
 		datalength = 0
 		if all:

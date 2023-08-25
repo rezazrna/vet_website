@@ -122,7 +122,7 @@ class DetailPenjualan extends React.Component {
         }
     }
 
-    getPrintData() {
+    getPrintData(is_excel=false) {
         var td = this
 
         if (!this.state.print_loading) {
@@ -137,7 +137,7 @@ class DetailPenjualan extends React.Component {
                             console.log(r.message)
                             td.setState({ 'print_data': r.message.data, 'loaded': true, 'datalength': r.message.datalength, all: 1 });
                             setTimeout(function() {
-                                td.printPDF()
+                                td.print(is_excel)
                             }, 3000);
                         }
                     }
@@ -148,7 +148,7 @@ class DetailPenjualan extends React.Component {
         }
     }
 
-    printPDF() {
+    print(is_excel=false) {
         var title = 'DetailPenjualan-'
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
@@ -165,17 +165,33 @@ class DetailPenjualan extends React.Component {
             }
         }
 
-        var pdfid = 'pdf'
-        var source = document.getElementById(pdfid)
-        var opt = {
-            margin: [10, 0, 10, 0],
-            filename: title + ".pdf",
-            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-            html2canvas: { scale: 3 },
-            jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
+        if (is_excel) {
+            var elt = document.getElementById('excel_page');
+            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+            var sheet = wb.Sheets[wb.SheetNames[0]];
+
+            var sheetcols = [
+                {wpx:419},
+                {wpx:140},
+            ];
+            
+            sheet['!cols'] = sheetcols;
+
+            XLSX.writeFile(wb, title + '.xlsx');
+            this.setState({print_loading: false});
+        } else {
+            var pdfid = 'pdf'
+            var source = document.getElementById(pdfid)
+            var opt = {
+                margin: [10, 0, 10, 0],
+                filename: title + ".pdf",
+                pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
+                html2canvas: { scale: 3 },
+                jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
+            }
+            html2pdf().set(opt).from(source).save()
+            this.setState({ print_loading: false })
         }
-        html2pdf().set(opt).from(source).save()
-        this.setState({ print_loading: false })
     }
 
     render() {
@@ -218,6 +234,7 @@ class DetailPenjualan extends React.Component {
                     <div className="row mx-0" style={row_style2}>
                         <div className="col-auto my-auto">
                             <button type="button" className={this.state.print_loading ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2" : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3" />Loading...</span>) : "Print"}</button>
+                            <button type="button" className={this.state.print_loading ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2" : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData(true)}>{this.state.print_loading ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3" />Loading...</span>) : "Print Excel"}</button>
                         </div>
                         <div className="col-2 my-auto">
                             <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.setFilter(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
@@ -243,6 +260,7 @@ class DetailPenjualan extends React.Component {
                     </div>
                     <DetailPenjualanList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
                     <PDF data={this.state.print_data} />
+                    <ExcelPage data={this.state.print_data} />
                 </div>
             )
         }
@@ -621,6 +639,186 @@ class PDF extends React.Component {
                         </table>
                     </div>
                 </div>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                    <p className="mb-0 fs24md fs16 fw600 text-muted">
+                        <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                    </p>
+                </div>
+            </div>
+        }
+    }
+}
+
+class ExcelPage extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+
+    componentDidMount() {
+        var ci = this
+
+        frappe.call({
+            type: "GET",
+            method: "vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function (r) {
+                if (r.message) {
+                    ci.setState({ 'profile': r.message.profile, 'loaded': true });
+                }
+            }
+        });
+    }
+
+    render() {
+        var data = this.props.data
+        var profile = this.state.profile
+        console.log(data)
+        var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
+        var borderStyle = { border: '1px solid #000', margin: '15px 0' }
+        var row2 = { width: '100%' }
+        var th = { border: '1px solid #000' }
+        var td = { borderLeft: '1px solid #000', borderRight: '1px solid #000' }
+        var fs13 = { fontSize: 13 }
+        var fs9 = { fontSize: 9 }
+        var invoice = { letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18 }
+        var invoice2 = { letterSpacing: 0 }
+        var thead = { background: '#d9d9d9', fontSize: 11 }
+        var table_rows = []
+
+        data.forEach((d, index) => {
+            var all_quantity = 0
+
+            table_rows.push(
+                <tr key={d.name} style={fs9} className="text-center">
+                    <td className="py-1">{d.name}</td>
+                    <td className="py-1">{moment(d.is_refund ? d.refund_date : d.invoice_date).subtract(0, 'minute').format("YYYY-MM-DD HH:mm:ss")}</td>
+                    <td className="py-1">{d.owner}</td>
+                    <td className="py-1">{d.owner_name}</td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                </tr>
+            )
+
+            table_rows.push(
+                <tr className="text-center fs10">
+                    <th className="fw600 py-2" width="58px" >Product Code</th>
+                    <th className="fw600 py-2" width="91px" >Product</th>
+                    <th className="fw600 py-2" width="101px" >Quantity</th>
+                    <th className="fw600 py-2" width="73px" >UOM</th>
+                    <th className="fw600 py-2" width="73px" >Price</th>
+                    <th className="fw600 py-2" width="73px" >Potongan</th>
+                    <th className="fw600 py-2" width="73px" >Total</th>
+                </tr>
+            )
+
+            d.lines.forEach((i, count) => {
+                table_rows.push(
+                    <tr key={i.name} style={fs9} className="text-center">
+                        <td className="py-1">{i.product}</td>
+                        <td className="py-1">{i.product_name}</td>
+                        <td className="py-1">{Math.ceil(i.quantity || 0)}</td>
+                        <td className="py-1">{(i.uom_name || i.product_uom)}</td>
+                        <td className="py-1">{formatter.format(this.props.racikan_total || i.unit_price || 0)}</td>
+                        <td className="py-1">{i.discount}%</td>
+                        <td className="py-1">{formatter.format(this.props.racikan_total || i.total || 0)}</td>
+                    </tr>
+                )
+                all_quantity += Math.ceil(i.quantity || 0)
+            })
+
+            // table_rows.push(
+            //     <div className="row justify-content-end">
+            //         <div className="col-9">
+            //             <div style={borderStyle}/>
+            //         </div>
+            //     </div>
+            // )
+
+            table_rows.push(
+                <tr style={fs9} className="text-center">
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1">{all_quantity}</td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1">{formatter.format((d.all_subtotal || d.subtotal))}</td>
+                </tr>
+            )
+
+            table_rows.push(
+                <tr style={fs9} className="text-center">
+                    <td className="py-1">Pot    :</td>
+                    <td className="py-1">{d.potongan}</td>
+                    <td className="py-1">Pajak  :</td>
+                    <td className="py-1">0</td>
+                    <td className="py-1"></td>
+                    <td className="py-1">Total Akhir    :</td>
+                    <td className="py-1">{formatter.format((d.all_total || d.total))}</td>
+                </tr>
+            )
+
+            table_rows.push(
+                <tr className="text-center">
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                    <td className="py-1"></td>
+                </tr>
+            )
+        })
+
+        if (this.state.loaded) {
+            var image
+            if (profile.image != undefined) {
+                var image_style = { position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%' }
+                image = <img src={profile.temp_image || profile.image} style={image_style} />
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            return (
+                <table id="excel_page" border="1" className="position-absolute d-none" style={page_dimension}>
+                    <thead className="text-uppercase" style={thead}>
+                        <tr>
+                        <td rowspan="3">{image}</td>
+                        <td colspan="3">{profile.clinic_name}</td>
+                        <td colspan="2">Detail Penjualan</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">{profile.address}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">Telp. : {profile.phone}</td>
+                        <td colspan="2">{moment().format("MM/YYYY")}</td>
+                    </tr>
+                    <tr></tr>
+                    <tr></tr>
+                        <tr className="text-center">
+                            <th className="fw700 py-2" width="58px" >No Invoice</th>
+                            <th className="fw700 py-2" width="91px" >Tanggal</th>
+                            <th className="fw700 py-2" width="101px" >ID Pemilik</th>
+                            <th className="fw700 py-2" width="73px" >Nama Pemilik</th>
+                            <th className="fw700 py-2" width="73px" ></th>
+                            <th className="fw700 py-2" width="73px" ></th>
+                            <th className="fw700 py-2" width="73px" ></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {table_rows}
+                    </tbody>
+                </table>
             )
         } else {
             return <div className="row justify-content-center" key='0'>

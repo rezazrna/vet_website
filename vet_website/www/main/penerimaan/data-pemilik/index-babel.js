@@ -217,7 +217,7 @@ class PetOwner extends React.Component {
             { 'label': 'Alamat', 'field': 'address', 'type': 'char' },
             { 'label': 'Telepon', 'field': 'phone', 'type': 'char' },
             { 'label': 'Email', 'field': 'email', 'type': 'char' },
-            { 'label': 'Piutang', 'field': 'piutang', 'type': 'int' }
+            // { 'label': 'Piutang', 'field': 'piutang', 'type': 'int' }
         ]
 
         var row_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px' }

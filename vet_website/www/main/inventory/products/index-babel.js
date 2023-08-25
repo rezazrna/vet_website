@@ -213,6 +213,7 @@ class Products extends React.Component {
             { 'label': 'Category Name', 'field': 'category_name', 'type': 'select', 'options': category_options },
             //  {'label': 'UOM Name', 'field': 'uom_name', 'type': 'char'},
             { 'label': 'Price', 'field': 'price', 'type': 'int' },
+            { 'label': 'Tag', 'field': 'tag', 'type': 'char' },
         ]
 
         var row_style2 = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px', 'height': '72px' }

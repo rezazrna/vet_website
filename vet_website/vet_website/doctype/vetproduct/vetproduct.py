@@ -73,6 +73,7 @@ def get_product_list(filters=None):
 	default_sort = "creation desc"
 	td_filters = []
 	td_or_filters = []
+	product_tag_filters = {}
 	filter_json = False
 	page = 1
 	
@@ -99,12 +100,20 @@ def get_product_list(filters=None):
 		
 		if filters_json:
 			for fj in filters_json:
-				td_filters.append(fj)
+				if fj[0] == 'tag':
+					product_tag_filters.update({'tag_id': [fj[1], fj[2]]})
+				else:
+					td_filters.append(fj)
 		
 		if sort:
 			default_sort = sort
 			
 	try:
+		if len(product_tag_filters) > 0:
+			product_filtered =  frappe.get_list("VetProductTags", filters=product_tag_filters, fields=["name", "parent"])
+			product_names = list(p.parent for p in product_filtered)
+			td_filters.append(['name', 'in', product_names])
+
 		product_list = frappe.get_list("VetProduct", or_filters=td_or_filters, filters=td_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 		datalength = len(frappe.get_all("VetProduct", or_filters=td_or_filters, filters=td_filters, as_list=True))
 		for p in product_list:

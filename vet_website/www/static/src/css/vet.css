@@ -12,12 +12,12 @@ html {
 
 a {
 	text-decoration:none;
-	color: black;
+	color: #6D7573;
 }
 
 a:hover {
 	text-decoration:none;
-	color: black;
+	color: #6D7573;
 }
 
 .form-control[readonly] {
