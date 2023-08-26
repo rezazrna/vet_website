@@ -2135,6 +2135,7 @@ def get_penjualan_produk(filters=None, mode=False, all=False, tag=False):
 	order_or_filters = {}
 	line_filters = {}
 	order_product_filters = {}
+	product_filters = {}
 
 	filter_json = False
 	page = 1
@@ -2154,7 +2155,7 @@ def get_penjualan_produk(filters=None, mode=False, all=False, tag=False):
 			page = currentpage
 		
 		if search:
-			line_filters.update({'product_name': ['like', '%'+search+'%']})
+			product_filters.update({'product_name': ['like', '%'+search+'%']})
 
 		if invoice_date:
 			if mode == 'monthly' or mode == 'period':
@@ -2172,78 +2173,94 @@ def get_penjualan_produk(filters=None, mode=False, all=False, tag=False):
 			order_or_filters.update({'refund_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 	
 	try:
-		invoices = frappe.get_list("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, fields=["name"])
-		invoice_names = list(j.name for j in invoices)
-
-		line_filters.update({'parent': ['in', invoice_names]})
-
-		orders = frappe.get_list("VetPosOrder", or_filters=order_or_filters, fields=["name"])
-		order_names = list(j.name for j in orders)
-
-		order_product_filters.update({'parent': ['in', order_names]})
-
 		if tag != None and tag != False and tag != '':
 			product_filtered =  frappe.get_list("VetProductTags", filters={'tag_id': tag}, fields=["name", "parent"])
 			product_names = list(p.parent for p in product_filtered)
-			line_filters.update({'product': ['in', product_names]})
-			order_product_filters.update({'produk': ['in', product_names]})
+			product_filters.update({'name': ['in', product_names]})
 
 		datalength = 0
 		if all:
-			line_products = frappe.get_list("VetCustomerInvoiceLine", filters=line_filters, fields=['product'], group_by='product')
+			products = frappe.get_list("VetProduct", filters=product_filters, order_by="creation desc")
 		else:
-			line_products = frappe.get_list("VetCustomerInvoiceLine", filters=line_filters, fields=['product'], start=(page - 1) * 30, page_length= 30, group_by='product')
-			datalength = len(frappe.get_all("VetCustomerInvoiceLine", filters=line_filters, group_by='product', as_list=True))
+			products = frappe.get_list("VetProduct", filters=product_filters, start=(page - 1) * 30, page_length= 30, order_by="creation desc")
+			datalength = len(frappe.get_all("VetProduct", filters=product_filters, as_list=True))
 
 		response = []
-		for lp in line_products:
-			product, product_name, category_name = frappe.db.get_value('VetProduct', lp['product'], ['name', 'product_name', 'category_name'])
+		for pr in products:
+			product_creation, product_name, category_name, product_uom = frappe.db.get_value('VetProduct', pr['name'], ['creation', 'product_name', 'category_name', 'product_uom'])
+			uom_name = frappe.db.get_value('VetUOM', product_uom, 'uom_name')
 
-			line_filters.update({'product': lp['product']})
-			lines = frappe.get_list("VetCustomerInvoiceLine", filters=line_filters, fields=['name', 'quantity', 'unit_price', 'product_uom', 'parent', 'product'])
-			for l in lines:
-				is_refund = frappe.db.get_value('VetCustomerInvoice', l['parent'], 'is_refund')
-				if is_refund:
-					l['quantity'] = -l['quantity']
-				uom_name = frappe.db.get_value('VetUOM', l['product_uom'], 'uom_name')
+			invoices = frappe.get_list("VetCustomerInvoice", or_filters=invoice_or_filters, filters=invoice_filters, fields=["name"])
+			invoice_names = list(j.name for j in invoices)
 
-				invoice_purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': l['name']}, fields=['purchase_products_name'])
+			line_filters = {'parent': ['in', invoice_names], 'product': pr['name']}
+
+			line_products = frappe.get_list("VetCustomerInvoiceLine", filters=line_filters, fields=['name', 'quantity', 'unit_price', 'product_uom', 'parent', 'product'])
+
+			for lp in line_products:
+				invoice_purchase_filters = {'invoice_line_name': lp['name']}
+
+				invoice = frappe.get_doc('VetCustomerInvoice', lp['parent'])
+				if invoice.is_refund:
+					lp['quantity'] = -lp['quantity']
+					line_refund = frappe.get_list("VetCustomerInvoiceLine", filters={'parent': invoice.refund_from, 'product': lp['product']})
+					if line_refund:
+						invoice_purchase_filters = {'invoice_line_name': line_refund[0]['name']}
+
+				invoice_purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters=invoice_purchase_filters, fields=['purchase_products_name'])
 				if len(invoice_purchase_products) > 0:
 					for ipp in invoice_purchase_products:
 						purchase_name = frappe.db.get_value('VetPurchaseProducts', ipp['purchase_products_name'], 'parent')
 						supplier, supplier_name = frappe.db.get_value('VetPurchase', purchase_name, ['supplier', 'supplier_name'])
-						index_same = [i for i, x in enumerate(response) if x.get('product') == l['product'] and x.get('supplier') == supplier]
+						index_same = [i for i, x in enumerate(response) if x.get('product') == lp['product'] and x.get('supplier') == supplier]
 						if len(index_same) > 0:
-							response[index_same[0]]['quantity'] += l['quantity']
-							response[index_same[0]]['total'] += l['quantity'] * l['unit_price']
+							response[index_same[0]]['quantity'] += lp['quantity']
+							response[index_same[0]]['total'] += lp['quantity'] * lp['unit_price']
+							response[index_same[0]]['detail'].append({'invoice_name': invoice.name, 'pet_owner': invoice.owner_name, 'pet': invoice.pet_name, 'quantity': lp['quantity'], 'total': lp['quantity'] * lp['unit_price']})
 						else:
-							p = {'product': product, 'product_name': product_name, 'category_name': category_name, 'uom_name': uom_name}
+							p = {'product': lp['product'], 'product_name': product_name, 'category_name': category_name, 'uom_name': uom_name, 'creation': product_creation}
 							p['supplier'] = supplier
 							p['supplier_name'] = supplier_name
-							p['quantity'] = l['quantity']
-							p['total'] = l['quantity'] * l['unit_price']
+							p['quantity'] = lp['quantity']
+							p['total'] = lp['quantity'] * lp['unit_price']
+							p['detail'] = [
+								{'invoice_name': invoice.name, 'pet_owner': invoice.owner_name, 'pet': invoice.pet_name, 'quantity': lp['quantity'], 'total': lp['quantity'] * lp['unit_price']}
+							]
 							response.append(p)
 				else:
-					index_same = [i for i, x in enumerate(response) if x.get('product') == l['product']]
+					index_same = [i for i, x in enumerate(response) if x.get('product') == lp['product']]
 					if len(index_same) > 0:
-						response[index_same[0]]['quantity'] += l['quantity']
-						response[index_same[0]]['total'] += l['quantity'] * l['unit_price']
+						response[index_same[0]]['quantity'] += lp['quantity']
+						response[index_same[0]]['total'] += lp['quantity'] * lp['unit_price']
+						response[index_same[0]]['detail'].append({'invoice_name': invoice.name, 'pet_owner': invoice.owner_name, 'pet': invoice.pet_name, 'quantity': lp['quantity'], 'total': lp['quantity'] * lp['unit_price']})
 					else:
-						o = {'product': product, 'product_name': product_name, 'category_name': category_name, 'uom_name': uom_name}
+						o = {'product': lp['product'], 'product_name': product_name, 'category_name': category_name, 'uom_name': uom_name, 'creation': product_creation}
 						o['supplier'] = ''
 						o['supplier_name'] = ''
-						o['quantity'] = l['quantity']
-						o['total'] = l['quantity'] * l['unit_price']
+						o['quantity'] = lp['quantity']
+						o['total'] = lp['quantity'] * lp['unit_price']
+						o['detail'] = [
+							{'invoice_name': invoice.name, 'pet_owner': invoice.owner_name, 'pet': invoice.pet_name, 'quantity': lp['quantity'], 'total': lp['quantity'] * lp['unit_price']}
+						]
 						response.append(o)
 
-			order_product_filters.update({'produk': lp['product']})
+			orders = frappe.get_list("VetPosOrder", or_filters=order_or_filters, fields=["name"])
+			order_names = list(j.name for j in orders)
+
+			order_product_filters = {'parent': ['in', order_names], 'produk': pr['name']}
+
 			order_products = frappe.get_list("VetPosOrderProduk", filters=order_product_filters, fields=['name', 'quantity', 'price', 'uom_name', 'parent', 'produk'])
 			for op in order_products:
-				is_refund = frappe.db.get_value('VetPosOrder', op['parent'], 'is_refund')
-				if is_refund:
+				order_purchase_filters = {'order_produk_name': op['name']}
+				order = frappe.get_doc('VetPosOrder', op['parent'])
+				if order.is_refund:
 					op['quantity'] = -op['quantity']
+					order_refund = frappe.get_list("VetPosOrderProduk", filters={'parent': order.refund_from, 'produk': op['produk']})
+					if order_refund:
+						order_purchase_filters = {'order_produk_name': order_refund[0]['name']}
+					
 
-				order_purchase_products = frappe.get_list('VetPosOrderPurchaseProducts', filters={'order_produk_name': l['name']}, fields=['purchase_products_name'])
+				order_purchase_products = frappe.get_list('VetPosOrderPurchaseProducts', filters=order_purchase_filters, fields=['purchase_products_name'])
 				if len(order_purchase_products) > 0:
 					for opp in order_purchase_products:
 						purchase_name = frappe.db.get_value('VetPurchaseProducts', opp['purchase_products_name'], 'parent')
@@ -2252,25 +2269,50 @@ def get_penjualan_produk(filters=None, mode=False, all=False, tag=False):
 						if len(index_same) > 0:
 							response[index_same[0]]['quantity'] += op['quantity']
 							response[index_same[0]]['total'] += op['quantity'] * op['price']
+							response[index_same[0]]['detail'].append({'invoice_name': order.name, 'pet_owner': order.owner_name, 'pet': order.pet_name, 'quantity': op['quantity'], 'total': op['quantity'] * op['price']})
 						else:
-							p = {'product': product, 'product_name': product_name, 'category_name': category_name, 'uom_name': op['uom_name']}
+							p = {'product': op['produk'], 'product_name': product_name, 'category_name': category_name, 'uom_name': op['uom_name'], 'creation': product_creation}
 							p['supplier'] = supplier
 							p['supplier_name'] = supplier_name
 							p['quantity'] = op['quantity']
 							p['total'] = op['quantity'] * op['price']
+							p['detail'] = [
+								{'invoice_name': order.name, 'pet_owner': order.owner_name, 'pet': order.pet_name, 'quantity': op['quantity'], 'total': op['quantity'] * op['price']}
+							]
 							response.append(p)
 				else:
 					index_same = [i for i, x in enumerate(response) if x.get('product') == op['produk']]
 					if len(index_same) > 0:
 						response[index_same[0]]['quantity'] += op['quantity']
 						response[index_same[0]]['total'] += op['quantity'] * op['price']
+						response[index_same[0]]['detail'].append({'invoice_name': order.name, 'pet_owner': order.owner_name, 'pet': order.pet_name, 'quantity': op['quantity'], 'total': op['quantity'] * op['price']})
 					else:
-						o = {'product': product, 'product_name': product_name, 'category_name': category_name, 'uom_name': op['uom_name']}
+						o = {'product': op['produk'], 'product_name': product_name, 'category_name': category_name, 'uom_name': op['uom_name'], 'creation': product_creation}
 						o['supplier'] = ''
 						o['supplier_name'] = ''
 						o['quantity'] = op['quantity']
 						o['total'] = op['quantity'] * op['price']
+						o['detail'] = [
+							{'invoice_name': order.name, 'pet_owner': order.owner_name, 'pet': order.pet_name, 'quantity': op['quantity'], 'total': op['quantity'] * op['price']}
+						]
 						response.append(o)
+			
+			if not line_products and not order_products:
+				o = {
+					'product': pr['name'],
+					'product_name': product_name,
+					'category_name': category_name,
+					'uom_name': uom_name,
+					'creation': product_creation,
+					'supplier': '',
+					'supplier_name': '',
+					'quantity': 0,
+					'total': 0,
+					'detail': []
+				}
+				response.append(o)
+
+		# response.sort(key=lambda x: x['creation'], reverse=True)
 			
 		return {'data': response, 'datalength': datalength}
 		

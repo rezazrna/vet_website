@@ -423,7 +423,7 @@ class JournalEntryMainForm extends React.Component {
                     reHref = r.pathname+reference
                 }
             })
-            var link_reference = <a href={reHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" onClick={e => this.referenceClick(e)} style={cursor}/></a>
+            var link_reference = <a href={reHref}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
             
             journal = <span className="fs16 px-0 d-block">{data.journal_name}</span>
             period = <span className="fs16 px-0 d-block">{data.period}</span>
@@ -597,7 +597,7 @@ class JournalEntryItemsRow extends React.Component {
                 accountOptions.push(<option value={item.name} key={index.toString()}>{item.account_name}</option>)
             })
             
-            account = <input required={required} name='account' list={"account"+index} id={"account"+index} style={bgStyle} className="form-control border-0 fs14 fw600 px-0" onChange={e => this.props.handleInputChange(e, index)} onBlur={e => this.props.handleInputBlur(e, this.props.accounts, this.props.index)} value={item.account_name || ''}/>
+            account = <input required={required} name='account' autoComplete="off" list={"account"+index} id={"account"+index} style={bgStyle} className="form-control border-0 fs14 fw600 px-0" onChange={e => this.props.handleInputChange(e, index)} onBlur={e => this.props.handleInputBlur(e, this.props.accounts, this.props.index)} value={item.account_name || ''}/>
 			debit = <input type="text" name="debit" id={"debit"+index} style={bgStyle} className="form-control border-0 fs14 fw600 text-center" onChange={e => this.props.handleInputChange(e, index)} value={item.debit || ''} placeholder="0"/>
 			credit = <input type="text" name="credit" id={"credit"+index} style={bgStyle} className="form-control border-0 fs14 fw600 text-center" onChange={e => this.props.handleInputChange(e, index)} value={item.credit || ''} placeholder="0"/>
 							

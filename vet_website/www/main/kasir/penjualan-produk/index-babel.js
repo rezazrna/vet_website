@@ -19,6 +19,7 @@ class PenjualanProduk extends React.Component {
 
         this.setFilter = this.setFilter.bind(this);
         this.paginationClick = this.paginationClick.bind(this);
+        this.toggleShowDetail = this.toggleShowDetail.bind(this);
     }
 
     componentDidMount() {
@@ -136,6 +137,16 @@ class PenjualanProduk extends React.Component {
         } else {
             frappe.msgprint(('Month or Year must be selected'));
         }
+    }
+
+    toggleShowDetail(i){
+        var new_data = this.state.data.slice()
+        var value = false
+        if([undefined, false].includes(new_data[i].show_detail)){
+            value = true
+        }
+        new_data[i].show_detail = value
+        this.setState({data: new_data})
     }
 
     getPrintData() {
@@ -268,7 +279,7 @@ class PenjualanProduk extends React.Component {
                             <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
                         </div>
                     </div>
-                    <PenjualanProdukList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
+                    <PenjualanProdukList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} toggleShowDetail={this.toggleShowDetail} />
                     <PDF data={this.state.print_data} />
                 </div>
             )
@@ -294,9 +305,10 @@ class PenjualanProdukList extends React.Component {
         var items = this.props.items
 
         if (items.length != 0) {
+            var th = this
             items.forEach(function (item, index) {
                 rows.push(
-                    <PenjualanProdukListRow key={index.toString()} item={item} />
+                    <PenjualanProdukListRow key={index.toString()} item={item} toggleShowDetail={() => th.props.toggleShowDetail(index.toString())}/>
                 )
             })
 
@@ -352,13 +364,30 @@ class PenjualanProdukList extends React.Component {
 
 class PenjualanProdukListRow extends React.Component {
     render() {
+        var cursor = {cursor: 'pointer'}
+        var detail_style = {padding: '10px 0'}
 
         var item = this.props.item
+        var chevron_class = "fa fa-chevron-down my-auto"
+        var detail_group
+
+        if (item.show_detail) {
+            chevron_class = "fa fa-chevron-up my-auto"
+            var rows = []
+            if(item.detail != undefined){
+                item.detail.forEach((i, index) => rows.push(<PenjualanDetailRow item={i} key={index.toString()}/>))
+            }
+            detail_group = (
+                <div style={detail_style}>
+                    {rows}
+                </div>
+            )
+        }
 
         return (
-            <div className="row mx-0">
-                <div className="col row-list row-list-link">
-                    <div className="row mx-0 fs12 fw600">
+            <div className="row mx-0" style={cursor} onClick={this.props.toggleShowDetail}>
+                <div className="col">
+                    <div className="row row-list row-list-link mx-0 fs12 fw600">
                         <div className="col text-center">
                             <span>{item.product}</span>
                         </div>
@@ -380,7 +409,41 @@ class PenjualanProdukListRow extends React.Component {
                         <div className="col text-center">
                             <span>{formatter2.format(item.total)}</span>
                         </div>
+                        <div className="col-auto d-flex">
+                            <i className={chevron_class}/>
+                        </div>
                     </div>
+                    {detail_group}
+                </div>
+            </div>
+        )
+    }
+}
+
+class PenjualanDetailRow extends React.Component {
+    render(){
+        var item = this.props.item
+        var cursor = {cursor: 'pointer'}
+        
+        return(
+            <div className="row mx-1 fs12 fw600">
+                <div className="col text-center">
+                    <span>
+                        {item.invoice_name}
+                        <a href={'/main/kasir/customer-invoices/edit?n=' + item.invoice_name}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+                    </span>
+                </div>
+                <div className="col text-center">
+                    <span>{item.pet_owner}</span>
+                </div>
+                <div className="col text-center">
+                    <span>{item.pet}</span>
+                </div>
+                <div className="col text-center">
+                    <span>{formatter2.format(item.quantity)}</span>
+                </div>
+                <div className="col text-center">
+                    <span>{formatter2.format(item.total)}</span>
                 </div>
             </div>
         )
