@@ -129,8 +129,9 @@ def get_product_list(filters=None):
 			p.update({'uom_name': uom_name, 'tags': tags, 'quantity': sum(q.quantity for q in quantity), 'purchase_number': len(purchase_number), 'sales_number': len(sales_number)})
 
 		category_list = frappe.get_all("VetProductCategory")
+		tag_list = frappe.get_all("VetTag")
 			
-		return {'product': product_list, 'datalength': datalength, 'category_list': category_list}
+		return {'product': product_list, 'datalength': datalength, 'category_list': category_list, 'tag_list': tag_list}
 		
 	except PermissionError as e:
 		return {'error': e}

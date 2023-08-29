@@ -10,6 +10,7 @@ class Products extends React.Component {
             'search': false,
             'datalength': 0,
             'category_list': [],
+            'tag_list': [],
         }
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
@@ -42,7 +43,7 @@ class Products extends React.Component {
             callback: function (r) {
                 console.log(r.message)
                 if (r.message) {
-                    td.setState({ 'data': r.message.product, 'loaded': true, 'datalength': r.message.datalength, 'category_list': r.message.category_list });
+                    td.setState({ 'data': r.message.product, 'loaded': true, 'datalength': r.message.datalength, 'category_list': r.message.category_list, 'tag_list': r.message.tag_list });
                 }
             }
         });
@@ -70,7 +71,7 @@ class Products extends React.Component {
             callback: function (r) {
                 console.log(r.message)
                 if (r.message) {
-                    po.setState({ 'data': r.message.product, 'loaded': true, 'datalength': r.message.datalength, 'category_list': r.message.category_list });
+                    po.setState({ 'data': r.message.product, 'loaded': true, 'datalength': r.message.datalength, 'category_list': r.message.category_list, 'tag_list': r.message.tag_list });
                 }
             }
         });
@@ -94,7 +95,7 @@ class Products extends React.Component {
             args: { filters: filters },
             callback: function (r) {
                 if (r.message) {
-                    po.setState({ 'data': r.message.product, 'datalength': r.message.datalength, 'loaded': true, 'category_list': r.message.category_list });
+                    po.setState({ 'data': r.message.product, 'datalength': r.message.datalength, 'loaded': true, 'category_list': r.message.category_list, 'tag_list': r.message.tag_list });
                 }
             }
         });
@@ -196,8 +197,12 @@ class Products extends React.Component {
 
     render() {
         var category_options = []
+        var tag_options = []
         this.state.category_list.forEach(function (item) {
             category_options.push({'label': item.name, 'value': item.name})
+        })
+        this.state.tag_list.forEach(function (item) {
+            tag_options.push({'label': item.name, 'value': item.name})
         })
 
         var sorts = [
@@ -213,7 +218,7 @@ class Products extends React.Component {
             { 'label': 'Category Name', 'field': 'category_name', 'type': 'select', 'options': category_options },
             //  {'label': 'UOM Name', 'field': 'uom_name', 'type': 'char'},
             { 'label': 'Price', 'field': 'price', 'type': 'int' },
-            { 'label': 'Tag', 'field': 'tag', 'type': 'char' },
+            { 'label': 'Tag', 'field': 'tag', 'type': 'select', 'options': tag_options },
         ]
 
         var row_style2 = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px', 'height': '72px' }
