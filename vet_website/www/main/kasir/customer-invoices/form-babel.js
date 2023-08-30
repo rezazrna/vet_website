@@ -699,7 +699,7 @@ class CustomerInvoice extends React.Component {
         if(mini){
             pdfid = 'pdfmini'
             // format = [302*0.78,605*0.78]
-            format = [361*0.78,605*0.78]
+            format = [345*0.78,605*0.78]
         }
         
         e.stopPropagation()
@@ -713,12 +713,12 @@ class CustomerInvoice extends React.Component {
         var source = document.getElementById(pdfid)
         var [width, height] = format
         var opt = {
-            margin: [10, 0, 10, 0],
+            margin: [0, 0, 0, 0],
             filename: "Invoice-"+this.state.data.name+".pdf",
             // filename: "Invoice-"+this.state.data.name+".odt",
             pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
             html2canvas: {scale: 3},
-            jsPDF: {orientation: 'p', unit: 'pt', format: [width*0.754,height*0.754]}
+            jsPDF: {orientation: 'p', unit: 'pt', format: [ width * 0.754, height * 0.754]}
         }
         // html2pdf().set(opt).from(source).save()
         // this.setState({'show_loading_pdf': false})
@@ -2909,7 +2909,7 @@ class PDFMini extends React.Component{
         var potongan = this.props.potongan
         var total_credit = this.props.total_credit
         console.log(data)
-        var page_dimension = {width: 361, minHeight: 525, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
+        var page_dimension = {width: 345, minHeight: 525, top:0, left: 0, background: '#FFF', color: '#000', zIndex: -1}
         var page_scale = {transform: 'scale(78%)', transformOrigin: 'top left'}
         var borderStyle = {border: '1px solid #000', margin: '15px 0'}
         var borderStyle2 = {borderBottom: '1px solid #000'}
