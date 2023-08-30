@@ -834,7 +834,7 @@ class InstalasiMedisMainForm extends React.Component {
         var bgstyle = {background: '#fff', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
         var cursor = {cursor: 'pointer'}
         var link_pemilik = <a href={'/main/penerimaan/data-pemilik/edit?n=' + this.props.data.pet_owner}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
-        var link_pasien = <a href={window.location.href = '/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+        var link_pasien = <a href={'/main/penerimaan/data-pasien/edit?n=' + this.props.data.pet}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
         
         var diHref = ''
         if(this.props.data.tindakan_dokter && this.props.data.tindakan_dokter.length > 1){
