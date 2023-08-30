@@ -270,51 +270,53 @@ def confirm_instalasi_medis(data):
 			# 	marker.insert()
 			# 	instalasi_medis.update({'marker': marker.name})
 			# 	instalasi_medis.save()
-				
-			products_invoice = []
-				
-			for obat in data_json.get("obat"):
-				# product_data = {}
-				# product_data.update(obat)
-				# product_data.update({'parent': instalasi_medis.name, 'parenttype': 'VetInstalasiMedis', 'parentfield': 'obat'})
 
-				# new_product = frappe.new_doc("VetInstalasiMedisObat")
-				# new_product.update(product_data)
-
-				# instalasi_medis.obat.append(new_product)
-
-				# instalasi_medis.save()
+			if not instalasi_medis.already_send_invoice:
 				
-				product_data = {
-					'product': obat.get('product'),
-					# 'quantity': math.ceil(float(obat.get('quantity'))),
-					'quantity': float(obat.get('quantity')),
-				}
-				products_invoice.append(product_data)
-			
-			for jasa in data_json.get('jasa'):
-				# if not jasa.get('name'):
-				# 	new_jasa_doc = frappe.new_doc('VetInstalasiMedisJasa')
-				# 	new_jasa_doc.update(jasa)
-				# 	new_jasa_doc.update({'parent': instalasi_medis.name, 'parenttype': 'VetInstalasiMedis', 'parentfield': 'jasa'})
-				# 	instalasi_medis.jasa.append(new_jasa_doc)
-				# 	instalasi_medis.save()
-				# else:
-				# 	if jasa.get('deleted'):
-				# 		frappe.delete_doc('VetInstalasiMedisJasa', jasa.get('name'))
-				# 	else:
-				# 		jasa_doc = frappe.get_doc('VetInstalasiMedisJasa', jasa.get('name'))
-				# 		jasa_doc.reload()
-				# 		jasa_doc.update({'product': jasa.get('product'), 'quantity': jasa.get('quantity')})
-				# 		jasa_doc.save()
-				
-				if not jasa.get('deleted'):
+				products_invoice = []
+					
+				for obat in data_json.get("obat"):
+					# product_data = {}
+					# product_data.update(obat)
+					# product_data.update({'parent': instalasi_medis.name, 'parenttype': 'VetInstalasiMedis', 'parentfield': 'obat'})
+
+					# new_product = frappe.new_doc("VetInstalasiMedisObat")
+					# new_product.update(product_data)
+
+					# instalasi_medis.obat.append(new_product)
+
+					# instalasi_medis.save()
+					
 					product_data = {
-						'product': jasa.get('product'),
-						# 'quantity': math.ceil(float(jasa.get('quantity'))),
-						'quantity': float(jasa.get('quantity')),
+						'product': obat.get('product'),
+						# 'quantity': math.ceil(float(obat.get('quantity'))),
+						'quantity': float(obat.get('quantity')),
 					}
 					products_invoice.append(product_data)
+				
+				for jasa in data_json.get('jasa'):
+					# if not jasa.get('name'):
+					# 	new_jasa_doc = frappe.new_doc('VetInstalasiMedisJasa')
+					# 	new_jasa_doc.update(jasa)
+					# 	new_jasa_doc.update({'parent': instalasi_medis.name, 'parenttype': 'VetInstalasiMedis', 'parentfield': 'jasa'})
+					# 	instalasi_medis.jasa.append(new_jasa_doc)
+					# 	instalasi_medis.save()
+					# else:
+					# 	if jasa.get('deleted'):
+					# 		frappe.delete_doc('VetInstalasiMedisJasa', jasa.get('name'))
+					# 	else:
+					# 		jasa_doc = frappe.get_doc('VetInstalasiMedisJasa', jasa.get('name'))
+					# 		jasa_doc.reload()
+					# 		jasa_doc.update({'product': jasa.get('product'), 'quantity': jasa.get('quantity')})
+					# 		jasa_doc.save()
+					
+					if not jasa.get('deleted'):
+						product_data = {
+							'product': jasa.get('product'),
+							# 'quantity': math.ceil(float(jasa.get('quantity'))),
+							'quantity': float(jasa.get('quantity')),
+						}
+						products_invoice.append(product_data)
 						
 			# for tindak_lanjut in data_json.get('tindak_lanjut'):
 			# 	new_tindak_lanjut_doc = frappe.new_doc('VetInstalasiMedisTindakLanjut')
@@ -369,12 +371,54 @@ def confirm_instalasi_medis(data):
 
 				rekam_medis.save()
 
-			update_invoice(json.dumps(products_invoice), instalasi_medis.register_number, instalasi_medis.dokter, instalasi_medis.reference)
+			if not instalasi_medis.already_send_invoice:
+				update_invoice(json.dumps(products_invoice), instalasi_medis.register_number, instalasi_medis.dokter, instalasi_medis.reference)
 			
 			return {'instalasi_medis': instalasi_medis}
 
 		else:
 			return {'error': "Tindakan Dokter tidak ditemukan"}
+
+	except PermissionError as e:
+		return {'error': e}
+
+@frappe.whitelist()
+def send_invoice(data):
+	tz = pytz.timezone("Asia/Jakarta")
+	now = dt.now(tz)
+	now_str = dt.strftime(now, "%d%m%Y%H%M%S")
+	try:
+		data_json = json.loads(data)
+		
+		data_check = frappe.get_list("VetInstalasiMedis", filters={'name': data_json.get('name')}, fields=['name', 'status'])
+		if data_check and data_check[0].status == 'Draft':		
+			instalasi_medis = frappe.get_doc("VetInstalasiMedis", data_check[0].name)
+			instalasi_medis.already_send_invoice = True
+			instalasi_medis.save()
+
+			products_invoice = []
+				
+			for obat in data_json.get("obat"):
+				product_data = {
+					'product': obat.get('product'),
+					'quantity': float(obat.get('quantity')),
+				}
+				products_invoice.append(product_data)
+			
+			for jasa in data_json.get('jasa'):
+				if not jasa.get('deleted'):
+					product_data = {
+						'product': jasa.get('product'),
+						'quantity': float(jasa.get('quantity')),
+					}
+					products_invoice.append(product_data)
+
+			update_invoice(json.dumps(products_invoice), instalasi_medis.register_number, instalasi_medis.dokter, instalasi_medis.reference)
+			
+			return {'instalasi_medis': instalasi_medis}
+
+		else:
+			return {'error': "Instalasi Medis tidak ditemukan"}
 
 	except PermissionError as e:
 		return {'error': e}

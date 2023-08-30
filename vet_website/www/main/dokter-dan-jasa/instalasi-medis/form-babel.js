@@ -521,10 +521,15 @@ class InstalasiMedis extends React.Component {
         
         new_data.obat = products
         console.log(new_data)
+
+        var method = "vet_website.vet_website.doctype.vetinstalasimedis.vetinstalasimedis.confirm_instalasi_medis"
+        if (this.state.send_invoice) {
+            method = "vet_website.vet_website.doctype.vetinstalasimedis.vetinstalasimedis.send_invoice"
+        } 
         
         frappe.call({
     		type: "POST",
-    		method:"vet_website.vet_website.doctype.vetinstalasimedis.vetinstalasimedis.confirm_instalasi_medis",
+    		method: method,
     		args: {data: new_data},
     		callback: function(r){
     			if (r.message.instalasi_medis) {
@@ -723,6 +728,14 @@ class InstalasiMedis extends React.Component {
         			</div>
             	)
         	}
+
+            if (!this.state.data.already_send_invoice) {
+                actionButton.push(
+                    <div className="col-auto d-flex" key="send_invoice">
+                        <button type="submit" className="btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto" onClick={() => this.setState({send_invoice: true})}>Kirim Invoice</button>
+                    </div>
+                )
+            }
         }
         
         var statuses
@@ -765,7 +778,7 @@ class InstalasiMedis extends React.Component {
                 		<div className="row mx-0 flex-row-reverse">
                 			{actionButton}
                 			<div className="col-auto px-0 ml-auto"/>
-                			{this.state.data.status=='Done'?customer_invoice:false}
+                			{this.state.data.status=='Done' || this.state.data.already_send_invoice?customer_invoice:false}
                 			<div className="col-auto d-flex mr-auto">
                 				{backButton}
                 			</div>

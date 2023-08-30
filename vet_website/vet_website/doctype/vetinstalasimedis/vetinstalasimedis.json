@@ -60,7 +60,8 @@
   "advis",
   "palpasi_abdominal",
   "status_hidrasi",
-  "auskultasi"
+  "auskultasi",
+  "already_send_invoice"
  ],
  "fields": [
   {
@@ -341,42 +342,48 @@
    "label": "Diagnosis Lainnya"
   },
   {
-    "fieldname": "keluhan_alasan",
-    "fieldtype": "Data",
-    "label": "Keluhan/Alasan Visit"
-   },
-   {
-    "fieldname": "riwayat_penyakit",
-    "fieldtype": "Data",
-    "label": "Riwayat Penyakit dan Pengobatan"
-   },
-   {
-    "fieldname": "status_mental",
-    "fieldtype": "Data",
-    "label": "Status Mental"
-   },
-   {
-    "fieldname": "advis",
-    "fieldtype": "Data",
-    "label": "Advis"
-   },
-   {
-    "fieldname": "palpasi_abdominal",
-    "fieldtype": "Data",
-    "label": "Palpasi Abdominal"
-   },
-   {
-    "fieldname": "status_hidrasi",
-    "fieldtype": "Data",
-    "label": "Status Hidrasi"
-   },
-   {
-    "fieldname": "auskultasi",
-    "fieldtype": "Data",
-    "label": "Auskultasi"
-   }
+   "fieldname": "keluhan_alasan",
+   "fieldtype": "Data",
+   "label": "Keluhan/Alasan Visit"
+  },
+  {
+   "fieldname": "riwayat_penyakit",
+   "fieldtype": "Data",
+   "label": "Riwayat Penyakit dan Pengobatan"
+  },
+  {
+   "fieldname": "status_mental",
+   "fieldtype": "Data",
+   "label": "Status Mental"
+  },
+  {
+   "fieldname": "advis",
+   "fieldtype": "Data",
+   "label": "Advis"
+  },
+  {
+   "fieldname": "palpasi_abdominal",
+   "fieldtype": "Data",
+   "label": "Palpasi Abdominal"
+  },
+  {
+   "fieldname": "status_hidrasi",
+   "fieldtype": "Data",
+   "label": "Status Hidrasi"
+  },
+  {
+   "fieldname": "auskultasi",
+   "fieldtype": "Data",
+   "label": "Auskultasi"
+  },
+  {
+   "default": "0",
+   "fieldname": "already_send_invoice",
+   "fieldtype": "Check",
+   "label": "Already Send Invoice"
+  }
  ],
- "modified": "2023-08-22 20:00:34.474764",
+ "modified": "2023-08-30 15:22:24.007795",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetInstalasiMedis",
