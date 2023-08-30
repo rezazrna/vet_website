@@ -733,8 +733,13 @@ class InstalasiMedis extends React.Component {
         }
 
         var ciHref = ''
-        var location
-        this.state.data.reference='Rawat Inap'?location = '/main/kasir/rawat-inap-invoices':location = '/main/kasir/customer-invoices'
+        var location = ''
+        if (this.state.data.reference == 'Rawat Inap') {
+            location = '/main/kasir/rawat-inap-invoices'
+        } else {
+            location = '/main/kasir/customer-invoices'
+        }
+
         if(this.state.data.customer_invoice && this.state.data.customer_invoice.length > 1){
             ciHref = location+'?register_number='+encodeURIComponent(this.state.data.register_number)
         } else if(this.state.data.customer_invoice && this.state.data.customer_invoice.length == 1) {
@@ -909,7 +914,12 @@ class InstalasiMedisMainForm extends React.Component {
         				</div>
         				<div className="form-group mb-1">
         					<label htmlFor="reference" className="fs10 fw600">Rujukan</label>
-        					<p className="mb-0">{this.props.data.reference || ''}{this.props.data.reference=='Dokter'?link_dokter:this.props.data.reference=='Rawat Inap'?link_rawat_inap:false}</p>
+        					<p className="mb-0">{this.props.data.reference || ''}
+                                {this.props.data.reference=='Dokter'
+                                    ? link_dokter
+                                    : this.props.data.reference=='Rawat Inap'
+                                        ? link_rawat_inap
+                                        : false}</p>
         				</div>
         				<div className="form-group mb-1">
         					<label htmlFor="owner" className="fs10 fw600">User</label>
