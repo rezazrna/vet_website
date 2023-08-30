@@ -1565,41 +1565,43 @@ class CustomerInvoiceLinesContent extends React.Component {
 
         var coHref = ''
 
-        var links = this.props.links.links
-        var register_number = this.props.register_number
-        if(this.props.service=='rawat_inap'){
-            if(links.rawat_inap && links.rawat_inap.length > 1){
-                coHref = '/main/dokter-dan-jasa/rawat-inap?register_number='+encodeURIComponent(register_number)
-            } else if(links.rawat_inap && links.rawat_inap.length == 1) {
-                coHref = '/main/dokter-dan-jasa/rawat-inap/edit?n='+encodeURIComponent(links.rawat_inap[0])
-            }
-        } else if (this.props.service=='jasa'){
-            if(this.props.service_name=='Grooming'){
-                console.log('Grooming')
-                console.log(links)
-                if(links.grooming && links.grooming.length > 1){
-                    coHref = '/main/dokter-dan-jasa/grooming?register_number='+encodeURIComponent(register_number)
-                } else if(links.grooming && links.grooming.length == 1){
-                    coHref = '/main/dokter-dan-jasa/grooming/edit?n='+encodeURIComponent(links.grooming[0])
+        if (this.props.links != undefined) {
+            var links = this.props.links.links
+            var register_number = this.props.register_number
+            if(this.props.service=='rawat_inap'){
+                if(links.rawat_inap && links.rawat_inap.length > 1){
+                    coHref = '/main/dokter-dan-jasa/rawat-inap?register_number='+encodeURIComponent(register_number)
+                } else if(links.rawat_inap && links.rawat_inap.length == 1) {
+                    coHref = '/main/dokter-dan-jasa/rawat-inap/edit?n='+encodeURIComponent(links.rawat_inap[0])
                 }
-            } else {
-                if(links.dokter && links.dokter.length > 1){
-                    coHref = '/main/dokter-dan-jasa/tindakan-dokter?register_number='+encodeURIComponent(register_number)
-                } else if(links.dokter && links.dokter.length == 1){
-                    coHref = '/main/dokter-dan-jasa/tindakan-dokter/edit?n='+encodeURIComponent(links.dokter[0])
+            } else if (this.props.service=='jasa'){
+                if(this.props.service_name=='Grooming'){
+                    console.log('Grooming')
+                    console.log(links)
+                    if(links.grooming && links.grooming.length > 1){
+                        coHref = '/main/dokter-dan-jasa/grooming?register_number='+encodeURIComponent(register_number)
+                    } else if(links.grooming && links.grooming.length == 1){
+                        coHref = '/main/dokter-dan-jasa/grooming/edit?n='+encodeURIComponent(links.grooming[0])
+                    }
+                } else {
+                    if(links.dokter && links.dokter.length > 1){
+                        coHref = '/main/dokter-dan-jasa/tindakan-dokter?register_number='+encodeURIComponent(register_number)
+                    } else if(links.dokter && links.dokter.length == 1){
+                        coHref = '/main/dokter-dan-jasa/tindakan-dokter/edit?n='+encodeURIComponent(links.dokter[0])
+                    }
                 }
-            }
-        } else if (this.props.service=='farmasi') {
-            if(links.apotik && links.apotik.length > 1){
-                coHref = '/main/farmasi/apotik?register_number='+encodeURIComponent(register_number)
-            } else if(links.apotik && links.apotik.length == 1){
-                coHref = '/main/farmasi/apotik/edit?n='+encodeURIComponent(links.apotik[0])
-            }
-        } else if (this.props.service=='instalasi_medis') {
-            if(links.instalasi_medis && links.instalasi_medis.length > 1){
-                coHref = '/main/dokter-dan-jasa/instalasi-medis?register_number='+encodeURIComponent(register_number)
-            } else if(links.instalasi_medis && links.instalasi_medis.length == 1){
-                coHref = '/main/dokter-dan-jasa/instalasi-medis/edit?n='+encodeURIComponent(links.instalasi_medis[0])
+            } else if (this.props.service=='farmasi') {
+                if(links.apotik && links.apotik.length > 1){
+                    coHref = '/main/farmasi/apotik?register_number='+encodeURIComponent(register_number)
+                } else if(links.apotik && links.apotik.length == 1){
+                    coHref = '/main/farmasi/apotik/edit?n='+encodeURIComponent(links.apotik[0])
+                }
+            } else if (this.props.service=='instalasi_medis') {
+                if(links.instalasi_medis && links.instalasi_medis.length > 1){
+                    coHref = '/main/dokter-dan-jasa/instalasi-medis?register_number='+encodeURIComponent(register_number)
+                } else if(links.instalasi_medis && links.instalasi_medis.length == 1){
+                    coHref = '/main/dokter-dan-jasa/instalasi-medis/edit?n='+encodeURIComponent(links.instalasi_medis[0])
+                }
             }
         }
         
