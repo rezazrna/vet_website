@@ -570,7 +570,7 @@ class Pemeriksaan extends React.Component {
             'new_check': {},
             'available_check': [
                 {'label': 'Keluhan/Alasan Visit', 'name': 'keluhan_alasan'},
-                {'label': 'Riwayat Penyakit dan Pengibatan', 'name': 'riwayat_penyakit'},
+                {'label': 'Riwayat Penyakit dan Pengobatan', 'name': 'riwayat_penyakit'},
                 {'label': 'Riwayat Vaksin', 'name': 'vaccine_history'},
                 {'label': 'Riwayat Makanan', 'name': 'food_history'},
                 {'label': 'Informasi Lainnya', 'name': 'other'},
