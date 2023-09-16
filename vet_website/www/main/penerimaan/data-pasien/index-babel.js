@@ -244,7 +244,7 @@ class Pet extends React.Component {
     render() {
         var pet_types = []
         this.state.pet_type_list.forEach(function (item) {
-            pet_types.push({'label': item.name, 'value': item.name})
+            pet_types.push({'label': item.type_name, 'value': item.name})
         })
 
         var sorts = [

@@ -99,7 +99,7 @@ def get_pet(filters=None):
 			pet.sort(key=sort_filter, reverse=sort_filter_reverse)
 		# pet = filter(result_filter, pet)
 
-		pet_type_list = frappe.get_all("VetPetType")
+		pet_type_list = frappe.get_all("VetPetType", fields=['type_name'])
 		
 		return {'pet': pet, 'datalength': datalength, 'pet_type_list': pet_type_list}
 		

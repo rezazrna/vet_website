@@ -59,7 +59,7 @@ def get_scheduled_service_list(filters=None):
 		scheduled = frappe.get_list("VetScheduledService", or_filters=scheduled_or_filters, filters=scheduled_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 30, page_length= 30)
 		datalength = len(frappe.get_all("VetScheduledService", or_filters=scheduled_or_filters, filters=scheduled_filters, as_list=True))
 
-		pet_type_list = frappe.get_all("VetPetType")
+		pet_type_list = frappe.get_all("VetPetType", fields=['type_name'])
 
 		return {'scheduled': scheduled, 'datalength': datalength, 'pet_type_list': pet_type_list}
 		
