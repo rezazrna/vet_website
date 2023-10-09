@@ -1999,7 +1999,7 @@ class CustomerInvoicePaymentRow extends React.Component {
         
         var payment_field, edit_button
         if(this.state.edit_mode){
-            var payment_method_options = []
+            var payment_method_options = [<option className="d-none" key="99999"></option>]
             this.props.payment_method_list.forEach(p => !p.name.includes('Deposit') || !p.method_type.includes('Deposit') ? payment_method_options.push(<option key={p.name} value={p.name}>{p.method_name}</option>):false)
             payment_field = <select name="payment_method" className="form-control fs14 p-0 h-auto" value={this.state.payment_method} onChange={e => this.changePaymentMethod(e)}>
                 {payment_method_options}

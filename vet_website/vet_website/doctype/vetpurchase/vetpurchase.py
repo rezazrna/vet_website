@@ -366,21 +366,23 @@ def delete_purchase(data):
 @frappe.whitelist()
 def cancel_purchase(name):
 	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		purchase = frappe.get_doc('VetPurchase', name)
 		purchase.status = 'Cancel'
 		purchase.save()
 		# create_purchase_journal_entry(purchase.name, True)
 		purchase.reload()
-		# owner_credit = frappe.new_doc('VetOwnerCredit')
-		# owner_credit.update({
-		# 	'date': dt.strftime(dt.now(), "%Y-%m-%d %H:%M:%S"),
-		# 	'purchase': purchase.name,
-		# 	'type': 'Cancel',
-		# 	'nominal': sum((i.quantity * i.price) for i in purchase.products)
-		# })
-		# owner_credit.insert()
-		# frappe.db.commit()
-		# set_owner_credit_total(purchase.supplier, True)
+		owner_credit = frappe.new_doc('VetOwnerCredit')
+		owner_credit.update({
+			'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
+			'purchase': purchase.name,
+			'supplier': purchase.supplier,
+			'type': 'Cancel',
+			'nominal': sum((i.quantity * i.price - (i.discount or 0) / 100 * (i.quantity * i.price)) for i in purchase.products)
+		})
+		owner_credit.insert()
+		frappe.db.commit()
+		set_owner_credit_total(purchase.supplier, True)
 		operation = frappe.get_list("VetOperation", filters={'reference': name}, fields=['name'])
 		if len(operation) > 0:
 			frappe.delete_doc('VetOperation', operation[0].name)
