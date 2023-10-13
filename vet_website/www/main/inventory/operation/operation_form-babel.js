@@ -155,6 +155,13 @@ class Operation extends React.Component {
 	        }
         }
         else if (['quantity'].includes(name)) {
+            if (Object.keys(new_data.moves[i]).length === 0) {
+                new_data.moves.push({})
+            }
+            
+            new_data.moves[i][name] = value
+            this.setState({data: new_data})
+            
             if(this.props.usage) {
                 frappe.call({
                     type: "GET",
@@ -162,22 +169,11 @@ class Operation extends React.Component {
                     args: {name: new_data.moves[i].product, quantity: value == '' ? 0 : value},
                     callback: function(r){
                         if (r.message) {
-                            if (Object.keys(new_data.moves[i]).filter(n => !['product', 'product_name'].includes(n)).length === 0) {
-                                new_data.moves.push({})
-                            }
                             new_data.moves[i].price = r.message.price
-                            new_data.moves[i].quantity = value
                             ci.setState({data: new_data})
                         }
                     }
                 });
-            } else {
-                if (Object.keys(new_data.moves[i]).length === 0) {
-                    new_data.moves.push({})
-                }
-                
-                new_data.moves[i][name] = value
-                this.setState({data: new_data})
             }
 	    }
         else{
