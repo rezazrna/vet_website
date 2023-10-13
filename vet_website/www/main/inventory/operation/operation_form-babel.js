@@ -96,25 +96,47 @@ class Operation extends React.Component {
         else if (name == 'product') {
 	        selected = this.state.product_list.find(i => i.product_name == value)
 	        if (selected) {
-	            frappe.call({
-	                type: "GET",
-	                method:"vet_website.vet_website.doctype.vetproduct.vetproduct.get_product_details",
-	                args: {name: selected.name},
-	                callback: function(r){
-	                    if (r.message) {
-	                        if (Object.keys(new_data.moves[i]).filter(n => !['product', 'product_name'].includes(n)).length === 0) {
-	                            new_data.moves.push({})
-	                        }
-	                        new_data.moves[i].product_name = r.message.product_name
-	                        new_data.moves[i].uom_name = r.message.uom
-	                        new_data.moves[i].product = selected.name
-	                        new_data.moves[i].price = selected.price
-	                        var selected_uom = ci.state.uom_list.find(i => i.uom_name == r.message.uom)
-	                        new_data.moves[i].product_uom = selected_uom.name
-	                        ci.setState({data: new_data})
-	                    }
-	                }
-	            });
+                if(this.props.usage) {
+                    frappe.call({
+                        type: "GET",
+                        method:"vet_website.vet_website.doctype.vetproduct.vetproduct.get_product_details_hpp",
+                        args: {name: selected.name, quantity: new_data.moves[i].quantity || 0},
+                        callback: function(r){
+                            if (r.message) {
+                                if (Object.keys(new_data.moves[i]).filter(n => !['product', 'product_name'].includes(n)).length === 0) {
+                                    new_data.moves.push({})
+                                }
+                                new_data.moves[i].product_name = r.message.product_name
+                                new_data.moves[i].uom_name = r.message.uom
+                                new_data.moves[i].product = selected.name
+                                new_data.moves[i].price = r.message.price
+                                var selected_uom = ci.state.uom_list.find(i => i.uom_name == r.message.uom)
+                                new_data.moves[i].product_uom = selected_uom.name
+                                ci.setState({data: new_data})
+                            }
+                        }
+                    });
+                } else {
+                    frappe.call({
+                        type: "GET",
+                        method:"vet_website.vet_website.doctype.vetproduct.vetproduct.get_product_details",
+                        args: {name: selected.name},
+                        callback: function(r){
+                            if (r.message) {
+                                if (Object.keys(new_data.moves[i]).filter(n => !['product', 'product_name'].includes(n)).length === 0) {
+                                    new_data.moves.push({})
+                                }
+                                new_data.moves[i].product_name = r.message.product_name
+                                new_data.moves[i].uom_name = r.message.uom
+                                new_data.moves[i].product = selected.name
+                                new_data.moves[i].price = selected.price
+                                var selected_uom = ci.state.uom_list.find(i => i.uom_name == r.message.uom)
+                                new_data.moves[i].product_uom = selected_uom.name
+                                ci.setState({data: new_data})
+                            }
+                        }
+                    });
+                }
 	        }
 	        else {
 	            new_data.moves[i].product_name = value
@@ -133,12 +155,30 @@ class Operation extends React.Component {
 	        }
         }
         else if (['quantity'].includes(name)) {
-	        if (Object.keys(new_data.moves[i]).length === 0) {
-                new_data.moves.push({})
+            if(this.props.usage) {
+                frappe.call({
+                    type: "GET",
+                    method:"vet_website.vet_website.doctype.vetproduct.vetproduct.get_product_details_hpp",
+                    args: {name: new_data.moves[i].product, quantity: value == '' ? 0 : value},
+                    callback: function(r){
+                        if (r.message) {
+                            if (Object.keys(new_data.moves[i]).filter(n => !['product', 'product_name'].includes(n)).length === 0) {
+                                new_data.moves.push({})
+                            }
+                            new_data.moves[i].price = r.message.price
+                            new_data.moves[i].quantity = value
+                            ci.setState({data: new_data})
+                        }
+                    }
+                });
+            } else {
+                if (Object.keys(new_data.moves[i]).length === 0) {
+                    new_data.moves.push({})
+                }
+                
+                new_data.moves[i][name] = value
+                this.setState({data: new_data})
             }
-            
-	        new_data.moves[i][name] = value
-	        this.setState({data: new_data})
 	    }
         else{
             new_data[name] = value

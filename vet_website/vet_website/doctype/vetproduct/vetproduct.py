@@ -38,6 +38,47 @@ def get_product_details(name):
 		return res
 	except PermissionError as e:
 		return {'error': e}
+
+@frappe.whitelist()
+def get_product_details_hpp(name, quantity):
+	try:
+		product = frappe.get_doc("VetProduct", name)
+		uom = frappe.get_doc("VetUOM", product.product_uom)
+		
+		purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': name}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price', 'parent'], order_by="creation asc")
+		purchase_with_stock = list(p for p in purchase_with_stock_search if p.quantity_stocked)
+
+		current_quantity = float(quantity)
+		total = 0
+		price = 0
+
+		if float(quantity) <= 0:
+			if len(purchase_with_stock) > 0:
+				price = purchase_with_stock[0]['price']
+		else:
+			for pws in purchase_with_stock:
+				if current_quantity != 0:
+					purchase_product = frappe.get_doc('VetPurchaseProducts', pws.name)
+					
+					if (purchase_product.uom != product.product_uom) :
+						ratio = frappe.db.get_value('VetUOM', product.product_uom, 'ratio')
+						target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
+						current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
+						current_uom = purchase_product.uom
+					
+					if float(current_quantity) > purchase_product.quantity_stocked:
+						current_quantity = float(current_quantity) - purchase_product.quantity_stocked
+						total += purchase_product.price * purchase_product.quantity_stocked
+					else:
+						total += purchase_product.price * current_quantity
+						current_quantity = 0
+			price = total / float(quantity)
+
+		res = {'product_name': product.product_name, 'uom': uom.uom_name, 'price': price}
+
+		return res
+	except PermissionError as e:
+		return {'error': e}
 		
 @frappe.whitelist()
 def get_product_form(name=False):
