@@ -543,6 +543,17 @@ class CustomerInvoice extends React.Component {
                             
                             // new_data.invoice_line = invoice_line
                             // ci.setState({data: new_data})
+                        } if (r.message.length > 0) {
+                            var results = []
+                            r.message.forEach(m => {
+                                if (m.error){
+                                    frappe.msgprint(m.error)
+                                    results.push(false)
+                                } else if (m.invoice){
+                                    results.push(m.invoice.status)
+                                }
+                            })
+                            console.log(results)
                         } else if (r.message.error){
                             frappe.msgprint(r.message.error)
                         }

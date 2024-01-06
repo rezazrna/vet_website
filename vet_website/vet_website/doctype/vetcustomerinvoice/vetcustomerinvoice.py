@@ -156,142 +156,147 @@ def open_invoice(data, saveonly=False):
 		return {'error': e}
 		
 def open_invoice_process(data, saveonly=False):
-	tz = pytz.timezone("Asia/Jakarta")
-	invoice_check = frappe.get_list("VetCustomerInvoice", filters={'name': data.get('name')}, fields=['name', 'status', 'rawat_inap', 'is_rawat_inap'])
+	try:
+		tz = pytz.timezone("Asia/Jakarta")
+		invoice_check = frappe.get_list("VetCustomerInvoice", filters={'name': data.get('name')}, fields=['name', 'status', 'rawat_inap', 'is_rawat_inap'])
 
-	if invoice_check and invoice_check[0].status in ['Draft']:
-		pos_session = False
-		
-		if saveonly == False:
-		# 	rawat_inap_search = frappe.get_list('VetRawatInap', filters={'name': invoice_check[0].rawat_inap}, fields=['name'])
-		# 	if len(rawat_inap_search) > 0 and invoice_check[0].is_rawat_inap == 1:
-		# 		rawat_inap_status = frappe.db.get_value('VetRawatInap', invoice_check[0].rawat_inap, 'status')
-		# 		if rawat_inap_status != 'Done':
-		# 			return {'error': "Rawat Inap Belum Selesai"}
+		if invoice_check and invoice_check[0].status in ['Draft']:
+			pos_session = False
+			
+			if saveonly == False:
+			# 	rawat_inap_search = frappe.get_list('VetRawatInap', filters={'name': invoice_check[0].rawat_inap}, fields=['name'])
+			# 	if len(rawat_inap_search) > 0 and invoice_check[0].is_rawat_inap == 1:
+			# 		rawat_inap_status = frappe.db.get_value('VetRawatInap', invoice_check[0].rawat_inap, 'status')
+			# 		if rawat_inap_status != 'Done':
+			# 			return {'error': "Rawat Inap Belum Selesai"}
+						
+				session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
+				if len(session_search) < 1 and not data.get('ignore_pos',False):
+					return {'error': "Belum ada POS Session yang dibuka, bukan POS Session terlebih dahulu"}
+				else:
+					pos_session = session_search[0].name
+
+			subtotal = 0
+			for line in data.get("invoice_line"):
+				if line.get('name', False):
+					line_doc = frappe.get_doc("VetCustomerInvoiceLine", line.get('name'))
 					
-			session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
-			if len(session_search) < 1 and not data.get('ignore_pos',False):
-				return {'error': "Belum ada POS Session yang dibuka, bukan POS Session terlebih dahulu"}
-			else:
-				pos_session = session_search[0].name
-
-		subtotal = 0
-		for line in data.get("invoice_line"):
-			if line.get('name', False):
-				line_doc = frappe.get_doc("VetCustomerInvoiceLine", line.get('name'))
+					if line.get('deleted'):
+						line_doc.delete()
+						frappe.db.commit()
+					elif line_doc:
+						line_doc.update({
+							'product': line.get('product', False),
+							'product_name': line.get('product_name', False),
+							'product_uom': line.get('product_uom', False),
+							# 'quantity': math.ceil(float(line.get('quantity', False))),
+							'quantity': float(line.get('quantity', False)),
+							'unit_price': line.get('unit_price', False),
+							'discount': line.get('discount', 0),
+							'total': line.get('total', False),
+							'warehouse': line.get('warehouse'),
+						})
+						if(line.get('total') == None):
+							check_pack = frappe.get_list('VetProductPack', filters={'parent': line_doc.product}, fields=['harga_pack', 'quantity_pack'])
+							selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(math.ceil(line_doc.quantity))]
+							# selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(line_doc.quantity)]
+							selected_pack.sort(key=lambda a: a.quantity_pack, reverse=True)
+							if selected_pack:
+								total = get_pack_price(float(math.ceil(line.get('quantity'))), float(line.get('unit_price')), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
+								# total = get_pack_price(float(line.get('quantity')), float(line.get('unit_price')), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
+								line_doc.total = total-(float(line.get('discount', 0)) / 100*total)
+							else:
+								line_doc.total = float(line.get('unit_price')) * float(math.ceil(line.get('quantity'))) - (float(line.get('discount', 0)) / 100 * (float(line.get('unit_price')) * float(math.ceil(line.get('quantity')))))
+								# line_doc.total = float(line.get('unit_price')) * float(line.get('quantity')) - (float(line.get('discount', 0)) / 100 * (float(line.get('unit_price')) * float(line.get('quantity'))))
+								
+						subtotal += line_doc.total
+						line_doc.save()
+						frappe.db.commit()
+				else:
+					if all([line.get('product', False), line.get('quantity', False)]):
+						line_data = {}
+						line_data.update(line)
+						line_data.update({'parent': invoice_check[0].name, 'parenttype': 'VetCustomerInvoice', 'parentfield': 'invoice_line'})
+						new_line = frappe.new_doc("VetCustomerInvoiceLine")
+						new_line.update(line_data)
+						new_line.insert()
+						if(line_data.get('total') == None):
+							check_pack = frappe.get_list('VetProductPack', filters={'parent': new_line.product}, fields=['harga_pack', 'quantity_pack'])
+							selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(math.ceil(new_line.quantity))]
+							# selected_pack = [i for i in check_pack if i['quantity_pack'] <= new_line.quantity]
+							selected_pack.sort(key=lambda a: a.quantity_pack, reverse=True)
+							if selected_pack:
+								total = get_pack_price(float(math.ceil(new_line.quantity)), float(new_line.unit_price), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
+								# total = get_pack_price(float(new_line.quantity), float(new_line.unit_price), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
+								new_line.update({'total': total-(float(new_line.discount, 0) / 100*total)})
+							else:
+								new_line.update({'total': float(new_line.unit_price) * float(math.ceil(new_line.quantity)) - (float(new_line.discount, 0) / 100 * (float(new_line.unit_price) * float(math.ceil(new_line.quantity))))})
+								# new_line.update({'total': float(new_line.unit_price) * float(new_line.quantity) - (float(new_line.discount, 0) / 100 * (float(new_line.unit_price) * float(new_line.quantity)))})
+						new_line.save()
+						frappe.db.commit()
 				
-				if line.get('deleted'):
-					line_doc.delete()
-					frappe.db.commit()
-				elif line_doc:
-					line_doc.update({
-						'product': line.get('product', False),
-						'product_name': line.get('product_name', False),
-						'product_uom': line.get('product_uom', False),
-						# 'quantity': math.ceil(float(line.get('quantity', False))),
-						'quantity': float(line.get('quantity', False)),
-						'unit_price': line.get('unit_price', False),
-						'discount': line.get('discount', 0),
-						'total': line.get('total', False),
-						'warehouse': line.get('warehouse'),
-					})
-					if(line.get('total') == None):
-						check_pack = frappe.get_list('VetProductPack', filters={'parent': line_doc.product}, fields=['harga_pack', 'quantity_pack'])
-						selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(math.ceil(line_doc.quantity))]
-						# selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(line_doc.quantity)]
-						selected_pack.sort(key=lambda a: a.quantity_pack, reverse=True)
-						if selected_pack:
-							total = get_pack_price(float(math.ceil(line.get('quantity'))), float(line.get('unit_price')), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
-							# total = get_pack_price(float(line.get('quantity')), float(line.get('unit_price')), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
-							line_doc.total = total-(float(line.get('discount', 0)) / 100*total)
-						else:
-							line_doc.total = float(line.get('unit_price')) * float(math.ceil(line.get('quantity'))) - (float(line.get('discount', 0)) / 100 * (float(line.get('unit_price')) * float(math.ceil(line.get('quantity')))))
-							# line_doc.total = float(line.get('unit_price')) * float(line.get('quantity')) - (float(line.get('discount', 0)) / 100 * (float(line.get('unit_price')) * float(line.get('quantity'))))
-							
-					subtotal += line_doc.total
-					line_doc.save()
-					frappe.db.commit()
-			else:
-				if all([line.get('product', False), line.get('quantity', False)]):
-					line_data = {}
-					line_data.update(line)
-					line_data.update({'parent': invoice_check[0].name, 'parenttype': 'VetCustomerInvoice', 'parentfield': 'invoice_line'})
-					new_line = frappe.new_doc("VetCustomerInvoiceLine")
-					new_line.update(line_data)
-					new_line.insert()
-					if(line_data.get('total') == None):
-						check_pack = frappe.get_list('VetProductPack', filters={'parent': new_line.product}, fields=['harga_pack', 'quantity_pack'])
-						selected_pack = [i for i in check_pack if i['quantity_pack'] <= float(math.ceil(new_line.quantity))]
-						# selected_pack = [i for i in check_pack if i['quantity_pack'] <= new_line.quantity]
-						selected_pack.sort(key=lambda a: a.quantity_pack, reverse=True)
-						if selected_pack:
-							total = get_pack_price(float(math.ceil(new_line.quantity)), float(new_line.unit_price), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
-							# total = get_pack_price(float(new_line.quantity), float(new_line.unit_price), selected_pack[0]['quantity_pack'], selected_pack[0]['harga_pack'])
-							new_line.update({'total': total-(float(new_line.discount, 0) / 100*total)})
-						else:
-							new_line.update({'total': float(new_line.unit_price) * float(math.ceil(new_line.quantity)) - (float(new_line.discount, 0) / 100 * (float(new_line.unit_price) * float(math.ceil(new_line.quantity))))})
-							# new_line.update({'total': float(new_line.unit_price) * float(new_line.quantity) - (float(new_line.discount, 0) / 100 * (float(new_line.unit_price) * float(new_line.quantity)))})
-					new_line.save()
-					frappe.db.commit()
-			
-					subtotal += new_line.total
+						subtotal += new_line.total
 
-		invoice = frappe.get_doc("VetCustomerInvoice", invoice_check[0].name)
-		if saveonly == False:
-			if not all(check_product_account(i.product) for i in invoice.invoice_line):
-				frappe.msgprint('Tidak Bisa mengirim sales karena kategori barang belum memiliki Stock Input Account, Stock Output Account, dan Income Account')
-				return False
-			check_sales_journal()
-		
-		if saveonly == False:
-			invoice.update({'status': 'Open', 'pos_session': pos_session})
-		invoice.update({'subtotal': subtotal, 'total': subtotal - float(data.get('potongan', 0)), 'potongan': data.get('potongan', 0)})
-		invoice.save()
-		frappe.db.commit()
-		invoice.reload()
-		if saveonly == False:
-			create_sales_journal_entry(invoice.name)
-			invoice.reload()
-			deliver_to_customer(invoice.name)
+			invoice = frappe.get_doc("VetCustomerInvoice", invoice_check[0].name)
+			if saveonly == False:
+				if not all(check_product_account(i.product) for i in invoice.invoice_line):
+					frappe.msgprint('Tidak Bisa mengirim sales karena kategori barang belum memiliki Stock Input Account, Stock Output Account, dan Income Account')
+					return False
+				check_sales_journal()
 			
-			owner_credit = frappe.new_doc('VetOwnerCredit')
-			owner_credit.update({
-				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
-				'register_number': invoice.register_number,
-				'invoice': invoice.name,
-				'type': 'Sales',
-				'nominal': invoice.total
-			})
-			owner_credit.insert()
+			invoice.update({'subtotal': subtotal, 'total': subtotal - float(data.get('potongan', 0)), 'potongan': data.get('potongan', 0)})
+			invoice.save()
 			frappe.db.commit()
-			set_owner_credit_total(invoice.owner)
-			
-			# Langsung bayar dari deposit untuk rawat inap invoice
-			# last_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': invoice.owner}, fields=['credit'], order_by="creation desc")
-			# if last_credit and invoice.is_rawat_inap == 1:
-			# 	data = {'jumlah': 0, 'name': invoice.name}
-			# 	paid = 0
-			# 	paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': invoice.name}, fields=['sum(jumlah) as paid'])
-			# 	if paid_search[0]['paid'] != None:
-			# 		paid = paid_search[0]['paid']
-					
-			# 	remaining = invoice.total - paid
+			invoice.reload()
+			if saveonly == False:
+				create_sales_journal_entry(invoice.name)
+				invoice.reload()
+				deliver_to_customer(invoice.name)
 				
-			# 	if last_credit[0]['credit'] > 0:
-			# 		if last_credit[0]['credit'] > remaining:
-			# 			data.update({'jumlah': remaining})
-			# 		else:
-			# 			data.update({'jumlah': last_credit[0]['credit']})
-					
-			# 		# session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
-			# 		# if len(session_search) > 0:
-			# 		# 	add_payment_from_deposit(json.dumps(data))
-			# 		add_payment_from_deposit(json.dumps(data))
-			
-		return {'invoice': invoice}
+				owner_credit = frappe.new_doc('VetOwnerCredit')
+				owner_credit.update({
+					'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
+					'register_number': invoice.register_number,
+					'invoice': invoice.name,
+					'type': 'Sales',
+					'nominal': invoice.total
+				})
+				owner_credit.insert()
+				frappe.db.commit()
+				set_owner_credit_total(invoice.owner)
 
-	else:
-		return {'error': "Invoice tidak ditemukan"}
+				invoice.update({'status': 'Open', 'pos_session': pos_session})
+				invoice.save()
+				frappe.db.commit()
+				
+				# Langsung bayar dari deposit untuk rawat inap invoice
+				# last_credit = frappe.get_list('VetOwnerCredit', filters={'pet_owner': invoice.owner}, fields=['credit'], order_by="creation desc")
+				# if last_credit and invoice.is_rawat_inap == 1:
+				# 	data = {'jumlah': 0, 'name': invoice.name}
+				# 	paid = 0
+				# 	paid_search = frappe.get_list('VetCustomerInvoicePay', filters={'parent': invoice.name}, fields=['sum(jumlah) as paid'])
+				# 	if paid_search[0]['paid'] != None:
+				# 		paid = paid_search[0]['paid']
+						
+				# 	remaining = invoice.total - paid
+					
+				# 	if last_credit[0]['credit'] > 0:
+				# 		if last_credit[0]['credit'] > remaining:
+				# 			data.update({'jumlah': remaining})
+				# 		else:
+				# 			data.update({'jumlah': last_credit[0]['credit']})
+						
+				# 		# session_search = frappe.get_list('VetPosSessions', filters={'status': 'In Progress'}, fields=['name'])
+				# 		# if len(session_search) > 0:
+				# 		# 	add_payment_from_deposit(json.dumps(data))
+				# 		add_payment_from_deposit(json.dumps(data))
+				
+			return {'invoice': invoice}
+
+		else:
+			return {'error': "Invoice tidak ditemukan"}
+	except Exception as e:
+		return {'error': e}
 		
 @frappe.whitelist()
 def join_invoice(name_list, datetime):
@@ -1193,90 +1198,90 @@ def add_payment(data):
 		
 @frappe.whitelist()
 def deliver_to_customer(name, refund=False, refund_from=False):
-	try:
-		customer_invoice = frappe.get_doc("VetCustomerInvoice", name)
-		gudang = frappe.get_list("VetGudang", fields=["name"])
-		default_warehouse = frappe.get_list('VetGudang', filters={'is_default': '1'}, fields=['name', 'gudang_name'], limit=1)
-		customer_invoice_lines = frappe.get_list("VetCustomerInvoiceLine", filters={'parent': name}, fields=['*'])
-		if refund and customer_invoice.is_refund == 1:
-			date = customer_invoice.refund_date.strftime("%Y-%m-%d")
-		else:
-			date = customer_invoice.invoice_date.strftime("%Y-%m-%d")
+	# try:
+	customer_invoice = frappe.get_doc("VetCustomerInvoice", name)
+	gudang = frappe.get_list("VetGudang", fields=["name"])
+	default_warehouse = frappe.get_list('VetGudang', filters={'is_default': '1'}, fields=['name', 'gudang_name'], limit=1)
+	customer_invoice_lines = frappe.get_list("VetCustomerInvoiceLine", filters={'parent': name}, fields=['*'])
+	if refund and customer_invoice.is_refund == 1:
+		date = customer_invoice.refund_date.strftime("%Y-%m-%d")
+	else:
+		date = customer_invoice.invoice_date.strftime("%Y-%m-%d")
+	
+	# if not all(check_product_account(c.product) for c in customer_invoice_lines):
+	# 	frappe.msgprint('Tidak Bisa mengirim sales karena kategori barang belum memiliki Stock Input Account, Stock Output Account, dan Stock Income Account')
+	# 	return False
+	# check_sales_journal()
+	
+	move_list = []
+	for line in customer_invoice_lines:
+		product_category = frappe.db.get_value('VetProduct', line.product, 'product_category')
+		stockable = frappe.db.get_value('VetProductCategory', product_category, 'stockable')
 		
-		# if not all(check_product_account(c.product) for c in customer_invoice_lines):
-		# 	frappe.msgprint('Tidak Bisa mengirim sales karena kategori barang belum memiliki Stock Input Account, Stock Output Account, dan Stock Income Account')
-		# 	return False
-		# check_sales_journal()
-		
-		move_list = []
-		for line in customer_invoice_lines:
-			product_category = frappe.db.get_value('VetProduct', line.product, 'product_category')
-			stockable = frappe.db.get_value('VetProductCategory', product_category, 'stockable')
-			
-			if not line.warehouse and stockable == 1:
-				if default_warehouse:
-					line.update({'warehouse': default_warehouse[0].name})
-				else:
-					line.update({'warehouse': gudang[0].name})
-			
-			if stockable == 1:
-				move_data = {
-					'product': line.product,
-					'product_uom': line.product_uom,
-					'quantity': line.quantity,
-					'date': date,
-					'warehouse': line.warehouse,
-				}
-				
-				if move_list:
-					berhasil = False
-					for mv in move_list:
-						if mv[0].get('warehouse') == move_data.get('warehouse'):
-							mv.append(move_data)
-							berhasil = True
-					if not berhasil:
-						move_list.append([move_data])
-				else:
-					move_list.append([move_data])
-				
-		operation_list = []
-		for mv in move_list:
-			if refund:
-				operation_data = {
-					'reference': customer_invoice.name,
-					'source': customer_invoice.name,
-					'to': mv[0].get('warehouse'),
-					'status': 'Delivery',
-					'date': date,
-					'moves': mv,
-				}
+		if not line.warehouse and stockable == 1:
+			if default_warehouse:
+				line.update({'warehouse': default_warehouse[0].name})
 			else:
-				operation_data = {
-					'reference': customer_invoice.name,
-					'source': customer_invoice.name,
-					'from': mv[0].get('warehouse'),
-					'status': 'Delivery',
-					'date': date,
-					'moves': mv,
-				}
+				line.update({'warehouse': gudang[0].name})
+		
+		if stockable == 1:
+			move_data = {
+				'product': line.product,
+				'product_uom': line.product_uom,
+				'quantity': line.quantity,
+				'date': date,
+				'warehouse': line.warehouse,
+			}
 			
-			operation = frappe.new_doc('VetOperation')
-			operation.update(operation_data)
-			operation.insert()
-			operation_list.append(operation)
+			if move_list:
+				berhasil = False
+				for mv in move_list:
+					if mv[0].get('warehouse') == move_data.get('warehouse'):
+						mv.append(move_data)
+						berhasil = True
+				if not berhasil:
+					move_list.append([move_data])
+			else:
+				move_list.append([move_data])
 			
-		for operation in operation_list:
-			moves = frappe.get_list('VetOperationMove', filters={'parent': operation.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
-			for m in moves:
-				m.quantity_done = m.quantity
-				
-			action_receive(operation.name, json.dumps(moves))
+	operation_list = []
+	for mv in move_list:
+		if refund:
+			operation_data = {
+				'reference': customer_invoice.name,
+				'source': customer_invoice.name,
+				'to': mv[0].get('warehouse'),
+				'status': 'Delivery',
+				'date': date,
+				'moves': mv,
+			}
+		else:
+			operation_data = {
+				'reference': customer_invoice.name,
+				'source': customer_invoice.name,
+				'from': mv[0].get('warehouse'),
+				'status': 'Delivery',
+				'date': date,
+				'moves': mv,
+			}
+		
+		operation = frappe.new_doc('VetOperation')
+		operation.update(operation_data)
+		operation.insert()
+		operation_list.append(operation)
+		
+	for operation in operation_list:
+		moves = frappe.get_list('VetOperationMove', filters={'parent': operation.name}, fields=['name', 'product', 'product_uom', 'quantity', 'quantity_done'])
+		for m in moves:
+			m.quantity_done = m.quantity
 			
-			for m in moves:
-				if refund:
-					increase_product_valuation(name, m.product, m.quantity, m.product_uom, refund_from)
-				else:
-					decrease_product_valuation(m.product, m.quantity, operation.get('from'), m.product_uom, refund)
+		action_receive(operation.name, json.dumps(moves))
+		
+		for m in moves:
+			if refund:
+				increase_product_valuation(name, m.product, m.quantity, m.product_uom, refund_from)
+			else:
+				decrease_product_valuation(m.product, m.quantity, operation.get('from'), m.product_uom, refund)
 		
 		# date = customer_invoice.invoice_date.strftime("%Y-%m-%d")
 		
@@ -1316,8 +1321,8 @@ def deliver_to_customer(name, refund=False, refund_from=False):
 		# for m in moves:
 		# 	decrease_product_valuation(m.product, m.quantity, m.product_uom)
 
-	except PermissionError as e:
-		return {'error': e}
+	# except PermissionError as e:
+	# 	return {'error': e}
 		
 @frappe.whitelist()
 def edit_payment(name, method):
