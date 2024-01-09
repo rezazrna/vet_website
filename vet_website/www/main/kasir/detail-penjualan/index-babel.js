@@ -791,7 +791,7 @@ class ExcelPage extends React.Component {
             return (
                 <table id="excel_page" border="1" className="position-absolute d-none" style={page_dimension}>
                     <thead className="text-uppercase" style={thead}>
-                        <tr>
+                    <tr>
                         <td rowspan="3">{image}</td>
                         <td colspan="3">{profile.clinic_name}</td>
                         <td colspan="2">Detail Penjualan</td>
@@ -805,15 +805,15 @@ class ExcelPage extends React.Component {
                     </tr>
                     <tr></tr>
                     <tr></tr>
-                        <tr className="text-center">
-                            <th className="fw700 py-2" width="58px" >No Invoice</th>
-                            <th className="fw700 py-2" width="91px" >Tanggal</th>
-                            <th className="fw700 py-2" width="101px" >ID Pemilik</th>
-                            <th className="fw700 py-2" width="73px" >Nama Pemilik</th>
-                            <th className="fw700 py-2" width="73px" ></th>
-                            <th className="fw700 py-2" width="73px" ></th>
-                            <th className="fw700 py-2" width="73px" ></th>
-                        </tr>
+                    <tr className="text-center">
+                        <th className="fw700 py-2" width="58px" >No Invoice</th>
+                        <th className="fw700 py-2" width="91px" >Tanggal</th>
+                        <th className="fw700 py-2" width="101px" >ID Pemilik</th>
+                        <th className="fw700 py-2" width="73px" >Nama Pemilik</th>
+                        <th className="fw700 py-2" width="73px" ></th>
+                        <th className="fw700 py-2" width="73px" ></th>
+                        <th className="fw700 py-2" width="73px" ></th>
+                    </tr>
                     </thead>
                     <tbody>
                         {table_rows}
