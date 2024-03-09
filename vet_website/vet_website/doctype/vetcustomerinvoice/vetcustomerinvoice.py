@@ -252,6 +252,12 @@ def open_invoice_process(data, saveonly=False):
 				create_sales_journal_entry(invoice.name)
 				invoice.reload()
 				deliver_to_customer(invoice.name)
+
+				same_reference = frappe.get_list("VetOwnerCredit", filters={'register_number': invoice.register_number, 'invoice': invoice.name, 'type': 'Sales'}, fields=['name'])
+				for sf in same_reference:
+					frappe.delete_doc('VetOwnerCredit', sf.name)
+
+				frappe.db.commit()
 				
 				owner_credit = frappe.new_doc('VetOwnerCredit')
 				owner_credit.update({
@@ -1898,6 +1904,14 @@ def create_sales_journal_entry(invoice_name, refund=False):
 	# 		'account': product_discount_account,
 	# 		'debit': float(total_discount)
 	# 	})
+
+	if not refund:
+		same_reference = frappe.get_list("VetJournalEntry", filters={'reference': invoice.name, 'journal': sales_journal, 'keterangan': invoice.owner_name}, fields=['name'])
+		for sf in same_reference:
+			frappe.delete_doc('VetJournalEntry', sf.name)
+
+		frappe.db.commit()
+
 		
 	je_data = {
 		'journal': sales_journal,
