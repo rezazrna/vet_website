@@ -656,7 +656,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="receive_date asc")
 			if moves:
 				saldo_awal = count_saldo_quantity(moves, gudang)
-				nilai_awal = count_nilai_awal(moves, gudang)
+				# nilai_awal = count_nilai_awal(moves, gudang)
 
 			p['saldo_awal'] = saldo_awal['saldo']
 
@@ -667,7 +667,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			nilai_akhir_moves = frappe.get_list("VetOperationMove", filters=nilai_akhir_filters, fields=['*'], order_by="receive_date asc")
 			if mutasi_persediaan:
 				saldo_akhir = count_saldo_quantity(mutasi_persediaan, gudang)
-				nilai_akhir = count_nilai_awal(nilai_akhir_moves, gudang)
+				# nilai_akhir = count_nilai_awal(nilai_akhir_moves, gudang)
 
 			p['saldo_akhir'] = saldo_akhir['saldo'] + saldo_awal['saldo']
 			p['masuk'] = saldo_akhir['masuk']
