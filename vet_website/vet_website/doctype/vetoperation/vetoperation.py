@@ -687,29 +687,32 @@ def count_nilai_awal(moves, gudang):
 	for m in moves:
 		operation = frappe.get_doc("VetOperation", m.parent)
 		if 'PO' in operation.reference and 'POSORDER' not in operation.reference and ' ' not in operation.reference:
-			purchase = frappe.get_doc("VetPurchase", operation.reference)
-			products_purchase = frappe.get_list("VetPurchaseProducts", filters={'parent': purchase.name, 'product': m.product}, fields=['quantity_receive', 'price'])
-			for pp in products_purchase:
-				if purchase.is_refund == 1:
-					pembelian.append({'purchase': purchase.name, 'quantity': -pp.quantity_receive, 'price': pp.price})
-				else:
-					pembelian.append({'purchase': purchase.name, 'quantity': pp.quantity_receive, 'price': pp.price})
-			continue
+			purchase = frappe.get_value("VetPurchase", operation.reference, as_dict=1)
+			if purchase:
+				products_purchase = frappe.get_list("VetPurchaseProducts", filters={'parent': purchase.name, 'product': m.product}, fields=['quantity_receive', 'price'])
+				for pp in products_purchase:
+					if purchase.is_refund == 1:
+						pembelian.append({'purchase': purchase.name, 'quantity': -pp.quantity_receive, 'price': pp.price})
+					else:
+						pembelian.append({'purchase': purchase.name, 'quantity': pp.quantity_receive, 'price': pp.price})
+				continue
 
 		if 'VCI' in operation.reference and ' ' not in operation.reference:
-			invoice = frappe.get_doc("VetCustomerInvoice", operation.reference)
-			if invoice.is_refund == 1 or (operation.get('to', False) and (operation.get('to', False) == gudang or not gudang)):
-				penjualan -= m.quantity_done
-			else:
-				penjualan += m.quantity_done
-			continue
+			invoice = frappe.get_value("VetCustomerInvoice", operation.reference, as_dict=1)
+			if invoice:
+				if invoice.is_refund == 1 or (operation.get('to', False) and (operation.get('to', False) == gudang or not gudang)):
+					penjualan -= m.quantity_done
+				else:
+					penjualan += m.quantity_done
+				continue
 		elif 'POSORDER' in operation.reference and ' ' not in operation.reference:
-			order = frappe.get_doc("VetPosOrder", operation.reference)
-			if order.is_refund == 1 or (operation.get('to', False) and (operation.get('to', False) == gudang or not gudang)):
-				penjualan -= m.quantity_done
-			else:
-				penjualan += m.quantity_done
-			continue
+			order = frappe.get_value("VetPosOrder", operation.reference, as_dict=1)
+			if order:
+				if order.is_refund == 1 or (operation.get('to', False) and (operation.get('to', False) == gudang or not gudang)):
+					penjualan -= m.quantity_done
+				else:
+					penjualan += m.quantity_done
+				continue
 
 		if 'VAJ' in operation.reference and ' ' not in operation.reference:
 			product_adjustment = frappe.get_list("VetAdjustmentInventoryDetails", filters={'parent': operation.reference, 'product': m.product}, fields=['diff_quantity', 'adjustment_value'])
