@@ -556,7 +556,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 	moves_filters = []
 	operation_filters = [{'reference': ['not like', '%Retur%']}]
 	gudang_or_filters = []
-	nilai_akhir_filters = []
+	# nilai_akhir_filters = []
 	product_or_filters = []
 	filter_json = False
 	page = 1
@@ -615,8 +615,8 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			td_filters.append({'receive_date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 			moves_filters.append({'receive_date': ['<', min_date]})
 			moves_filters.append({'receive_date': ['not in', [None, '']]})
-			nilai_akhir_filters.append({'receive_date': ['<', max_date_dt.strftime('%Y-%m-%d')]})
-			nilai_akhir_filters.append({'receive_date': ['not in', [None, '']]})
+			# nilai_akhir_filters.append({'receive_date': ['<', max_date_dt.strftime('%Y-%m-%d')]})
+			# nilai_akhir_filters.append({'receive_date': ['not in', [None, '']]})
 	
 	try:
 		if all:
@@ -628,7 +628,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters, filters=operation_filters)
 			td_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 			moves_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
-			nilai_akhir_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
+			# nilai_akhir_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
 
 		for p in products:
 			td_product = next((i for i,d in enumerate(td_filters) if 'product' in d), False)
@@ -643,11 +643,11 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			else:
 				moves_filters.append({'product': p.name})
 
-			nilai_akhir_product  = next((i for i,d in enumerate(nilai_akhir_filters) if 'product' in d), False)
-			if nilai_akhir_product:
-				nilai_akhir_filters[nilai_akhir_product] = {'product': p.name}
-			else:
-				nilai_akhir_filters.append({'product': p.name})
+			# nilai_akhir_product  = next((i for i,d in enumerate(nilai_akhir_filters) if 'product' in d), False)
+			# if nilai_akhir_product:
+			# 	nilai_akhir_filters[nilai_akhir_product] = {'product': p.name}
+			# else:
+			# 	nilai_akhir_filters.append({'product': p.name})
 
 			saldo_awal = {'saldo': 0, 'masuk': 0, 'keluar': 0}
 			nilai_awal = 0
@@ -656,7 +656,7 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="receive_date asc")
 			if moves:
 				saldo_awal = count_saldo_quantity(moves, gudang)
-				# nilai_awal = count_nilai_awal(moves, gudang)
+				nilai_awal = count_nilai_awal(moves, gudang)
 
 			p['saldo_awal'] = saldo_awal['saldo']
 
@@ -664,10 +664,10 @@ def get_mutasi_persediaan_list(filters=None, mode=False, all=False):
 			# mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['*'], order_by="date asc")
 			# nilai_akhir_moves = frappe.get_list("VetOperationMove", filters=nilai_akhir_filters, fields=['*'], order_by="date asc")
 			mutasi_persediaan = frappe.get_list("VetOperationMove", filters=td_filters, fields=['*'], order_by="receive_date asc")
-			nilai_akhir_moves = frappe.get_list("VetOperationMove", filters=nilai_akhir_filters, fields=['*'], order_by="receive_date asc")
+			# nilai_akhir_moves = frappe.get_list("VetOperationMove", filters=nilai_akhir_filters, fields=['*'], order_by="receive_date asc")
 			if mutasi_persediaan:
 				saldo_akhir = count_saldo_quantity(mutasi_persediaan, gudang)
-				# nilai_akhir = count_nilai_awal(nilai_akhir_moves, gudang)
+				nilai_akhir = count_nilai_awal(moves + mutasi_persediaan, gudang)
 
 			p['saldo_akhir'] = saldo_akhir['saldo'] + saldo_awal['saldo']
 			p['masuk'] = saldo_akhir['masuk']
