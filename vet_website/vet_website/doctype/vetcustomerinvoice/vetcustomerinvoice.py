@@ -1561,7 +1561,7 @@ def submit_refund(data):
 			pay = frappe.new_doc("VetCustomerInvoicePay")
 			pay.update({
 				'jumlah': data_json.get('refund'),
-				'tanggal': dt.strftime(dt.now(tz), "%Y-%m-%d"),
+				'tanggal': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
 				'metode_pembayaran': data_json.get('payment_method'),
 				'pos_session': pos_session,
 				'parent': invoice.name,
