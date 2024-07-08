@@ -122,7 +122,9 @@ class PosSessions extends React.Component {
         });
     }
 
-    createSession() {
+    createSession(e) {
+        e.preventDefault();
+
         var po = this
         frappe.call({
             type: "POST",
