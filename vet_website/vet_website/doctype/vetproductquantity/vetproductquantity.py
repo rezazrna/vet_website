@@ -5,7 +5,10 @@
 from __future__ import unicode_literals
 import frappe
 import json
+import pytz
 from frappe.model.document import Document
+from datetime import datetime as dt
+from vet_website.vet_website.doctype.vetoperation.vetoperation import count_saldo_quantity
 
 class VetProductQuantity(Document):
 	pass
@@ -90,3 +93,45 @@ def get_quantity_list(filters=None, all_page=False, valuation=False):
 def get_product_quantity(warehouse, product):
 	quantity = frappe.db.get_value('VetProductQuantity', {'product': product, 'gudang': warehouse}, 'quantity') or 0
 	return quantity
+
+@frappe.whitelist()
+def calculate_stock(product):
+	# tz = pytz.timezone("Asia/Jakarta")
+	# now = dt.now(tz)
+	# now_str = dt.strftime(now, "%d%m%Y%H%M%S")
+
+	operation_filters = [
+		{'reference': ['not like', '%Retur%']},
+	]
+
+	product_quantity = frappe.get_list("VetProductQuantity", filters={'product': product}, fields=["gudang", "name"], order_by="creation desc")
+
+	for pq in product_quantity:
+		gudang_or_filters = [
+			{'from': pq['gudang']},
+			{'to': pq['gudang']},
+		]
+		moves_filters = [
+			{'product': product},
+			# {'receive_date': ['<=', now_str]},
+			# {'receive_date': ['not in', [None, '']]}
+		]
+
+		operation_names = frappe.get_list("VetOperation", or_filters=gudang_or_filters, filters=operation_filters)
+		moves_filters.append({'parent': ['in', list(map(lambda item: item['name'], operation_names))]})
+
+		print('gudang')
+		print(pq['gudang'])
+
+		moves = frappe.get_list("VetOperationMove", filters=moves_filters, fields=["*"], order_by="receive_date asc")
+		if moves:
+			stock_on_hand = count_saldo_quantity(moves, pq['gudang'])['saldo']
+			print('saldo')
+			print(stock_on_hand)
+
+			doc = frappe.get_doc('VetProductQuantity', pq['name'])
+			doc.update({"quantity": stock_on_hand})
+			doc.save(ignore_permissions=True)
+			frappe.db.commit()
+
+	return True

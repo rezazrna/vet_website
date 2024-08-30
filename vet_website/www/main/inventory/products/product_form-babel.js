@@ -323,6 +323,20 @@ class Products extends React.Component {
             }
         })
     }
+
+    calculateStock(){
+        console.log(this.state.data.name)
+        frappe.call({
+            type: "POST",
+            method:"vet_website.vet_website.doctype.vetproductquantity.vetproductquantity.calculate_stock",
+            args: {product: this.state.data.name},
+            callback: function(r){
+                if (r.message) {
+                    window.location.reload()
+                }
+            }
+        })
+    }
     
     render() {
         var panel_style = {background: '#FFFFFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)', padding: '2px 32px', marginBottom: '15px'}
@@ -421,7 +435,10 @@ class Products extends React.Component {
                 }
             }
             else{
-                if(write){buttonMode.push(<div key="3" className="col-auto d-flex my-auto"><button className="btn btn-sm btn-danger fs12 fwbold text-uppercase py-2 px-4" onClick={e => this.changeEditMode(e)} type="button">Edit</button></div>)}
+                if(write){
+                    buttonMode.push(<div key="3" className="col-auto d-flex my-auto"><button className="btn btn-sm btn-danger fs12 fwbold text-uppercase py-2 px-4" onClick={e => this.changeEditMode(e)} type="button">Edit</button></div>)
+                    buttonMode.push(<div key="3" className="col-auto d-flex my-auto"><button className="btn btn-sm btn-danger fs12 fwbold text-uppercase py-2 px-4" onClick={e => this.calculateStock(e)} type="button">Hitung Ulang Stok</button></div>)
+                }
                 buttonMode.push(sales,purchase,move,on_hand )
             }
             buttonMode.push(<div key="999" className="col-auto d-flex mr-auto">{backButton}</div>)
