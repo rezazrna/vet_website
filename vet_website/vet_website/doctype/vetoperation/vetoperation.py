@@ -147,10 +147,165 @@ def delete_operation(data):
 		return {'error': "Gagal menghapus operasi"}
 	
 	for d in data_json:
+		operation = frappe.get_doc("VetOperation", d)
+		moves = frappe.get_list('VetOperationMove', filters={'parent': operation.name}, fields=['*'])
+
+		for m in moves:
+			qty = m.quantity_done
+			product_uom = frappe.db.get_value('VetProduct', m['product'], 'product_uom')
+			if(product_uom != m['product_uom']):
+				ratio = frappe.db.get_value('VetUOM', m['product_uom'], 'ratio')
+				target_ratio = frappe.db.get_value('VetUOM', product_uom, 'ratio')
+				qty = qty * (float(ratio or 1)/float(target_ratio or 1))
+			
+			if operation.get('to', False):
+				product_quantity_search_from = frappe.get_list('VetProductQuantity', filters={'product': m['product'], 'gudang': operation.get('from')}, fields=['name'])
+				if len(product_quantity_search_from) != 0:
+					product_quantity = frappe.get_doc('VetProductQuantity', product_quantity_search_from[0].name)
+					product_quantity.quantity = float(product_quantity.quantity) - float(qty)
+					product_quantity.save()
+					frappe.db.commit()
+				else:
+					product_quantity = frappe.new_doc('VetProductQuantity')
+					product_quantity.product = m['product']
+					product_quantity.quantity = float(-qty)
+					product_quantity.gudang = operation.get('to')
+					product_quantity.insert()
+					frappe.db.commit()
+				decrease_product_valuation(m['product'], operation.get('to'), m['product_uom'], False)
+			
+			if operation.get('from', False):
+				product_quantity_search_to = frappe.get_list('VetProductQuantity', filters={'product': m['product'], 'gudang': operation.to}, fields=['name'])
+				if len(product_quantity_search_to) != 0:
+					product_quantity = frappe.get_doc('VetProductQuantity', product_quantity_search_to[0].name)
+					product_quantity.quantity = float(product_quantity.quantity) + float(qty)
+					product_quantity.save()
+					frappe.db.commit()
+				else:
+					product_quantity = frappe.new_doc('VetProductQuantity')
+					product_quantity.product = m['product']
+					product_quantity.quantity = float(qty)
+					product_quantity.gudang = operation.get('from')
+					product_quantity.insert()
+					frappe.db.commit()
+				increase_product_valuation(operation.reference, m['product'], m['quantity'], m['product_uom'], False)
+					
 		frappe.delete_doc('VetOperation', d)
 		frappe.db.commit()
+
 		
 	return {'success': True}
+
+@frappe.whitelist()
+def decrease_product_valuation(product, quantity, warehouse=False, uom=False, reverse=False):
+	adjustment_value = 0
+
+	gudang = frappe.get_list("VetGudang", fields=["name"])
+	default_warehouse = frappe.get_list('VetGudang', filters={'is_default': '1'}, fields=['name', 'gudang_name'], limit=1)
+
+	if not warehouse:
+		if default_warehouse:
+			warehouse = default_warehouse[0].name
+		else:
+			warehouse = gudang[0].name
+	
+	product_uom = uom
+	if not product_uom:
+		product_uom = frappe.db.get_value('VetProduct', product, 'product_uom')
+		
+	purchase_with_stock_search = frappe.get_list('VetPurchaseProducts', filters={'product': product}, fields=['name', 'quantity_stocked', 'product', 'product_name', 'price', 'parent'], order_by="creation asc")
+	purchase_with_stock = list(p for p in purchase_with_stock_search if frappe.db.get_value('VetPurchase', p.parent, 'deliver_to') == warehouse and p.quantity_stocked)
+	if len(purchase_with_stock):
+		
+		current_quantity = float(quantity)
+		current_uom = product_uom
+		
+		for pws in purchase_with_stock:
+			if current_quantity != 0:
+				purchase_product = frappe.get_doc('VetPurchaseProducts', pws.name)
+				
+				if(purchase_product.uom != current_uom):
+					ratio = frappe.db.get_value('VetUOM', current_uom, 'ratio')
+					target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
+					current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
+					current_uom = purchase_product.uom
+				
+				if not reverse:
+					if current_quantity >= purchase_product.quantity_stocked:
+						current_quantity = float(current_quantity) - purchase_product.quantity_stocked
+						adjustment_value += purchase_product.quantity_stocked * purchase_product.price
+						purchase_product.quantity_stocked = 0
+						purchase_product.save()
+						frappe.db.commit()
+					else:
+						adjustment_value += float(current_quantity) * purchase_product.price
+						purchase_product.quantity_stocked = purchase_product.quantity_stocked - float(current_quantity)
+						current_quantity = 0
+						purchase_product.save()
+						frappe.db.commit()
+				else:
+					adjustment_value += float(current_quantity) * purchase_product.price
+					purchase_product.quantity_stocked = purchase_product.quantity_stocked + float(current_quantity)
+					current_quantity = 0
+					purchase_product.save()
+					frappe.db.commit()
+					
+	return adjustment_value
+
+@frappe.whitelist()
+def increase_product_valuation(name, product, quantity, uom=False, refund_from=False):
+	adjustment_value = 0
+	line = []
+	isOrder = 'PO' in name
+	
+	product_uom = uom
+	if not product_uom:
+		product_uom = frappe.db.get_value('VetProduct', 'product_uom')
+
+	if refund_from:
+		if isOrder:
+			line = frappe.get_list('VetPosOrderProduk', filters={'parent': refund_from, 'produk': product}, fields=['*'])
+		else:
+			line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': refund_from, 'product': product}, fields=['*'])
+	else:
+		if isOrder:
+			line = frappe.get_list('VetPosOrderProduk', filters={'parent': name, 'produk': product}, fields=['*'])
+		else:
+			line = frappe.get_list('VetCustomerInvoiceLine', filters={'parent': name, 'product': product}, fields=['*'])
+
+	if line:
+		if isOrder:
+			purchase_products = frappe.get_list('VetPosOrderPurchaseProducts', filters={'order_produk_name': line[0]['name']}, fields=['*'], order_by="name desc")
+		else:
+			purchase_products = frappe.get_list('VetCustomerInvoicePurchaseProducts', filters={'invoice_line_name': line[0]['name']}, fields=['*'], order_by="name desc")
+		
+		current_quantity = float(quantity)
+		current_uom = product_uom
+		
+		for pws in purchase_products:
+			if current_quantity != 0:
+				purchase_product = frappe.get_doc('VetPurchaseProducts', pws.purchase_products_name)
+				
+				if(purchase_product.uom != current_uom):
+					ratio = frappe.db.get_value('VetUOM', current_uom, 'ratio')
+					target_ratio = frappe.db.get_value('VetUOM', purchase_product.uom, 'ratio')
+					current_quantity = current_quantity * (float(ratio or 1)/float(target_ratio or 1))
+					current_uom = purchase_product.uom
+
+				if float(current_quantity) >= pws.quantity:
+					adjustment_value += pws.quantity * purchase_product.price
+					purchase_product.quantity_stocked = purchase_product.quantity_stocked + pws.quantity
+					current_quantity = float(current_quantity) - pws.quantity
+					purchase_product.save()
+					frappe.db.commit()
+				else:
+					adjustment_value += float(current_quantity) * purchase_product.price
+					purchase_product.quantity_stocked = purchase_product.quantity_stocked + float(current_quantity)
+					current_quantity = 0
+					purchase_product.save()
+					frappe.db.commit()
+					
+	return adjustment_value
 	
 @frappe.whitelist()
 def new_operation(data):
