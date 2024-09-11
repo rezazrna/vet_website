@@ -104,7 +104,9 @@ class JournalEntry extends React.Component {
     	    this.setState({data: new_data})
     	} else if(['debit','credit'].includes(name)){
             console.log(value)
-            if (new RegExp(/,$/g).test(value)) {
+            var secondLastChar = value.substr(value.length - 2);
+            var thirdLastChar = value.substr(value.length - 3);
+            if (new RegExp(/,$/g).test(value) || secondLastChar == ',0' || thirdLastChar == ',00') {
                 if (Object.keys(new_data.journal_items[i]).length === 0) {
                     new_data.journal_items.push({})
                 }
@@ -118,7 +120,12 @@ class JournalEntry extends React.Component {
                     if (Object.keys(new_data.journal_items[i]).length === 0) {
                         new_data.journal_items.push({})
                     }
-                    var formatted = parseFloat(filtered).toLocaleString('id-ID')
+                    var formatted = parseFloat(filtered).toLocaleString(
+                        'id-ID',
+                        {
+                            maximumFractionDigits: 2
+                        }
+                    )
                     console.log(formatted)
                     new_data.journal_items[i][name] = formatted
                     this.setState({data: new_data})
