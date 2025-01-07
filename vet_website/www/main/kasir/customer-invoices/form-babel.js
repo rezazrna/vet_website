@@ -1498,8 +1498,8 @@ class CustomerInvoiceLinesMultipleRow extends React.Component {
                 		</div>
                 		<div className="col-1 text-center"></div>
                 	</div>
-                	{!this.props.is_rawat_inap?<CustomerInvoiceLinesContent list={list.farmasi} edit_mode={this.props.edit_mode} product_list={this.props.product_list} uom_list={this.props.uom_list} status={this.props.status} payments={this.props.payments} subtotal={this.props.subtotal} paid={this.props.paid} changeInput={this.props.changeInput} inputBlur={this.props.inputBlur} service_name="Farmasi" service="farmasi" warehouse_list={this.props.warehouse_list} is_refund={this.props.is_refund} no_exchange={this.props.no_exchange} potongan={this.props.potongan} deleteRow={(index) => this.props.deleteRow(index, 'farmasi')} role={this.props.role} links={links} register_number={this.props.register_number}/>:false}
-                	{!this.props.is_rawat_inap?<CustomerInvoiceLinesContent list={list.jasa} edit_mode={this.props.edit_mode} product_list={this.props.product_list} uom_list={this.props.uom_list} status={this.props.status} payments={this.props.payments} subtotal={this.props.subtotal} paid={this.props.paid} changeInput={this.props.changeInput} inputBlur={this.props.inputBlur} service_name={service.service||"Jasa"} service="jasa" warehouse_list={this.props.warehouse_list} is_refund={this.props.is_refund} no_exchange={this.props.no_exchange} potongan={this.props.potongan} deleteRow={(index) => this.props.deleteRow(index, 'jasa')} role={this.props.role} links={links} register_number={this.props.register_number}/>:false}
+                	<CustomerInvoiceLinesContent list={list.farmasi} edit_mode={this.props.edit_mode} product_list={this.props.product_list} uom_list={this.props.uom_list} status={this.props.status} payments={this.props.payments} subtotal={this.props.subtotal} paid={this.props.paid} changeInput={this.props.changeInput} inputBlur={this.props.inputBlur} service_name="Farmasi" service="farmasi" warehouse_list={this.props.warehouse_list} is_refund={this.props.is_refund} no_exchange={this.props.no_exchange} potongan={this.props.potongan} deleteRow={(index) => this.props.deleteRow(index, 'farmasi')} role={this.props.role} links={links} register_number={this.props.register_number}/>
+                	<CustomerInvoiceLinesContent list={list.jasa} edit_mode={this.props.edit_mode} product_list={this.props.product_list} uom_list={this.props.uom_list} status={this.props.status} payments={this.props.payments} subtotal={this.props.subtotal} paid={this.props.paid} changeInput={this.props.changeInput} inputBlur={this.props.inputBlur} service_name={service.service||"Jasa"} service="jasa" warehouse_list={this.props.warehouse_list} is_refund={this.props.is_refund} no_exchange={this.props.no_exchange} potongan={this.props.potongan} deleteRow={(index) => this.props.deleteRow(index, 'jasa')} role={this.props.role} links={links} register_number={this.props.register_number}/>
                 	<CustomerInvoiceLinesContent list={list.instalasi_medis} edit_mode={this.props.edit_mode} product_list={this.props.product_list} uom_list={this.props.uom_list} status={this.props.status} payments={this.props.payments} subtotal={this.props.subtotal} paid={this.props.paid} changeInput={this.props.changeInput} inputBlur={this.props.inputBlur} service_name="Instalasi Medis" service="instalasi_medis" warehouse_list={this.props.warehouse_list} is_refund={this.props.is_refund} no_exchange={this.props.no_exchange} potongan={this.props.potongan} deleteRow={(index) => this.props.deleteRow(index, 'instalasi_medis')} role={this.props.role} links={links} register_number={this.props.register_number}/>
                 	{this.props.is_rawat_inap?rawat_inap_rows:false}
                 </div>
@@ -2562,8 +2562,9 @@ class PDF extends React.Component{
         
         function addProductRow(data){
             var table_rows = []
-            if (!data.is_rawat_inap){
-                var keys = ['farmasi','instalasi_medis','jasa','rawat_inap']
+            // if (!data.is_rawat_inap){
+                // var keys = ['farmasi','instalasi_medis','jasa','rawat_inap']
+                var keys = ['farmasi','jasa']
                 keys.forEach(k => {
                     if(data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
                         var filtered_list = data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
@@ -2598,7 +2599,7 @@ class PDF extends React.Component{
                         })
                     }
                 })
-            } else {
+            // } else {
                 var rawat_inap_rows = []
                 var date_groups = []
                 
@@ -2653,7 +2654,7 @@ class PDF extends React.Component{
                     })
                     
                 })
-            }
+            // }
             return table_rows
         }
         
@@ -2936,8 +2937,8 @@ class PDFMini extends React.Component{
         
         function addProductRow(data){
             var table_rows = []
-            if (!data.is_rawat_inap){
-                var keys = ['farmasi','instalasi_medis','jasa','rawat_inap']
+            // if (!data.is_rawat_inap){
+                var keys = ['farmasi','jasa']
                 keys.forEach(k => {
                     if(data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
                         var filtered_list = data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
@@ -2966,7 +2967,7 @@ class PDFMini extends React.Component{
                         })
                     }
                 })
-            } else {
+            // } else {
                 var rawat_inap_rows = []
                 var date_groups = []
                 
@@ -3013,7 +3014,7 @@ class PDFMini extends React.Component{
                     })
                     
                 })
-            }
+            // }
             
             return table_rows
         }
@@ -3275,8 +3276,8 @@ class ExcelPage extends React.Component{
         
         function addProductRow(data){
             var table_rows = []
-            if (!data.is_rawat_inap){
-                var keys = ['farmasi','instalasi_medis','jasa','rawat_inap']
+            // if (!data.is_rawat_inap){
+                var keys = ['farmasi','jasa']
                 keys.forEach(k => {
                     if(data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined) != 0){
                         var filtered_list = data.invoice_line[k].filter(i => Object.keys(i).length != 0 && !i.deleted && i.racikan == undefined)
@@ -3312,7 +3313,7 @@ class ExcelPage extends React.Component{
                         })
                     }
                 })
-            } else {
+            // } else {
                 var rawat_inap_rows = []
                 var date_groups = []
                 
@@ -3369,7 +3370,7 @@ class ExcelPage extends React.Component{
                     })
                     
                 })
-            }
+            // }
             return table_rows
         }
         
