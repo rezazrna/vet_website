@@ -1659,6 +1659,7 @@ def cancel_invoice(name):
 		create_sales_journal_entry(invoice.name, True)
 		invoice.reload()
 		deliver_to_customer(invoice.name, True)
+		# TODO: cancel ownerCredit sales
 		owner_credit = frappe.new_doc('VetOwnerCredit')
 		owner_credit.update({
 			'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),

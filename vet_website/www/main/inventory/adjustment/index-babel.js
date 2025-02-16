@@ -210,7 +210,7 @@ class Adjustment extends React.Component {
                             <Filter sorts={sorts} searchAction={this.adjustmentSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))} />
                         </div>
                     </div>
-                    <AdjustmentList data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} filter={this.state.filter} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datelength={this.state.datelength} />
+                    <AdjustmentList data={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} filter={this.state.filter} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
                 </div>
             )
         }

@@ -231,7 +231,7 @@ class MutasiPersediaan extends React.Component {
         }
     }
 
-    getPrintData() {
+    getPrintData(is_excel=false) {
         var td = this
 
         if (!this.state.print_loading) {
@@ -246,7 +246,7 @@ class MutasiPersediaan extends React.Component {
                             console.log(r.message)
                             td.setState({ 'print_data': r.message.mutasi_persediaan, 'loaded': true, 'datalength': r.message.datalength });
                             setTimeout(function() {
-                                td.printPDF()
+                                td.print(is_excel)
                             }, 3000);
                         }
                     }
@@ -257,7 +257,7 @@ class MutasiPersediaan extends React.Component {
         }
     }
 
-    printPDF() {
+    print(is_excel=false) {
         var title = 'MutasiPersediaan-'
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
@@ -274,56 +274,86 @@ class MutasiPersediaan extends React.Component {
             }
         }
 
-        // var pdfid = 'pdf'
-        // var source = document.getElementById(pdfid)
-        var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
-        var opt = {
-            margin: [10, 0, 10, 0],
-            filename: title + ".pdf",
-            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-            html2canvas: { scale: 3 },
-            jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
-        }
+        if (is_excel) {
+            var elt = document.getElementById('excel_page');
+            var wb = XLSX.utils.table_to_book(elt, {
+                sheet: "sheet1",
+                raw: true,
+            });
+            var sheet = wb.Sheets[wb.SheetNames[0]];
 
-        var worker = html2pdf()
-            .set(opt)
-            .from(elements[0])
+            // for (let col of [0]) {
+            //     this.formatColumn(sheet, col, 'dd-mm-yyyy')
+            // }
 
-        if (elements.length > 1) {
-            worker = worker.toPdf()
+            var sheetcols = [
+                {wpx:90},
+                {wpx:90},
+                {wpx:90},
+                {wpx:90},
+                {wpx:90},
+                {wpx:90},
+                {wpx:90},
+                {wpx:90},
+                {wpx:90},
+            ];
+            
+            sheet['!cols'] = sheetcols;
 
-            elements.slice(1).forEach((element, index) => {
-            worker = worker
-                .get('pdf')
-                .then(pdf => {
-                    console.log('masuk pak eko')
-                    console.log(index)
-                    pdf.addPage()
-                })
+            XLSX.writeFile(wb, title + '.xlsx');
+            this.setState({print_loading: false});
+        } else {
+            // var pdfid = 'pdf'
+            // var source = document.getElementById(pdfid)
+            var elements = Array.from(document.querySelectorAll('div[id^="pdf-"]'))
+            var opt = {
+                margin: [10, 0, 10, 0],
+                filename: title + ".pdf",
+                pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
+                html2canvas: { scale: 3 },
+                jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
+            }
+
+            var worker = html2pdf()
                 .set(opt)
-                .from(element)
-                // .toContainer()
-                .toCanvas()
-                .toPdf()
+                .from(elements[0])
+
+            if (elements.length > 1) {
+                worker = worker.toPdf()
+
+                elements.slice(1).forEach((element, index) => {
+                worker = worker
+                    .get('pdf')
+                    .then(pdf => {
+                        console.log('masuk pak eko')
+                        console.log(index)
+                        pdf.addPage()
+                    })
+                    .set(opt)
+                    .from(element)
+                    // .toContainer()
+                    .toCanvas()
+                    .toPdf()
+                })
+            }
+
+            worker = worker.save().then(e => {
+                this.setState({print_loading: false})
             })
+
+            // html2pdf().set(opt).from(source).save()
+            // this.setState({ print_loading: false })
+            // doc.html(source, {
+            //   callback: function (doc) {
+            //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
+            //   },
+            //   x: 0,
+            //   y: 0,
+            //   html2canvas: {
+            //       scale: 1,
+            //   }
+            // });
         }
-
-        worker = worker.save().then(e => {
-            this.setState({print_loading: false})
-        })
-
-        // html2pdf().set(opt).from(source).save()
-        // this.setState({ print_loading: false })
-        // doc.html(source, {
-        //   callback: function (doc) {
-        //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
-        //   },
-        //   x: 0,
-        //   y: 0,
-        //   html2canvas: {
-        //       scale: 1,
-        //   }
-        // });
     }
 
     render() {
@@ -421,6 +451,9 @@ class MutasiPersediaan extends React.Component {
                         <div className="col-auto my-auto">
                             <button type="button" className={this.state.print_loading ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2" : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3" />Loading...</span>) : "Print"}</button>
                         </div>
+                        <div className="col-auto my-auto">
+                            <button type="button" className={this.state.print_loading ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2" : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData(true)}>{this.state.print_loading ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3" />Loading...</span>) : "Print Excel"}</button>
+                        </div>
                         {/* <div className="col-2 my-auto">
                             <input name="product" placeholder="Product" list="products" className="form-control" defaultValue={this.state.product ? this.state.product.product_name : ''} onChange={e => this.filterChange(e)} onBlur={e => this.handleInputBlur(e)} />
                             <datalist id="products">
@@ -460,6 +493,7 @@ class MutasiPersediaan extends React.Component {
                     </div>
                     <MutasiPersediaanList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
                     {item_pdf}
+                    <ExcelPage data={this.state.print_data} mode={this.state.mode} month={this.state.month} year={this.state.year} />
                 </div>
             )
 
@@ -827,6 +861,149 @@ class PDFListPage extends React.Component {
                 </div>
             </div>
         )
+    }
+}
+
+class ExcelPage extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            'profile': {},
+            'loaded': false,
+        }
+    }
+
+    componentDidMount() {
+        var ci = this
+
+        frappe.call({
+            type: "GET",
+            method: "vet_website.vet_website.doctype.vetprofile.vetprofile.get_profile",
+            args: {},
+            callback: function (r) {
+                if (r.message) {
+                    ci.setState({ 'profile': r.message.profile, 'loaded': true });
+                }
+            }
+        });
+    }
+
+    render() {
+        // var search = this.props.search
+        // function filterRow(row) {
+        //     function filterField(field) {
+        //         return field ? field.toString().replace(/&lt;/g, "<").replace(/&gt;/g, ">").includes(search) : false
+        //     }
+        //     var fields = [row.product_name, row.parent, row.quantity_done, row.from_name || 'Supplier', row.to_name || 'Customer', moment(row.date || row.creation).format('DD-MM-YYYY'), row.status]
+        //     return ![false, ''].includes(search) ? fields.some(filterField) : true
+        // }
+
+        var data = this.props.data
+        var profile = this.state.profile
+        var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
+        var borderStyle = { border: '1px solid #000', margin: '15px 0' }
+        var row2 = { width: '100%' }
+        var th = { border: '1px solid #000' }
+        var td = { borderLeft: '1px solid #000', borderRight: '1px solid #000' }
+        var fs13 = { fontSize: 13 }
+        var fs9 = { fontSize: 9 }
+        var invoice = { letterSpacing: 0, lineHeight: '24px', marginBottom: 0, marginTop: 18 }
+        var invoice2 = { letterSpacing: 0 }
+        var thead = { background: '#d9d9d9', fontSize: 11 }
+        var table_rows = []
+        var subtitle = ''
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (filters.stock_date != undefined && this.props.mode != undefined) {
+            if (this.props.mode == 'monthly') {
+                var bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                console.log(bulan)
+                subtitle = 'Monthly ' + bulan
+            } else if (this.props.mode == 'annual') {
+                subtitle = 'Annual ' + moment(filters.stock_date).format('YYYY')
+            } else if (this.props.mode == 'period') {
+                var sampai_bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
+                subtitle = 'Periode ' + sampai_bulan
+            }
+        }
+
+        // const indexOfLastTodo = this.props.currentpage * 30;
+        // const indexOfFirstTodo = indexOfLastTodo - 30;
+        // var currentItems
+        // ![false,''].includes(search)?
+        // currentItems = data.filter(filterRow).slice(indexOfFirstTodo, indexOfLastTodo):
+        // currentItems = data.slice(indexOfFirstTodo, indexOfLastTodo)
+        // currentItems = data.slice(0,30)
+        data.forEach((d, index) => {
+            table_rows.push(
+                <tr key={d.name} style={fs9} className="text-center">
+                    {/* <td className="py-1">{d.product_name}</td> */}
+                    <td className="py-1" width="90px">{d.default_code}</td>
+                    <td className="py-1" width="90px">{d.product_name}</td>
+                    <td className="py-1" width="90px">{d.uom_name}</td>
+                    <td className="py-1" width="90px">{formatter2.format(d.saldo_awal)}</td>
+                    <td className="py-1" width="90px">{formatter2.format(d.nilai_awal)}</td>
+                    <td className="py-1" width="90px">{formatter2.format(d.masuk)}</td>
+                    <td className="py-1" width="90px">{formatter2.format(d.keluar)}</td>
+                    <td className="py-1" width="90px">{formatter2.format(d.saldo_akhir)}</td>
+                    <td className="py-1" width="90px">{formatter2.format(d.nilai_akhir)}</td>
+                </tr>
+            )
+        })
+
+        if (this.state.loaded) {
+            var image
+            if (profile.image != undefined) {
+                var image_style = { position: 'absolute', top: 0, left: 0, objectFit: 'cover', height: '100%' }
+                image = <img src={profile.temp_image || profile.image} style={image_style} />
+            } else {
+                image = <img src={profile.temp_image} style={image_style} />
+            }
+
+            return (
+                <table id="excel_page" border="1" className="position-absolute d-none">
+                    <thead className="text-uppercase" style={thead}>
+                        <tr>
+                            <td rowspan="3">{image}</td>
+                            <td colspan="3">{profile.clinic_name}</td>
+                            <td colspan="2">Mutasi Persediaan</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">{profile.address}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">Telp. : {profile.phone}</td>
+                            <td colspan="2">{subtitle}</td>
+                        </tr>
+                        <tr></tr>
+                        <tr></tr>
+                        <tr className="text-center">
+                            {/* <th className="fw700 py-2" width="182px">Product</th> */}
+                            <th className="fw700 py-2" width="90px">Product Code</th>
+                            <th className="fw700 py-2" width="90px">Product Name</th>
+                            <th className="fw700 py-2" width="90px">UOM</th>
+                            <th className="fw700 py-2" width="90px">Awal</th>
+                            <th className="fw700 py-2" width="90px">Nilai Awal</th>
+                            <th className="fw700 py-2" width="90px">Masuk</th>
+                            <th className="fw700 py-2" width="90px">Keluar</th>
+                            <th className="fw700 py-2" width="90px">Akhir</th>
+                            <th className="fw700 py-2" width="90px">Nilai Akhir</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {table_rows}
+                    </tbody>
+                </table>
+            )
+        } else {
+            return <div className="row justify-content-center" key='0'>
+                <div className="col-10 col-md-8 text-center border rounded-lg py-4">
+                    <p className="mb-0 fs24md fs16 fw600 text-muted">
+                        <span><i className="fa fa-spin fa-circle-o-notch mr-3"></i>Loading...</span>
+                    </p>
+                </div>
+            </div>
+        }
     }
 }
 

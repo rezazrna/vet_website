@@ -60,6 +60,9 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 			if mode == 'monthly' or mode == 'period':
 				limit_date_dt = dt.strptime(accounting_date, '%Y-%m-%d') - rd(days=1)
 				limit_date = limit_date_dt.strftime('%Y-%m-%d')
+			elif mode == 'annual' and is_profit_loss:
+				limit_date_dt = dt.strptime(accounting_date, '%Y-%m-%d')
+				limit_date = accounting_date
 			else:
 				limit_date = accounting_date
 
@@ -67,6 +70,8 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 				min_trans_date = accounting_min_date
 			elif mode == 'monthly':
 				min_trans_date = (limit_date_dt).strftime('%Y-%m-01')
+			elif mode == 'annual' and is_profit_loss:
+				min_trans_date = (limit_date_dt).strftime('%Y-01-01')
 
 		if dc:
 			dc_mode = True

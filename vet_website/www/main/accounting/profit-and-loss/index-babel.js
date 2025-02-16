@@ -134,6 +134,8 @@ class ProfitAndLoss extends React.Component {
             var filters = {accounting_date: this.state.accounting_date}
             sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
             td.setState({'loaded': false})
+            console.log(filters)
+            console.log(td.state.mode)
             frappe.call({
                 type: "GET",
                 method:"vet_website.vet_website.doctype.vetcoa.vetcoa.get_coa_list",
