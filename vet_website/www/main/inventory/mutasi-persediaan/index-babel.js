@@ -914,7 +914,7 @@ class ExcelPage extends React.Component {
         var subtitle = ''
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
-        if (filters.stock_date != undefined && this.props.mode != undefined) {
+        if (filters != null && filters.stock_date != undefined && this.props.mode != undefined) {
             if (this.props.mode == 'monthly') {
                 var bulan = moment(this.props.year + '-' + this.props.month, 'YYYY-MM').format('MM-YYYY')
                 console.log(bulan)
