@@ -932,7 +932,9 @@ class CustomerInvoice extends React.Component {
                 				<button type="button" onClick={(e) => this.formSubmit(e)} className={this.state.submit_loading
                                     ? "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4 disabled"
                                     : "d-block btn btn-sm btn-danger fs12 text-uppercase fwbold py-2 px-4"}>
-                                        Open
+                                {this.state.submit_loading
+                                    ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                    : "Open"}
                                 </button>
                 			</div>
                         )
@@ -2266,7 +2268,11 @@ class PopupPay extends React.Component {
                                 <div className="col-auto d-flex mt-4">
                                     <button className={this.state.loading
                                     ? "btn btn-sm fs18 h-100 fwbold px-4 disabled"
-                                    : "btn btn-sm fs18 h-100 fwbold px-4"} style={payStyle} onClick={this.submitPay}>Pay</button>
+                                    : "btn btn-sm fs18 h-100 fwbold px-4"} style={payStyle} onClick={this.submitPay}>
+                                    {this.state.loading
+                                    ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                                    : "Pay"}
+                                    </button>
                                 </div>
                                 <div className="col-auto d-flex mt-4">
                                     <button className="btn btn-sm fs18 h-100 fwbold px-4" style={batalStyle} onClick={this.props.togglePopupPay}>Batal</button>

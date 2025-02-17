@@ -1477,6 +1477,13 @@ class DataPemilik extends React.Component {
 }
 
 class DataPasien extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            'search': false,
+        }
+    }
+
     addPetNewRow() {
         petRow.push(<PetNewRow handleInputChange={this.props.handleInputChange} handleInputBlurPetType={this.props.handleInputBlurPetType}/>)
     }
@@ -1485,11 +1492,15 @@ class DataPasien extends React.Component {
         var background_style = {background: '#FFF', boxShadow: '0px 4px 23px rgba(0, 0, 0, 0.1)'}
         var button_style = {color: '#056EAD', background: '#84D1FF'}
         var overflow_style = {maxHeight: 'calc(100% - 5px)', overflowY: 'auto', overflowX: 'hidden'}
-        var newButton, petNewRow
+        var newButton, petNewRow, searchField
         var petRow = []
         var petType = this.props.petType
         var modeEditPet = this.props.modeEditPet
         var panel_class = "p-4 pasien-panel"
+        var formStyle = { border: '1px solid #397DA6', color: '#397DA6' }
+        var filtered_pets = this.state.search == false || this.state.search.length == 0
+            ? [...this.props.new_pets]
+            : [...this.props.new_pets].filter((d) => d.pet_name.toLowerCase().includes(this.state.search))
         
         if (mode == 'New' || mode == 'New Pet' || mode == 'New Owner') {
             if (mode == 'New'){
@@ -1500,9 +1511,9 @@ class DataPasien extends React.Component {
                 label = "Tambah Hewan"
             }
             newButton = <button className="btn fs14 py-3 btn-block text-uppercase rounded mb-3" id="add_pet_row" style={button_style} onClick={this.props.addNewPet}><i className="fa fa-plus mr-2"></i>{label}</button>
-            if (this.props.new_pets.length != 0){
+            if (filtered_pets.length != 0){
                 var pr = this
-                this.props.new_pets.forEach(function(item, index) {
+                filtered_pets.forEach(function(item, index) {
                     petRow.push(<PetNewRow index={index.toString()} pet={item} petType={petType} key={index.toString()} handleInputChange={(e) => pr.props.handleInputChange(e, index.toString())} handleInputBlurPetType={pr.props.handleInputBlurPetType} selectPet={(e) => pr.props.selectPet(e, index.toString())}/>)
                 })
             }
@@ -1512,7 +1523,7 @@ class DataPasien extends React.Component {
         } else if (mode == 'Detail') {
             var panel_class = "pasien-panel-short"
             var pr = this
-            this.props.new_pets.forEach(function(item, index) {
+            filtered_pets.forEach(function(item, index) {
                 petRow.push(<PetRow index={index.toString()} pet={item} petType={petType} key={index.toString()} handleInputChange={(e) => pr.props.handleInputChange(e, index.toString())} handleInputBlurPetType={pr.props.handleInputBlurPetType} modeEditPet={modeEditPet}/>)
             })
         } else if(mode == 'Edit Owner' || mode == 'Edit Pet'){
@@ -1520,13 +1531,18 @@ class DataPasien extends React.Component {
             if (modeEditPet){
                 newButton = <button className="btn fs14 py-3 btn-block text-uppercase rounded mb-3" id="add_pet_row" style={button_style} onClick={this.props.addNewPet}><i className="fa fa-plus mr-2"></i>Tambah Hewan</button>
             }
-            this.props.new_pets.forEach(function(item, index) {
+            filtered_pets.forEach(function(item, index) {
                 petRow.push(<PetRow decease={pr.props.decease} index={index.toString()} pet={item} petType={petType} key={index.toString()} handleInputChange={(e) => pr.props.handleInputChange(e, index.toString())} handleInputBlurPetType={pr.props.handleInputBlurPetType} modeEditPet={modeEditPet} deletePet={pr.props.deletePet} setDecease={pr.props.setDecease} listFilter={pr.props.listFilter} />)
             })
             if (this.props.new_pet != false){
                 petRow.unshift(<PetNewRow index="-1" pet={this.props.new_pet} petType={petType} key="-1" addNewPets={this.props.addNewPets} handleInputChange={this.props.handleInputChangeNewPet} handleInputBlurPetType={this.props.handleInputBlurPetType} show_detail={this.props.show_detail} addNewPet={this.props.addNewPet} />)
             }
         }
+
+        if (this.props.new_pets.length > 0) {
+            searchField = <input value={this.state.search || ''} className="form-control fs12 mb-2" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} />
+        }
+
         return <div className="col-6">
                     <p className="fs18 fw600 text-dark mb-2">
     					Data Pasien
@@ -1534,6 +1550,7 @@ class DataPasien extends React.Component {
     				<div className={panel_class} style={background_style}>
     					<div className="py-3 pet_list" style={overflow_style}>
     					    {newButton}
+                            {searchField}
     					    {petNewRow}
     						{petRow}
     					</div>
