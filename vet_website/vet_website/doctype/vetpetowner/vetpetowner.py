@@ -1020,8 +1020,10 @@ def set_owner_credit_total(name, supplier=False):
 	print('previous transactions')
 	print(previous_transactions)
 	
-	if len(previous_transactions) < 2:
+	if len(previous_transactions) == 0:
 		selected_transaction_date = last_transaction_date
+	elif len(previous_transactions) == 1:
+		selected_transaction_date = previous_transactions[0]['date']
 	else:
 		# Ambil transaksi yang lebih lama dari dua data tersebut
 		selected_transaction_date = previous_transactions[1]['date']
