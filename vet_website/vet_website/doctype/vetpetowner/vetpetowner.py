@@ -1012,35 +1012,47 @@ def set_owner_credit_total(name, supplier=False):
 	previous_transactions = frappe.get_list(
 		'VetOwnerCredit',
 		filters={**filters, 'date': ['<', last_transaction_date]},
-		fields=['name', 'date'],
+		fields=['name', 'date', 'credit', 'debt'],
 		order_by='date desc',
 		limit_page_length=2
 	)
 	
 	print('previous transactions')
 	print(previous_transactions)
+
+	credit = 0
+	debt = 0
 	
 	if len(previous_transactions) == 0:
 		selected_transaction_date = last_transaction_date
 	elif len(previous_transactions) == 1:
 		selected_transaction_date = previous_transactions[0]['date']
+		credit = previous_transactions[0]['credit']
+		debt = previous_transactions[0]['debt']
 	else:
 		# Ambil transaksi yang lebih lama dari dua data tersebut
 		selected_transaction_date = previous_transactions[1]['date']
+		credit = previous_transactions[1]['credit']
+		debt = previous_transactions[1]['debt']
 	
 	print('selected transaction date')
 	print(selected_transaction_date)
 
     # Ambil semua transaksi dari transaksi terpilih ke bawah
-	owner_credit_search = frappe.get_list(
-		'VetOwnerCredit',
-		filters={**filters, 'date': ['>=', selected_transaction_date]},
-		fields=['name', 'type', 'nominal', 'is_deposit', 'metode_pembayaran', 'purchase', 'invoice', 'date'],
-		order_by='date asc'  # Urutkan dari yang paling lama ke terbaru agar perhitungan berurutan
-	)
-	
-	credit = 0
-	debt = 0
+	if len(previous_transactions) == 0:
+		owner_credit_search = frappe.get_list(
+			'VetOwnerCredit',
+			filters={**filters, 'date': ['>=', selected_transaction_date]},
+			fields=['name', 'type', 'nominal', 'is_deposit', 'metode_pembayaran', 'purchase', 'invoice', 'date'],
+			order_by='date asc'  # Urutkan dari yang paling lama ke terbaru agar perhitungan berurutan
+		)
+	else:
+		owner_credit_search = frappe.get_list(
+			'VetOwnerCredit',
+			filters={**filters, 'date': ['>', selected_transaction_date]},
+			fields=['name', 'type', 'nominal', 'is_deposit', 'metode_pembayaran', 'purchase', 'invoice', 'date'],
+			order_by='date asc'  # Urutkan dari yang paling lama ke terbaru agar perhitungan berurutan
+		)
 	
 	print('owner credit search')
 	print(len(owner_credit_search))
