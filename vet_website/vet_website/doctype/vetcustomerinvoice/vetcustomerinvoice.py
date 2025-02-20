@@ -989,7 +989,8 @@ def get_customer_invoice_form(name=False):
 				service_id = frappe.db.get_value('VetReception', reception, 'service')
 				form_data.update({'service': frappe.db.get_value('VetService', service_id, 'service_name')})
 			total_credit = 0
-			last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': customer_invoice.owner}, {'credit_mutation': ['!=', 0]}], fields=['credit'], order_by="date desc")
+			# last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': customer_invoice.owner}, {'credit_mutation': ['!=', 0]}], fields=['credit'], order_by="date desc")
+			last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': customer_invoice.owner}], fields=['credit'], order_by="date desc", limit_page_length=1)
 			if last_credit:
 				total_credit = last_credit[0]['credit']
 			version = frappe.get_list('Version', filters={'ref_doctype': "VetCustomerInvoice", 'docname': name}, fields=['*'], order_by="creation desc")
