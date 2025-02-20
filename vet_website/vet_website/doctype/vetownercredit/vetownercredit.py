@@ -25,7 +25,8 @@ def submit_piutang(action, nominal, petOwner, method, tanggal=False):
 			if len(session_search) < 1:
 				return {'error': "Belum ada POS Session yang dibuka, bukan POS Session terlebih dahulu"}
 			last_credit = 0
-			last_credit_search = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': petOwner}, {'credit_mutation': ['!=', 0]}], fields=['credit'], order_by="date desc")
+			# last_credit_search = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': petOwner}, {'credit_mutation': ['!=', 0]}], fields=['credit'], order_by="date desc")
+			last_credit_search = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': petOwner}], fields=['credit'], order_by="date desc", limit_page_length=1)
 			if len(last_credit_search) != 0:
 				last_credit = last_credit_search[0].credit
 				if last_credit < float(nominal):
