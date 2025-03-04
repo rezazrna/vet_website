@@ -993,6 +993,7 @@ def create_usage_operation_journal_items(name):
 		'period': operation.date.strftime('%m/%Y'),
 		'date': operation.date.strftime('%Y-%m-%d'),
 		'reference': operation.name,
+		'keterangan': operation.reference,
 		'journal_items': jis
 	}
 	
