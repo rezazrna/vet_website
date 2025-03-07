@@ -185,6 +185,7 @@ def submit_adjustment(data):
 		if data_json.get('name') :
 			in_operation_move = []
 			out_operation_move = []
+			total_adjustment_value = 0
 			
 			for inv in data_json.get('inventory_details', []):
 				diff_quantity = 0
@@ -199,7 +200,9 @@ def submit_adjustment(data):
 					move.update({'quantity': -float(diff_quantity), 'quantity_done': -float(diff_quantity)})
 					out_operation_move.append(move)
 					adjustment_value = decrease_product_valuation(inv.get('product'), -float(diff_quantity), inv.get('warehouse'))
-					inv.update({'adjustment_value': adjustment_value})
+					inv.update({'adjustment_value': -adjustment_value})
+
+				total_adjustment_value += inv.get('adjustment_value')
 					
 			data_json.update({'status': 'Done'})
 			
@@ -236,23 +239,45 @@ def submit_adjustment(data):
 			frappe.db.commit()
 			
 			selisih_stock_account = frappe.db.get_value('VetCoa', {'account_code': '5-30004'}, 'name')
-			ji_list = [{'account': selisih_stock_account, 'debit': sum(i['adjustment_value'] for i in data_json.get('inventory_details'))}]
+			# ji_list = [{'account': selisih_stock_account, 'debit': sum(i['adjustment_value'] for i in data_json.get('inventory_details'))}]
+			ji_list = []
+
+			debit_selisih = 0
+			credit_selisih = 0
 			
 			for a in data_json.get('inventory_details'):
 				category = frappe.db.get_value('VetProduct', a['product'], 'product_category')
 				account = frappe.db.get_value('VetProductCategory', category, 'stock_input_account')
+
+				if total_adjustment_value > 0:
+					credit_selisih += a['adjustment_value']
+				elif total_adjustment_value < 0:
+					debit_selisih += a['adjustment_value']
 				
 				berhasil = False
 				for u in ji_list:
 					if u['account'] == account:
-						u['credit'] += a['adjustment_value']
+						if total_adjustment_value > 0:
+							u['debit'] += a['adjustment_value']
+						elif total_adjustment_value < 0:
+							u['credit'] += a['adjustment_value']
 						berhasil = True
 						
 				if not berhasil:
-					ji_list.append({
-						'account': account,
-						'credit': a['adjustment_value']
-					})
+					if total_adjustment_value > 0:
+						ji_list.append({
+							'account': account,
+							'debit': a['adjustment_value'],
+							'credit': 0,
+						})
+					elif total_adjustment_value < 0:
+						ji_list.append({
+							'account': account,
+							'credit': a['adjustment_value'],
+							'debit': 0,
+						})
+
+			ji_list.append({'account': selisih_stock_account, 'debit': debit_selisih, 'credit': credit_selisih})
 			
 			adjustment_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Adjustment Journal', 'type': 'General'}, 'name')
 			tz = pytz.timezone("Asia/Jakarta")
