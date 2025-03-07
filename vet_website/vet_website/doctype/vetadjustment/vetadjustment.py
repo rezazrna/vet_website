@@ -252,28 +252,28 @@ def submit_adjustment(data):
 				if total_adjustment_value > 0:
 					credit_selisih += a['adjustment_value']
 				elif total_adjustment_value < 0:
-					debit_selisih += a['adjustment_value']
+					debit_selisih += -a['adjustment_value']
 				
 				berhasil = False
 				for u in ji_list:
 					if u['account'] == account:
-						if total_adjustment_value > 0:
+						if float(a.get('diff_quantity')) > 0:
 							u['debit'] += a['adjustment_value']
-						elif total_adjustment_value < 0:
-							u['credit'] += a['adjustment_value']
+						elif float(a.get('diff_quantity')) < 0:
+							u['credit'] += -a['adjustment_value']
 						berhasil = True
 						
 				if not berhasil:
-					if total_adjustment_value > 0:
+					if float(a.get('diff_quantity')) > 0:
 						ji_list.append({
 							'account': account,
 							'debit': a['adjustment_value'],
 							'credit': 0,
 						})
-					elif total_adjustment_value < 0:
+					elif float(a.get('diff_quantity')) < 0:
 						ji_list.append({
 							'account': account,
-							'credit': a['adjustment_value'],
+							'credit': -a['adjustment_value'],
 							'debit': 0,
 						})
 
