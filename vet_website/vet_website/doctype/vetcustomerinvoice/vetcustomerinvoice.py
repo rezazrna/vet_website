@@ -1896,7 +1896,7 @@ def create_sales_journal_entry(invoice_name, refund=False):
 			'debit': total - float(invoice.potongan),
 		})
 		
-	if float(invoice.potongan) > 0:
+	if float(invoice.potongan) > 0 or total_discount > 0:
 		jis.append({
 			'account': potongan_account,
 			'debit': float(invoice.potongan or 0) + total_discount
