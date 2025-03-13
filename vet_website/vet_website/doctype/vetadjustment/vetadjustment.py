@@ -278,6 +278,16 @@ def submit_adjustment(data):
 						})
 
 			ji_list.append({'account': selisih_stock_account, 'debit': debit_selisih, 'credit': credit_selisih})
+
+			for j in ji_list:
+				if j["debit"] > 0 and j["credit"] > 0:
+					if j["debit"] > j["credit"]:
+						j["debit"] -= j["credit"]
+						j["credit"] = 0
+					elif j["credit"] > j["debit"]:
+						j["credit"] -= j["debit"]
+						j["debit"] = 0
+
 			
 			adjustment_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Adjustment Journal', 'type': 'General'}, 'name')
 			tz = pytz.timezone("Asia/Jakarta")

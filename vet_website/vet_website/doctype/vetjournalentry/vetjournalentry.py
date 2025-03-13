@@ -421,7 +421,7 @@ def set_journal_item_total(name, account):
 	for lj in last_ji:
 		lj['date'] = frappe.db.get_value('VetJournalEntry', lj['parent'], 'date')
 		
-	last_ji.sort(key=lambda x: x.date)
+	last_ji.sort(key=lambda x: (x.date, x.parent))
 	
 	indexElement = [i for i in range(len(last_ji)) if last_ji[i]['name'] == name]
 

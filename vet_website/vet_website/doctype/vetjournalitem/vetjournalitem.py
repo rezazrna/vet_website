@@ -104,7 +104,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		reverse = True
 		if is_gl == '1':
 			reverse = False
-		journal_items.sort(key=lambda x: x.date, reverse=reverse)
+		journal_items.sort(key=lambda x: (x.date, x.parent), reverse=reverse)
 		if all_page == False:
 			journal_items = journal_items[(page - 1) * 10 : page * 10]
 		# else:
