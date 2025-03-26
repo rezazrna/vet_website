@@ -370,7 +370,7 @@ class PenerimaanPasien extends React.Component {
             this.editFotoIdentitas(img)
         }
     }
-    
+    // TODO
     handleInputChangePet(event, i=false) {
         const value = event.target.value;
         const name = event.target.name;
@@ -565,7 +565,7 @@ class PenerimaanPasien extends React.Component {
             e.target.value = ''
         }
     }
-    
+    // TODO
     handleInputBlurPetType(e, i=false){
         console.log(i)
         console.log(this.state.new_pets)
@@ -627,12 +627,16 @@ class PenerimaanPasien extends React.Component {
         }
     }
     
-    selectPet(event, i=false) {
+    selectPet(event, item) {
         event.preventDefault()
         var new_pets = this.state.new_pets.slice()
         new_pets.forEach((p, index) => {
             p.selected = false
-            if(index == i){
+            if (item.name != undefined && item.name != '/') {
+                if (p.name == item.name) {
+                    p.selected = true
+                }
+            } else if(p.register_date == item.register_date){
                 p.selected = true
             }
         })
@@ -641,7 +645,17 @@ class PenerimaanPasien extends React.Component {
     
     addNewPet(e) {
         e.preventDefault();
-        this.setState({'new_pet': {'register_date': this.getRegisterDate()}, 'show_detail': !this.state.show_detail})
+        var th = this
+        frappe.call({
+            type: "GET",
+            method:"vet_website.methods.get_current_datetime",
+            args: {},
+            callback: function(r){
+                if (r.message) {
+                    th.setState({'new_pet': {'register_date': r.message}, 'show_detail': !th.state.show_detail})
+                }
+            }
+        });
     }
     
     addNewPets(e) {
@@ -1514,7 +1528,7 @@ class DataPasien extends React.Component {
             if (filtered_pets.length != 0){
                 var pr = this
                 filtered_pets.forEach(function(item, index) {
-                    petRow.push(<PetNewRow index={index.toString()} pet={item} petType={petType} key={index.toString()} handleInputChange={(e) => pr.props.handleInputChange(e, index.toString())} handleInputBlurPetType={pr.props.handleInputBlurPetType} selectPet={(e) => pr.props.selectPet(e, index.toString())}/>)
+                    petRow.push(<PetNewRow index={index.toString()} pet={item} petType={petType} key={index.toString()} handleInputChange={(e) => pr.props.handleInputChange(e, index.toString())} handleInputBlurPetType={pr.props.handleInputBlurPetType} selectPet={(e) => pr.props.selectPet(e, item)}/>)
                 })
             }
             if (this.props.new_pet != false){
@@ -1550,8 +1564,8 @@ class DataPasien extends React.Component {
     				<div className={panel_class} style={background_style}>
     					<div className="py-3 pet_list" style={overflow_style}>
     					    {newButton}
-                            {searchField}
     					    {petNewRow}
+                            {searchField}
     						{petRow}
     					</div>
     				</div>
