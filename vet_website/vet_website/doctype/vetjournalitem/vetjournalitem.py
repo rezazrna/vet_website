@@ -97,7 +97,8 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		if ji_account:
 			journal_items_filters.append({'account': ji_account})
 
-		journal_items = frappe.get_list("VetJournalItem", or_filters={'debit': ['>', 0], 'credit': ['>', 0]}, filters=journal_items_filters, fields=["*"], order_by=order_by)
+		# journal_items = frappe.get_list("VetJournalItem", or_filters={'debit': ['>', 0], 'credit': ['>', 0]}, filters=journal_items_filters, fields=["*"], order_by=order_by)
+		journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by)
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 
