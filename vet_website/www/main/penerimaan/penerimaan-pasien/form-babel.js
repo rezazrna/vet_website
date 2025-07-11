@@ -920,7 +920,8 @@ class PenerimaanPasien extends React.Component {
                             </div>
                             <div className="col-auto px-2 d-flex my-auto">
                                 <span className="fs26 fw600">
-                                    {formatter.format(this.state.data.total_credit-this.state.data.total_remaining)}
+                                    {/* {formatter.format(this.state.data.total_credit-this.state.data.total_remaining)} */}
+                                    {formatter.format(this.state.data.total_credit)}
                                 </span>
                             </div>
                         </div>
