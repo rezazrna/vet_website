@@ -181,7 +181,7 @@ def get_pet_owner_by_name(name):
 			else:
 				total_credit = 0
 
-			last_credit_piutang = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': o.name}, ['invoice_status', 'in', ['Draft', 'Open']], ['type', '=', 'Sales']], fields=['credit','debt'], order_by="date desc", limit_page_length=1)
+			last_credit_piutang = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': o.name}, ['debt_mutation', '!=', 0]], fields=['credit','debt'], order_by="date desc", limit_page_length=1)
 			if last_credit_deposit:
 				total_debt = last_credit_piutang[0]['debt']
 			else:
