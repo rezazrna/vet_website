@@ -683,7 +683,7 @@ class PosSessionsListRow extends React.Component {
                             <div className="col-12 px-1" style={styles.cBlack}>
                                 <div>{item.method_name || item.type}</div>
                             </div>
-                            <div className="col-3 px-1">
+                            <div className="col-6 px-1">
                                 <div>{formatter.format(transaction)}</div>
                             </div>
                             {/* <div className="col-3 px-1">
@@ -692,7 +692,7 @@ class PosSessionsListRow extends React.Component {
                             <div className="col-3 px-1">
                                 <div>{formatter.format(credit_mutation_return != 0 ? -credit_mutation_return : credit_mutation_return)}</div>
                             </div> */}
-                            <div className="col-3 px-1">
+                            <div className="col-6 text-right px-1">
                                 {/*<div>{formatter.format(item.value)}</div>*/}
                                 <div>{formatter.format(item.value + credit_mutation_return)}</div>
                             </div>
@@ -706,20 +706,6 @@ class PosSessionsListRow extends React.Component {
                         </div>
                         <div className="col-6 d-flex">
                             <p className="fs14 fw600 ml-auto my-auto" style={styles.cBlack}>{formatter.format(non_cash_transaction || 0)}</p>
-                        </div>
-                    </div>
-                    <div className="row mb-2 fs10 ml-0" style={Object.assign({}, styles.fs11, styles.cBlack)}>
-                        <div className="col-3 px-1">
-                            <div>Transaksi</div>
-                        </div>
-                        {/* <div className="col-3 px-1">
-                            <div>Deposit</div>
-                        </div>
-                        <div className="col-3 px-1">
-                            <div>Deposit Return</div>
-                        </div> */}
-                        <div className="col-3 px-1">
-                            <div>Total</div>
                         </div>
                     </div>
                     {nonCashRow}
@@ -1324,11 +1310,11 @@ class PDF extends React.Component {
 
                 nonCashRow.push(
                     <div className="row" style={fs9} key={index.toString()}>
-                        <div className="col py-1">{item.method_name || item.method_name}</div>
-                        <div className="col text-right py-1">{formatter.format(transaction)}</div>
-                        <div className="col text-right py-1">{formatter.format(credit_mutation)}</div>
-                        <div className="col text-right py-1">{formatter.format(credit_mutation_return != 0 ? -credit_mutation_return : credit_mutation_return)}</div>
-                        <div className="col text-right py-1">{formatter.format(item.value + credit_mutation_return)}</div>
+                        <div className="col-12 py-1">{item.method_name || item.method_name}</div>
+                        <div className="col-6 py-1">{formatter.format(transaction)}</div>
+                        {/* <div className="col text-right py-1">{formatter.format(credit_mutation)}</div>
+                        <div className="col text-right py-1">{formatter.format(credit_mutation_return != 0 ? -credit_mutation_return : credit_mutation_return)}</div> */}
+                        <div className="col-6 text-right py-1">{formatter.format(item.value + credit_mutation_return)}</div>
                     </div>
                 )
             })
@@ -1344,21 +1330,6 @@ class PDF extends React.Component {
                                     {formatter.format(non_cash_transaction || 0)}
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div className="row" style={fs9}>
-                        <div className="col py-1" />
-                        <div className="col text-right py-1">
-                            Transaksi
-                        </div>
-                        <div className="col text-right py-1">
-                            Deposit
-                        </div>
-                        <div className="col text-right py-1">
-                            Deposit Return
-                        </div>
-                        <div className="col text-right py-1">
-                            Total
                         </div>
                     </div>
                     {nonCashRow}
