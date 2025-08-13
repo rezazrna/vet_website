@@ -686,12 +686,12 @@ class PosSessionsListRow extends React.Component {
                             <div className="col-3 px-1">
                                 <div>{formatter.format(transaction)}</div>
                             </div>
-                            <div className="col-3 px-1">
+                            {/* <div className="col-3 px-1">
                                 <div>{formatter.format(credit_mutation)}</div>
                             </div>
                             <div className="col-3 px-1">
                                 <div>{formatter.format(credit_mutation_return != 0 ? -credit_mutation_return : credit_mutation_return)}</div>
-                            </div>
+                            </div> */}
                             <div className="col-3 px-1">
                                 {/*<div>{formatter.format(item.value)}</div>*/}
                                 <div>{formatter.format(item.value + credit_mutation_return)}</div>
@@ -705,19 +705,19 @@ class PosSessionsListRow extends React.Component {
                             <p className="fs14 fw600 mb-2" style={styles.cBlack}>Pembayaran Non Cash</p>
                         </div>
                         <div className="col-6 d-flex">
-                            <p className="fs14 fw600 ml-auto my-auto" style={styles.cBlack}>{formatter.format(session.non_cash_payment.filter(item => !['Deposit', 'Cash'].includes(item.method_name)).reduce((total, p) => total += (p.value + p.credit_mutation_return), 0) || 0)}</p>
+                            <p className="fs14 fw600 ml-auto my-auto" style={styles.cBlack}>{formatter.format(non_cash_transaction || 0)}</p>
                         </div>
                     </div>
                     <div className="row mb-2 fs10 ml-0" style={Object.assign({}, styles.fs11, styles.cBlack)}>
                         <div className="col-3 px-1">
                             <div>Transaksi</div>
                         </div>
-                        <div className="col-3 px-1">
+                        {/* <div className="col-3 px-1">
                             <div>Deposit</div>
                         </div>
                         <div className="col-3 px-1">
                             <div>Deposit Return</div>
-                        </div>
+                        </div> */}
                         <div className="col-3 px-1">
                             <div>Total</div>
                         </div>
@@ -1341,7 +1341,7 @@ class PDF extends React.Component {
                                     Pembayaran Non Cash
                                 </div>
                                 <div className="col-6 text-right">
-                                    {formatter.format(data.non_cash_payment.filter(item => !['Deposit Customer', 'Deposit Supplier', 'Cash'].includes(item.method_name)).reduce((total, p) => total += (p.value + p.credit_mutation_return), 0) || 0)}
+                                    {formatter.format(non_cash_transaction || 0)}
                                 </div>
                             </div>
                         </div>
