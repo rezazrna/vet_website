@@ -587,14 +587,15 @@ class PosSessionsListRow extends React.Component {
         var setor = balance - session.closing_balance
 
         var all_transaction = non_cash_transaction + cash_transaction
-        var all_deposit = (non_cash_deposit + non_cash_deposit_return) + (cash_deposit + cash_deposit_return)
-        !all_deposit || all_deposit < 0 ? all_deposit = 0 : false
+        // var all_deposit = (non_cash_deposit + non_cash_deposit_return) + (cash_deposit + cash_deposit_return)
+        // !all_deposit || all_deposit < 0 ? all_deposit = 0 : false
         var all_debt = sales_debt + (cash_debt + non_cash_debt + deposit_debt)
         !all_debt || all_debt < 0 ? all_debt = 0 : false
 
-        var total_omset = all_transaction + all_deposit + all_debt
+        // var total_omset = all_transaction + all_deposit + all_debt
+        var total_omset = all_transaction + all_debt
         console.log(all_transaction)
-        console.log(all_deposit)
+        // console.log(all_deposit)
         console.log(all_debt)
         // var total_omset = all_transaction + deposit_transaction + all_debt
 
@@ -858,14 +859,14 @@ class PosSessionsListRow extends React.Component {
                                     <div>{formatter.format(all_transaction || 0)}</div>
                                 </div>
                             </div>
-                            <div className="row mb-2 mx-0" style={styles.fs11}>
+                            {/* <div className="row mb-2 mx-0" style={styles.fs11}>
                                 <div className="col-6 px-1" style={styles.cBlack}>
                                     <div>Deposit</div>
                                 </div>
                                 <div className="col-6 text-right px-1">
                                     <div>{formatter.format(all_deposit || 0)}</div>
                                 </div>
-                            </div>
+                            </div> */}
                             <div className="row mb-2 mx-0" style={styles.fs11}>
                                 <div className="col-6 px-1" style={styles.cBlack}>
                                     <div>Piutang</div>
@@ -1279,12 +1280,13 @@ class PDF extends React.Component {
         var setor = balance - data.closing_balance
 
         var all_transaction = non_cash_transaction + cash_transaction
-        var all_deposit = (non_cash_deposit + non_cash_deposit_return) + (cash_deposit + cash_deposit_return)
-        !all_deposit || all_deposit < 0 ? all_deposit = 0 : false
+        // var all_deposit = (non_cash_deposit + non_cash_deposit_return) + (cash_deposit + cash_deposit_return)
+        // !all_deposit || all_deposit < 0 ? all_deposit = 0 : false
         var all_debt = sales_debt + (cash_debt + non_cash_debt + deposit_debt)
         !all_debt || all_debt < 0 ? all_debt = 0 : false
 
-        var total_omset = all_transaction + all_deposit + all_debt
+        // var total_omset = all_transaction + all_deposit + all_debt
+        var total_omset = all_transaction + all_debt
         // var total_omset = all_transaction + deposit_transaction + all_debt
 
         var page_dimension = { width: 559, minHeight: 794, top: 0, right: 0, background: '#FFF', color: '#000', zIndex: -1 }
@@ -1471,14 +1473,14 @@ class PDF extends React.Component {
                                 {formatter.format(all_transaction || 0)}
                             </div>
                         </div>
-                        <div className="row" style={fs9}>
+                        {/* <div className="row" style={fs9}>
                             <div className="col-6 text-left py-1">
                                 Deposit
                             </div>
                             <div className="col-6 text-right py-1">
                                 {formatter.format(all_deposit || 0)}
                             </div>
-                        </div>
+                        </div> */}
                         <div className="row" style={fs9}>
                             <div className="col-6 text-left py-1">
                                 Piutang
