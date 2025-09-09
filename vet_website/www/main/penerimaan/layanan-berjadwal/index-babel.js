@@ -317,6 +317,9 @@ class ScheduledServiceList extends React.Component {
                                 <div className="col d-flex">
                                     <span className="my-auto">Catatan</span>
                                 </div>
+                                <div className="col d-flex">
+                                    <span className="my-auto">Rekam Medis</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -352,6 +355,7 @@ class ScheduledServiceListRow extends React.Component {
         var scheduled_service = this.props.schedule
         var col_style = { width: '95px' }
         var type
+        var cursor = {cursor: 'pointer'}
 
         if (this.props.schedule.checked) {
             checked = true
@@ -392,6 +396,9 @@ class ScheduledServiceListRow extends React.Component {
                         </div>
                         <div className="col d-flex">
                             <span className="my-auto">{scheduled_service.description}</span>
+                        </div>
+                        <div className="col d-flex">
+                            <a href={"/main/rekam-medis/rekam-medis?pet=" + scheduled_service.pet} ><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
                         </div>
                     </div>
                 </div>

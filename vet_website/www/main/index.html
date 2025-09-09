@@ -1,5 +1,9 @@
 {% extends "templates/main.html" %}
 {% set page_title="Main Page" %}
 {% block main_page %}
-<h1 class="text-center">Welcome to the Vet!</h1>
+<div id="scheduled_service_list"></div>
+<script type="text/babel" src="/static/src/js/filter-babel.js"></script>
+<script type="text/babel" src="/static/src/js/search-bar-babel.js"></script>
+<script type="text/babel" src="/static/src/js/pagination-babel.js"></script>
+<script type="text/babel" src="/main/penerimaan/layanan-berjadwal/index-babel.js"></script>
 {% endblock %}

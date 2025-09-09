@@ -90,27 +90,27 @@
   },
   {
    "fieldname": "vaccine_history",
-   "fieldtype": "Text",
+   "fieldtype": "Long Text",
    "label": "Riwayat Vaksin"
   },
   {
    "fieldname": "food_history",
-   "fieldtype": "Text",
+   "fieldtype": "Long Text",
    "label": "Riwayat Makanan"
   },
   {
    "fieldname": "anamnese",
-   "fieldtype": "Text",
+   "fieldtype": "Long Text",
    "label": "Anamnesis"
   },
   {
    "fieldname": "diagnosa_utama",
-   "fieldtype": "Text",
+   "fieldtype": "Long Text",
    "label": "Diagnosa Utama"
   },
   {
    "fieldname": "prognosa",
-   "fieldtype": "Text",
+   "fieldtype": "Long Text",
    "label": "Prognosa"
   },
   {
@@ -195,12 +195,12 @@
   },
   {
    "fieldname": "other",
-   "fieldtype": "Text",
+   "fieldtype": "Long Text",
    "label": "Lainnya"
   },
   {
    "fieldname": "action",
-   "fieldtype": "Text",
+   "fieldtype": "Long Text",
    "label": "Tindakan"
   },
   {
@@ -291,17 +291,17 @@
   },
   {
    "fieldname": "diagnosa_banding",
-   "fieldtype": "Text",
+   "fieldtype": "Long Text",
    "label": "Diagnosa Banding"
   },
   {
    "fieldname": "other_diagnosa",
-   "fieldtype": "Text",
+   "fieldtype": "Long Text",
    "label": "Lainnya Diagnosa"
   },
   {
    "fieldname": "other_pemeriksaan",
-   "fieldtype": "Text",
+   "fieldtype": "Long Text",
    "label": "Lainnya Pemeriksaan"
   },
   {
@@ -311,41 +311,41 @@
   },
   {
    "fieldname": "keluhan_alasan",
-   "fieldtype": "Data",
+   "fieldtype": "Long Text",
    "label": "Keluhan/Alasan Visit"
   },
   {
    "fieldname": "riwayat_penyakit",
-   "fieldtype": "Data",
+   "fieldtype": "Long Text",
    "label": "Riwayat Penyakit dan Pengobatan"
   },
   {
    "fieldname": "status_mental",
-   "fieldtype": "Data",
+   "fieldtype": "Long Text",
    "label": "Status Mental"
   },
   {
    "fieldname": "advis",
-   "fieldtype": "Data",
+   "fieldtype": "Long Text",
    "label": "Advis"
   },
   {
    "fieldname": "palpasi_abdominal",
-   "fieldtype": "Data",
+   "fieldtype": "Long Text",
    "label": "Palpasi Abdominal"
   },
   {
    "fieldname": "status_hidrasi",
-   "fieldtype": "Data",
+   "fieldtype": "Long Text",
    "label": "Status Hidrasi"
   },
   {
    "fieldname": "auskultasi",
-   "fieldtype": "Data",
+   "fieldtype": "Long Text",
    "label": "Auskultasi"
   }
  ],
- "modified": "2023-08-24 17:54:10.008640",
+ "modified": "2025-09-10 06:03:55.371309",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetTindakanDokter",
