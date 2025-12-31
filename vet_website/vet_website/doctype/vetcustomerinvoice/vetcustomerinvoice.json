@@ -1,5 +1,5 @@
 {
- "autoname": "VCI-.#",
+ "autoname": "VCI-.YY.-.#####",
  "creation": "2020-04-14 11:48:08.885837",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -237,7 +237,7 @@
    "options": "VetCustomerInvoice"
   }
  ],
- "modified": "2023-01-07 13:24:10.562401",
+ "modified": "2026-01-01 00:47:42.663765",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetCustomerInvoice",
