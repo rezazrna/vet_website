@@ -475,15 +475,29 @@ def get_invoice_list(filters=None, all_page=False):
 					invoice[i]['remaining'] = invoice[i].total
 					invoice[i]['paid'] = 0
 				
-			# last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': invoice[i]['owner']}, {'credit_mutation': ['!=', 0]}], fields=['credit', 'debt'], order_by="date desc")
-			last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': invoice[i]['owner']}], fields=['credit', 'debt'], order_by="date desc", limit_page_length=1)
-			# print(last_credit)
-			if last_credit:
-				invoice[i]['credit'] = last_credit[0]['credit']
-				invoice[i]['debt'] = last_credit[0]['debt']
+			# last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': invoice[i]['owner']}, {'credit_mutation': ['!=', 0]}], fields=['credit', 'debt'], order_by="date desc", limit_page_length=1)
+			# last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': invoice[i]['owner']}], fields=['credit', 'debt'], order_by="date desc", limit_page_length=1)
+			# # print(last_credit)
+			# if last_credit:
+			# 	invoice[i]['credit'] = last_credit[0]['credit']
+			# 	invoice[i]['debt'] = last_credit[0]['debt']
+			# else:
+			# 	invoice[i]['credit'] = 0
+			# 	invoice[i]['debt'] = 0
+
+			last_credit_deposit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': invoice[i]['owner']}, ['credit_mutation', '!=', 0]], fields=['credit','debt'], order_by="date desc", limit_page_length=1)
+			if last_credit_deposit:
+				invoice[i]['credit'] = last_credit_deposit[0]['credit']
 			else:
 				invoice[i]['credit'] = 0
+
+			last_credit_piutang = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': invoice[i]['owner']}, ['debt_mutation', '!=', 0]], fields=['credit','debt'], order_by="date desc", limit_page_length=1)
+			if last_credit_piutang:
+				invoice[i]['debt'] = last_credit_deposit[0]['debt']
+			else:
 				invoice[i]['debt'] = 0
+
+
 			if invoice[i].is_rawat_inap:
 				all_remaining = frappe.get_list('VetCustomerInvoice', filters={'status': 'Draft', 'is_rawat_inap': 1, 'owner': invoice[i].owner}, fields=['sum(total) as all_remaining'])
 				if len(all_remaining) > 0:
@@ -990,8 +1004,8 @@ def get_customer_invoice_form(name=False):
 				service_id = frappe.db.get_value('VetReception', reception, 'service')
 				form_data.update({'service': frappe.db.get_value('VetService', service_id, 'service_name')})
 			total_credit = 0
-			# last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': customer_invoice.owner}, {'credit_mutation': ['!=', 0]}], fields=['credit'], order_by="date desc")
-			last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': customer_invoice.owner}], fields=['credit'], order_by="date desc", limit_page_length=1)
+			last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': customer_invoice.owner}, {'credit_mutation': ['!=', 0]}], fields=['credit'], order_by="date desc", limit_page_length=1)
+			# last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': customer_invoice.owner}], fields=['credit'], order_by="date desc", limit_page_length=1)
 			if last_credit:
 				total_credit = last_credit[0]['credit']
 			version = frappe.get_list('Version', filters={'ref_doctype': "VetCustomerInvoice", 'docname': name}, fields=['*'], order_by="creation desc")

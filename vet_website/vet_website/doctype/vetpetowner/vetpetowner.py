@@ -94,13 +94,25 @@ def get_pet_owner(filters=None):
 		datalength = len(frappe.get_all("VetPetOwner", or_filters=owner_or_filters, filters=owner_filters, as_list=True))
 		
 		for o in owner:
-			# last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': o.name}, {'credit_mutation': ['!=', 0]}], fields=['credit', 'debt'], order_by="date desc")
-			last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': o.name}], fields=['credit', 'debt'], order_by="date desc", limit_page_length=1)
-			if last_credit:
-				total_credit = last_credit[0]['credit']
-				total_debt = last_credit[0]['debt']
+			# last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': o.name}, {'credit_mutation': ['!=', 0]}], fields=['credit', 'debt'], order_by="date desc", limit_page_length=1)
+			# last_credit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': o.name}], fields=['credit', 'debt'], order_by="date desc", limit_page_length=1)
+			# if last_credit:
+			# 	total_credit = last_credit[0]['credit']
+			# 	total_debt = last_credit[0]['debt']
+			# else:
+			# 	total_credit = 0
+			# 	total_debt = 0
+
+			last_credit_deposit = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': o.name}, ['credit_mutation', '!=', 0]], fields=['credit','debt'], order_by="date desc", limit_page_length=1)
+			if last_credit_deposit:
+				total_credit = last_credit_deposit[0]['credit']
 			else:
 				total_credit = 0
+
+			last_credit_piutang = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': o.name}, ['debt_mutation', '!=', 0]], fields=['credit','debt'], order_by="date desc", limit_page_length=1)
+			if last_credit_piutang:
+				total_debt = last_credit_piutang[0]['debt']
+			else:
 				total_debt = 0
 				
 			o.update({'credit': total_credit, 'debt': total_debt})
@@ -182,7 +194,7 @@ def get_pet_owner_by_name(name):
 				total_credit = 0
 
 			last_credit_piutang = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': o.name}, ['debt_mutation', '!=', 0]], fields=['credit','debt'], order_by="date desc", limit_page_length=1)
-			if last_credit_deposit:
+			if last_credit_piutang:
 				total_debt = last_credit_piutang[0]['debt']
 			else:
 				total_debt = 0
