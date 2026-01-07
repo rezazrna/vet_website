@@ -493,7 +493,7 @@ def get_invoice_list(filters=None, all_page=False):
 
 			last_credit_piutang = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': invoice[i]['owner']}, ['debt_mutation', '!=', 0]], fields=['credit','debt'], order_by="date desc", limit_page_length=1)
 			if last_credit_piutang:
-				invoice[i]['debt'] = last_credit_deposit[0]['debt']
+				invoice[i]['debt'] = last_credit_piutang[0]['debt']
 			else:
 				invoice[i]['debt'] = 0
 
