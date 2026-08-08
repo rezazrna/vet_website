@@ -157,10 +157,10 @@ class PosOrder extends React.Component {
             margin: [10, 0, 10, 0],
             filename: th.state.data.session+"-"+th.state.data.name+".pdf",
             pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-            html2canvas: {scale: 3},
+            html2canvas: {scale: 2},
             jsPDF: {orientation: 'p', unit: 'pt', format: [format[0]*0.754,format[1]*0.754]}
         }
-        html2pdf().set(opt).from(source).save()
+        vetPrint.run(vetPrint.savePdf(source, opt))
         // doc.html(source, {
         //   callback: function (doc) {
         //      doc.save(th.state.data.session+"-"+th.state.data.name+".pdf");

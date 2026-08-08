@@ -225,10 +225,10 @@ class Pet extends React.Component {
             margin: [10, 0, 10, 0],
             filename: "DataPasien-" + moment().format('MM-YYYY') + ".pdf",
             pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-            html2canvas: { scale: 3 },
+            html2canvas: { scale: 2 },
             jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
         }
-        html2pdf().set(opt).from(source).save()
+        vetPrint.run(vetPrint.savePdf(source, opt))
         // doc.html(source, {
         //   callback: function (doc) {
         //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");

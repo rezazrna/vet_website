@@ -702,54 +702,24 @@ class CustomerInvoice extends React.Component {
     }
     
     printPDF(e, mini=false) {
-        this.setState({'show_loading_pdf': true})
-        
+        if(e){
+            e.stopPropagation()
+        }
+
         var pdfid = 'pdf'
-        var format = [559,794]
-        
+        var pageSize = '559px 794px'
+
         if(mini){
             pdfid = 'pdfmini'
-            // format = [302*0.78,605*0.78]
-            format = [345*0.78,605*0.78]
+            pageSize = '345px auto'
         }
-        
-        e.stopPropagation()
+
         var th = this
-        // var doc = new jsPDF({
-        //     orientation: 'p',
-        //     unit: 'pt',
-        //     format: format,
-        // });
-        
-        var source = document.getElementById(pdfid)
-        var [width, height] = format
-        var opt = {
-            margin: [0, 0, 0, 0],
-            filename: "Invoice-"+this.state.data.name+".pdf",
-            // filename: "Invoice-"+this.state.data.name+".odt",
-            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-            html2canvas: {scale: 3},
-            jsPDF: {orientation: 'p', unit: 'pt', format: [ width * 0.754, height * 0.754]}
-        }
-        // html2pdf().set(opt).from(source).save()
-        // this.setState({'show_loading_pdf': false})
-        html2pdf().set(opt).from(source).toPdf().get('pdf').then(function (pdfObj) {
-            // pdfObj has your jsPDF object in it, use it as you please!
-            // For instance (untested):
-            pdfObj.autoPrint();
-            th.setState({'show_loading_pdf': false})
-            window.open(pdfObj.output('bloburl'), '_blank');
-        });
-        // doc.html(source, {
-        //   callback: function (doc) {
-        //      doc.save(th.state.data.name+"-"+th.state.data.owner_name+"-"+th.state.data.pet_name+".pdf");
-        //   },
-        //   x: 0,
-        //   y: 0,
-        //   html2canvas: {
-        //       scale: 1,
-        //   }
-        // });
+
+        vetPrint.run(
+            vetPrint.printElement(pdfid, {pageSize: pageSize, margin: '0'}),
+            function(v){ th.setState({'show_loading_pdf': v}) }
+        )
     }
 
     printExcel(e) {

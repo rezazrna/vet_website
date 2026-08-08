@@ -598,3 +598,35 @@ div {
     top: 3px;
     left: 8px;
 }
+/* ------------------------------------------------------------------
+ * Cetak (lihat static/src/js/vet-print.js)
+ *
+ * vetPrint.printElement() menyalin seluruh CSS halaman ke dalam iframe
+ * cetak, jadi aturan di bawah berlaku baik untuk print langsung dari
+ * halaman maupun dari iframe tersembunyi itu.
+ * ------------------------------------------------------------------ */
+@media print {
+	#pdf,
+	#pdfmini,
+	div[id^="pdf-"] {
+		box-shadow: none !important;
+		margin: 0 !important;
+		z-index: auto !important;
+	}
+
+	#pdf tr,
+	#pdfmini tr,
+	div[id^="pdf-"] tr,
+	#pdf .row,
+	#pdfmini .row,
+	div[id^="pdf-"] .row {
+		page-break-inside: avoid;
+		break-inside: avoid;
+	}
+
+	/* Latar/warna baris tabel ikut tercetak, bukan dibuang browser. */
+	body {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+}

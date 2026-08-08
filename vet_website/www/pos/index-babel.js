@@ -526,21 +526,23 @@ class MainPOS extends React.Component {
                     new_data.orders = r.message.orders.order
                     var print_data = new_data.orders[0].name
                     console.log(print_data)
-                    th.setState({print_data: print_data});
-                    setTimeout(function() {
+                    // printPDF menunggu #pdfmini benar-benar dirender (PDFMini
+                    // memuat datanya sendiri), jadi tidak perlu setTimeout lagi.
+                    th.setState({print_data: print_data}, function(){
                         th.printPDF(true)
-                        var newSelectedOrder = th.state.selectedOrder
-                        new_data.currentOrders.splice(th.state.selectedOrder, 1)
-                        if(new_data.currentOrders.length == 0){
-                            new_data.currentOrders.push({items: [], order_date: r.message.datetime, selectedItem: 0})
-                        } else {
-                            if(th.state.selectedOrder > new_data.currentOrders.length-1){
-                                newSelectedOrder = new_data.currentOrders.length-1
-                            }
+                    });
+
+                    var newSelectedOrder = th.state.selectedOrder
+                    new_data.currentOrders.splice(th.state.selectedOrder, 1)
+                    if(new_data.currentOrders.length == 0){
+                        new_data.currentOrders.push({items: [], order_date: r.message.datetime, selectedItem: 0})
+                    } else {
+                        if(th.state.selectedOrder > new_data.currentOrders.length-1){
+                            newSelectedOrder = new_data.currentOrders.length-1
                         }
-                        th.setState({data: new_data, selectedOrder: newSelectedOrder})
-                        th.saveSession(new_data.currentOrders)
-                    }, 3000);
+                    }
+                    th.setState({data: new_data, selectedOrder: newSelectedOrder})
+                    th.saveSession(new_data.currentOrders)
                 }
             })
         }
@@ -565,47 +567,25 @@ class MainPOS extends React.Component {
     }
 
     printPDF(mini=false) {
-        var pdfid = 'pdf'
-        var format = [700,948]
-        
-        if(mini){
-            pdfid = 'pdfmini'
-            format = [302*0.78,605*0.78]
-        }
-        
+        var pdfid = mini ? 'pdfmini' : 'pdf'
+        var pageSize = mini ? '302px auto' : '700px 948px'
+
         var th = this
-        // var doc = new jsPDF({
-        //     orientation: 'p',
-        //     unit: 'pt',
-        //     format: format,
-        // });
-        
-        var source = document.getElementById(pdfid)
-        var opt = {
-            margin: [10, 0, 10, 0],
-            filename: th.state.data.session+"-"+th.state.data.name+".pdf",
-            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-            html2canvas: {scale: 3},
-            jsPDF: {orientation: 'p', unit: 'pt', format: [format[0]*0.754,format[1]*0.754]}
-        }
-        // html2pdf().set(opt).from(source).save()
-        html2pdf().set(opt).from(source).toPdf().get('pdf').then(function (pdfObj) {
-            // pdfObj has your jsPDF object in it, use it as you please!
-            // For instance (untested):
-            pdfObj.autoPrint();
-            window.open(pdfObj.output('bloburl'), '_blank');
-            th.setState({print_data: undefined})
-        });
-        // doc.html(source, {
-        //   callback: function (doc) {
-        //      doc.save(th.state.data.session+"-"+th.state.data.name+".pdf");
-        //   },
-        //   x: 0,
-        //   y: 0,
-        //   html2canvas: {
-        //       scale: 1,
-        //   }
-        // });
+
+        // Komponen PDF/PDFMini mengambil datanya sendiri lewat frappe.call, jadi
+        // elemennya baru ada beberapa saat setelah print_data di-set.
+        return vetPrint.run(
+            vetPrint.printElement(pdfid, {
+                pageSize: pageSize,
+                margin: '0',
+                waitTimeout: 15000
+            }),
+            function(v){
+                if(!v){
+                    th.setState({print_data: undefined})
+                }
+            }
+        )
     }
     
     render(){

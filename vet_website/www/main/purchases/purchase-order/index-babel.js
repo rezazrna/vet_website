@@ -183,39 +183,9 @@ class PurchaseOrder extends React.Component {
     }
 
     printPDF() {
-        var pdfid = 'pdf'
-        var format = [559, 794]
-        var th = this
-        // var doc = new jsPDF({
-        //     orientation: 'p',
-        //     unit: 'pt',
-        //     format: format,
-        // });
-        var source = document.getElementById(pdfid)
-        var opt = {
-            margin: [10, 0, 10, 0],
-            filename: "PurchaseOrder-" + moment().format('MM-YYYY') + ".pdf",
-            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-            html2canvas: { scale: 3 },
-            jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
-        }
-        // html2pdf().set(opt).from(source).save()
-        html2pdf().set(opt).from(source).toPdf().get('pdf').then(function (pdfObj) {
-            // pdfObj has your jsPDF object in it, use it as you please!
-            // For instance (untested):
-            pdfObj.autoPrint();
-            window.open(pdfObj.output('bloburl'), '_blank');
-        });
-        // doc.html(source, {
-        //   callback: function (doc) {
-        //      doc.save("JournalItem-"+th.state.month+"-"+th.state.year+".pdf");
-        //   },
-        //   x: 0,
-        //   y: 0,
-        //   html2canvas: {
-        //       scale: 1,
-        //   }
-        // });
+        return vetPrint.run(
+            vetPrint.printElement('pdf', {pageSize: '559px 794px', margin: '0', waitTimeout: 15000})
+        )
     }
 
     render() {
