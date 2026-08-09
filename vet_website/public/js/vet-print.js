@@ -33,15 +33,64 @@ window.vetPrint = (function () {
 		return el;
 	}
 
+	// Ketiga library ini berat (~553 KB) dan HANYA dibutuhkan tombol unduh PDF —
+	// printElement() sama sekali tidak memakainya. Karena itu ketiganya tidak ikut
+	// di web_include_js, melainkan dimuat saat pertama kali benar-benar dipakai.
+	var LIB_FILES = [
+		'/assets/vet_website/js/html2canvas.min.js',
+		'/assets/vet_website/js/jspdf.min.js',
+		'/assets/vet_website/js/html2pdf.js'
+	];
+
+	var libsPromise = null;
+
+	function libsPresent() {
+		return typeof html2canvas !== 'undefined'
+			&& typeof jsPDF !== 'undefined'
+			&& typeof html2pdf !== 'undefined';
+	}
+
+	function loadScript(src) {
+		return new Promise(function (resolve, reject) {
+			var script = document.createElement('script');
+			script.src = src;
+			// async=false menjaga urutan eksekusi; lihat catatan di ensureLibs().
+			script.async = false;
+			script.onload = function () { resolve(); };
+			script.onerror = function () { reject(new Error(LIB_ERROR)); };
+			document.head.appendChild(script);
+		});
+	}
+
 	/**
-	 * Pastikan html2canvas / jsPDF / html2pdf benar-benar ada sebelum dipakai.
-	 * Kalau salah satu gagal dimuat, lebih baik gagal dengan pesan jelas
-	 * daripada throw di dalam promise dan meninggalkan spinner menggantung.
+	 * Pastikan html2canvas / jsPDF / html2pdf siap dipakai, memuatnya kalau perlu.
+	 *
+	 * Urutan pemuatan wajib berurutan, bukan paralel: UMD di html2pdf.js membaca
+	 * `global.jsPDF` dan `global.html2canvas` saat file itu di-parse, jadi kalau
+	 * html2pdf sempat ter-parse lebih dulu ia akan menerima `undefined`.
+	 *
+	 * Hasilnya di-cache di `libsPromise` supaya klik berulang tidak memuat ulang,
+	 * dan direset saat gagal supaya percobaan berikutnya masih bisa berhasil.
 	 */
 	function ensureLibs() {
-		if (typeof html2canvas === 'undefined' || typeof jsPDF === 'undefined' || typeof html2pdf === 'undefined') {
-			throw new Error(LIB_ERROR);
+		if (libsPresent()) {
+			return Promise.resolve();
 		}
+
+		if (!libsPromise) {
+			libsPromise = LIB_FILES.reduce(function (chain, src) {
+				return chain.then(function () { return loadScript(src); });
+			}, Promise.resolve()).then(function () {
+				if (!libsPresent()) {
+					throw new Error(LIB_ERROR);
+				}
+			})['catch'](function (e) {
+				libsPromise = null;
+				throw e;
+			});
+		}
+
+		return libsPromise;
 	}
 
 	function waitFor(nodes, timeout) {
@@ -250,14 +299,11 @@ window.vetPrint = (function () {
 	 * blocker, jadi jalur ini aman — yang penting error tidak ditelan.
 	 */
 	function savePdf(elementOrId, opt) {
-		try {
-			ensureLibs();
+		return ensureLibs().then(function () {
 			var source = resolveElement(elementOrId);
 
-			return Promise.resolve(html2pdf().set(defaultPdfOptions(opt)).from(source).save());
-		} catch (e) {
-			return Promise.reject(e);
-		}
+			return html2pdf().set(defaultPdfOptions(opt)).from(source).save();
+		});
 	}
 
 	/**
@@ -266,9 +312,7 @@ window.vetPrint = (function () {
 	 * halaman laporan (`div[id^="pdf-"]`).
 	 */
 	function savePdfMulti(elements, opt) {
-		try {
-			ensureLibs();
-
+		return ensureLibs().then(function () {
 			var list = Array.prototype.slice.call(elements || []);
 
 			if (!list.length) {
@@ -292,10 +336,8 @@ window.vetPrint = (function () {
 				});
 			}
 
-			return Promise.resolve(worker.save());
-		} catch (e) {
-			return Promise.reject(e);
-		}
+			return worker.save();
+		});
 	}
 
 	/**

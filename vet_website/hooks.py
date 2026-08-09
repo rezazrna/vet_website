@@ -39,10 +39,10 @@ web_include_js = [
 					"/assets/frappe/node_modules/moment/min/moment.min.js",
 					"https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js",
 					"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js",
-					"/static/src/js/html2canvas.min.js",
-					"/static/src/js/jspdf.min.js",
-					"/static/src/js/html2pdf.js",
-					"/static/src/js/vet-print.js",
+					# html2canvas / jspdf / html2pdf TIDAK dimuat di sini — ketiganya
+					# ~553 KB dan hanya dipakai tombol unduh PDF, jadi vet-print.js
+					# yang memuatnya sendiri saat pertama kali dibutuhkan.
+					"/assets/vet_website/js/vet-print.js",
 					"/static/src/slick/slick.js",
 					"/static/src/js/pagination.min.js",
 					"/static/src/js/sidebar.js",
