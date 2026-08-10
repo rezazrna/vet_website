@@ -268,8 +268,10 @@ window.vetPrint = (function () {
 				doc.write('<!doctype html><html><head><meta charset="utf-8"></head><body></body></html>');
 				doc.close();
 
+				// baseURI, bukan origin: URL relatif di dalam area cetak harus
+				// diselesaikan persis seperti di halaman asalnya.
 				var base = doc.createElement('base');
-				base.href = window.location.origin + '/';
+				base.href = document.baseURI || window.location.href;
 				doc.head.appendChild(base);
 
 				// Salin seluruh CSS halaman — elemen cetak memakai class Bootstrap
@@ -286,6 +288,25 @@ window.vetPrint = (function () {
 						'@page { size: ' + pageWidthMm + 'mm ' + heightMm + 'mm; margin: ' + margin + '; }',
 						'html, body { margin: 0; padding: 0; background: #fff; }',
 						'* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }',
+
+						// Bootstrap 4 menyertakan aturan cetak bawaan:
+						//   @media print { @page { size: a3 } body, .container { min-width: 992px !important } }
+						// Body selebar 992px pada kertas A4 (793.7px) membuat Chrome
+						// mengecilkan seluruh halaman ~0.80x, sehingga isi tidak pernah
+						// memenuhi kertas dan tulisan mengecil. Aturan di bawah ini
+						// membatalkannya — style ini disisipkan paling akhir sehingga
+						// menang melawan !important milik Bootstrap.
+						'@media print {',
+						'  html, body {',
+						'    width: ' + pageWidthMm + 'mm !important;',
+						'    min-width: 0 !important;',
+						'    max-width: none !important;',
+						'    margin: 0 !important;',
+						'    padding: 0 !important;',
+						'  }',
+						'  .container, .container-fluid { min-width: 0 !important; max-width: none !important; }',
+						'}',
+
 						opt.css || ''
 					].join('\n');
 				}
@@ -309,12 +330,13 @@ window.vetPrint = (function () {
 					printed.style.transform = 'none';
 					printed.style.transformOrigin = 'top left';
 
-					if (autoHeight) {
-						// minHeight dipasang demi ukuran canvas html2canvas; pada
-						// kertas gulungan justru bikin struk pendek jadi kepanjangan.
-						printed.style.minHeight = '0';
-						printed.style.height = 'auto';
-					}
+					// min-height dipasang semata demi ukuran canvas html2canvas dan
+					// selalu dibuang di sini. Pada kertas gulungan ia bikin struk
+					// pendek jadi kepanjangan; pada A4 lebih halus tapi lebih parah:
+					// 794px x 1.42 = 1127px, yaitu 5px lebih tinggi dari A4 (1122.5px),
+					// sehingga invoice pendek pun tumpah ke halaman kedua yang kosong.
+					printed.style.minHeight = '0';
+					printed.style.height = 'auto';
 				}
 
 				var waitables = copied.concat(Array.prototype.slice.call(doc.body.querySelectorAll('img')));
