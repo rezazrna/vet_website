@@ -706,25 +706,16 @@ class CustomerInvoice extends React.Component {
             e.stopPropagation()
         }
 
-        // Ukuran kertas mengikuti konfigurasi jsPDF lama:
-        //   normal : [559*0.754, 794*0.754] pt = 148.7 x 211.2 mm  -> A5
-        //   mini   : [345*0.78*0.754, 605*0.78*0.754] pt = 71.6 x 125.5 mm
-        // contentWidth = lebar kertas dalam px, dipakai vetPrint untuk
-        // menskalakan isi (menggantikan transform scale(78%) di #pdfmini).
-        var pdfid = 'pdf'
-        var pageSize = 'A5'
-        var contentWidth = 559.4
-
-        if(mini){
-            pdfid = 'pdfmini'
-            pageSize = '71.6mm 125.5mm'
-            contentWidth = 270.5
-        }
+        // Invoice biasa: A4. Struk mini: lebar 73 mm, tinggi mengikuti panjang isi.
+        // vetPrint yang menskalakan isi agar pas selebar kertas.
+        var pdfid = mini ? 'pdfmini' : 'pdf'
+        var pageWidth = mini ? 73 : 210
+        var pageHeight = mini ? 'auto' : 297
 
         var th = this
 
         vetPrint.run(
-            vetPrint.printElement(pdfid, {pageSize: pageSize, contentWidth: contentWidth, margin: '0'}),
+            vetPrint.printElement(pdfid, {pageWidth: pageWidth, pageHeight: pageHeight, margin: '0'}),
             function(v){ th.setState({'show_loading_pdf': v}) }
         )
     }

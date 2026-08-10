@@ -162,19 +162,52 @@ window.vetPrint = (function () {
 		});
 	}
 
+	var PX_PER_MM = 96 / 25.4;
+
+	/**
+	 * Skalakan elemen cetak agar pas selebar kertas.
+	 *
+	 * `zoom` dipakai lebih dulu karena ia mengubah layout, sehingga isi yang lebih
+	 * panjang dari satu halaman tetap terpecah ke halaman berikutnya dengan benar.
+	 * `transform: scale()` tidak mengubah kotak layout, jadi hanya dipakai sebagai
+	 * cadangan untuk browser lama (Firefox < 126) — di sana isi yang melebihi satu
+	 * halaman bisa terpotong.
+	 */
+	function applyScale(win, doc, el, k) {
+		var supportsZoom = win.CSS && win.CSS.supports && win.CSS.supports('zoom', '1.5');
+
+		if (supportsZoom) {
+			el.style.zoom = k;
+			return;
+		}
+
+		var rect = el.getBoundingClientRect();
+		var wrapper = doc.createElement('div');
+		wrapper.style.cssText = 'width:' + (rect.width * k) + 'px;'
+			+ 'height:' + (rect.height * k) + 'px;'
+			+ 'overflow:hidden;';
+
+		el.parentNode.insertBefore(wrapper, el);
+		wrapper.appendChild(el);
+		el.style.transformOrigin = 'top left';
+		el.style.transform = 'scale(' + k + ')';
+	}
+
 	/**
 	 * Cetak satu elemen lewat iframe tersembunyi.
 	 *
+	 * Ukuran kertas selalu dinyatakan dalam milimeter, dan isi elemen diskalakan
+	 * otomatis agar pas selebar kertas — itulah pengganti `transform: scale(78%)`
+	 * yang dulu dipakai struk mini demi html2canvas.
+	 *
 	 * options:
-	 *   pageSize     - nilai untuk `@page { size: ... }`, mis. 'A5' atau '71.6mm 125.5mm'.
-	 *                  Default: lebar elemen dalam px x auto.
-	 *   contentWidth - lebar cetak yang dituju dalam px, yaitu lebar kertas pada
-	 *                  pageSize. Isi elemen diskalakan `contentWidth / lebar natural`
-	 *                  agar pas selebar kertas — inilah pengganti `transform:
-	 *                  scale(78%)` yang dulu dipakai struk mini untuk html2canvas.
-	 *   margin       - nilai untuk `@page { margin: ... }`. Default '0'.
-	 *   css          - CSS tambahan yang disuntikkan ke dalam iframe.
-	 *   waitTimeout  - kalau diisi, tunggu elemen muncul dulu (lihat waitForElement).
+	 *   pageWidth   - lebar kertas dalam mm (mis. 210 untuk A4, 73 untuk struk).
+	 *                 Default: lebar natural elemen.
+	 *   pageHeight  - tinggi kertas dalam mm, atau 'auto' agar tinggi kertas
+	 *                 mengikuti panjang isi (untuk struk gulungan).
+	 *   margin      - nilai untuk `@page { margin: ... }`. Default '0'.
+	 *   css         - CSS tambahan yang disuntikkan ke dalam iframe.
+	 *   waitTimeout - kalau diisi, tunggu elemen muncul dulu (lihat waitForElement).
 	 */
 	function printElement(elementOrId, options) {
 		var opt = options || {};
@@ -197,12 +230,20 @@ window.vetPrint = (function () {
 				return;
 			}
 
-			var pageSize = opt.pageSize || (source.offsetWidth || source.scrollWidth) + 'px auto';
+			var autoHeight = opt.pageHeight === 'auto';
+			var pageWidthMm = opt.pageWidth
+				|| (source.offsetWidth || source.scrollWidth || 210) / PX_PER_MM;
+			var pageHeightMm = autoHeight ? null : opt.pageHeight;
 			var margin = opt.margin != undefined ? opt.margin : '0';
 
 			var iframe = document.createElement('iframe');
 			iframe.setAttribute('aria-hidden', 'true');
-			iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+			// Iframe harus punya viewport yang masuk akal: dengan width/height 0
+			// layout di dalamnya terjadi pada lebar nol, sehingga pengukuran untuk
+			// penskalaan salah. Disembunyikan dengan digeser ke luar layar, bukan
+			// dengan visibility:hidden yang bisa menunda pemuatan gambar.
+			iframe.style.cssText = 'position:fixed;left:-10000px;top:0;'
+				+ 'width:1200px;height:1600px;border:0;';
 			document.body.appendChild(iframe);
 
 			var cleaned = false;
@@ -240,13 +281,18 @@ window.vetPrint = (function () {
 					copied.push(clone);
 				});
 
+				function writePageCss(heightMm) {
+					pageStyle.textContent = [
+						'@page { size: ' + pageWidthMm + 'mm ' + heightMm + 'mm; margin: ' + margin + '; }',
+						'html, body { margin: 0; padding: 0; background: #fff; }',
+						'* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }',
+						opt.css || ''
+					].join('\n');
+				}
+
 				var pageStyle = doc.createElement('style');
-				pageStyle.textContent = [
-					'@page { size: ' + pageSize + '; margin: ' + margin + '; }',
-					'html, body { margin: 0; padding: 0; background: #fff; }',
-					'* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }',
-					opt.css || ''
-				].join('\n');
+				// Tinggi sementara; nilai finalnya ditulis ulang setelah diukur.
+				writePageCss(pageHeightMm || 297);
 				doc.head.appendChild(pageStyle);
 
 				doc.body.className = document.body.className;
@@ -257,34 +303,17 @@ window.vetPrint = (function () {
 				if (printed) {
 					// Area cetak biasanya `position-absolute` dan struk mini memakai
 					// `transform: scale(78%)` supaya pas di canvas html2canvas.
-					// Keduanya dinetralkan lebih dulu agar pengukuran di bawah
-					// memakai ukuran natural elemen.
+					// Keduanya dinetralkan agar pengukuran memakai ukuran natural.
 					printed.style.position = 'static';
 					printed.style.boxShadow = 'none';
 					printed.style.transform = 'none';
 					printed.style.transformOrigin = 'top left';
 
-					// Skalakan isi agar pas selebar kertas. Untuk halaman yang
-					// ukuran kertasnya memang sudah selebar elemen, k = 1 dan tidak
-					// ada apa pun yang dibungkus.
-					var natural = printed.scrollWidth || printed.offsetWidth;
-
-					if (opt.contentWidth && natural) {
-						var k = opt.contentWidth / natural;
-
-						if (k > 0 && Math.abs(k - 1) > 0.005) {
-							// transform tidak mengubah kotak layout, jadi elemen
-							// dibungkus dengan kotak seukuran hasil penskalaan —
-							// tanpa ini sisa tinggi asli menjadi halaman kosong.
-							var wrapper = doc.createElement('div');
-							wrapper.style.cssText = 'width:' + opt.contentWidth + 'px;'
-								+ 'height:' + (printed.scrollHeight * k) + 'px;'
-								+ 'overflow:hidden;';
-
-							doc.body.insertBefore(wrapper, printed);
-							wrapper.appendChild(printed);
-							printed.style.transform = 'scale(' + k + ')';
-						}
+					if (autoHeight) {
+						// minHeight dipasang demi ukuran canvas html2canvas; pada
+						// kertas gulungan justru bikin struk pendek jadi kepanjangan.
+						printed.style.minHeight = '0';
+						printed.style.height = 'auto';
 					}
 				}
 
@@ -292,6 +321,40 @@ window.vetPrint = (function () {
 
 				waitFor(waitables, STYLE_TIMEOUT).then(function () {
 					var win = iframe.contentWindow;
+
+					// PENTING: pengukuran baru sah setelah stylesheet & gambar selesai
+					// dimuat. Mengukur tepat setelah innerHTML memberi 0 karena iframe
+					// belum melakukan layout, dan penskalaan jadi tidak pernah jalan.
+					if (printed) {
+						var rect = printed.getBoundingClientRect();
+						var naturalW = rect.width || printed.scrollWidth;
+						var naturalH = rect.height || printed.scrollHeight;
+						var targetW = pageWidthMm * PX_PER_MM;
+						var k = 1;
+
+						if (naturalW) {
+							k = targetW / naturalW;
+
+							if (k > 0 && Math.abs(k - 1) > 0.002) {
+								applyScale(win, doc, printed, k);
+							}
+						}
+
+						if (autoHeight) {
+							// Ambil yang terbesar: penskalaan bisa mengubah pembungkusan
+							// teks sehingga isi jadi lebih tinggi dari sekadar naturalH*k,
+							// sementara sebagian browser melaporkan rect tanpa efek zoom.
+							var scaledH = Math.max(
+								naturalH * k,
+								printed.getBoundingClientRect().height
+							);
+
+							// +1px agar pembulatan tidak melahirkan halaman kedua kosong.
+							pageHeightMm = (Math.ceil(scaledH) + 1) / PX_PER_MM;
+						}
+					}
+
+					writePageCss(pageHeightMm || 297);
 
 					// Chrome membatalkan dialog kalau iframe dilepas terlalu cepat,
 					// jadi pembersihan hanya lewat afterprint (plus jaring pengaman).

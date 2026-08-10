@@ -567,12 +567,10 @@ class MainPOS extends React.Component {
     }
 
     printPDF(mini=false) {
-        // Ukuran kertas mengikuti konfigurasi jsPDF lama:
-        //   normal : [700*0.754, 948*0.754] pt = 186.2 x 252.2 mm
-        //   mini   : [302*0.78*0.754, 605*0.78*0.754] pt = 62.7 x 125.5 mm
+        // Struk kasir biasa: A4. Struk mini: lebar 73 mm, tinggi mengikuti isi.
         var pdfid = mini ? 'pdfmini' : 'pdf'
-        var pageSize = mini ? '62.7mm 125.5mm' : '186.2mm 252.2mm'
-        var contentWidth = mini ? 236.8 : 703.7
+        var pageWidth = mini ? 73 : 210
+        var pageHeight = mini ? 'auto' : 297
 
         var th = this
 
@@ -580,8 +578,8 @@ class MainPOS extends React.Component {
         // elemennya baru ada beberapa saat setelah print_data di-set.
         return vetPrint.run(
             vetPrint.printElement(pdfid, {
-                pageSize: pageSize,
-                contentWidth: contentWidth,
+                pageWidth: pageWidth,
+                pageHeight: pageHeight,
                 margin: '0',
                 waitTimeout: 15000
             }),
