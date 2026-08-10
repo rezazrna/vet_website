@@ -567,8 +567,12 @@ class MainPOS extends React.Component {
     }
 
     printPDF(mini=false) {
+        // Ukuran kertas mengikuti konfigurasi jsPDF lama:
+        //   normal : [700*0.754, 948*0.754] pt = 186.2 x 252.2 mm
+        //   mini   : [302*0.78*0.754, 605*0.78*0.754] pt = 62.7 x 125.5 mm
         var pdfid = mini ? 'pdfmini' : 'pdf'
-        var pageSize = mini ? '302px auto' : '700px 948px'
+        var pageSize = mini ? '62.7mm 125.5mm' : '186.2mm 252.2mm'
+        var contentWidth = mini ? 236.8 : 703.7
 
         var th = this
 
@@ -577,6 +581,7 @@ class MainPOS extends React.Component {
         return vetPrint.run(
             vetPrint.printElement(pdfid, {
                 pageSize: pageSize,
+                contentWidth: contentWidth,
                 margin: '0',
                 waitTimeout: 15000
             }),

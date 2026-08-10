@@ -166,11 +166,15 @@ window.vetPrint = (function () {
 	 * Cetak satu elemen lewat iframe tersembunyi.
 	 *
 	 * options:
-	 *   pageSize    - nilai untuk `@page { size: ... }`. Default: lebar elemen x auto,
-	 *                 sehingga tidak ada penskalaan dan struk panjang mengalir apa adanya.
-	 *   margin      - nilai untuk `@page { margin: ... }`. Default '0'.
-	 *   css         - CSS tambahan yang disuntikkan ke dalam iframe.
-	 *   waitTimeout - kalau diisi, tunggu elemen muncul dulu (lihat waitForElement).
+	 *   pageSize     - nilai untuk `@page { size: ... }`, mis. 'A5' atau '71.6mm 125.5mm'.
+	 *                  Default: lebar elemen dalam px x auto.
+	 *   contentWidth - lebar cetak yang dituju dalam px, yaitu lebar kertas pada
+	 *                  pageSize. Isi elemen diskalakan `contentWidth / lebar natural`
+	 *                  agar pas selebar kertas — inilah pengganti `transform:
+	 *                  scale(78%)` yang dulu dipakai struk mini untuk html2canvas.
+	 *   margin       - nilai untuk `@page { margin: ... }`. Default '0'.
+	 *   css          - CSS tambahan yang disuntikkan ke dalam iframe.
+	 *   waitTimeout  - kalau diisi, tunggu elemen muncul dulu (lihat waitForElement).
 	 */
 	function printElement(elementOrId, options) {
 		var opt = options || {};
@@ -240,11 +244,6 @@ window.vetPrint = (function () {
 				pageStyle.textContent = [
 					'@page { size: ' + pageSize + '; margin: ' + margin + '; }',
 					'html, body { margin: 0; padding: 0; background: #fff; }',
-					// Area cetak biasanya `position-absolute` dan struk mini dikecilkan
-					// dengan `transform: scale(78%)` agar pas di canvas html2canvas.
-					// Di jalur print native ukuran halaman sudah sesuai elemen, jadi
-					// keduanya dinetralkan supaya tidak tercetak mengecil di sudut.
-					'body > * { position: static !important; transform: none !important; box-shadow: none !important; }',
 					'* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }',
 					opt.css || ''
 				].join('\n');
@@ -252,6 +251,42 @@ window.vetPrint = (function () {
 
 				doc.body.className = document.body.className;
 				doc.body.innerHTML = source.outerHTML;
+
+				var printed = doc.body.firstElementChild;
+
+				if (printed) {
+					// Area cetak biasanya `position-absolute` dan struk mini memakai
+					// `transform: scale(78%)` supaya pas di canvas html2canvas.
+					// Keduanya dinetralkan lebih dulu agar pengukuran di bawah
+					// memakai ukuran natural elemen.
+					printed.style.position = 'static';
+					printed.style.boxShadow = 'none';
+					printed.style.transform = 'none';
+					printed.style.transformOrigin = 'top left';
+
+					// Skalakan isi agar pas selebar kertas. Untuk halaman yang
+					// ukuran kertasnya memang sudah selebar elemen, k = 1 dan tidak
+					// ada apa pun yang dibungkus.
+					var natural = printed.scrollWidth || printed.offsetWidth;
+
+					if (opt.contentWidth && natural) {
+						var k = opt.contentWidth / natural;
+
+						if (k > 0 && Math.abs(k - 1) > 0.005) {
+							// transform tidak mengubah kotak layout, jadi elemen
+							// dibungkus dengan kotak seukuran hasil penskalaan —
+							// tanpa ini sisa tinggi asli menjadi halaman kosong.
+							var wrapper = doc.createElement('div');
+							wrapper.style.cssText = 'width:' + opt.contentWidth + 'px;'
+								+ 'height:' + (printed.scrollHeight * k) + 'px;'
+								+ 'overflow:hidden;';
+
+							doc.body.insertBefore(wrapper, printed);
+							wrapper.appendChild(printed);
+							printed.style.transform = 'scale(' + k + ')';
+						}
+					}
+				}
 
 				var waitables = copied.concat(Array.prototype.slice.call(doc.body.querySelectorAll('img')));
 

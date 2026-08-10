@@ -184,7 +184,8 @@ class PurchaseOrder extends React.Component {
 
     printPDF() {
         return vetPrint.run(
-            vetPrint.printElement('pdf', {pageSize: '559px 794px', margin: '0', waitTimeout: 15000})
+            // [559*0.754, 794*0.754] pt = 148.7 x 211.2 mm -> A5, sama seperti konfigurasi jsPDF lama.
+            vetPrint.printElement('pdf', {pageSize: 'A5', contentWidth: 559.4, margin: '0', waitTimeout: 15000})
         )
     }
 
