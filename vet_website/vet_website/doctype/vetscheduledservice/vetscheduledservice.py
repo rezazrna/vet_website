@@ -111,3 +111,32 @@ def delete_scheduled_service(data):
 		frappe.db.commit()
 		
 	return {'success': True}
+@frappe.whitelist()
+def reschedule_scheduled_service(data):
+	try:
+		data_json = json.loads(data)
+	except:
+		return {'error': "Gagal reschedule layanan berjadwal"}
+
+	schedule_date = data_json.get('schedule_date')
+	if not schedule_date:
+		return {'error': "Tanggal jadwal baru harus diisi"}
+
+	for name in data_json.get('names', []):
+		frappe.db.set_value('VetScheduledService', name, 'schedule_date', schedule_date)
+	frappe.db.commit()
+
+	return {'success': True}
+
+@frappe.whitelist()
+def done_scheduled_service(data):
+	try:
+		data_json = json.loads(data)
+	except:
+		return {'error': "Gagal mengubah status layanan berjadwal"}
+
+	for name in data_json:
+		frappe.db.set_value('VetScheduledService', name, 'status', 'Done')
+	frappe.db.commit()
+
+	return {'success': True}

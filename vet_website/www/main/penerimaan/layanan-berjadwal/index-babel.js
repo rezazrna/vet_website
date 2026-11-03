@@ -12,12 +12,15 @@ class ScheduledService extends React.Component {
             'currentpage': 1,
             'search': false,
             'datalength': 0,
-            'pet_type_list': []
+            'pet_type_list': [],
+            'new_schedule_date': ''
         }
 
         this.scheduledSearch = this.scheduledSearch.bind(this);
         this.checkRow = this.checkRow.bind(this);
         this.deleteRow = this.deleteRow.bind(this);
+        this.doneRow = this.doneRow.bind(this);
+        this.rescheduleRow = this.rescheduleRow.bind(this);
         this.paginationClick = this.paginationClick.bind(this);
     }
 
@@ -31,7 +34,8 @@ class ScheduledService extends React.Component {
             var firstDate = moment().subtract(7, 'days').format("YYYY-MM-DD");
             var lastDate = moment().add(7, 'days').format("YYYY-MM-DD");
             filters = { filters: [
-                ['schedule_date', 'between', [firstDate, lastDate]]
+                ['schedule_date', 'between', [firstDate, lastDate]],
+                ['status', '!=', 'Done']
             ], sorts: [] }
         // }
 
@@ -151,12 +155,68 @@ class ScheduledService extends React.Component {
         var delete_data_names = delete_data.map((d) => d.name)
         frappe.call({
             type: "GET",
-            method: "vet_website.vet_website.doctype.vetscheduledservice.vetscheduledservice.delete_scheduled_servicer",
+            method: "vet_website.vet_website.doctype.vetscheduledservice.vetscheduledservice.delete_scheduled_service",
             args: { data: delete_data_names },
             callback: function (r) {
                 if (r.message.success) {
                     var new_data = po.state.data.filter((d => !d.checked))
                     po.setState({ data: new_data, check_all: false, show_delete: false });
+                }
+            }
+        });
+    }
+
+    doneRow(e) {
+        e.preventDefault();
+        var po = this
+        var done_data_names = this.state.data.filter((d) => d.checked).map((d) => d.name)
+        frappe.call({
+            type: "POST",
+            method: "vet_website.vet_website.doctype.vetscheduledservice.vetscheduledservice.done_scheduled_service",
+            args: { data: done_data_names },
+            callback: function (r) {
+                if (r.message.success) {
+                    po.reloadList()
+                } else if (r.message.error) {
+                    frappe.msgprint(r.message.error)
+                }
+            }
+        });
+    }
+
+    rescheduleRow(e) {
+        e.preventDefault();
+        var po = this
+        if (!this.state.new_schedule_date) {
+            frappe.msgprint('Isi tanggal jadwal baru terlebih dahulu')
+            return
+        }
+        var reschedule_data_names = this.state.data.filter((d) => d.checked).map((d) => d.name)
+        frappe.call({
+            type: "POST",
+            method: "vet_website.vet_website.doctype.vetscheduledservice.vetscheduledservice.reschedule_scheduled_service",
+            args: { data: { names: reschedule_data_names, schedule_date: this.state.new_schedule_date } },
+            callback: function (r) {
+                if (r.message.success) {
+                    po.reloadList()
+                } else if (r.message.error) {
+                    frappe.msgprint(r.message.error)
+                }
+            }
+        });
+    }
+
+    reloadList() {
+        var po = this
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+        this.setState({ loaded: false })
+        frappe.call({
+            type: "GET",
+            method: "vet_website.vet_website.doctype.vetscheduledservice.vetscheduledservice.get_scheduled_service_list",
+            args: { filters: filters },
+            callback: function (r) {
+                if (r.message) {
+                    po.setState({ 'data': r.message.scheduled, 'loaded': true, 'datalength': r.message.datalength, 'pet_type_list': r.message.pet_type_list, 'check_all': false, 'show_delete': false, 'new_schedule_date': '' });
                 }
             }
         });
@@ -210,11 +270,29 @@ class ScheduledService extends React.Component {
             { 'label': 'Jenis Hewan', 'field': 'type_name', 'type': 'select', 'options': pet_types },
             { 'label': 'Tanggal Jadwal', 'field': 'schedule_date', 'type': 'date' },
             { 'label': 'Catatan', 'field': 'description', 'type': 'char'},
+            { 'label': 'Status', 'field': 'status', 'type': 'select', 'options': [{ 'label': 'Draft', 'value': 'Draft' }, { 'label': 'Done', 'value': 'Done' }] },
         ]
 
-        var backButton, delete_button
+        var row_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px' }
+        var formStyle = { border: '1px solid #397DA6', color: '#397DA6' }
+        var btnStyle = { background: '#397DA6', color: '#FFFFFF' }
+
+        var backButton, action_row
         if (this.state.show_delete) {
-            delete_button = <button className="btn btn-outline-danger text-uppercase fs12 fwbold mx-2" onClick={this.deleteRow}>Hapus</button>
+            action_row = (
+                <div className="row mx-0 justify-content-end" style={row_style}>
+                    <div className="col-auto d-flex">
+                        <button className="btn btn-sm text-uppercase fs12 fwbold my-auto" style={btnStyle} onClick={this.doneRow}>Sudah Follow Up</button>
+                    </div>
+                    <div className="col-auto d-flex">
+                        <input type="date" className="form-control form-control-sm fs12 my-auto" style={formStyle} value={this.state.new_schedule_date} onChange={e => this.setState({ new_schedule_date: e.target.value })} />
+                        <button className="btn btn-sm btn-outline-primary text-uppercase fs12 fwbold ml-2 my-auto" onClick={this.rescheduleRow}>Reschedule</button>
+                    </div>
+                    <div className="col-auto d-flex">
+                        <button className="btn btn-sm btn-outline-danger text-uppercase fs12 fwbold my-auto" onClick={this.deleteRow}>Hapus</button>
+                    </div>
+                </div>
+            )
         }
 
         if (document.location.href.includes('?')) {
@@ -222,8 +300,6 @@ class ScheduledService extends React.Component {
             backButton = <span className="fs16 fw600 mr-4 my-auto" style={color} onClick={() => { history.back() }}><i className="fa fa-chevron-left mr-1" style={color}></i>Back</span>
         }
 
-        var row_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px' }
-        var formStyle = { border: '1px solid #397DA6', color: '#397DA6' }
         if (this.state.loaded) {
             return (
                 <div>
@@ -238,6 +314,7 @@ class ScheduledService extends React.Component {
                             <Filter sorts={sorts} searchAction={this.scheduledSearch} field_list={field_list} filters={JSON.parse(sessionStorage.getItem(window.location.pathname))} />
                         </div>
                     </div>
+                    {action_row}
                     <ScheduledServiceList schedules={this.state.data} checkRow={this.checkRow} checkAll={() => this.checkAll()} check_all={this.state.check_all} filter={this.state.filter} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
                 </div>
             )
@@ -272,7 +349,7 @@ class ScheduledServiceList extends React.Component {
         var col_style2 = { width: '95px' }
 
         if (this.props.schedules.length != 0 || !this.props.filter) {
-            // var pol = this
+            var pol = this
             // const indexOfLastTodo = this.props.currentpage * 30;
             // const indexOfFirstTodo = indexOfLastTodo - 30;
             // var currentItems
@@ -316,6 +393,9 @@ class ScheduledServiceList extends React.Component {
                                 </div>
                                 <div className="col d-flex">
                                     <span className="my-auto">Catatan</span>
+                                </div>
+                                <div className="col d-flex">
+                                    <span className="my-auto">Status</span>
                                 </div>
                                 <div className="col d-flex">
                                     <span className="my-auto">Rekam Medis</span>
@@ -366,7 +446,7 @@ class ScheduledServiceListRow extends React.Component {
         } else if (scheduled_service.status == 'Done') {
             type = 'bg-success'
         } else {
-            type = 'secondary'
+            type = 'bg-secondary'
         }
 
         return (
@@ -396,6 +476,9 @@ class ScheduledServiceListRow extends React.Component {
                         </div>
                         <div className="col d-flex">
                             <span className="my-auto">{scheduled_service.description}</span>
+                        </div>
+                        <div className="col d-flex">
+                            <span className={"my-auto badge text-white " + type}>{scheduled_service.status || 'Draft'}</span>
                         </div>
                         <div className="col d-flex">
                             <a href={"/main/rekam-medis/rekam-medis?pet=" + scheduled_service.pet} ><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
