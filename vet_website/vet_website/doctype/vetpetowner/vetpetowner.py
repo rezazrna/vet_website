@@ -15,6 +15,7 @@ from frappe.model.document import Document
 from frappe.utils.file_manager import save_file
 from frappe.core.doctype.file.file import get_local_image
 from frappe import _
+from vet_website.vet_website.doctype.vetpet.vetpet import sync_pet_name
 
 class VetPetOwner(Document):
 	pass
@@ -395,6 +396,7 @@ def edit_pet_owner(data, pets):
 	
 			update_pet = frappe.get_doc("VetPet", pet.get('name'))
 			update_pet.reload()
+			old_pet_name = update_pet.pet_name
 			update_pet.update(pet_data)
 			if pet.get("dataurl"):
 				filename = now_str+"-"+pet["filename"]
@@ -402,8 +404,10 @@ def edit_pet_owner(data, pets):
 				filedoc.make_thumbnail()
 				resize_image(filedoc.file_url)
 				update_pet.update({"pet_image": filedoc.file_url, 'pet_image_thumbnail': filedoc.thumbnail_url})
-				
+
 			update_pet.save()
+			if update_pet.pet_name != old_pet_name:
+				sync_pet_name(update_pet.name, update_pet.pet_name)
 			frappe.db.commit()
 	
 	return new_owner

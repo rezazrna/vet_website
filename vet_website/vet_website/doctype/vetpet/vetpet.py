@@ -197,3 +197,31 @@ def set_decease(data):
 		frappe.db.commit()
 		
 	return {'success': True}
+
+# Doctype yang menyimpan salinan pet_name dan punya field link `pet`
+PET_NAME_DOCTYPES = [
+	'VetReception', 'VetTindakanDokter', 'VetRekamMedis', 'VetApotik', 'VetInstalasiMedis',
+	'VetGrooming', 'VetCustomerInvoice', 'VetPosOrder', 'VetScheduledService',
+]
+
+def sync_pet_name(pet, pet_name):
+	for doctype in PET_NAME_DOCTYPES:
+		frappe.db.sql("update `tab{0}` set pet_name=%s where pet=%s".format(doctype), (pet_name, pet))
+
+	# VetRawatInap tidak punya field pet, hubungkan lewat register_number reception
+	frappe.db.sql("""update `tabVetRawatInap` ri
+		join `tabVetReception` r on r.register_number = ri.register_number
+		set ri.pet_name=%s where r.pet=%s""", (pet_name, pet))
+
+def sync_all_pet_names():
+	for doctype in PET_NAME_DOCTYPES:
+		frappe.db.sql("""update `tab{0}` t
+			join `tabVetPet` p on p.name = t.pet
+			set t.pet_name = p.pet_name
+			where t.pet_name is null or t.pet_name != p.pet_name""".format(doctype))
+
+	frappe.db.sql("""update `tabVetRawatInap` ri
+		join `tabVetReception` r on r.register_number = ri.register_number
+		join `tabVetPet` p on p.name = r.pet
+		set ri.pet_name = p.pet_name
+		where ri.pet_name is null or ri.pet_name != p.pet_name""")
