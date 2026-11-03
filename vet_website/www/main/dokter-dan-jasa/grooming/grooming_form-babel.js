@@ -365,7 +365,7 @@ class Grooming extends React.Component {
                     frappe.call({
                         type: "POST",
                         method: "vet_website.vet_website.doctype.vetgrooming.vetgrooming.autosave",
-                        args: { field: 'products', value: new_data.grooming.products.filter(i => !i.deleted), name: id },
+                        args: { field: 'products', value: new_data.grooming.products.filter(i => !i.delete), name: id },
                         callback: function (r) {
                             if (r.message != true) {
                                 frappe.msgprint(r.message.error)
@@ -435,7 +435,7 @@ class Grooming extends React.Component {
                             frappe.call({
                                 type: "POST",
                                 method: "vet_website.vet_website.doctype.vetgrooming.vetgrooming.autosave",
-                                args: { field: 'products', value: new_data.grooming.products.filter(i => !i.deleted), name: id },
+                                args: { field: 'products', value: new_data.grooming.products.filter(i => !i.delete), name: id },
                                 callback: function (r) {
                                     if (r.message != true) {
                                         frappe.msgprint(r.message.error)

@@ -538,7 +538,7 @@ class PopupRefund extends React.Component {
             new_data.order_produk = order_produk.filter(i => i.produk && i.quantity)
             new_data.order_produk.forEach(function(item, index) {
                 if (item.quantity == '0' || item.quantity == 0) {
-                    item.is_delete = true
+                    item.deleted = true
                 }
             })
             

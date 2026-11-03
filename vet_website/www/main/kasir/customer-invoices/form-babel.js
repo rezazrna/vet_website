@@ -2376,7 +2376,7 @@ class PopupRefund extends React.Component {
             new_data.invoice_line = invoice_line.filter(i => i.product && i.quantity)
             new_data.invoice_line.forEach(function(item, index) {
                 if (item.quantity == '0' || item.quantity == 0) {
-                    item.is_delete = true
+                    item.deleted = true
                 }
             })
             
