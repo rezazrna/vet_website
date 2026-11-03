@@ -642,8 +642,8 @@ class ApotikMainForm extends React.Component {
         var reception = this.props.reception
         var inputCatatan, inputWarehouse, inputReception, inputRegisterNumber, inputDate, inputPet, inputPetOwner
         var cursor = {cursor: 'pointer'}
-        var link_pemilik = <a href={'/main/penerimaan/data-pemilik/edit?n=' + this.props.reception.pet_owner.name}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
-        var link_pasien = <a href={'/main/penerimaan/data-pasien/edit?n=' + this.props.reception.pet.name}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+        var link_pemilik = <a href={'/main/penerimaan/data-pemilik/edit?n=' + (reception.pet_owner ? reception.pet_owner.name : '')}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
+        var link_pasien = <a href={'/main/penerimaan/data-pasien/edit?n=' + (reception.pet ? reception.pet.name : '')}><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
         var link_penerimaan = <a href={'/main/penerimaan/penerimaan-pasien/detail?n=' + this.props.reception.name} ><img src="/static/img/main/menu/tautan.png" className="mx-2" style={cursor}/></a>
 
 		var diHref = ''

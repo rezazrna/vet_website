@@ -276,15 +276,20 @@ def get_warehouse_all():
 @frappe.whitelist()
 def get_products_all():
 	try:
-		categories = frappe.get_list('VetProductCategory', or_filters={'is_obat': True, 'is_racikan': True}, fields=['name'])
-		categorie_names = (c.name for c in categories)
-		obatAll = frappe.get_list('VetProduct', filters={'product_category': ['in', categorie_names], 'active': True}, fields=['*'])
+		categories = frappe.get_list('VetProductCategory', or_filters={'is_obat': True, 'is_racikan': True}, fields=['*'])
+		if not categories:
+			return []
+		category_map = {c.name: c for c in categories}
+		obatAll = frappe.get_list('VetProduct', filters={'product_category': ['in', list(category_map)], 'active': True}, fields=['*'])
 		
-		for o in range(len(obatAll)):
-			uom = frappe.get_list('VetUOM', filters={'name': obatAll[o]['product_uom']}, fields=['uom_name'])
-			obatAll[o]['uom_name'] = uom[0]['uom_name']
-			categ = frappe.get_list('VetProductCategory', filters={'name': obatAll[o]['product_category']}, fields=['*'])
-			obatAll[o]['product_category'] = categ[0]
+		uom_names = list(set(o.product_uom for o in obatAll if o.product_uom))
+		uom_map = {}
+		if uom_names:
+			uom_map = {u.name: u.uom_name for u in frappe.get_list('VetUOM', filters={'name': ['in', uom_names]}, fields=['name', 'uom_name'])}
+		
+		for o in obatAll:
+			o['uom_name'] = uom_map.get(o.product_uom)
+			o['product_category'] = category_map.get(o.product_category)
 		
 		return obatAll
 	except PermissionError as e:
@@ -298,10 +303,10 @@ def get_apotik_new():
 			'products': []
 		}
 		
-		petOwnerList = frappe.get_list('VetPetOwner', fields=['*'])
-		petList = frappe.get_list('VetPet', fields=['*'])
+		petOwnerMap = {o.name: o for o in frappe.get_list('VetPetOwner', fields=['name', 'owner_name'])}
+		petList = frappe.get_list('VetPet', fields=['name', 'pet_name', 'parent'])
 		for p in petList:
-			p.pet_owner = next((pet_owner for pet_owner in petOwnerList if pet_owner.name == p.parent), False)
+			p.pet_owner = petOwnerMap.get(p.parent, False)
 		
 		# categories = frappe.get_list('VetProductCategory', or_filters={'is_obat': True, 'is_racikan': True}, fields=['name'])
 		# categorie_names = (c.name for c in categories)
