@@ -541,6 +541,33 @@ class RekamMedisListExpandable extends React.Component {
                     <div className="text-right py-3">
                         {collapse_link}
                     </div>
+                    <div className="row mx-0">
+                        <div className="col-auto px-0">
+                            <div style={{ width: '20px' }} />
+                        </div>
+                        <div className="col">
+                            <div className="row mx-0 fs12 fw600 row-header">
+                                <div className="col-2 d-flex">
+                                    <span className="my-auto">Tanggal</span>
+                                </div>
+                                <div className="col d-flex">
+                                    <span className="my-auto">Layanan</span>
+                                </div>
+                                <div className="col d-flex">
+                                    <span className="my-auto">Obat</span>
+                                </div>
+                                <div className="col d-flex">
+                                    <span className="my-auto">Catatan</span>
+                                </div>
+                                <div className="col d-flex">
+                                    <span className="my-auto">Dokter</span>
+                                </div>
+                                <div className="col-auto d-flex">
+                                    <i className="fa fa-chevron-down invisible" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {rekam_medis_rows}
                     <Pagination paginationClick={this.props.paginationClick} datalength={this.props.datalength} currentpage={this.props.currentpage} itemperpage='10' />
                 </div>
@@ -594,7 +621,7 @@ class RekamMedisListRowExpandable extends React.Component {
                             <span className="my-auto">{data.service}</span>
                         </div>
                         <div className="col d-flex">
-                            <span className="my-auto">{data.condition}</span>
+                            <span className="my-auto">{data.obat_list}</span>
                         </div>
                         <div className="col d-flex">
                             <span className="my-auto">{data.description}</span>

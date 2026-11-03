@@ -49,6 +49,15 @@ def get_rekam_medis_list(filters=None, no_pagination=False):
 			rekam_medis_or_filters.append({'pet_name': ['like', '%'+search+'%']})
 			rekam_medis_or_filters.append({'pet_owner_name': ['like', '%'+search+'%']})
 			rekam_medis_or_filters.append({'nama_dokter': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'description': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'action': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'diagnosa_utama': ['like', '%'+search+'%']})
+			rekam_medis_or_filters.append({'record_date': ['like', '%'+search+'%']})
+			obat_parents = frappe.db.sql_list("""select distinct o.parent from `tabVetRekamMedisObat` o
+				join `tabVetProduct` p on p.name = o.product
+				where o.parenttype = 'VetRekamMedis' and p.product_name like %s""", ('%'+search+'%',))
+			if obat_parents:
+				rekam_medis_or_filters.append({'name': ['in', obat_parents]})
 		if sort:
 			default_sort = sort
 				
@@ -62,8 +71,19 @@ def get_rekam_medis_list(filters=None, no_pagination=False):
 		else:
 			rekam_medis = frappe.get_list("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, fields=["*"], order_by=default_sort, start=(page - 1) * 10, page_length= 10)
 			datalength = len(frappe.get_all("VetRekamMedis", or_filters=rekam_medis_or_filters, filters=rekam_medis_filters, as_list=True))
+		obat_list = {}
+		if rekam_medis:
+			obat_rows = frappe.db.sql("""select o.parent, o.quantity, p.product_name, p.uom_name from `tabVetRekamMedisObat` o
+				left join `tabVetProduct` p on p.name = o.product
+				where o.parenttype = 'VetRekamMedis' and ifnull(o.racikan, '') = '' and o.parent in %s
+				order by o.idx""", ([r['name'] for r in rekam_medis],), as_dict=True)
+			for o in obat_rows:
+				quantity = ('%f' % (o.quantity or 0)).rstrip('0').rstrip('.')
+				obat_list.setdefault(o.parent, []).append(' '.join(i for i in [o.product_name or '', quantity, o.uom_name or ''] if i))
+
 		for r in rekam_medis:
 			r['diagnose_name'] = r['diagnosa_utama']
+			r['obat_list'] = ', '.join(obat_list.get(r['name'], []))
 
 		service_list = frappe.get_list("VetService", fields=["name","service_name"])
 

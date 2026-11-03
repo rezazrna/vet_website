@@ -15,6 +15,7 @@ var checks = [
     {'label': 'Riwayat Vaksin', 'name': 'vaccine_history'},
     {'label': 'Riwayat Makanan', 'name': 'food_history'},
     {'label': 'Informasi Lainnya', 'name': 'other'},
+    {'label': 'Catatan', 'name': 'description'},
     {'label': 'Status Mental', 'name': 'status_mental'},
     {'label': 'BCS', 'name': 'bcs'},
     {'label': 'Status Hidrasi', 'name': 'status_hidrasi'},
@@ -1104,6 +1105,7 @@ class Pemeriksaan extends React.Component {
                 {'label': 'Riwayat Vaksin', 'name': 'vaccine_history'},
                 {'label': 'Riwayat Makanan', 'name': 'food_history'},
                 {'label': 'Informasi Lainnya', 'name': 'other'},
+                {'label': 'Catatan', 'name': 'description'},
                 {'label': 'Status Mental', 'name': 'status_mental'},
                 {'label': 'BCS', 'name': 'bcs'},
                 {'label': 'Status Hidrasi', 'name': 'status_hidrasi'},
@@ -1234,7 +1236,7 @@ class Pemeriksaan extends React.Component {
             var available_check_anamnese = []
             var available_check_pemeriksaan = []
             var available_check_diagnosa = []
-            var anamnese_options = ['keluhan_alasan', 'riwayat_penyakit', 'vaccine_history', 'food_history', 'temperature', 'weight', 'other']
+            var anamnese_options = ['keluhan_alasan', 'riwayat_penyakit', 'vaccine_history', 'food_history', 'temperature', 'weight', 'other', 'description']
 		    var pemeriksaan_options = ['status_mental', 'bcs', 'status_hidrasi', 'mukosa', 'respiration', 'auskultasi', 'palpasi_abdominal', 'pulse', 'mata', 'hidung', 'telinga', 'mulut', 'kulit', 'ekstremitas', 'reflex', 'other_pemeriksaan']
 		    var diagnosa_options = ['diagnosa_utama', 'prognosa', 'diagnosa_banding', 'action', 'advus', 'other_diagnosa']
 			var check_name = data.checks.filter(c => c.delete == undefined).map(c => c.name)
