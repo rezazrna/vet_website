@@ -507,7 +507,7 @@ class JournalItems extends React.Component {
                 margin: [10, 0, 10, 0],
                 filename: title + ".pdf",
                 pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-                html2canvas: { scale: 2 },
+                html2canvas: { scale: 3 },
                 jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
             }
 
@@ -528,10 +528,32 @@ class JournalItems extends React.Component {
             //     this.setState({print_loading: false})
             // });
 
-            vetPrint.run(
-                vetPrint.savePdfMulti(elements, opt),
-                v => this.setState({print_loading: v})
-            )
+            var worker = html2pdf()
+                .set(opt)
+                .from(elements[0])
+
+            if (elements.length > 1) {
+                worker = worker.toPdf()
+
+                elements.slice(1).forEach((element, index) => {
+                worker = worker
+                    .get('pdf')
+                    .then(pdf => {
+                        console.log('masuk pak eko')
+                        console.log(index)
+                        pdf.addPage()
+                    })
+                    .set(opt)
+                    .from(element)
+                    // .toContainer()
+                    .toCanvas()
+                    .toPdf()
+                })
+            }
+
+            worker = worker.save().then(e => {
+                this.setState({print_loading: false})
+            })
 
             // html2pdf().set(opt).from(source).save()
 

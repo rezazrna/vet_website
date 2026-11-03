@@ -207,13 +207,11 @@ class Coa extends React.Component {
                 margin: [10, 0, 10, 0],
                 filename: title + ".pdf",
                 pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
-                html2canvas: {scale: 2},
+                html2canvas: {scale: 3},
                 jsPDF: {orientation: 'p', unit: 'pt', format: [559*0.754,794*0.754]}
             }
-            vetPrint.run(
-                vetPrint.savePdf(source, opt),
-                v => this.setState({print_loading: v})
-            )
+            html2pdf().set(opt).from(source).save()
+            this.setState({print_loading: false})
             // doc.html(source, {
             //   callback: function (doc) {
             //      doc.save("TrialBalance-"+th.state.month+"-"+th.state.year+".pdf");

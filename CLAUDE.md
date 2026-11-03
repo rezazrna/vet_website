@@ -47,7 +47,7 @@ Cross-doctype logic is wired by direct Python imports between doctype modules, e
 
 ### Assets are not built
 
-`*-babel.js` files are served as-is and compiled client-side. Editing one takes effect on reload with no build step — but syntax errors are silent-ish (check the browser console), and the CDN dependency means the app needs internet access. `www/static/src/js/html2pdf.js` is vendored.
+`*-babel.js` files are served as-is and compiled client-side. Editing one takes effect on reload with no build step — but syntax errors are silent-ish (check the browser console), and the CDN dependency means the app needs internet access. `html2canvas`, `jspdf` and `html2pdf.js` are vendored in `vet_website/public/js/` (served at `/assets/vet_website/js/`).
 
 ### Frontend ⇄ backend convention
 

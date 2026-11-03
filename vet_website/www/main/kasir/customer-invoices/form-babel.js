@@ -702,22 +702,54 @@ class CustomerInvoice extends React.Component {
     }
     
     printPDF(e, mini=false) {
-        if(e){
-            e.stopPropagation()
+        this.setState({'show_loading_pdf': true})
+        
+        var pdfid = 'pdf'
+        var format = [559,794]
+        
+        if(mini){
+            pdfid = 'pdfmini'
+            // format = [302*0.78,605*0.78]
+            format = [345*0.78,605*0.78]
         }
-
-        // Invoice biasa: A4. Struk mini: lebar 73 mm, tinggi mengikuti panjang isi.
-        // vetPrint yang menskalakan isi agar pas selebar kertas.
-        var pdfid = mini ? 'pdfmini' : 'pdf'
-        var pageWidth = mini ? 73 : 210
-        var pageHeight = mini ? 'auto' : 297
-
+        
+        e.stopPropagation()
         var th = this
-
-        vetPrint.run(
-            vetPrint.printElement(pdfid, {pageWidth: pageWidth, pageHeight: pageHeight, margin: '0'}),
-            function(v){ th.setState({'show_loading_pdf': v}) }
-        )
+        // var doc = new jsPDF({
+        //     orientation: 'p',
+        //     unit: 'pt',
+        //     format: format,
+        // });
+        
+        var source = document.getElementById(pdfid)
+        var [width, height] = format
+        var opt = {
+            margin: [0, 0, 0, 0],
+            filename: "Invoice-"+this.state.data.name+".pdf",
+            // filename: "Invoice-"+this.state.data.name+".odt",
+            pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.row'] },
+            html2canvas: {scale: 3},
+            jsPDF: {orientation: 'p', unit: 'pt', format: [ width * 0.754, height * 0.754]}
+        }
+        // html2pdf().set(opt).from(source).save()
+        // this.setState({'show_loading_pdf': false})
+        html2pdf().set(opt).from(source).toPdf().get('pdf').then(function (pdfObj) {
+            // pdfObj has your jsPDF object in it, use it as you please!
+            // For instance (untested):
+            pdfObj.autoPrint();
+            th.setState({'show_loading_pdf': false})
+            window.open(pdfObj.output('bloburl'), '_blank');
+        });
+        // doc.html(source, {
+        //   callback: function (doc) {
+        //      doc.save(th.state.data.name+"-"+th.state.data.owner_name+"-"+th.state.data.pet_name+".pdf");
+        //   },
+        //   x: 0,
+        //   y: 0,
+        //   html2canvas: {
+        //       scale: 1,
+        //   }
+        // });
     }
 
     printExcel(e) {
