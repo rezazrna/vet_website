@@ -160,28 +160,38 @@ def new_journal_entry(data):
 			je_data.update(data_json)
 			je_data.update({'status': 'Posted'})
 			je_data.pop('journal_items')
-			je = frappe.new_doc('VetJournalEntry')
-			je.update(je_data)
-			je.insert()
+
+			# Header + semua item disimpan dalam satu savepoint: kalau gagal di tengah,
+			# tidak ada journal setengah jadi yang tersimpan.
+			new_items = []
+			frappe.db.sql("savepoint vet_new_journal_entry")
+			try:
+				je = frappe.new_doc('VetJournalEntry')
+				je.update(je_data)
+				je.insert()
+
+				for s in data_json.get("journal_items"):
+					if s.get('account', False):
+						new_ji = frappe.new_doc('VetJournalItem')
+						new_ji.update({
+							'account': s.get('account', False),
+							'debit': s.get('debit', 0),
+							'credit': s.get('credit', 0),
+							'parent': je.name,
+							'parenttype': 'VetJournalEntry',
+							'parentfield': 'journal_items'
+						})
+						new_ji.insert()
+						new_items.append(new_ji)
+			except Exception:
+				frappe.db.sql("rollback to savepoint vet_new_journal_entry")
+				raise
+
 			frappe.db.commit()
 
-						
-			for s in data_json.get("journal_items"):
-				if s.get('account', False):
-					new_ji = frappe.new_doc('VetJournalItem')
-					new_ji.update({
-						'account': s.get('account', False),
-						'debit': s.get('debit', 0),
-						'credit': s.get('credit', 0),
-						'parent': je.name, 
-						'parenttype': 'VetJournalEntry',
-						'parentfield': 'journal_items'
-					})
-					new_ji.insert()
-					frappe.db.commit()
-					
-					set_journal_item_total(new_ji.name, new_ji.account)
-					
+			for new_ji in new_items:
+				set_journal_item_total(new_ji.name, new_ji.account)
+
 			# post_journal_entry(je.name)
 			
 		else :

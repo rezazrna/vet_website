@@ -16,6 +16,7 @@ from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_
 from vet_website.vet_website.doctype.vetpetowner.vetpetowner import set_owner_credit_total
 from vet_website.vet_website.doctype.vetproductpack.vetproductpack import get_pack_price
 from dateutil.relativedelta import relativedelta as rd
+from vet_website.request_guard import acquire_lock, release_lock, claim_request_id, release_request_id, is_error_result
 
 class VetCustomerInvoice(Document):
 	pass
@@ -156,6 +157,15 @@ def open_invoice(data, saveonly=False):
 		return {'error': e}
 		
 def open_invoice_process(data, saveonly=False):
+	lock_key = 'open_invoice:' + str(data.get('name'))
+	if not acquire_lock(lock_key):
+		return {'error': "Invoice sedang diproses, mohon tunggu"}
+	try:
+		return open_invoice_process_unlocked(data, saveonly)
+	finally:
+		release_lock(lock_key)
+
+def open_invoice_process_unlocked(data, saveonly=False):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		invoice_check = frappe.get_list("VetCustomerInvoice", filters={'name': data.get('name')}, fields=['name', 'status', 'rawat_inap', 'is_rawat_inap'])
@@ -1090,8 +1100,22 @@ def get_customer_invoice_form_after_loading():
 @frappe.whitelist()
 def add_payment_multiple(data):
 	try:
-		results = []
 		data_json = json.loads(data)
+	except Exception as e:
+		return {'error': e}
+
+	request_id = data_json.get('request_id')
+	if not claim_request_id(request_id):
+		return {'error': "Pembayaran ini sudah diproses"}
+
+	result = add_payment_multiple_process(data_json)
+	if is_error_result(result):
+		release_request_id(request_id)
+	return result
+
+def add_payment_multiple_process(data_json):
+	try:
+		results = []
 		invoices = frappe.db.get_list('VetCustomerInvoice', filters={'name': ['in', data_json.get('name')]}, fields=['name', 'total'])
 		jumlah = data_json.get('jumlah')
 		for index,item in enumerate(invoices):
@@ -1127,6 +1151,30 @@ def add_payment_multiple(data):
 		
 @frappe.whitelist()
 def add_payment(data):
+	try:
+		data_json = json.loads(data)
+	except Exception as e:
+		return {'error': e}
+
+	request_id = data_json.get('request_id')
+	if not claim_request_id(request_id):
+		return {'error': "Pembayaran ini sudah diproses"}
+
+	lock_key = 'add_payment:' + str(data_json.get('name'))
+	if not acquire_lock(lock_key):
+		release_request_id(request_id)
+		return {'error': "Invoice sedang diproses, mohon tunggu"}
+
+	try:
+		result = add_payment_process(data)
+	finally:
+		release_lock(lock_key)
+
+	if is_error_result(result):
+		release_request_id(request_id)
+	return result
+
+def add_payment_process(data):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		pos_session = False

@@ -473,6 +473,10 @@ class MainPOS extends React.Component {
     
     validatePayment(){
         var th = this
+        // Cegah order dikirim dua kali (double klik / klik lagi selama jeda cetak 3 detik)
+        if (this.submittingOrder) {
+            return
+        }
         var new_data = Object.assign({}, this.state.data)
         var total = countItemsTotalPrice(new_data.currentOrders[this.state.selectedOrder].items)
         var subtotal = countItemsTotalPrice(new_data.currentOrders[this.state.selectedOrder].items, false)
@@ -516,30 +520,51 @@ class MainPOS extends React.Component {
                 }
             })
             
+            var current_order = new_data.currentOrders[this.state.selectedOrder]
+            if (!current_order.request_id) {
+                current_order.request_id = Date.now().toString(36) + Math.random().toString(36).slice(2)
+            }
+            order_data.request_id = current_order.request_id
+            
             console.log(order_data)
             
+            this.submittingOrder = true
             frappe.call({
                 type: "POST",
                 method: "vet_website.vet_website.doctype.vetpossessions.vetpossessions.pos_add_order",
                 args: {data: order_data},
+                error: function(){
+                    th.submittingOrder = false
+                },
                 callback: function(r){
+                    if (!r.message || r.message.error) {
+                        if (r.message && r.message.error) {
+                            frappe.msgprint(r.message.error)
+                        }
+                        th.submittingOrder = false
+                        return
+                    }
                     new_data.orders = r.message.orders.order
                     var print_data = new_data.orders[0].name
                     console.log(print_data)
                     th.setState({print_data: print_data});
                     setTimeout(function() {
-                        th.printPDF(true)
-                        var newSelectedOrder = th.state.selectedOrder
-                        new_data.currentOrders.splice(th.state.selectedOrder, 1)
-                        if(new_data.currentOrders.length == 0){
-                            new_data.currentOrders.push({items: [], order_date: r.message.datetime, selectedItem: 0})
-                        } else {
-                            if(th.state.selectedOrder > new_data.currentOrders.length-1){
-                                newSelectedOrder = new_data.currentOrders.length-1
+                        try {
+                            th.printPDF(true)
+                            var newSelectedOrder = th.state.selectedOrder
+                            new_data.currentOrders.splice(th.state.selectedOrder, 1)
+                            if(new_data.currentOrders.length == 0){
+                                new_data.currentOrders.push({items: [], order_date: r.message.datetime, selectedItem: 0})
+                            } else {
+                                if(th.state.selectedOrder > new_data.currentOrders.length-1){
+                                    newSelectedOrder = new_data.currentOrders.length-1
+                                }
                             }
+                            th.setState({data: new_data, selectedOrder: newSelectedOrder})
+                            th.saveSession(new_data.currentOrders)
+                        } finally {
+                            th.submittingOrder = false
                         }
-                        th.setState({data: new_data, selectedOrder: newSelectedOrder})
-                        th.saveSession(new_data.currentOrders)
                     }, 3000);
                 }
             })

@@ -2065,9 +2065,15 @@ class PopupPay extends React.Component {
             'data': {'name': this.props.name},
             'loading': false,
         }
+        // ID unik per popup pembayaran, supaya server menolak pembayaran yang terkirim dua kali
+        this.requestId = this.newRequestId()
         
         this.handleInputChange = this.handleInputChange.bind(this)
         this.submitPay = this.submitPay.bind(this)
+    }
+    
+    newRequestId(){
+        return Date.now().toString(36) + Math.random().toString(36).slice(2)
     }
     
     componentDidMount(){
@@ -2135,6 +2141,7 @@ class PopupPay extends React.Component {
             new_data.jumlah = parseFloat(this.reverseFormatNumber(new_data.jumlah, 'id'))
             console.log(new_data.jumlah)
             typeof new_data.name == 'object'?method = "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.add_payment_multiple":false
+            new_data.request_id = this.requestId
             if(new_data.payment_method.includes('Deposit')&&new_data.jumlah>this.props.total_credit){
                 frappe.msgprint('Nominal melebihi deposit, jumlah deposit tersedia '+formatter.format(this.props.total_credit))
                 this.setState({loading: false})
@@ -2144,6 +2151,9 @@ class PopupPay extends React.Component {
                     method:method,
                     args: {data: new_data},
                     freeze: true,
+                    error: function(){
+                        th.setState({loading : false})
+                    },
                     callback: function(r){
                         if (r.message) {
                             if(typeof new_data.name == 'object'){
@@ -2162,6 +2172,8 @@ class PopupPay extends React.Component {
                                     if(results.every(e => e)){
                                         window.location.reload()
                                     } else {
+                                        // Sebagian invoice sudah terbayar, sisa pembayaran adalah transaksi baru
+                                        th.requestId = th.newRequestId()
                                         th.props.getFormData()
                                     }
                                 } else if (r.message.error){

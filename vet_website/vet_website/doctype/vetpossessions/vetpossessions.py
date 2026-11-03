@@ -16,6 +16,7 @@ from vet_website.vet_website.doctype.vetpetowner.vetpetowner import new_pet_owne
 from vet_website.vet_website.doctype.vetpet.vetpet import get_pet
 from vet_website.vet_website.doctype.vetposorder.vetposorder import get_order_list
 from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry
+from vet_website.request_guard import acquire_lock, release_lock, claim_request_id, release_request_id
 from vet_website.vet_website.doctype.vetoperation.vetoperation import action_receive
 from vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice import decrease_product_valuation, increase_product_valuation
 
@@ -402,6 +403,17 @@ def pos_add_order(data):
 	except:
 		return {'error': "Gagal membuat order baru"}
 
+	request_id = data_json.pop('request_id', None)
+	if not claim_request_id(request_id):
+		return {'error': "Order ini sudah diproses"}
+
+	try:
+		return pos_add_order_process(data_json)
+	except Exception:
+		release_request_id(request_id)
+		raise
+
+def pos_add_order_process(data_json):
 	tz = pytz.timezone("Asia/Jakarta")
 		
 	pet = data_json.get("pet", False)
@@ -444,6 +456,16 @@ def kas_masuk_keluar(session, list_kas):
 	except:
 		return {'error': "Gagal membuat kas baru"}
 
+	lock_key = 'kas_masuk_keluar:' + str(session)
+	if not acquire_lock(lock_key):
+		return {'error': "Kas sedang diproses, mohon tunggu"}
+
+	try:
+		return kas_masuk_keluar_process(session, kas)
+	finally:
+		release_lock(lock_key)
+
+def kas_masuk_keluar_process(session, kas):
 	tz = pytz.timezone("Asia/Jakarta")
 		
 	sales_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Sales Journal', 'type': 'Sale'}, 'name')

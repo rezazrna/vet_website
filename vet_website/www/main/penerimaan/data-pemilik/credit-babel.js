@@ -475,6 +475,8 @@ class Popup extends React.Component {
                 'time': this.props.popup_mode == 'deposit'? moment().format('HH:mm:ss') : undefined
             }
         }
+        // ID unik per popup, supaya server menolak transaksi yang terkirim dua kali
+        this.requestId = Date.now().toString(36) + Math.random().toString(36).slice(2)
     }
 
     handleInputChange(e) {
@@ -525,7 +527,13 @@ class Popup extends React.Component {
 
     submitAction() {
         var th = this
-        var new_data = this.state.data
+        // Cegah double klik tombol Simpan
+        if (this.submitting) {
+            return
+        }
+        // Salinan, supaya penggabungan tanggal + jam di bawah tidak mengubah state.
+        // Kalau server mengembalikan error lalu Simpan diklik lagi, tanggal tetap utuh.
+        var new_data = Object.assign({}, this.state.data)
         console.log(new_data)
         console.log(this.props.tipe)
 
@@ -546,13 +554,21 @@ class Popup extends React.Component {
 
         console.log({ action: new_data.action, nominal: new_data.nominal, supplier: id || new_data.pet_owner, method: new_data.payment_method, tanggal: new_data.tanggal})
 
+        if (['Invoice', 'Purchase'].includes(this.props.tipe)) {
+            this.submitting = true
+        }
+
         if (this.props.tipe == 'Invoice') {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetownercredit.vetownercredit.submit_piutang",
-                args: { action: new_data.action, nominal: new_data.nominal_float, petOwner: id || new_data.pet_owner_id, method: new_data.payment_method, tanggal: new_data.tanggal },
+                args: { action: new_data.action, nominal: new_data.nominal_float, petOwner: id || new_data.pet_owner_id, method: new_data.payment_method, tanggal: new_data.tanggal, request_id: this.requestId },
                 freeze: true,
+                error: function () {
+                    th.submitting = false
+                },
                 callback: function (r) {
+                    th.submitting = false
                     if (r.message) {
                         console.log(r.message);
                         if (r.message.error) {
@@ -568,9 +584,13 @@ class Popup extends React.Component {
             frappe.call({
                 type: "GET",
                 method: "vet_website.vet_website.doctype.vetownercredit.vetownercredit.submit_piutang_purchase",
-                args: { action: new_data.action, nominal: new_data.nominal_float, supplier: id || new_data.pet_owner_id, method: new_data.payment_method, tanggal: new_data.tanggal },
+                args: { action: new_data.action, nominal: new_data.nominal_float, supplier: id || new_data.pet_owner_id, method: new_data.payment_method, tanggal: new_data.tanggal, request_id: this.requestId },
                 freeze: true,
+                error: function () {
+                    th.submitting = false
+                },
                 callback: function (r) {
+                    th.submitting = false
                     if (r.message) {
                         console.log(r.message);
                         if (r.message.error) {

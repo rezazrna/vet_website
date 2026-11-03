@@ -12,12 +12,34 @@ from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_
 from vet_website.vet_website.doctype.vetpetowner.vetpetowner import set_owner_credit_total
 from vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice import deliver_to_customer, add_payment
 from vet_website.vet_website.doctype.vetpurchase.vetpurchase import check_paid_purchase
+from vet_website.request_guard import acquire_lock, release_lock, claim_request_id, release_request_id, is_error_result
 
 class VetOwnerCredit(Document):
 	pass
 	
+def run_guarded(lock_key, request_id, fn, *args):
+	# Tolak request ganda: request_id yang sama, atau proses bersamaan untuk pemilik/supplier yang sama
+	if not claim_request_id(request_id):
+		return {'error': "Transaksi ini sudah diproses"}
+	if not acquire_lock(lock_key):
+		release_request_id(request_id)
+		return {'error': "Transaksi sedang diproses, mohon tunggu"}
+	try:
+		result = fn(*args)
+	except Exception:
+		release_request_id(request_id)
+		raise
+	finally:
+		release_lock(lock_key)
+	if is_error_result(result):
+		release_request_id(request_id)
+	return result
+
 @frappe.whitelist()
-def submit_piutang(action, nominal, petOwner, method, tanggal=False):
+def submit_piutang(action, nominal, petOwner, method, tanggal=False, request_id=None):
+	return run_guarded('submit_piutang:' + str(petOwner), request_id, submit_piutang_process, action, nominal, petOwner, method, tanggal)
+
+def submit_piutang_process(action, nominal, petOwner, method, tanggal=False):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		if action == 'Buat':
@@ -239,7 +261,10 @@ def process_invoice(data):
 		return {'error': e}
 		
 @frappe.whitelist()
-def submit_piutang_purchase(action, nominal, supplier, method, tanggal=False):
+def submit_piutang_purchase(action, nominal, supplier, method, tanggal=False, request_id=None):
+	return run_guarded('submit_piutang_purchase:' + str(supplier), request_id, submit_piutang_purchase_process, action, nominal, supplier, method, tanggal)
+
+def submit_piutang_purchase_process(action, nominal, supplier, method, tanggal=False):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		if action == 'Buat':

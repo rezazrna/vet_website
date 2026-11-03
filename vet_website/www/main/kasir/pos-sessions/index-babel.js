@@ -240,12 +240,24 @@ class PosSessions extends React.Component {
         var th = this
         console.log(i, kas)
 
+        // Cegah kas tercatat dua kali karena double submit
+        if (this.submittingKas) {
+            return
+        }
+        this.submittingKas = true
+
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetpossessions.vetpossessions.kas_masuk_keluar",
             args: { session: this.state.data[i]['name'], list_kas: kas },
+            error: function () {
+                th.submittingKas = false
+            },
             callback: function (r) {
-                if (r.message) {
+                th.submittingKas = false
+                if (r.message && r.message.error) {
+                    frappe.msgprint(r.message.error)
+                } else if (r.message) {
                     console.log(r.message)
                     var new_data = th.state.data
                     var afterRefresh = th.refreshData(Object.assign(new_data[i], r.message))

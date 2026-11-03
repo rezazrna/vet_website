@@ -235,13 +235,22 @@ class CustomerInvoice extends React.Component {
     openRow(e) {
         e.preventDefault();
         var po = this
+        // Cegah double klik tombol Open
+        if (this.openingRows) {
+            return
+        }
         var data = this.state.data.filter((d) => d.checked && d.status == 'Draft').reverse()
         var data_names = data.map((d) => d.name)
+        this.openingRows = true
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.open_invoice_from_list",
             args: { name_list: data_names },
+            error: function () {
+                po.openingRows = false
+            },
             callback: function (r) {
+                po.openingRows = false
                 if (r.message) {
                     console.log(r.message)
                     var new_data = po.state.data.slice()
