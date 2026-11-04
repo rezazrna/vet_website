@@ -42,7 +42,9 @@ web_include_js = [
 					"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js",
 					"/assets/vet_website/js/html2canvas.min.js",
 					"/assets/vet_website/js/jspdf.min.js",
-					"/assets/vet_website/js/html2pdf.js",
+					# ?v= dinaikkan setiap file di /assets diubah: nginx tidak mengirim Cache-Control,
+					# jadi browser memakai cache heuristik dan bisa bertahan memakai versi lama
+					"/assets/vet_website/js/html2pdf.js?v=2",
 					"/static/src/slick/slick.js",
 					"/static/src/js/pagination.min.js",
 					"/static/src/js/sidebar.js",

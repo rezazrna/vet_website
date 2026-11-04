@@ -9,7 +9,7 @@ import pytz
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from frappe.model.document import Document
-from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, delete_journal_entries, apply_running_totals, journal_item_sort_key, attach_entry_fields, items_by_account
+from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, delete_journal_entries, apply_running_totals, journal_item_sort_key, attach_entry_fields, items_by_account, get_running_totals
 
 class VetCoa(Document):
 	pass
@@ -83,6 +83,10 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 			td_filters.update({'account_parent': ''})
 
 		coa_list = frappe.get_list("VetCoa", filters=td_filters, fields=["*"], order_by='account_code asc')
+
+		if is_coa_list and not limit_date:
+			# Saldo berjalan semua akun dihitung dalam satu query, dipakai get_coa_last_total_children
+			get_running_totals([c.name for c in frappe.get_all('VetCoa', fields=['name'])])
 
 		journal_entry_names = []
 		if limit_date:
@@ -321,18 +325,37 @@ def update_childs_account_type(name):
 		
 # 	print(total)
 		
-# 	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields="name", order_by="account_code asc")
+# 	children = frappe.get_list('VetCoa', filters={'account_parent': coa_name}, fields="name", order_by="account_code asc")
 # 	if len(children) != 0:
 # 		total = total + sum(get_coa_last_total(c.name, max_date, no_min_date) for c in children)
 		
 # 	return total
 
+def items_in_range(min_date, max_date):
+	"""{account: [item, ...]} untuk journal entry bertanggal min_date..max_date, urut dari yang terbaru
+	(seperti journal_item_sort_key reverse), total berisi saldo berjalan hasil hitung. Di-cache per request."""
+	cache = getattr(frappe.local, 'vet_coa_range_items', None)
+	if cache is None:
+		cache = frappe.local.vet_coa_range_items = {}
+	key = (min_date, max_date)
+	if key not in cache:
+		items = frappe.db.sql("""select ji.name, ji.account, ji.debit, ji.credit, ji.total, ji.parent, je.date, je.journal
+			from `tabVetJournalItem` ji
+			join `tabVetJournalEntry` je on je.name = ji.parent
+			where je.date between %s and %s""", (min_date, max_date), as_dict=True)
+		apply_running_totals(items)
+		items.sort(key=journal_item_sort_key, reverse=True)
+		grouped = {}
+		for ji in items:
+			grouped.setdefault(ji.account, []).append(ji)
+		cache[key] = grouped
+	return cache[key]
+
 def get_coa_last_total(coa_name, max_date=False, journal_items=False):
 	
 	total = 0
-	coa = frappe.get_doc('VetCoa', coa_name)
 	
-	filters = {'account': coa.name}
+	filters = {'account': coa_name}
 	je_filters = {}
 	ji_list = []
 	journal_item = False
@@ -352,21 +375,11 @@ def get_coa_last_total(coa_name, max_date=False, journal_items=False):
 			je_filters.update({'date': ['between', [min_date, max_date_dt.strftime('%Y-%m-%d')]]})
 				
 		if je_filters:
-			journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
-
-			if len(journal_entry_search):
-				journal_entry_names = list(j.name for j in journal_entry_search)
-				filters.update({'parent': ['in', journal_entry_names]})
-
-		
-		if 'parent' in filters:
-			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['name', 'account', 'debit', 'credit', 'total', 'parent'], order_by='creation desc')
-		attach_entry_fields(ji_list)
-		
-		apply_running_totals(ji_list)
-		ji_list.sort(key=journal_item_sort_key, reverse=True)
-		if len(ji_list) > 0:
-			journal_item = ji_list[0]
+			# Item periode ini diambil sekali untuk semua akun (neraca tahunan memanggil fungsi ini
+			# untuk setiap akun x 13 bulan), lalu dipakai bersama
+			ji_list = items_in_range(min_date, max_date_dt.strftime('%Y-%m-%d')).get(coa_name, [])
+			if len(ji_list) > 0:
+				journal_item = ji_list[0]
 
 
 	# if len(ji_list) != 0:
@@ -384,7 +397,7 @@ def get_coa_last_total(coa_name, max_date=False, journal_items=False):
 	if journal_item:
 		total = total + journal_item.total
 		
-	children = frappe.get_list('VetCoa', filters={'account_parent': coa.name}, fields="name", order_by="account_code asc")
+	children = frappe.get_list('VetCoa', filters={'account_parent': coa_name}, fields="name", order_by="account_code asc")
 	if len(children) != 0:
 		total = total + sum(get_coa_last_total(c.name, max_date=max_date, journal_items=journal_items) for c in children)
 		
@@ -424,16 +437,23 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False, i
 				filters.update({'parent': ['in', journal_entry_names]})
 
 		
-		# if 'parent' in filters:
-		if journal_entry_names or is_coa_list:
-			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['name', 'account', 'debit', 'credit', 'total', 'parent'], order_by='creation desc')
+		if is_coa_list and not journal_entry_names:
+			# Semua item akun: yang dipakai hanya saldo berjalan item terakhir, ambil langsung dari
+			# hasil hitung (urutan terbesar), tanpa mengambil dan mengurutkan semua item akun ini
+			totals = get_running_totals([coa_name])
+			if totals:
+				journal_item = frappe._dict(total=max(totals.values())[1])
+		else:
+			# if 'parent' in filters:
+			if journal_entry_names or is_coa_list:
+				ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['name', 'account', 'debit', 'credit', 'total', 'parent'], order_by='creation desc')
 
-		attach_entry_fields(ji_list)
-		
-		apply_running_totals(ji_list)
-		ji_list.sort(key=journal_item_sort_key, reverse=True)
-		if len(ji_list) > 0:
-			journal_item = ji_list[0]
+			attach_entry_fields(ji_list)
+
+			apply_running_totals(ji_list)
+			ji_list.sort(key=journal_item_sort_key, reverse=True)
+			if len(ji_list) > 0:
+				journal_item = ji_list[0]
 
 	### Terpengaruh ###
 
