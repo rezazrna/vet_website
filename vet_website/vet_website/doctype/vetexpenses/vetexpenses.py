@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import frappe
 import json
 from frappe.model.document import Document
-from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, set_journal_item_total
+from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, set_journal_item_total, lock_journal_accounts
 from vet_website.vet_website.doctype.vetoperation.vetoperation import action_receive
 from vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice import decrease_product_valuation
 
@@ -171,6 +171,7 @@ def create_expense_journal_items(expense_name):
 	
 	if je_search:
 		ji_search = frappe.get_list('VetJournalItem', filters={'parent': je_search[0]['name']}, fields=['name'])
+		lock_journal_accounts(parents=[je_search[0]['name']])
 		for i in ji_search:
 			ji = frappe.get_doc('VetJournalItem', i['name'])
 			if ji.account == expense.expense_account:
@@ -178,9 +179,8 @@ def create_expense_journal_items(expense_name):
 			elif ji.account == expense.cash_account:
 				ji.credit = expense.quantity * expense.price
 			ji.save()
-			frappe.db.commit()
-			
 			set_journal_item_total(ji.name, ji.account)
+		frappe.db.commit()
 	else:
 		expense_journal = frappe.db.get_value('VetJournal', {'journal_name': 'Expense', 'type': 'General'}, 'name')
 		jis = [

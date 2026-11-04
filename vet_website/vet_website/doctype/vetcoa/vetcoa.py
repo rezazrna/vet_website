@@ -9,7 +9,7 @@ import pytz
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from frappe.model.document import Document
-from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry
+from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, delete_journal_entries, apply_running_totals, journal_item_sort_key
 
 class VetCoa(Document):
 	pass
@@ -96,13 +96,14 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 
 		journal_items = []
 		if journal_entry_names:
-			journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account', 'parent', 'credit', 'debit'])
+			journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['name', 'total', 'account', 'parent', 'credit', 'debit'])
 
 			for ji in journal_items:
 				ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 				ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
 
-			journal_items.sort(key=lambda x: x.date, reverse=True)
+			apply_running_totals(journal_items)
+			journal_items.sort(key=journal_item_sort_key, reverse=True)
 
 		if not dc_mode:
 			for c in coa_list:
@@ -187,13 +188,14 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 
 	journal_items = []
 	if journal_entry_names:
-		journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['total', 'account', 'parent'])
+		journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['name', 'total', 'account', 'parent'])
 
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 			ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
 
-		journal_items.sort(key=lambda x: x.date, reverse=True)
+		apply_running_totals(journal_items)
+		journal_items.sort(key=journal_item_sort_key, reverse=True)
 		
 	if not dc_mode:
 		for c in children:
@@ -362,12 +364,13 @@ def get_coa_last_total(coa_name, max_date=False, journal_items=False):
 
 		
 		if 'parent' in filters:
-			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by='creation desc')
+			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['name', 'account', 'debit', 'credit', 'total', 'parent'], order_by='creation desc')
 		for ji in ji_list:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 			ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
 		
-		ji_list.sort(key=lambda x: x.date, reverse=True)
+		apply_running_totals(ji_list)
+		ji_list.sort(key=journal_item_sort_key, reverse=True)
 		if len(ji_list) > 0:
 			journal_item = ji_list[0]
 
@@ -428,13 +431,14 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False, i
 		
 		# if 'parent' in filters:
 		if journal_entry_names or is_coa_list:
-			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['debit', 'credit', 'total', 'parent'], order_by='creation desc')
+			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['name', 'account', 'debit', 'credit', 'total', 'parent'], order_by='creation desc')
 
 		for ji in ji_list:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 			ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
 		
-		ji_list.sort(key=lambda x: x.date, reverse=True)
+		apply_running_totals(ji_list)
+		ji_list.sort(key=journal_item_sort_key, reverse=True)
 		if len(ji_list) > 0:
 			journal_item = ji_list[0]
 
@@ -651,9 +655,8 @@ def close_book(min_date, max_date):
 
 	closing_je = frappe.get_list("VetJournalEntry", filters={'date': ['between', [min_date, max_date]], 'journal': closing_journal}, fields=["name"])
 
-	for cj in closing_je:
-		frappe.delete_doc('VetJournalEntry', cj['name'])
-		frappe.db.commit()
+	delete_journal_entries([cj['name'] for cj in closing_je])
+	frappe.db.commit()
 	
 	total_pendapatan = closing_pendapatan(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
 	total_hpp = closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_date_dt)
@@ -672,13 +675,14 @@ def closing_pendapatan(journal_entry_names, clearing_account, closing_journal, j
 	pendapatan_accounts = frappe.get_list("VetCoa", filters={'account_code': ['like', '4-%']}) + frappe.get_list("VetCoa", filters={'account_code': ['like', '7-%']})
 
 	for p in pendapatan_accounts:
-		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': p['name']}, order_by="creation desc", fields=["total", "parent"])
+		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': p['name']}, order_by="creation desc", fields=["name", "account", "total", "parent"])
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
 
 		### Terpengaruh ###
 			
-		journal_items.sort(key=lambda x: x['date'], reverse=True)
+		apply_running_totals(journal_items)
+		journal_items.sort(key=journal_item_sort_key, reverse=True)
 		if journal_items:
 			jis.append({'account': p['name'], 'debit': journal_items[0]['total']})
 			total_credit_clearing += journal_items[0]['total']
@@ -709,13 +713,14 @@ def closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_
 	hpp_biaya_accounts = frappe.get_list("VetCoa", filters={'account_code': ['like', '5-%']})
 
 	for h in hpp_biaya_accounts:
-		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["total", "parent"])
+		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["name", "account", "total", "parent"])
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
 
 		### Terpengaruh ###
 			
-		journal_items.sort(key=lambda x: x['date'], reverse=True)
+		apply_running_totals(journal_items)
+		journal_items.sort(key=journal_item_sort_key, reverse=True)
 		if journal_items:
 			jis.append({'account': h['name'], 'credit': journal_items[0]['total']})
 			total_debit_clearing += journal_items[0]['total']
@@ -746,13 +751,14 @@ def closing_biaya(journal_entry_names, clearing_account, closing_journal, journa
 	hpp_biaya_accounts = frappe.get_list("VetCoa", filters={'account_code': ['like', '6-%']}) + frappe.get_list("VetCoa", filters={'account_code': ['like', '8-%']})
 
 	for h in hpp_biaya_accounts:
-		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["total", "parent"])
+		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["name", "account", "total", "parent"])
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
 		
 		### Terpengaruh ###
 			
-		journal_items.sort(key=lambda x: x['date'], reverse=True)
+		apply_running_totals(journal_items)
+		journal_items.sort(key=journal_item_sort_key, reverse=True)
 		if journal_items:
 			jis.append({'account': h['name'], 'credit': journal_items[0]['total']})
 			total_debit_clearing += journal_items[0]['total']

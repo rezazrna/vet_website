@@ -9,7 +9,7 @@ import pytz
 from frappe.model.document import Document
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
-from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry
+from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, lock_journal_accounts, recompute_accounts
 
 class VetAsset(Document):
 	pass
@@ -192,6 +192,7 @@ def submit_asset(data):
 				
 				list_journal = frappe.get_list('VetJournalEntry', filters={'reference': asset.name, 'date': ['!=', data_json.get('acquistion_date')]}, fields=['name'])
 				journal = [i['name'] for i in list_journal]
+				affected = lock_journal_accounts(parents=journal)
 				
 				frappe.db.delete('VetJournalItem', {
 				    'parent': ['in', journal]
@@ -200,6 +201,7 @@ def submit_asset(data):
 				frappe.db.delete('VetJournalEntry', {
 					'name': ['in', journal]
 				})
+				recompute_accounts(affected)
 				
 			asset.book_value = book_value
 			asset.save()

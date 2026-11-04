@@ -8,6 +8,7 @@ import json
 from datetime import datetime as dt
 from frappe.model.document import Document
 from dateutil.relativedelta import relativedelta as rd
+from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import lock_journal_accounts, recompute_accounts, apply_running_totals, journal_item_sort_key
 
 class VetJournalItem(Document):
 	pass
@@ -102,10 +103,12 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		for ji in journal_items:
 			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 
+		apply_running_totals(journal_items)
+
 		reverse = True
 		if is_gl == '1':
 			reverse = False
-		journal_items.sort(key=lambda x: (x.date, x.parent), reverse=reverse)
+		journal_items.sort(key=lambda x: (x.date, x.parent, x.running_order), reverse=reverse)
 		if all_page == False:
 			journal_items = journal_items[(page - 1) * 10 : page * 10]
 		# else:
@@ -130,12 +133,13 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 				if ji_account:
 					journal_items_filters_if_empty.append({'account': ji_account})
 
-				journal_items_saldo = frappe.get_list("VetJournalItem", filters=journal_items_filters_if_empty, fields=["name", 'parent', 'total'], order_by="creation desc")
+				journal_items_saldo = frappe.get_list("VetJournalItem", filters=journal_items_filters_if_empty, fields=["name", 'account', 'parent', 'total'], order_by="creation desc")
 
 				for ji in journal_items_saldo:
 					ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
 
-				journal_items_saldo.sort(key=lambda x: x.date, reverse=True)
+				apply_running_totals(journal_items_saldo)
+				journal_items_saldo.sort(key=journal_item_sort_key, reverse=True)
 				if journal_items_saldo:
 					saldo_awal = journal_items_saldo[0]['total']
 		else:
@@ -189,9 +193,11 @@ def delete_journal_item(data):
 	except:
 		return {'error': "Gagal menghapus operasi"}
 	
+	affected = lock_journal_accounts(items=data_json)
 	for d in data_json:
 		frappe.delete_doc('VetJournalItem', d)
-		frappe.db.commit()
+	recompute_accounts(affected)
+	frappe.db.commit()
 		
 	return {'success': True}
 

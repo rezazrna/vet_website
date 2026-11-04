@@ -12,7 +12,7 @@ import pytz
 from datetime import datetime as dt
 from frappe.model.document import Document
 from vet_website.vet_website.doctype.vetoperation.vetoperation import action_receive
-from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, set_journal_item_total
+from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, set_journal_item_total, lock_accounts, recompute_account_total, delete_journal_entries
 from vet_website.vet_website.doctype.vetpetowner.vetpetowner import set_owner_credit_total
 from vet_website.vet_website.doctype.vetproductpack.vetproductpack import get_pack_price
 from dateutil.relativedelta import relativedelta as rd
@@ -1414,6 +1414,7 @@ def edit_payment(name, method):
 def edit_payment_journal_entry(customer_invoice, amount, old_payment_method, new_payment_method):
 	old_payment_method_account = frappe.db.get_value('VetPaymentMethod', old_payment_method, 'account')
 	new_payment_method_account =  frappe.db.get_value('VetPaymentMethod', new_payment_method, 'account')
+	lock_accounts([old_payment_method_account, new_payment_method_account])
 	journal_entry_search = frappe.get_list('VetJournalEntry', filters={'reference': customer_invoice}, fields=['name'])
 	journal_item_name = False
 	print('customer_invoice')
@@ -1428,10 +1429,10 @@ def edit_payment_journal_entry(customer_invoice, amount, old_payment_method, new
 		'account': new_payment_method_account
 	})
 	journal_item.save()
-	frappe.db.commit()
-	old_last_ji = frappe.get_list('VetJournalItem', filters={'account': old_payment_method_account}, fields=['name'], order_by='creation desc')
-	set_journal_item_total(old_last_ji[0].name, old_payment_method_account)
+	# Akun lama dihitung ulang mulai dari tanggal item yang dipindah, bukan dari item terakhir
+	recompute_account_total(old_payment_method_account, from_date=frappe.db.get_value('VetJournalEntry', journal_item.parent, 'date'))
 	set_journal_item_total(journal_item.name, new_payment_method_account)
+	frappe.db.commit()
 
 @frappe.whitelist()
 def decrease_product_valuation(product, quantity, warehouse=False, uom=False, reverse=False):
@@ -1955,8 +1956,7 @@ def create_sales_journal_entry(invoice_name, refund=False):
 
 	if not refund:
 		same_reference = frappe.get_list("VetJournalEntry", filters={'reference': invoice.name, 'journal': sales_journal, 'keterangan': invoice.owner_name}, fields=['name'])
-		for sf in same_reference:
-			frappe.delete_doc('VetJournalEntry', sf.name)
+		delete_journal_entries([sf.name for sf in same_reference])
 
 		frappe.db.commit()
 
