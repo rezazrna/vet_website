@@ -1,0 +1,132 @@
+/*
+ * Tablet & HP. Dimuat paling akhir di web_include_css supaya menimpa vet.css.
+ * Halaman babel memakai col-N (tanpa breakpoint), jadi di sini layout
+ * disesuaikan lewat selector struktural (:has) tanpa mengubah file babel.
+ * Hanya berlaku di dalam .main-page (templates/main.html); POS tidak tersentuh.
+ */
+
+/* ---------- Tablet & HP (< 992px) ---------- */
+@media screen and (max-width: 991.98px) {
+	div.main-page {
+		padding: 16px 12px;
+		max-height: 100dvh;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.main-navbar .page-title {
+		font-size: 15px;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		min-width: 0;
+		flex: 1 1 auto;
+	}
+
+	/* List (row-header + row-list): geser horizontal, kolom tidak terjepit */
+	.main-page div:not(.row):has(> .row > .row-header, > .row > .row-list, > .row.row-header, > .row.row-list) {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.main-page .row:has(> .row-header, > .row-list:not(.row-list-expandable)),
+	.main-page .row.row-header,
+	.main-page .row.row-list:not(.row-list-expandable) {
+		flex-wrap: nowrap;
+		min-width: 860px;
+	}
+
+	/* Tabel: bungkusnya yang di-scroll, tabelnya sendiri tidak diubah (aman untuk PDF) */
+	.main-page div:not(.row):has(> table) {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	/* Tab: satu baris, bisa digeser */
+	.main-page .nav-tabs {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		overflow-y: hidden;
+	}
+
+	.main-page .nav-tabs .nav-link {
+		padding: 12px 20px;
+		font-size: 14px;
+		white-space: nowrap;
+	}
+
+	/* Baris tombol aksi / toolbar boleh turun ke baris berikutnya */
+	.main-page .row.flex-row-reverse,
+	.main-page #filter_bar,
+	.main-page #search_bar {
+		flex-wrap: wrap;
+	}
+
+	.main-page .row:has(> .col > input[name="search"]) > .col {
+		min-width: 220px;
+	}
+
+	/* Popup */
+	.menu-popup {
+		padding-top: 12px;
+	}
+
+	.menu-popup .container,
+	.menu-popup .container > div {
+		max-width: 100% !important;
+	}
+
+	.menu-popup .menu-popup-title {
+		font-size: 22px;
+		padding: 10px 16px;
+	}
+}
+
+/* ---------- HP & tablet portrait (< 768px) ---------- */
+@media screen and (max-width: 767.98px) {
+	/* Field form (kolom yang berisi label) ditumpuk satu per baris */
+	.main-page .row > [class*="col-"]:not([class*="col-auto"]):not(.row-header):not(.row-list):has(label),
+	.main-page .form-row > [class*="col-"]:not([class*="col-auto"]):has(label),
+	.main-page .row > .col:not(.row-header):not(.row-list):has(label),
+	.main-page .form-row > .col:has(label),
+	.menu-popup .row > [class*="col-"]:not([class*="col-auto"]):has(label),
+	.menu-popup .form-row > [class*="col-"]:not([class*="col-auto"]):has(label) {
+		flex: 0 0 100%;
+		max-width: 100%;
+	}
+
+	/* Toolbar list: tombol, kotak search, dan filter masing-masing satu baris */
+	.main-page .row:has(> [class*="col"] > input[name="search"]) > [class*="col"] {
+		flex: 0 0 100%;
+		max-width: 100%;
+		margin-bottom: 8px;
+	}
+
+	.main-page #search_bar > [class*="col-"]:not([class*="col-auto"]) {
+		flex: 0 0 100%;
+		max-width: 100%;
+		margin-bottom: 8px;
+	}
+
+	.main-page .nav-tabs .nav-link {
+		padding: 10px 14px;
+	}
+
+	.menu-popup .p-4 {
+		padding: 1rem !important;
+	}
+}
+
+/* ---------- HP (< 576px) ---------- */
+@media screen and (max-width: 575.98px) {
+	div.main-page {
+		padding: 12px 8px;
+	}
+
+	.main-page .p-4 {
+		padding: 1rem !important;
+	}
+
+	.main-page .btn {
+		white-space: nowrap;
+	}
+}

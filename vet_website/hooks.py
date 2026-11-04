@@ -30,6 +30,7 @@ web_include_css = [
 					"/static/src/css/sidebar.css",
 					"/static/src/css/pos.css",
 					"/static/src/css/vet.css",
+					"/static/src/css/responsive.css",
 				]
 web_include_js = [
 					"https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js",
