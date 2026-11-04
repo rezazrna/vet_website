@@ -8,6 +8,7 @@ import json
 from datetime import datetime as dt
 from frappe.model.document import Document
 from dateutil.relativedelta import relativedelta as rd
+from frappe.utils import cint
 from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import lock_journal_accounts, recompute_accounts, apply_running_totals, journal_item_sort_key, attach_entry_fields
 
 class VetJournalItem(Document):
@@ -89,37 +90,38 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 		journal_items = []
 		journal_entry_search = []
 		journal_items_filters = []
+		journal_entry_names = None
 		if je_filters or je_or_filters:
 			journal_entry_search = frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, fields=["name"], order_by=default_sort)
 			journal_entry_names = list(map(lambda j: j.name, journal_entry_search))
 			journal_items_filters.append({'parent': ['in', journal_entry_names]})
-		# datalength = len(frappe.get_list("VetJournalEntry", or_filters=je_or_filters, filters=je_filters, as_list=True))
-		# if len(journal_entry_search):
 		if ji_account:
 			journal_items_filters.append({'account': ji_account})
 
-		# journal_items = frappe.get_list("VetJournalItem", or_filters={'debit': ['>', 0], 'credit': ['>', 0]}, filters=journal_items_filters, fields=["*"], order_by=order_by)
-		journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by)
-		attach_entry_fields(journal_items, ('date',))
+		# Urut dan potong per halaman di SQL, bukan mengambil semua item lalu sort di Python.
+		# Urutan sama dengan sebelumnya: tanggal, journal entry, lalu creation (GL naik, list turun).
+		conditions, values = [], []
+		if journal_entry_names is not None:
+			conditions.append('ji.parent in %s')
+			values.append(tuple(journal_entry_names) or ('',))
+		if ji_account:
+			conditions.append('ji.account = %s')
+			values.append(ji_account)
+		where = ('where ' + ' and '.join(conditions)) if conditions else ''
+		direction = 'asc' if is_gl == '1' else 'desc'
+		limit = '' if all_page else ' limit %d offset %d' % (10, (cint(page) - 1) * 10)
+
+		journal_items = frappe.db.sql("""select ji.*, je.date from `tabVetJournalItem` ji
+			join `tabVetJournalEntry` je on je.name = ji.parent
+			{where}
+			order by je.date {d}, ji.parent {d}, ji.creation {d}{limit}""".format(where=where, d=direction, limit=limit), values, as_dict=True)
 
 		apply_running_totals(journal_items)
 
-		reverse = True
-		if is_gl == '1':
-			reverse = False
-		journal_items.sort(key=lambda x: (x.date, x.parent, x.running_order), reverse=reverse)
-		if all_page == False:
-			journal_items = journal_items[(page - 1) * 10 : page * 10]
-		# else:
-		# 	journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by, start=, page_length= 10)
-		# 	for ji in journal_items:
-		# 		ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
-
-		# 	journal_items.sort(key=lambda x: x.date, reverse=True)
-
 		datalength = 0
 		if not all_page:
-			datalength = len(frappe.get_list("VetJournalItem", filters=journal_items_filters, as_list=True))
+			datalength = frappe.db.sql("""select count(*) from `tabVetJournalItem` ji
+				join `tabVetJournalEntry` je on je.name = ji.parent {where}""".format(where=where), values)[0][0]
 
 		if not journal_items and is_gl == '1':
 			if ji_account and ('4-' in ji_account or '5-' in ji_account or '6-' in ji_account or '7-' in ji_account or '8-' in ji_account) and min_date and '-01-01' in min_date:

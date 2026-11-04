@@ -567,18 +567,20 @@ def get_coa_total_debit_credit_children(name, journal_items=False):
 @frappe.whitelist()
 def get_financial_report_data(month=False, year=False):
 	tz = pytz.timezone("Asia/Jakarta")
-	now_date = dt.now(tz).strftime('%Y-%m-%d')
 	if not month:
 		month = dt.now(tz).strftime('%m')
 	if not year:
 		year = dt.now(tz).strftime('%Y')
 	accounts = frappe.get_list("VetCoa", fields=["*"], order_by='account_code asc')
+	# get_coa_last_total(max_date=X) membaca bulan sebelum X: X = awal bulan berikutnya berarti bulan
+	# terpilih penuh, X = awal bulan terpilih berarti bulan lalu (pembanding di laporan)
+	this_month = (dt.strptime('%s-%s'%(month, year), '%m-%Y') + rd(months=1)).strftime('%Y-%m-%d')
 	# revenue_filters = {'account_parent': '', 'account_code': ['like', '4-%']}
 	# revenue = frappe.get_list("VetCoa", filters=revenue_filters, fields=["*"], order_by='account_code asc')
 	revenue = list((a for a in accounts if a.account_parent == None and a.account_code.find('4-') == 0))
 	for r in revenue:
 		last_month = dt.strptime('%s-%s'%(month, year), '%m-%Y').strftime('%Y-%m-%d')
-		r['this_month'] = get_coa_last_total(r.name)
+		r['this_month'] = get_coa_last_total(r.name, max_date=this_month)
 		r['last_month'] = get_coa_last_total(r.name, max_date=last_month)
 		
 	# piutang_filters = {'is_parent': '1', 'account_code': ['like', '1-13%']}
@@ -586,18 +588,18 @@ def get_financial_report_data(month=False, year=False):
 	piutang = list((a for a in accounts if a.is_parent == 1 and a.account_code.find('1-13') == 0))
 	for p in piutang:
 		last_month = dt.strptime('%s-%s'%(month, year), '%m-%Y').strftime('%Y-%m-%d')
-		p['this_month'] = get_coa_last_total(p.name, max_date=now_date)
+		p['this_month'] = get_coa_last_total(p.name, max_date=this_month)
 		p['last_month'] = get_coa_last_total(p.name, max_date=last_month)
 		
 	biaya_gaji = list((a for a in accounts if a.is_parent == 1 and a.account_code.find('6-2') == 0))
 	for bg in biaya_gaji:
 		last_month = dt.strptime('%s-%s'%(month, year), '%m-%Y').strftime('%Y-%m-%d')
-		bg['this_month'] = get_coa_last_total(bg.name, max_date=now_date)
+		bg['this_month'] = get_coa_last_total(bg.name, max_date=this_month)
 		bg['last_month'] = get_coa_last_total(bg.name, max_date=last_month)
 	hutang_gaji = list((a for a in accounts if a.account_code == '2-12001'))
 	for hg in hutang_gaji:
 		last_month = dt.strptime('%s-%s'%(month, year), '%m-%Y').strftime('%Y-%m-%d')
-		hg['this_month'] = get_coa_last_total(hg.name, max_date=now_date)
+		hg['this_month'] = get_coa_last_total(hg.name, max_date=this_month)
 		hg['last_month'] = get_coa_last_total(hg.name, max_date=last_month)
 		
 	financial_report_data = {
