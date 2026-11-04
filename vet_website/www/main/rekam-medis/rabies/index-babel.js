@@ -5,12 +5,15 @@ class Rabies extends React.Component {
             'data': [],
             'loaded': true,
             'currentpage': 1,
-            'search': false,
+            'search': '',
             'datalength': 0,
-            'month': '',
-            'year': '',
+            'mode': 'monthly',
+            'month': moment().format('MM'),
+            'month_to': moment().format('MM'),
+            'year': moment().format('YYYY'),
             'print_loading': false,
             'print_data': [],
+            'period_label': '',
             'list_year': []
         }
 
@@ -26,45 +29,85 @@ class Rabies extends React.Component {
             method: "vet_website.methods.get_list_year",
             callback: function (r) {
                 if (r.message) {
-                    console.log(r.message);
                     td.setState({ 'list_year': r.message });
                 }
             }
         });
 
         sessionStorage.setItem(window.location.pathname, JSON.stringify({ filters: [], sorts: [] }))
+        this.setFilter()
     }
 
     filterChange(e) {
-        var th = this
-        var name = e.target.name
-        var value = e.target.value
-        if (name == 'month') {
-            var invoice_date
-            this.setState({ month: value })
-            invoice_date = moment(this.state.year + '-' + value, 'YYYY-MM').add(1, 'month').format('YYYY-MM-DD')
-            th.setState({ invoice_date: invoice_date })
-        } else if (name == 'year') {
-            var invoice_date
-            this.setState({ year: value })
-            if (this.state.mode == 'annual') {
-                invoice_date = moment(value + '-12-31', 'YYYY-MM-DD').format('YYYY-MM-DD')
-            } else {
-                invoice_date = moment(value + '-' + this.state.month, 'YYYY-MM').add(1, 'month').format('YYYY-MM-DD')
-            }
-
-            th.setState({ invoice_date: invoice_date })
-        }
+        this.setState({ [e.target.name]: e.target.value })
     }
 
     setMode(e) {
-        var th = this
-        var mode = e.target.value
-        th.setState({ 'mode': mode, 'month': '', 'year': '' })
+        this.setState({ 'mode': e.target.value })
+    }
+
+    getDateRange() {
+        var mode = this.state.mode
+        var year = this.state.year
+        var month = this.state.month
+        var month_to = this.state.month_to
+
+        if (!year) {
+            return { error: 'Tahun harus dipilih' }
+        }
+
+        if (mode == 'annual') {
+            return {
+                min_date: year + '-01-01',
+                max_date: year + '-12-31',
+                label: 'Tahun ' + year,
+                title: 'Annual-' + year,
+            }
+        }
+
+        if (!month || (mode == 'period' && !month_to)) {
+            return { error: 'Bulan harus dipilih' }
+        }
+
+        var start = moment(year + '-' + month, 'YYYY-MM')
+
+        if (mode == 'period') {
+            var end = moment(year + '-' + month_to, 'YYYY-MM')
+            if (end.isBefore(start)) {
+                return { error: 'Bulan akhir tidak boleh sebelum bulan awal' }
+            }
+            return {
+                min_date: start.format('YYYY-MM-DD'),
+                max_date: end.endOf('month').format('YYYY-MM-DD'),
+                label: start.format('MMMM') + ' s/d ' + end.format('MMMM YYYY'),
+                title: 'Periode-' + start.format('MM') + '-' + end.format('MM-YYYY'),
+            }
+        }
+
+        return {
+            min_date: start.format('YYYY-MM-DD'),
+            max_date: start.clone().endOf('month').format('YYYY-MM-DD'),
+            label: start.format('MMMM YYYY'),
+            title: 'Monthly-' + start.format('MM-YYYY'),
+        }
+    }
+
+    loadData(filters) {
+        var td = this
+
+        frappe.call({
+            type: "GET",
+            method: "vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rabies",
+            args: { filters: filters },
+            callback: function (r) {
+                if (r.message) {
+                    td.setState({ 'data': r.message.data, 'loaded': true, 'datalength': r.message.datalength });
+                }
+            }
+        });
     }
 
     paginationClick(number) {
-        var td = this
         var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
 
         this.setState({
@@ -73,97 +116,63 @@ class Rabies extends React.Component {
         });
 
         filters['currentpage'] = Number(number)
+        sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
+        this.loadData(filters)
+    }
 
+    setFilter() {
+        var range = this.getDateRange()
+
+        if (range.error) {
+            frappe.msgprint(range.error);
+            return
+        }
+
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+        filters['currentpage'] = 1
+        filters['search'] = this.state.search
+        filters['min_date'] = range.min_date
+        filters['max_date'] = range.max_date
+        filters['label'] = range.label
+        filters['title'] = range.title
         sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
 
+        this.setState({ 'loaded': false, 'currentpage': 1 })
+        this.loadData(filters)
+    }
+
+    getPrintData(is_excel=false) {
+        var td = this
+        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
+
+        if (this.state.print_loading) {
+            return
+        }
+
+        if (!filters.min_date) {
+            frappe.msgprint('Klik Set terlebih dahulu');
+            return
+        }
+
+        this.setState({ print_loading: true })
         frappe.call({
             type: "GET",
             method: "vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rabies",
-            args: { filters: filters, mode: td.state.mode, },
+            args: { filters: filters, all: 1 },
             callback: function (r) {
                 if (r.message) {
-                    console.log(r.message)
-                    td.setState({ 'data': r.message.data, 'loaded': true, 'datalength': r.message.datalength });
+                    td.setState({ 'print_data': r.message.data, 'period_label': filters.label }, function () {
+                        td.printPDF(filters.title, is_excel)
+                    });
+                } else {
+                    td.setState({ print_loading: false })
                 }
             }
         });
     }
 
-    setFilter(filters = false) {
-        var td = this
-        if (!filters) {
-            filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
-        }
-        console.log(this.state.mode)
-        console.log(this.state.month)
-        console.log(this.state.year)
-        console.log(this.state.invoice_date)
-        console.log(this.state.gudang)
-        if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
-            td.setState({ 'loaded': false, 'currentpage': 1 })
-            filters['currentpage'] = 1
-            filters['search'] = this.state.search
-            filters['invoice_date'] = this.state.invoice_date
-            sessionStorage.setItem(window.location.pathname, JSON.stringify(filters))
-            console.log(filters)
-            frappe.call({
-                type: "GET",
-                method: "vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rabies",
-                args: { filters: filters, mode: td.state.mode, },
-                callback: function (r) {
-                    if (r.message) {
-                        console.log(r.message)
-                        td.setState({ 'data': r.message.data, 'loaded': true, 'datalength': r.message.datalength });
-                    }
-                }
-            });
-        } else {
-            frappe.msgprint(('Month or Year must be selected'));
-        }
-    }
-
-    getPrintData(is_excel=false) {
-        var td = this
-
-        if (!this.state.print_loading) {
-            this.setState({ print_loading: true })
-            if ((((this.state.mode == 'monthly' || this.state.mode == 'period') && this.state.month != '') || (this.state.mode == 'annual')) && this.state.year != '') {
-                frappe.call({
-                    type: "GET",
-                    method: "vet_website.vet_website.doctype.vetrekammedis.vetrekammedis.get_rabies",
-                    args: { filters: JSON.parse(sessionStorage.getItem(window.location.pathname)), mode: td.state.mode, all: 1 },
-                    callback: function (r) {
-                        if (r.message) {
-                            console.log(r.message)
-                            td.setState({ 'print_data': r.message.data, 'loaded': true, 'datalength': r.message.datalength });
-                            setTimeout(function() {
-                                td.printPDF(is_excel)
-                            }, 3000);
-                        }
-                    }
-                });
-            } else {
-                frappe.msgprint(('Month or Year must be selected'));
-            }
-        }
-    }
-
-    printPDF(is_excel=false) {
-        var title = 'LaporanRabies-'
-        var filters = JSON.parse(sessionStorage.getItem(window.location.pathname))
-
-        if (filters.invoice_date != undefined && this.state.mode != undefined) {
-            if (this.state.mode == 'monthly') {
-                var bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
-                console.log(bulan)
-                title += 'Monthly-' + bulan
-            } else if (this.state.mode == 'annual') {
-                title += 'Annual-' + moment(filters.invoice_date).format('YYYY')
-            } else if (this.state.mode == 'period') {
-                var sampai_bulan = moment(this.state.year + '-' + this.state.month, 'YYYY-MM').format('MM-YYYY')
-                title += 'Periode-' + sampai_bulan
-            }
-        }
+    printPDF(period_title, is_excel=false) {
+        var title = 'LaporanRabies-' + period_title
 
         if (is_excel) {
             var elt = document.getElementById('excel_page');
@@ -179,12 +188,13 @@ class Rabies extends React.Component {
                 {wpx:90},
                 {wpx:90},
             ];
-            
+
             sheet['!cols'] = sheetcols;
 
             XLSX.writeFile(wb, title + '.xlsx');
             this.setState({print_loading: false});
         } else {
+            var td = this
             var pdfid = 'pdf'
             var source = document.getElementById(pdfid)
             var opt = {
@@ -194,14 +204,15 @@ class Rabies extends React.Component {
                 html2canvas: { scale: 3 },
                 jsPDF: { orientation: 'p', unit: 'pt', format: [559 * 0.754, 794 * 0.754] }
             }
-            html2pdf().set(opt).from(source).save()
-            this.setState({ print_loading: false })
+            html2pdf().set(opt).from(source).save().then(function () {
+                td.setState({ print_loading: false })
+            })
         }
     }
 
     render() {
 
-        var row_style2 = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '20px 32px 20px 12px', 'marginBottom': '18px', 'height': '72px' }
+        var row_style2 = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '16px 24px', 'marginBottom': '18px' }
         var formStyle = { border: '1px solid #397DA6', color: '#397DA6' }
         var month_options = [<option className="d-none" key="99999"></option>]
         var year_options = [<option className="d-none" key="99999"></option>]
@@ -213,66 +224,68 @@ class Rabies extends React.Component {
         }
 
         this.state.list_year.forEach(function(e, index) {
-            year_options.push(<option key={e}>{e}</option>)
+            year_options.push(<option key={e} value={e}>{e}</option>)
         })
 
-        if (this.state.loaded) {
-            var month_select, sd_period
+        var filter_item = "mr-2 my-1"
+        var month_select, month_to_select
 
-            if (this.state.mode == 'monthly' || this.state.mode == 'period') {
+        if (this.state.mode == 'monthly' || this.state.mode == 'period') {
+            month_select = <div className={filter_item} style={{ width: 140 }}>
+                <select name="month" className="form-control fs12" style={formStyle} value={this.state.month} onChange={e => this.filterChange(e)}>
+                    {month_options}
+                </select>
+            </div>
+        }
 
-                if (this.state.mode == 'period') {
-                    sd_period = <div className="col-auto my-auto mx-auto">
-                        s/d
-                    </div>
-                }
-
-                month_select = <div className="col-2 my-auto">
-                    <select name="month" placeholder="Month" className="form-control" value={this.state.month} onChange={e => this.filterChange(e)}>
+        if (this.state.mode == 'period') {
+            month_to_select = [
+                <div key="sd" className={filter_item + " fs12 fw600"} style={{ color: '#397DA6' }}>s/d</div>,
+                <div key="month_to" className={filter_item} style={{ width: 140 }}>
+                    <select name="month_to" className="form-control fs12" style={formStyle} value={this.state.month_to} onChange={e => this.filterChange(e)}>
                         {month_options}
                     </select>
                 </div>
-            }
-
-            return (
-                <div>
-                    <div className="row mx-0" style={row_style2}>
-                        <div className="col-auto my-auto">
-                            <button type="button" className={this.state.print_loading ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2" : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData()}>{this.state.print_loading ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3" />Loading...</span>) : "Print"}</button>
-                        </div>
-                        <div className="col-auto my-auto">
-                            <button type="button" className={this.state.print_loading ? "btn btn-outline-danger disabled text-uppercase fs12 fwbold mx-2" : "btn btn-outline-danger text-uppercase fs12 fwbold mx-2"} onClick={() => this.getPrintData(true)}>{this.state.print_loading ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3" />Loading...</span>) : "Print Excel"}</button>
-                        </div>
-                        <div className="col-2 my-auto">
-                            <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Search..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.setFilter(JSON.parse(sessionStorage.getItem(window.location.pathname))) : null} />
-                        </div>
-                        <div className="col-2 my-auto">
-                            <select name="mode" placeholder="Periode" className="form-control" value={this.state.mode} onChange={e => this.setMode(e)}>
-                                <option className="d-none" key="99999"></option>
-                                <option value="monthly">Monthly</option>
-                                <option value="annual">Annual</option>
-                                <option value="period">Period</option>
-                            </select>
-                        </div>
-                        {sd_period}
-                        {month_select}
-                        <div className="col-2 my-auto">
-                            <select name="year" placeholder="Year" className="form-control" value={this.state.year} onChange={e => this.filterChange(e)}>
-                                {year_options}
-                            </select>
-                        </div>
-                        <div className="col-2 my-auto">
-                            <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
-                        </div>
-                    </div>
-                    <RabiesList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
-                    <PDF data={this.state.print_data} />
-                    <ExcelPage data={this.state.print_data} />
-                </div>
-            )
+            ]
         }
-        else {
-            return (
+
+        var print_class = "btn btn-outline-danger text-uppercase fs12 fwbold ml-2 my-1" + (this.state.print_loading ? " disabled" : "")
+        var print_loading = <span><i className="fa fa-spin fa-circle-o-notch mr-2" />Loading...</span>
+
+        var filter_bar = (
+            <div className="d-flex flex-wrap align-items-center" style={row_style2}>
+                <div className={filter_item} style={{ width: 200 }}>
+                    <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Cari nama pemilik..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.setFilter() : null} />
+                </div>
+                <div className={filter_item} style={{ width: 120 }}>
+                    <select name="mode" className="form-control fs12" style={formStyle} value={this.state.mode} onChange={e => this.setMode(e)}>
+                        <option value="monthly">Monthly</option>
+                        <option value="annual">Annual</option>
+                        <option value="period">Period</option>
+                    </select>
+                </div>
+                {month_select}
+                {month_to_select}
+                <div className={filter_item} style={{ width: 100 }}>
+                    <select name="year" className="form-control fs12" style={formStyle} value={this.state.year} onChange={e => this.filterChange(e)}>
+                        {year_options}
+                    </select>
+                </div>
+                <div className="my-1">
+                    <button type="button" className="btn btn-outline-danger text-uppercase fs12 fwbold" onClick={() => this.setFilter()}>Set</button>
+                </div>
+                <div className="ml-auto d-flex">
+                    <button type="button" className={print_class} onClick={() => this.getPrintData()}>{this.state.print_loading ? print_loading : "Print"}</button>
+                    <button type="button" className={print_class} onClick={() => this.getPrintData(true)}>{this.state.print_loading ? print_loading : "Print Excel"}</button>
+                </div>
+            </div>
+        )
+
+        var content
+        if (this.state.loaded) {
+            content = <RabiesList items={this.state.data} paginationClick={this.paginationClick} currentpage={this.state.currentpage} datalength={this.state.datalength} />
+        } else {
+            content = (
                 <div className="row justify-content-center" key='0'>
                     <div className="col-10 col-md-8 text-center border rounded-lg py-4">
                         <p className="mb-0 fs24md fs16 fw600 text-muted">
@@ -282,6 +295,15 @@ class Rabies extends React.Component {
                 </div>
             )
         }
+
+        return (
+            <div>
+                {filter_bar}
+                {content}
+                <PDF data={this.state.print_data} period_label={this.state.period_label} />
+                <ExcelPage data={this.state.print_data} period_label={this.state.period_label} />
+            </div>
+        )
     }
 }
 
@@ -440,6 +462,7 @@ class PDF extends React.Component {
                             </div>
                             <div className="col-4 px-0">
                                 <p className="fwbold text-right text-uppercase fs28" style={invoice}>Laporan Rabies</p>
+                                <p className="text-right my-0" style={fs9}>{this.props.period_label}</p>
                             </div>
                             <div className="col-12" style={borderStyle} />
                         </div>
@@ -536,7 +559,7 @@ class ExcelPage extends React.Component {
                         <tr>
                             <td rowspan="3">{image}</td>
                             <td colspan="3">{profile.clinic_name}</td>
-                            <td colspan="2">{this.props.account ? 'General Ledger' : 'Journal'}</td>
+                            <td colspan="2">Laporan Rabies {this.props.period_label}</td>
                         </tr>
                         <tr></tr>
                         <tr></tr>
