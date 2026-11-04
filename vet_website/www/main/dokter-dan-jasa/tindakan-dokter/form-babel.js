@@ -24,7 +24,8 @@ class TindakanDokter extends React.Component {
             'show_template': false,
             'show_kunjungan_berikutnya': false,
             'currentUser': {},
-            'save_loading': false
+            'save_loading': false,
+            'submitting': false
         }
         
         this.addJasaLain = this.addJasaLain.bind(this)
@@ -149,6 +150,10 @@ class TindakanDokter extends React.Component {
     
     formSubmit(e){
         e.preventDefault();
+        // Cegah double klik Lanjut, dan tunggu autosave selesai dulu
+        if (this.state.submitting || this.state.save_loading) {
+            return
+        }
         var new_data = this.state.data
         var products = []
         
@@ -199,16 +204,47 @@ class TindakanDokter extends React.Component {
         new_data.obat = products
         
         console.log(new_data)
-        var method = "vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.confirm_tindakan_dokter"
-        this.state.send_to_apotik?method="vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.send_to_apotik":false
+        var th = this
+        this.setState({submitting: true})
         
         frappe.call({
     		type: "POST",
-    		method:method,
+    		method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.confirm_tindakan_dokter",
     		args: {data: new_data},
+    		error: function(){
+    		    th.setState({submitting: false})
+    		},
     		callback: function(r){
     			if (r.message.tindakan_dokter) {
     				window.location.reload()
+    			}
+    			if (r.message.error) {
+    				th.setState({submitting: false})
+    				frappe.msgprint(r.message.error);
+    			}
+    		}
+    	});
+    }
+    
+    saveRekamMedis(e){
+        e.preventDefault();
+        if (this.state.submitting || this.state.save_loading) {
+            return
+        }
+        var th = this
+        this.setState({submitting: true})
+        
+        frappe.call({
+    		type: "POST",
+    		method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.save_rekam_medis",
+    		args: {name: id},
+    		error: function(){
+    		    th.setState({submitting: false})
+    		},
+    		callback: function(r){
+    		    th.setState({submitting: false})
+    			if (r.message.rekam_medis) {
+    				frappe.msgprint('Rekam medis tersimpan')
     			}
     			if (r.message.error) {
     				frappe.msgprint(r.message.error);
@@ -883,21 +919,30 @@ class TindakanDokter extends React.Component {
         	    actionButton.push(
                     <div className="col-auto d-flex" key="1">
         				<button type="submit"
-                            className={this.state.save_loading
+                            className={this.state.save_loading || this.state.submitting
                                 ? "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto disabled"
                                 : "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto"} style={styleLanjut}>
-                            {this.state.save_loading
+                            {this.state.save_loading || this.state.submitting
                                 ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
                                 : "Lanjut"}</button>
         			</div>
             	)
         	}
-        	
-        	actionButton.push(
-                <div className="col-auto d-flex" key="send_to_apotik">
-    				<button type="submit" className="btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto" style={lh14} onClick={() => this.setState({send_to_apotik: true})}>Kirim ke Apotik</button>
+        }
+        
+        // Setelah Done, tagihan terkunci tapi rekam medis masih bisa dilengkapi
+        if (this.state.data.status == 'Done' && write) {
+            actionButton.push(
+                <div className="col-auto d-flex" key="save_rekam_medis">
+    				<button type="button"
+                        className={this.state.save_loading || this.state.submitting
+                            ? "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto disabled"
+                            : "btn btn-sm fs12 btn-danger text-uppercase px-3 py-2 my-auto"} style={lh14} onClick={e => this.saveRekamMedis(e)}>
+                        {this.state.save_loading || this.state.submitting
+                            ? (<span><i className="fa fa-spin fa-circle-o-notch mr-3"/>Loading...</span>)
+                            : "Simpan Rekam Medis"}</button>
     			</div>
-        	)
+            )
         }
         
         actionButton.push(
@@ -1014,6 +1059,8 @@ class TindakanDokterMainForm extends React.Component {
     
     render() {
         var readOnly = false
+        // Catatan termasuk rekam medis, jadi masih bisa diedit setelah Done
+        var readOnlyCatatan = this.props.data.status == 'Cancel' || !this.props.write
         var select_style = { color: '#056EAD', border: '1px solid #056EAD' }
         var input_nama_dokter = <input required name='nama_dokter' className="form-control lightbg fs14" style={select_style} onChange={e => this.props.changeTindakanDokter(e)} onBlur={(e) => this.props.handleInputBlur(e, this.props.data.list_dokter)} list="list_dokter" id="nama_dokter" autoComplete="off" value={this.props.data.nama_dokter || ''} readOnly={readOnly}/>
         if(this.props.data.status == 'Done' || !this.props.write){
@@ -1079,7 +1126,7 @@ class TindakanDokterMainForm extends React.Component {
         			<div className="col-3">
 			            <div className="form-group mb-1">
         					<label htmlFor="description" className="fs10 fw600">Catatan</label>
-        					<textarea id="description" name="description" className="form-control lightbg border-0" rows="3" placeholder="Masukkan bila ada" value={this.props.data.description || ''} readOnly={readOnly} onChange={e => this.props.changeTindakanDokter(e)}/>
+        					<textarea id="description" name="description" className="form-control lightbg border-0" rows="3" placeholder="Masukkan bila ada" value={this.props.data.description || ''} readOnly={readOnlyCatatan} onChange={e => this.props.changeTindakanDokter(e)}/>
         				</div>
 			        </div>
         			<div className="col-auto text-right mt-auto">
@@ -1122,7 +1169,7 @@ class TindakanDokterMainForm extends React.Component {
 			        <div className="col">
 			            <div className="form-group mb-1">
         					<label htmlFor="description" className="fs10 fw600">Catatan</label>
-        					<textarea id="description" name="description" className="form-control lightbg border-0" rows="1" placeholder="Masukkan bila ada" value={this.props.data.description || ''} readOnly={readOnly} onChange={e => this.props.changeTindakanDokter(e)}/>
+        					<textarea id="description" name="description" className="form-control lightbg border-0" rows="1" placeholder="Masukkan bila ada" value={this.props.data.description || ''} readOnly={readOnlyCatatan} onChange={e => this.props.changeTindakanDokter(e)}/>
         				</div>
 			        </div>
 			        <div className="col-auto text-right mt-auto">
@@ -2137,7 +2184,7 @@ class TindakanDokterRekamMedis extends React.Component {
         
         this.props.main_form_wide?boxShadow_style.height = 'calc(100vh - 430px)':false
         
-        if (data.status == 'Draft' && this.props.write) {
+        if (['Draft', 'Done'].includes(data.status) && this.props.write) {
             enable_edit = true
             var available_check_anamnese = []
             var available_check_pemeriksaan = []
@@ -2232,7 +2279,7 @@ class TindakanDokterRekamMedis extends React.Component {
     							</div>
     						</div>
     	    
-        } else if (['Done','Cancel'].includes(data.status) || !this.props.write) {
+        } else {
             suhu = (
                 <div className="col-4 text-center">
                     <div className="row">
@@ -2305,7 +2352,7 @@ class TindakanDokterRekamMedisList extends React.Component {
         var cursor = {cursor: 'pointer'}
         var deleteButton
         
-        if (status == 'Draft' && this.props.write) {
+        if (['Draft', 'Done'].includes(status) && this.props.write) {
             deleteButton = <i className="fa fa-2x fa-trash ml-auto" onClick={this.props.deleteCheck} style={cursor}/>
         }
         return <div id={check.name} className="form-row mb-3 fs12 fw600 grooming_products" style={panel_style}>

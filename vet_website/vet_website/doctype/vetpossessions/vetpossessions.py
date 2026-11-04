@@ -16,7 +16,7 @@ from vet_website.vet_website.doctype.vetpetowner.vetpetowner import new_pet_owne
 from vet_website.vet_website.doctype.vetpet.vetpet import get_pet
 from vet_website.vet_website.doctype.vetposorder.vetposorder import get_order_list
 from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry
-from vet_website.request_guard import acquire_lock, release_lock, claim_request_id, release_request_id
+from vet_website.request_guard import run_atomic, run_guarded
 from vet_website.vet_website.doctype.vetoperation.vetoperation import action_receive
 from vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice import decrease_product_valuation, increase_product_valuation
 
@@ -329,7 +329,13 @@ def update_data(data):
 	# 	json_data['closing_session'] = datetime.today()
 		
 	session = frappe.get_doc('VetPosSessions', json_data['name'])
-	
+	if session.status == 'Closed & Posted' and json_data['status'] == 'Closed & Posted':
+		# Sudah ditutup oleh request sebelumnya (mis. retry sesudah koneksi putus): jangan buat journal setoran lagi
+		return session
+
+	return run_atomic(update_data_process, session, json_data)
+
+def update_data_process(session, json_data):
 	session.update({
 		'closing_session': json_data['closing_session'],
 		'status': json_data['status'],
@@ -404,14 +410,13 @@ def pos_add_order(data):
 		return {'error': "Gagal membuat order baru"}
 
 	request_id = data_json.pop('request_id', None)
-	if not claim_request_id(request_id):
-		return {'error': "Order ini sudah diproses"}
-
-	try:
-		return pos_add_order_process(data_json)
-	except Exception:
-		release_request_id(request_id)
-		raise
+	# Satu transaksi: order, saldo session, stok, journal tersimpan semua atau tidak sama sekali
+	result = run_guarded(None, request_id, pos_add_order_process, data_json)
+	if isinstance(result, dict) and result.get('already_processed'):
+		# Retry sesudah koneksi putus padahal order sudah tersimpan: kirim jawaban yang sama seperti sukses
+		tz = pytz.timezone("Asia/Jakarta")
+		return {"orders": get_order_list(json.dumps({"session": data_json.get("session")})), "order": result.get('ref'), "datetime": datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")}
+	return result
 
 def pos_add_order_process(data_json):
 	tz = pytz.timezone("Asia/Jakarta")
@@ -446,24 +451,21 @@ def pos_add_order_process(data_json):
 	new_order.reload()
 	create_pos_journal_entry(new_order.name, data_json.get("payment"))
 	
-	return {"orders": get_order_list(json.dumps(pos_order_filters)), "datetime": datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")}
+	return {"orders": get_order_list(json.dumps(pos_order_filters)), "order": new_order.name, "datetime": datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")}, new_order.name
 	
 @frappe.whitelist()
-def kas_masuk_keluar(session, list_kas):
+def kas_masuk_keluar(session, list_kas, request_id=None):
 	tz = pytz.timezone("Asia/Jakarta")
 	try:
 		kas = json.loads(list_kas)
 	except:
 		return {'error': "Gagal membuat kas baru"}
 
-	lock_key = 'kas_masuk_keluar:' + str(session)
-	if not acquire_lock(lock_key):
-		return {'error': "Kas sedang diproses, mohon tunggu"}
-
-	try:
-		return kas_masuk_keluar_process(session, kas)
-	finally:
-		release_lock(lock_key)
+	# Satu transaksi: kas + journal tersimpan semua atau tidak sama sekali
+	result = run_guarded('kas_masuk_keluar:' + str(session), request_id, kas_masuk_keluar_process, session, kas)
+	if isinstance(result, dict) and result.get('already_processed'):
+		return frappe.get_doc('VetPosSessions', session)
+	return result
 
 def kas_masuk_keluar_process(session, kas):
 	tz = pytz.timezone("Asia/Jakarta")
@@ -678,8 +680,19 @@ def deliver_to_customer(name, refund=False, refund_from=False):
 @frappe.whitelist()
 def submit_refund(data):
 	try:
-		tz = pytz.timezone("Asia/Jakarta")
 		data_json = json.loads(data)
+	except:
+		return {'error': "Gagal memproses refund"}
+
+	# Satu transaksi: produk, pembayaran refund, journal, stok, saldo session tersimpan semua atau tidak sama sekali
+	result = run_guarded('pos_submit_refund:' + str(data_json.get('name')), data_json.get('request_id'), submit_refund_process, data_json)
+	if isinstance(result, dict) and result.get('already_processed'):
+		return {'order': frappe.get_doc('VetPosOrder', data_json.get('name'))}
+	return result
+
+def submit_refund_process(data_json):
+	try:
+		tz = pytz.timezone("Asia/Jakarta")
 		
 		if data_json.get('refund') :
 			order = frappe.get_doc('VetPosOrder', data_json.get('name'))

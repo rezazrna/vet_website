@@ -155,6 +155,11 @@ class PurchaseOrder extends React.Component {
         }
         
         console.log(new_data)
+        if (!new_data.name) {
+            // Purchase baru: retry tidak boleh membuat purchase kedua
+            th.requestId = th.requestId || newRequestId()
+            new_data.request_id = th.requestId
+        }
         var args = {data: new_data}
         saveOnly?args.saveOnly = true:false
         
@@ -175,7 +180,7 @@ class PurchaseOrder extends React.Component {
     				frappe.msgprint(r.message.error);
     			}
     		}
-    	});
+    	}).fail(xhr => onTransactionFailReload(xhr));
     }
     
     navigationAction(name){
@@ -394,7 +399,7 @@ class PurchaseOrder extends React.Component {
     				frappe.msgprint(r.message.error);
     			}
     		}
-    	});
+    	}).fail(xhr => onTransactionFailReload(xhr));
     }
     
     deleteRow(i){
@@ -414,10 +419,11 @@ class PurchaseOrder extends React.Component {
     
     refundPurchase(e) {
         e.preventDefault()
+        this.refundRequestId = this.refundRequestId || newRequestId()
         frappe.call({
     		type: "POST",
     		method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.refund_purchase",
-    		args: {name: this.state.data.name},
+    		args: {name: this.state.data.name, request_id: this.refundRequestId},
     		callback: function(r){
     			if (r.message.purchase) {
     				window.location.href = "/main/purchases/purchase-order/edit?n=" + r.message.purchase.name
@@ -426,7 +432,7 @@ class PurchaseOrder extends React.Component {
     				frappe.msgprint(r.message.error);
     			}
     		}
-    	});
+    	}).fail(xhr => onTransactionFailReload(xhr));
     }
 
     returPurchase(e) {
@@ -787,17 +793,23 @@ class PopupPay extends React.Component {
             delete new_data['time']
             console.log(new_data)
             if(new_data.payment_method){
+                var th = this
+                this.requestId = this.requestId || newRequestId()
+                new_data.request_id = this.requestId
                 frappe.call({
-                    type: "GET",
+                    type: "POST",
                     method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.submit_pembayaran",
                     freeze: true,
                     args: {data: new_data},
                     callback: function(r){
-                        if (r.message) {
+                        if (r.message && r.message.error) {
+                            frappe.msgprint(r.message.error)
+                            th.setState({loading: false})
+                        } else if (r.message) {
                             window.location.reload()
                         }
                     }
-                });
+                }).fail(xhr => onTransactionFailReload(xhr, () => th.setState({loading: false})));
             }
         }
     }
@@ -978,7 +990,9 @@ class PopupRefund extends React.Component {
             this.setState({loading: false})
             frappe.msgprint('Hanya ada sisa ' + formatter.format(remaining))
         } else {
-            var new_data = this.state.data
+            var th = this
+            // salinan, supaya state.refund tetap teks terformat kalau perlu dikirim ulang
+            var new_data = Object.assign({}, this.state.data)
             
             new_data.products.forEach(function(item, index) {
                 if (item.quantity == '0' || item.quantity == 0) {
@@ -990,18 +1004,24 @@ class PopupRefund extends React.Component {
             
             console.log(new_data)
             
+            this.requestId = this.requestId || newRequestId()
+            new_data.request_id = this.requestId
+            
             frappe.call({
-                type: "GET",
+                type: "POST",
                 method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.submit_refund",
                 args: {data: new_data},
                 freeze: true,
                 callback: function(r){
-                    if (r.message) {
+                    if (r.message && r.message.error) {
+                        frappe.msgprint(r.message.error)
+                        th.setState({loading: false})
+                    } else if (r.message) {
                         console.log(r.message)
                         window.location.reload()
                     }
                 }
-            });
+            }).fail(xhr => onTransactionFailReload(xhr, () => th.setState({loading: false})));
         }
     }
 
@@ -1178,11 +1198,12 @@ class PopupReceive extends React.Component {
         console.log(new_data, products, this.state.backOrder)
         
         if (valid) {
+            this.requestId = this.requestId || newRequestId()
             if (!this.state.backOrder && this.state.showBackOrder) {
                 frappe.call({
             		type: "POST",
             		method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.edit_receive_purchase",
-            		args: {name: new_data.name, products: new_data.products, receive_date: new_data.receive_date},
+            		args: {name: new_data.name, products: new_data.products, receive_date: new_data.receive_date, request_id: this.requestId},
             		freeze: true,
             		callback: function(r){
             			if (r.message.purchase) {
@@ -1192,12 +1213,12 @@ class PopupReceive extends React.Component {
             				frappe.msgprint(r.message.error);
             			}
             		}
-            	});
+            	}).fail(xhr => onTransactionFailReload(xhr));
             } else {
                 frappe.call({
             		type: "POST",
             		method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.receive_purchase",
-            		args: {name: new_data.name, products: products, receive_date: new_data.receive_date},
+            		args: {name: new_data.name, products: products, receive_date: new_data.receive_date, request_id: this.requestId},
             		freeze: true,
             		callback: function(r){
             			if (r.message.purchase) {
@@ -1207,7 +1228,7 @@ class PopupReceive extends React.Component {
             				frappe.msgprint(r.message.error);
             			}
             		}
-            	});
+            	}).fail(xhr => onTransactionFailReload(xhr));
             }
         } else {
             frappe.msgprint('Received Quantity melebihi Quantity')
@@ -1387,10 +1408,11 @@ class PopupRetur extends React.Component {
                 this.setState({show_popup_pay_retur: true})
             } else {
                 console.log('gausah balikin uang')
+                th.requestId = th.requestId || newRequestId()
                 frappe.call({
                     type: "POST",
                     method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.retur_purchase",
-                    args: {name: new_data.name, products: new_data.products},
+                    args: {name: new_data.name, products: new_data.products, request_id: th.requestId},
                     freeze: true,
                     callback: function(r){
                         if (r.message.purchase) {
@@ -1400,7 +1422,7 @@ class PopupRetur extends React.Component {
                             frappe.msgprint(r.message.error);
                         }
                     }
-                });
+                }).fail(xhr => onTransactionFailReload(xhr));
             }
             // if (!this.state.backOrder && this.state.showBackOrder) {
             //     frappe.call({
@@ -1583,18 +1605,23 @@ class PopupPayRetur extends React.Component {
             
             console.log(new_data, jumlah)
             
+            var th = this
+            this.requestId = this.requestId || newRequestId()
             frappe.call({
-                type: "GET",
+                type: "POST",
                 method:"vet_website.vet_website.doctype.vetpurchase.vetpurchase.retur_purchase",
-                args: {name: new_data.name, products: new_data.products, jumlah: jumlah, payment_method: new_data.payment_method},
+                args: {name: new_data.name, products: new_data.products, jumlah: jumlah, payment_method: new_data.payment_method, request_id: this.requestId},
                 freeze: true,
                 callback: function(r){
-                    if (r.message) {
+                    if (r.message && r.message.error) {
+                        frappe.msgprint(r.message.error)
+                        th.setState({loading: false})
+                    } else if (r.message) {
                         console.log(r.message)
                         window.location.reload()
                     }
                 }
-            });
+            }).fail(xhr => onTransactionFailReload(xhr, () => th.setState({loading: false})));
         }
     }
     

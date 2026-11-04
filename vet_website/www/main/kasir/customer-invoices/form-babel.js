@@ -493,7 +493,10 @@ class CustomerInvoice extends React.Component {
                         }
                         ci.setState({submit_loading: false})
                     }
-                })
+                }).fail(xhr => onTransactionFail(xhr, () => {
+                    ci.setState({submit_loading: false})
+                    ci.getFormData()
+                }))
             } else {
                 this.setState({submit_loading: false})
             }
@@ -560,7 +563,10 @@ class CustomerInvoice extends React.Component {
 
                         ci.setState({submit_loading: false})
                     }
-                })
+                }).fail(xhr => onTransactionFail(xhr, () => {
+                    ci.setState({submit_loading: false})
+                    ci.getFormData()
+                }))
             } else if (id == undefined) {
                 old_data['invoice_date'] = old_data['invoice_date'] + moment().format(" HH:mm:ss")
                 console.log(old_data)
@@ -865,7 +871,7 @@ class CustomerInvoice extends React.Component {
         }
         
         if (this.state.show_payment) {
-    	    popup_pay = <PopupPay togglePopupPay={() => this.togglePopupPay()} name={invoice_name} subtotal={subtotal} total={total} paid={paid} total_credit={this.state.total_credit} total_remaining={this.state.total_remaining} payment_method_list={this.state.payment_method_list}/>
+    	    popup_pay = <PopupPay togglePopupPay={() => this.togglePopupPay()} getFormData={() => this.getFormData()} name={invoice_name} subtotal={subtotal} total={total} paid={paid} total_credit={this.state.total_credit} total_remaining={this.state.total_remaining} payment_method_list={this.state.payment_method_list}/>
     	}
     	
     	if (this.state.show_loading_pdf) {
@@ -2065,7 +2071,8 @@ class PopupPay extends React.Component {
             'data': {'name': this.props.name},
             'loading': false,
         }
-        // ID unik per popup pembayaran, supaya server menolak pembayaran yang terkirim dua kali
+        // ID unik per popup pembayaran, supaya server tidak memproses pembayaran yang terkirim dua kali.
+        // Tetap sama saat retry sesudah koneksi putus; diganti hanya kalau pembayaran sudah tercatat.
         this.requestId = this.newRequestId()
         
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -2151,12 +2158,12 @@ class PopupPay extends React.Component {
                     method:method,
                     args: {data: new_data},
                     freeze: true,
-                    error: function(){
-                        th.setState({loading : false})
-                    },
                     callback: function(r){
                         if (r.message) {
-                            if(typeof new_data.name == 'object'){
+                            if (r.message.already_processed) {
+                                // Retry: pembayaran ini sudah tercatat di request sebelumnya
+                                window.location.reload()
+                            } else if(typeof new_data.name == 'object'){
                                 if (r.message.length > 0) {
                                     var results = []
                                     r.message.forEach(m => {
@@ -2189,7 +2196,10 @@ class PopupPay extends React.Component {
                             th.setState({loading : false})
                         }
                     }
-                });
+                }).fail(xhr => onTransactionFail(xhr, () => {
+                    th.setState({loading : false})
+                    th.props.getFormData()
+                }));
             }
         }
     }

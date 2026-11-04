@@ -14,6 +14,7 @@ from vet_website.vet_website.doctype.vetproduct.vetproduct import get_product
 from vet_website.vet_website.doctype.vetproductpack.vetproductpack import get_pack_price
 from vet_website.methods import get_current_user
 from dateutil.relativedelta import relativedelta as rd
+from vet_website.request_guard import acquire_lock, release_lock
 
 class VetTindakanDokter(Document):
 	pass
@@ -289,52 +290,21 @@ def get_rekam_medis_count(pet):
 		return {'error': e}
 		
 @frappe.whitelist()
-def send_to_apotik(data):
-	try:
-		data_json = json.loads(data)
-		data_check = frappe.get_list("VetTindakanDokter", filters={'name': data_json.get('name')}, fields=['name', 'status'])
-		if data_check and data_check[0].status == 'Draft':
-			tindakan_dokter = frappe.get_doc("VetTindakanDokter", data_check[0].name)
-			tindakan_dokter.reload()
-			
-			if data_json.get("obat"):
-				apotik = frappe.new_doc('VetApotik')
-				apotik.update({'register_number': tindakan_dokter.register_number})
-				apotik.insert()
-				
-				for obat in data_json.get("obat"):
-					product_data = {}
-					product_data.update(obat)
-					product_data.pop('product_racikan')
-					product_data.update({'parent': apotik.name, 'parenttype': 'VetApotikProduct', 'parentfield': 'obat'})
-	
-					new_product = frappe.new_doc("VetApotikProduct")
-					new_product.update(product_data)
-	
-					apotik.obat.append(new_product)
-	
-					apotik.save()
-					
-					for pr in obat.get("product_racikan"):
-						pr_data = {}
-						pr_data.update(pr)
-						pr_data.update({'parent': apotik.name, 'parenttype': 'VetApotikProduct', 'parentfield': 'obat', 'racikan': new_product.name})
-						
-						new_pr = frappe.new_doc("VetApotikProduct")
-						new_pr.update(pr_data)
-						
-						apotik.obat.append(new_pr)
-						
-						apotik.save()
-			return {'tindakan_dokter': tindakan_dokter}
-		else:
-			return {'error': "Tindakan Dokter tidak ditemukan"}
-
-	except PermissionError as e:
-		return {'error': e}
-	
-@frappe.whitelist()
 def confirm_tindakan_dokter(data):
+	# Lock per tindakan supaya double klik Lanjut tidak membuat apotik/invoice/rekam medis dobel
+	lock_key = 'confirm_tindakan_dokter:' + str(json.loads(data).get('name'))
+	if not acquire_lock(lock_key):
+		return {'error': "Tindakan Dokter sedang diproses, mohon tunggu"}
+	try:
+		result = confirm_tindakan_dokter_unlocked(data)
+		# Commit sebelum lock dilepas, supaya request berikutnya sudah melihat status Done
+		if not result.get('error'):
+			frappe.db.commit()
+		return result
+	finally:
+		release_lock(lock_key)
+
+def confirm_tindakan_dokter_unlocked(data):
 	tz = pytz.timezone("Asia/Jakarta")
 	now = dt.now(tz)
 	now_str = dt.strftime(now, "%d%m%Y%H%M%S")
@@ -521,7 +491,7 @@ def confirm_tindakan_dokter(data):
 			rekam_medis_data.update(data_json)
 			pops_rekam_medis = [
 				'attachments', 'creation', 'docstatus', 'idx', 'jasa', 'layanan_berjadwal', 'modified', 'modified_by', 'owner', 'parent', 'parentfield', 'parenttype',
-				'pet_name', 'pet_owner', 'pet_owner_name', 'pulse', 'reception_date', 'rekam_medis_count', 'respirasi', 'status', 'tindak_lanjut', 'obat', 'marker', 'list_dokter'
+				'pet_name', 'pet_owner', 'pet_owner_name', 'reception_date', 'rekam_medis_count', 'respirasi', 'status', 'tindak_lanjut', 'obat', 'marker', 'list_dokter'
 			]
 				
 			for p in pops_rekam_medis:
@@ -729,10 +699,46 @@ def cancel_tindakan_dokter(name):
 	except PermissionError as e:
 		return {'error': e}
 		
+# Field yang masuk tagihan (apotik/invoice/tindak lanjut), terkunci setelah Lanjut
+BILLING_FIELDS = ['jasa', 'tindak_lanjut', 'obat', 'layanan_berjadwal', 'dokter', 'nama_dokter', 'status']
+
+# Field yang disalin ke VetRekamMedis, sama dengan yang disalin saat Lanjut
+REKAM_MEDIS_FIELDS = [
+	'temperature', 'weight', 'description', 'anamnese', 'keluhan_alasan', 'riwayat_penyakit', 'vaccine_history', 'food_history', 'other',
+	'status_mental', 'bcs', 'status_hidrasi', 'mukosa', 'respiration', 'auskultasi', 'palpasi_abdominal', 'mata', 'hidung', 'telinga',
+	'mulut', 'kulit', 'ekstremitas', 'reflex', 'other_pemeriksaan', 'diagnosa_utama', 'prognosa', 'diagnosa_banding', 'action', 'advis',
+	'other_diagnosa', 'vomit', 'auscl', 'ausch', 'abdominal_palpasi_pain', 'abdominal_palpasi_tension', 'limfonodule', 'pulse', 'marker'
+]
+
+@frappe.whitelist()
+def save_rekam_medis(name):
+	try:
+		tindakan_dokter = frappe.get_doc('VetTindakanDokter', name)
+		if tindakan_dokter.status != 'Done':
+			return {'error': "Rekam medis hanya bisa disimpan setelah Tindakan Dokter selesai (Done)"}
+
+		rekam_medis_list = frappe.get_list('VetRekamMedis', filters={'register_number': tindakan_dokter.register_number, 'service': 'Dokter'}, fields=['name'], order_by='creation desc')
+		if not rekam_medis_list:
+			return {'error': "Rekam medis untuk Tindakan Dokter ini tidak ditemukan"}
+
+		rekam_medis = frappe.get_doc('VetRekamMedis', rekam_medis_list[0].name)
+		rekam_medis_data = dict((f, tindakan_dokter.get(f)) for f in REKAM_MEDIS_FIELDS)
+		rekam_medis_data.update({'attachments': list({'title': a.title, 'attachment': a.attachment} for a in tindakan_dokter.attachments)})
+		rekam_medis.update(rekam_medis_data)
+		rekam_medis.save()
+		frappe.db.commit()
+
+		return {'rekam_medis': rekam_medis.name}
+	except PermissionError as e:
+		return {'error': e}
+
 @frappe.whitelist()
 def autosave(field, value, name):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
+		status = frappe.db.get_value('VetTindakanDokter', name, 'status')
+		if status == 'Cancel' or (status == 'Done' and field in BILLING_FIELDS):
+			return {'error': "Tindakan Dokter sudah {0}, data ini tidak bisa diubah lagi".format(status), 'data': get_tindakan_dokter(name)}
 		if field == 'layanan_berjadwal':
 			value_json = json.loads(value)
 			action = frappe.get_list('VetTindakanDokterAction', filters={'parent': name}, fields=['name'])

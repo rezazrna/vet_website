@@ -326,7 +326,7 @@ class Apotik extends React.Component {
 	        	saveOnly?args.saveOnly = true:false
 	        	console.log(args)
 	        	frappe.call({
-		            type: "GET",
+		            type: "POST",
 		            method:"vet_website.vet_website.doctype.vetapotik.vetapotik.submit_apotik",
 		            args: args,
 		            callback: function(r){
@@ -342,8 +342,11 @@ class Apotik extends React.Component {
 		                	frappe.msgprint(r.message.error)
 		                }
 		            }
-		        });
+		        }).fail(xhr => onTransactionFail(xhr, () => gr.getFormData()));
 	        } else {
+	        	// Retry sesudah koneksi putus tidak boleh membuat apotik kedua
+	        	gr.requestId = gr.requestId || newRequestId()
+	        	apotik_data['request_id'] = gr.requestId
 	        	frappe.call({
 		            type: "POST",
 		            method:"vet_website.vet_website.doctype.vetapotik.vetapotik.new_apotik",
@@ -361,7 +364,7 @@ class Apotik extends React.Component {
 		                	frappe.msgprint(r.message.error)
 		                }
 		            }
-		        });
+		        }).fail(xhr => onTransactionFail(xhr));
 	        }
         }
     }

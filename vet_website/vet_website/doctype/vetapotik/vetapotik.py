@@ -11,6 +11,7 @@ from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from frappe.model.document import Document
 from vet_website.vet_website.doctype.vetproductpack.vetproductpack import get_pack_price
+from vet_website.request_guard import run_guarded
 
 class VetApotik(Document):
 	pass
@@ -331,6 +332,15 @@ def get_apotik_new():
 
 @frappe.whitelist()
 def new_apotik(data):
+	apotik_json = json.loads(data)
+	# Satu transaksi: header + semua obat tersimpan semua atau tidak sama sekali
+	result = run_guarded(None, apotik_json.pop('request_id', None), new_apotik_process, json.dumps(apotik_json))
+	if isinstance(result, dict) and result.get('already_processed'):
+		# Retry sesudah koneksi putus padahal sudah tersimpan: jawab seperti sukses
+		return {'apotik': frappe.get_doc('VetApotik', result.get('ref'))}
+	return result
+
+def new_apotik_process(data):
 	try:
 		apotik_json = json.loads(data)
 		print(apotik_json)
@@ -377,13 +387,18 @@ def new_apotik(data):
 				new_apotik.save()
 				frappe.db.commit()
 				
-		return {'apotik': new_apotik}
+		return {'apotik': new_apotik}, new_apotik.name
 		
 	except PermissionError as e:
 		return {'error': e}
 
 @frappe.whitelist()
 def submit_apotik(data, saveOnly=False):
+	apotik_json = json.loads(data)
+	# Satu transaksi: apotik, obat, dan line invoice farmasi tersimpan semua atau tidak sama sekali
+	return run_guarded('apotik:' + str(apotik_json.get('name')), None, submit_apotik_process, data, saveOnly)
+
+def submit_apotik_process(data, saveOnly=False):
 	print(saveOnly)
 	try:
 		apotik_json = json.loads(data)
@@ -500,6 +515,9 @@ def submit_apotik(data, saveOnly=False):
 
 			return {'apotik': apotik}
 
+		elif apotik_check and apotik_check[0].status == 'Done' and not saveOnly:
+			# Sudah disubmit oleh request sebelumnya (mis. retry sesudah koneksi putus): jangan tambah line invoice lagi
+			return {'apotik': frappe.get_doc("VetApotik", apotik_check[0].name)}
 		else:
 			return {'error': "Apotik tidak ditemukan"}
 

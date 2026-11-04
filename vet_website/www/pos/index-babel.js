@@ -533,9 +533,6 @@ class MainPOS extends React.Component {
                 type: "POST",
                 method: "vet_website.vet_website.doctype.vetpossessions.vetpossessions.pos_add_order",
                 args: {data: order_data},
-                error: function(){
-                    th.submittingOrder = false
-                },
                 callback: function(r){
                     if (!r.message || r.message.error) {
                         if (r.message && r.message.error) {
@@ -545,7 +542,7 @@ class MainPOS extends React.Component {
                         return
                     }
                     new_data.orders = r.message.orders.order
-                    var print_data = new_data.orders[0].name
+                    var print_data = r.message.order || new_data.orders[0].name
                     console.log(print_data)
                     th.setState({print_data: print_data});
                     setTimeout(function() {
@@ -567,7 +564,10 @@ class MainPOS extends React.Component {
                         }
                     }, 3000);
                 }
-            })
+            }).fail(xhr => onTransactionFail(xhr, () => {
+                // request_id order tetap disimpan, jadi bayar ulang tidak membuat order dobel
+                th.submittingOrder = false
+            }))
         }
     }
     

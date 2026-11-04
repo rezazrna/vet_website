@@ -12,7 +12,7 @@ from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_
 from vet_website.vet_website.doctype.vetpetowner.vetpetowner import set_owner_credit_total
 from vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice import deliver_to_customer, add_payment
 from vet_website.vet_website.doctype.vetpurchase.vetpurchase import check_paid_purchase
-from vet_website.request_guard import acquire_lock, release_lock, claim_request_id, release_request_id, is_error_result
+from vet_website.request_guard import acquire_lock, release_lock, claim_request_id, release_request_id, is_error_result, run_atomic
 
 class VetOwnerCredit(Document):
 	pass
@@ -25,7 +25,8 @@ def run_guarded(lock_key, request_id, fn, *args):
 		release_request_id(request_id)
 		return {'error': "Transaksi sedang diproses, mohon tunggu"}
 	try:
-		result = fn(*args)
+		# Satu transaksi; add_payment di dalamnya jadi savepoint
+		result = run_atomic(fn, *args)
 	except Exception:
 		release_request_id(request_id)
 		raise

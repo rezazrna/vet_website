@@ -11,10 +11,20 @@ from datetime import datetime as dt
 from vet_website.vet_website.doctype.vetoperation.vetoperation import action_receive
 from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry
 from vet_website.vet_website.doctype.vetpetowner.vetpetowner import set_owner_credit_total
+from vet_website.request_guard import run_guarded
 from dateutil.relativedelta import relativedelta as rd
 
 class VetPurchase(Document):
 	pass
+
+def run_purchase_guarded(name, request_id, fn, *args):
+	# Satu transaksi per aksi purchase (purchase, operation, journal, stok, owner credit tersimpan semua
+	# atau tidak sama sekali). Aksi bersamaan pada purchase yang sama ditolak.
+	result = run_guarded('purchase:' + str(name), request_id, fn, *args)
+	if isinstance(result, dict) and result.get('already_processed'):
+		# Retry sesudah koneksi putus padahal sudah tersimpan: jawab seperti sukses
+		return {'purchase': frappe.get_doc('VetPurchase', result.get('ref') or name)}
+	return result
 @frappe.whitelist()
 def get_purchase_order_list(filters=None):
 	default_sort = "creation desc"
@@ -365,6 +375,12 @@ def delete_purchase(data):
 	
 @frappe.whitelist()
 def cancel_purchase(name):
+	if frappe.db.get_value('VetPurchase', name, 'status') == 'Cancel':
+		# Sudah dibatalkan oleh request sebelumnya: jangan buat owner credit Cancel lagi
+		return {'success': True}
+	return run_purchase_guarded(name, None, cancel_purchase_process, name)
+
+def cancel_purchase_process(name):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		purchase = frappe.get_doc('VetPurchase', name)
@@ -504,6 +520,10 @@ def get_purchase_after_loading():
 		
 @frappe.whitelist()
 def confirm_purchase(data, saveOnly=False):
+	data_json = json.loads(data)
+	return run_purchase_guarded(data_json.get('name'), data_json.pop('request_id', None), confirm_purchase_process, json.dumps(data_json), saveOnly)
+
+def confirm_purchase_process(data, saveOnly=False):
 	try:
 		data_json = json.loads(data)
 		
@@ -656,13 +676,20 @@ def confirm_purchase(data, saveOnly=False):
 				operation.moves.append(new_move)
 				operation.save()
 				
-		return {'purchase': purchase}
+		return {'purchase': purchase}, purchase.name
 
 	except PermissionError as e:
 		return {'error': e}
 		
 @frappe.whitelist()
 def submit_pembayaran(data):
+	data_json = json.loads(data)
+	result = run_purchase_guarded(data_json.get('name'), data_json.get('request_id'), submit_pembayaran_process, data)
+	if isinstance(result, dict) and result.get('purchase'):
+		return True
+	return result
+
+def submit_pembayaran_process(data):
 	try:
 		data_json = json.loads(data)
 		
@@ -723,6 +750,10 @@ def submit_pembayaran(data):
 		
 @frappe.whitelist()
 def submit_refund(data):
+	data_json = json.loads(data)
+	return run_purchase_guarded(data_json.get('name'), data_json.get('request_id'), submit_refund_process, data)
+
+def submit_refund_process(data):
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		data_json = json.loads(data)
@@ -807,7 +838,13 @@ def submit_refund(data):
 		return {'error': e}
 		
 @frappe.whitelist()
-def refund_purchase(name):
+def refund_purchase(name, request_id=None):
+	return run_purchase_guarded(name, request_id, refund_purchase_process, name)
+
+def refund_purchase_process(name):
+	if frappe.db.get_value('VetPurchase', name, 'already_refund'):
+		# Sudah direfund oleh request lain: jangan buat purchase refund kedua
+		return {'error': "Purchase sudah direfund"}
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
 		old_purchase = frappe.get_doc('VetPurchase', name)
@@ -849,13 +886,16 @@ def refund_purchase(name):
 			operation.moves.append(new_move)
 			operation.save()
 				
-		return {'purchase': purchase}
+		return {'purchase': purchase}, purchase.name
 
 	except PermissionError as e:
 		return {'error': e}
 
 @frappe.whitelist()
-def retur_purchase(name, products, jumlah=False, payment_method=False):
+def retur_purchase(name, products, jumlah=False, payment_method=False, request_id=None):
+	return run_purchase_guarded(name, request_id, retur_purchase_process, name, products, jumlah, payment_method)
+
+def retur_purchase_process(name, products, jumlah=False, payment_method=False):
 	print('########## Retur Purchase ##########')
 	try:
 		tz = pytz.timezone("Asia/Jakarta")
@@ -955,7 +995,10 @@ def retur_purchase(name, products, jumlah=False, payment_method=False):
 		return {'error': e}
 		
 @frappe.whitelist()
-def receive_purchase(name, products, receive_date):
+def receive_purchase(name, products, receive_date, request_id=None):
+	return run_purchase_guarded(name, request_id, receive_purchase_process, name, products, receive_date)
+
+def receive_purchase_process(name, products, receive_date):
 	print('########## Receive Purchase ##########')
 	try:
 		# pindahin ke confirm_purchase
@@ -1001,7 +1044,10 @@ def receive_purchase(name, products, receive_date):
 		return {'error': e}
 		
 @frappe.whitelist()
-def edit_receive_purchase(name, products, receive_date):
+def edit_receive_purchase(name, products, receive_date, request_id=None):
+	return run_purchase_guarded(name, request_id, edit_receive_purchase_process, name, products, receive_date)
+
+def edit_receive_purchase_process(name, products, receive_date):
 	print('########## Edit Receive Purchase ##########')
 	try:
 		purchase = frappe.get_doc('VetPurchase', name)

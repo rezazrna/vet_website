@@ -233,7 +233,9 @@ class PosSessions extends React.Component {
                     po.setState({ data: new_data })
                 }
             }
-        });
+        }).fail(xhr => onTransactionFail(xhr, () => {
+            po.sessionSearch(JSON.parse(sessionStorage.getItem(window.location.pathname)))
+        }));
     }
 
     kasMasukKeluar(i, kas) {
@@ -245,19 +247,23 @@ class PosSessions extends React.Component {
             return
         }
         this.submittingKas = true
+        // Sama untuk retry kas yang sama sesudah koneksi putus, supaya tidak tercatat dua kali
+        var kasKey = JSON.stringify(kas)
+        if (!this.kasRequestId || this.kasRequestKey != kasKey) {
+            this.kasRequestId = newRequestId()
+            this.kasRequestKey = kasKey
+        }
 
         frappe.call({
             type: "POST",
             method: "vet_website.vet_website.doctype.vetpossessions.vetpossessions.kas_masuk_keluar",
-            args: { session: this.state.data[i]['name'], list_kas: kas },
-            error: function () {
-                th.submittingKas = false
-            },
+            args: { session: this.state.data[i]['name'], list_kas: kas, request_id: this.kasRequestId },
             callback: function (r) {
                 th.submittingKas = false
                 if (r.message && r.message.error) {
                     frappe.msgprint(r.message.error)
                 } else if (r.message) {
+                    th.kasRequestId = null
                     console.log(r.message)
                     var new_data = th.state.data
                     var afterRefresh = th.refreshData(Object.assign(new_data[i], r.message))
@@ -267,7 +273,10 @@ class PosSessions extends React.Component {
                     th.setState({ data: new_data })
                 }
             }
-        });
+        }).fail(xhr => onTransactionFail(xhr, () => {
+            th.submittingKas = false
+            th.sessionSearch(JSON.parse(sessionStorage.getItem(window.location.pathname)))
+        }));
     }
 
     updateOpeningClosing(i, mode, nominal) {

@@ -379,3 +379,38 @@ function editCustomerInvoice(invoice_data) {
 		}
 	});
 }
+function newRequestId() {
+	return Date.now().toString(36) + Math.random().toString(36).slice(2)
+}
+
+// Transaksi di server atomik: kalau server menjawab error, tidak ada yang tersimpan dan aman diulang.
+// Tapi kalau koneksi putus / gateway timeout sebelum jawaban sampai, hasilnya tidak pasti: bisa sudah
+// tersimpan. Jangan anggap gagal; muat ulang data dulu. Ulangi dengan request_id yang sama supaya
+// server tidak memproses dua kali.
+function isUncertainFailure(xhr) {
+	return !xhr || [0, 502, 503, 504].includes(xhr.status)
+}
+
+var UNCERTAIN_FAILURE_MESSAGE = 'Koneksi ke server terputus sebelum transaksi terkonfirmasi. Transaksi mungkin sudah tersimpan, mungkin belum. Periksa data terbaru sebelum mencoba lagi.'
+
+// Pakai: frappe.call({...}).fail(xhr => onTransactionFail(xhr, () => { ...reset loading, muat ulang data... }))
+function onTransactionFail(xhr, recheck) {
+	if (isUncertainFailure(xhr)) {
+		frappe.msgprint(UNCERTAIN_FAILURE_MESSAGE)
+	}
+	if (recheck) {
+		recheck()
+	}
+}
+
+// Untuk form yang mengubah state-nya sendiri saat submit (data tidak aman dikirim ulang):
+// kalau hasil tidak pasti, beri tahu lalu muat ulang halaman supaya tampil data asli dari server.
+// Error biasa dari server (transaksi sudah di-rollback) cukup reset tombol.
+function onTransactionFailReload(xhr, reset) {
+	if (isUncertainFailure(xhr)) {
+		alert(UNCERTAIN_FAILURE_MESSAGE)
+		window.location.reload()
+	} else if (reset) {
+		reset()
+	}
+}

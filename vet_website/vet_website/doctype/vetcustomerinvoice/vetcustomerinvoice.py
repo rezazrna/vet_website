@@ -16,7 +16,7 @@ from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_
 from vet_website.vet_website.doctype.vetpetowner.vetpetowner import set_owner_credit_total
 from vet_website.vet_website.doctype.vetproductpack.vetproductpack import get_pack_price
 from dateutil.relativedelta import relativedelta as rd
-from vet_website.request_guard import acquire_lock, release_lock, claim_request_id, release_request_id, is_error_result
+from vet_website.request_guard import acquire_lock, release_lock, run_atomic, run_guarded
 
 class VetCustomerInvoice(Document):
 	pass
@@ -161,7 +161,8 @@ def open_invoice_process(data, saveonly=False):
 	if not acquire_lock(lock_key):
 		return {'error': "Invoice sedang diproses, mohon tunggu"}
 	try:
-		return open_invoice_process_unlocked(data, saveonly)
+		# Satu transaksi: line, invoice, journal, stok, owner credit tersimpan semua atau tidak sama sekali
+		return run_atomic(open_invoice_process_unlocked, data, saveonly)
 	finally:
 		release_lock(lock_key)
 
@@ -309,6 +310,9 @@ def open_invoice_process_unlocked(data, saveonly=False):
 				
 			return {'invoice': invoice}
 
+		elif invoice_check and invoice_check[0].status in ['Open', 'Done'] and saveonly == False:
+			# Sudah dibuka oleh request sebelumnya (mis. retry sesudah koneksi putus): jangan proses ulang
+			return {'invoice': frappe.get_doc("VetCustomerInvoice", invoice_check[0].name)}
 		else:
 			return {'error': "Invoice tidak ditemukan"}
 	except Exception as e:
@@ -1104,14 +1108,7 @@ def add_payment_multiple(data):
 	except Exception as e:
 		return {'error': e}
 
-	request_id = data_json.get('request_id')
-	if not claim_request_id(request_id):
-		return {'error': "Pembayaran ini sudah diproses"}
-
-	result = add_payment_multiple_process(data_json)
-	if is_error_result(result):
-		release_request_id(request_id)
-	return result
+	return run_guarded(None, data_json.get('request_id'), add_payment_multiple_process, data_json)
 
 def add_payment_multiple_process(data_json):
 	try:
@@ -1156,23 +1153,9 @@ def add_payment(data):
 	except Exception as e:
 		return {'error': e}
 
-	request_id = data_json.get('request_id')
-	if not claim_request_id(request_id):
-		return {'error': "Pembayaran ini sudah diproses"}
-
-	lock_key = 'add_payment:' + str(data_json.get('name'))
-	if not acquire_lock(lock_key):
-		release_request_id(request_id)
-		return {'error': "Invoice sedang diproses, mohon tunggu"}
-
-	try:
-		result = add_payment_process(data)
-	finally:
-		release_lock(lock_key)
-
-	if is_error_result(result):
-		release_request_id(request_id)
-	return result
+	# Satu transaksi: payment, owner credit, journal, saldo session tersimpan semua atau tidak sama sekali.
+	# Di dalam add_payment_multiple, tiap invoice jadi savepoint sendiri.
+	return run_guarded('add_payment:' + str(data_json.get('name')), data_json.get('request_id'), add_payment_process, data)
 
 def add_payment_process(data):
 	try:

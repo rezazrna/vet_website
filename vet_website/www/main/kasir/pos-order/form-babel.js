@@ -464,6 +464,8 @@ class PopupRefund extends React.Component {
             'data': {'name': this.props.name, 'order_produk': this.props.order_produk},
             'loading': false,
         }
+        // ID unik per popup refund, tetap sama saat retry sesudah koneksi putus supaya refund tidak tercatat dua kali
+        this.requestId = newRequestId()
         
         this.handleInputChange = this.handleInputChange.bind(this)
         this.submitRefund = this.submitRefund.bind(this)
@@ -531,7 +533,9 @@ class PopupRefund extends React.Component {
             this.setState({loading: false})
             frappe.msgprint('Hanya ada sisa ' + formatter.format(remaining))
         } else if (this.state.data.payment_method != undefined) {
-            var new_data = this.state.data
+            var th = this
+            // salinan, supaya state.refund tetap teks terformat kalau perlu dikirim ulang
+            var new_data = Object.assign({}, this.state.data)
             var order_produk = new_data.order_produk
             new_data.refund = parseFloat(this.reverseFormatNumber(new_data.refund, 'id'))
         
@@ -544,18 +548,23 @@ class PopupRefund extends React.Component {
             
             console.log(new_data)
             
+            new_data.request_id = this.requestId
+            
             frappe.call({
-                type: "GET",
+                type: "POST",
                 method:"vet_website.vet_website.doctype.vetpossessions.vetpossessions.submit_refund",
                 freeze: true,
                 args: {data: new_data},
                 callback: function(r){
-                    if (r.message) {
+                    if (r.message && r.message.error) {
+                        frappe.msgprint(r.message.error)
+                        th.setState({loading: false})
+                    } else if (r.message) {
                         console.log(r.message)
                         window.location.reload()
                     }
                 }
-            });
+            }).fail(xhr => onTransactionFail(xhr, () => th.setState({loading: false})));
         }
     }
 
