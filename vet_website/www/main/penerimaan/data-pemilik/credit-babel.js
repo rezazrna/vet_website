@@ -564,9 +564,6 @@ class Popup extends React.Component {
                 method: "vet_website.vet_website.doctype.vetownercredit.vetownercredit.submit_piutang",
                 args: { action: new_data.action, nominal: new_data.nominal_float, petOwner: id || new_data.pet_owner_id, method: new_data.payment_method, tanggal: new_data.tanggal, request_id: this.requestId },
                 freeze: true,
-                error: function () {
-                    th.submitting = false
-                },
                 callback: function (r) {
                     th.submitting = false
                     if (r.message) {
@@ -578,7 +575,7 @@ class Popup extends React.Component {
                         }
                     }
                 }
-            });
+            }).fail(() => { th.submitting = false });
         } else if (this.props.tipe == 'Purchase') {
             // console.log({action: new_data.action, nominal: new_data.nominal, supplier: id || new_data.pet_owner, method: new_data.payment_method})
             frappe.call({
@@ -586,9 +583,6 @@ class Popup extends React.Component {
                 method: "vet_website.vet_website.doctype.vetownercredit.vetownercredit.submit_piutang_purchase",
                 args: { action: new_data.action, nominal: new_data.nominal_float, supplier: id || new_data.pet_owner_id, method: new_data.payment_method, tanggal: new_data.tanggal, request_id: this.requestId },
                 freeze: true,
-                error: function () {
-                    th.submitting = false
-                },
                 callback: function (r) {
                     th.submitting = false
                     if (r.message) {
@@ -600,7 +594,7 @@ class Popup extends React.Component {
                         }
                     }
                 }
-            });
+            }).fail(() => { th.submitting = false });
         }
     }
 

@@ -246,9 +246,6 @@ class CustomerInvoice extends React.Component {
             type: "POST",
             method: "vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice.open_invoice_from_list",
             args: { name_list: data_names },
-            error: function () {
-                po.openingRows = false
-            },
             callback: function (r) {
                 po.openingRows = false
                 if (r.message) {
@@ -263,7 +260,7 @@ class CustomerInvoice extends React.Component {
                     po.setState({ data: new_data, check_all: false, show_delete: false });
                 }
             }
-        });
+        }).fail(() => { po.openingRows = false });
     }
 
     joinRow() {

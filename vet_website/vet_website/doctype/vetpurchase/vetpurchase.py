@@ -20,7 +20,8 @@ class VetPurchase(Document):
 def run_purchase_guarded(name, request_id, fn, *args):
 	# Satu transaksi per aksi purchase (purchase, operation, journal, stok, owner credit tersimpan semua
 	# atau tidak sama sekali). Aksi bersamaan pada purchase yang sama ditolak.
-	result = run_guarded('purchase:' + str(name), request_id, fn, *args)
+	# Purchase baru belum punya nama: cukup request_id, jangan satu lock bersama untuk semua purchase baru
+	result = run_guarded('purchase:' + str(name) if name else None, request_id, fn, *args)
 	if isinstance(result, dict) and result.get('already_processed'):
 		# Retry sesudah koneksi putus padahal sudah tersimpan: jawab seperti sukses
 		return {'purchase': frappe.get_doc('VetPurchase', result.get('ref') or name)}

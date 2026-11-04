@@ -16,7 +16,7 @@ from vet_website.vet_website.doctype.vetpetowner.vetpetowner import new_pet_owne
 from vet_website.vet_website.doctype.vetpet.vetpet import get_pet
 from vet_website.vet_website.doctype.vetposorder.vetposorder import get_order_list
 from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry
-from vet_website.request_guard import run_atomic, run_guarded
+from vet_website.request_guard import run_guarded
 from vet_website.vet_website.doctype.vetoperation.vetoperation import action_receive
 from vet_website.vet_website.doctype.vetcustomerinvoice.vetcustomerinvoice import decrease_product_valuation, increase_product_valuation
 
@@ -328,14 +328,16 @@ def update_data(data):
 	# if json_data['status'] == 'Closed & Posted':
 	# 	json_data['closing_session'] = datetime.today()
 		
+	# Lock per session supaya dua request tutup sesi bersamaan tidak sama-sama membuat journal setoran
+	return run_guarded('pos_session_update:' + str(json_data['name']), None, update_data_process, json_data)
+
+def update_data_process(json_data):
+	# Status dicek di dalam lock, supaya request kedua melihat hasil request pertama yang sudah commit
 	session = frappe.get_doc('VetPosSessions', json_data['name'])
 	if session.status == 'Closed & Posted' and json_data['status'] == 'Closed & Posted':
 		# Sudah ditutup oleh request sebelumnya (mis. retry sesudah koneksi putus): jangan buat journal setoran lagi
 		return session
 
-	return run_atomic(update_data_process, session, json_data)
-
-def update_data_process(session, json_data):
 	session.update({
 		'closing_session': json_data['closing_session'],
 		'status': json_data['status'],

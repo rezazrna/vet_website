@@ -516,6 +516,7 @@ class RekamMedisListExpandable extends React.Component {
         var rekam_medis_rows = []
         var panel_style = { 'background': '#FFFFFF', 'boxShadow': '0px 4px 23px rgba(0, 0, 0, 0.1)', 'padding': '5px 32px 40px 22px' }
         var col_style = { width: '25px' }
+        var spacer_style = { width: '20px' }
         if (this.props.data.length != 0) {
             var pol = this
             // const indexOfLastTodo = this.props.currentpage * 30;
@@ -543,7 +544,7 @@ class RekamMedisListExpandable extends React.Component {
                     </div>
                     <div className="row mx-0">
                         <div className="col-auto px-0">
-                            <div style={{ width: '20px' }} />
+                            <div style={spacer_style} />
                         </div>
                         <div className="col">
                             <div className="row mx-0 fs12 fw600 row-header">

@@ -8,7 +8,7 @@ import json
 from datetime import datetime as dt
 from frappe.model.document import Document
 from dateutil.relativedelta import relativedelta as rd
-from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import lock_journal_accounts, recompute_accounts, apply_running_totals, journal_item_sort_key
+from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import lock_journal_accounts, recompute_accounts, apply_running_totals, journal_item_sort_key, attach_entry_fields
 
 class VetJournalItem(Document):
 	pass
@@ -100,8 +100,7 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 
 		# journal_items = frappe.get_list("VetJournalItem", or_filters={'debit': ['>', 0], 'credit': ['>', 0]}, filters=journal_items_filters, fields=["*"], order_by=order_by)
 		journal_items = frappe.get_list("VetJournalItem", filters=journal_items_filters, fields=["*"], order_by=order_by)
-		for ji in journal_items:
-			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+		attach_entry_fields(journal_items, ('date',))
 
 		apply_running_totals(journal_items)
 
@@ -135,22 +134,20 @@ def get_journal_item_list(filters=None, all_page=False, is_gl=False):
 
 				journal_items_saldo = frappe.get_list("VetJournalItem", filters=journal_items_filters_if_empty, fields=["name", 'account', 'parent', 'total'], order_by="creation desc")
 
-				for ji in journal_items_saldo:
-					ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+				attach_entry_fields(journal_items_saldo, ('date',))
 
 				apply_running_totals(journal_items_saldo)
 				journal_items_saldo.sort(key=journal_item_sort_key, reverse=True)
 				if journal_items_saldo:
 					saldo_awal = journal_items_saldo[0]['total']
 		else:
+			attach_entry_fields(journal_items, ('period', 'date', 'keterangan', 'reference'))
+			coa_map = dict((c.name, c) for c in frappe.get_all('VetCoa', fields=['name', 'account_code', 'account_name', 'account_type']))
 			for ji in journal_items:
-				ji['period'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'period')
-				ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
-				ji['keterangan'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'keterangan')
-				ji['reference'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'reference')
-				ji['account_name'] = "%s %s"%(frappe.db.get_value('VetCoa', ji.account, 'account_code'), frappe.db.get_value('VetCoa', ji.account, 'account_name'))
-				ji['account_type'] = frappe.db.get_value('VetCoa', ji.account, 'account_type')
-				ji['account_code'] = frappe.db.get_value('VetCoa', ji.account, 'account_code')
+				coa = coa_map.get(ji.account) or frappe._dict()
+				ji['account_name'] = "%s %s"%(coa.account_code, coa.account_name)
+				ji['account_type'] = coa.account_type
+				ji['account_code'] = coa.account_code
 
 			if journal_items and is_gl == '1' and ji_account:
 				# if journal_items[0]['account_code'] in ['4-', '5-', '6-', '7-', '8-']:

@@ -52,12 +52,15 @@ def get_rekam_medis_list(filters=None, no_pagination=False):
 			rekam_medis_or_filters.append({'description': ['like', '%'+search+'%']})
 			rekam_medis_or_filters.append({'action': ['like', '%'+search+'%']})
 			rekam_medis_or_filters.append({'diagnosa_utama': ['like', '%'+search+'%']})
-			rekam_medis_or_filters.append({'record_date': ['like', '%'+search+'%']})
 			obat_parents = frappe.db.sql_list("""select distinct o.parent from `tabVetRekamMedisObat` o
 				join `tabVetProduct` p on p.name = o.product
 				where o.parenttype = 'VetRekamMedis' and p.product_name like %s""", ('%'+search+'%',))
-			if obat_parents:
-				rekam_medis_or_filters.append({'name': ['in', obat_parents]})
+			# Filter like pada field Datetime lewat get_list tidak pernah cocok di Frappe v12, jadi cari tanggal lewat SQL
+			# (format 2026-11-03 maupun 03-11-2026)
+			date_parents = frappe.db.sql_list("""select name from `tabVetRekamMedis`
+				where cast(record_date as char) like %s or date_format(record_date, '%%d-%%m-%%Y') like %s""", ('%'+search+'%', '%'+search+'%'))
+			if obat_parents or date_parents:
+				rekam_medis_or_filters.append({'name': ['in', list(set(obat_parents + date_parents))]})
 		if sort:
 			default_sort = sort
 				
@@ -265,7 +268,8 @@ def get_rabies(filters=None, mode=False, all=False):
 			page = int(currentpage)
 
 		if min_date and max_date:
-			conditions.append("ci.invoice_date between %(min_date)s and %(max_date)s")
+			# invoice_date berupa datetime: sertakan seluruh hari terakhir
+			conditions.append("ci.invoice_date >= %(min_date)s and ci.invoice_date < %(max_date)s + interval 1 day")
 			values.update({'min_date': min_date, 'max_date': max_date})
 
 	from_where = """

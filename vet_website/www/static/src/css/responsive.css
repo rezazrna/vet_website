@@ -13,6 +13,11 @@
 		-webkit-overflow-scrolling: touch;
 	}
 
+	/* Judul yang melebar tidak boleh mendorong tombol menu ke baris kedua */
+	.main-navbar > .container-fluid {
+		flex-wrap: nowrap;
+	}
+
 	.main-navbar .page-title {
 		font-size: 15px;
 		overflow: hidden;

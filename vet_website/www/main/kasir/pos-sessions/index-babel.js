@@ -225,7 +225,9 @@ class PosSessions extends React.Component {
             method: "vet_website.vet_website.doctype.vetpossessions.vetpossessions.update_data",
             args: { data: data },
             callback: function (r) {
-                if (r.message) {
+                if (r.message && r.message.error) {
+                    frappe.msgprint(r.message.error)
+                } else if (r.message) {
                     console.log(r.message)
                     var new_data = po.state.data
                     new_data[i] = Object.assign(new_data[i], r.message)

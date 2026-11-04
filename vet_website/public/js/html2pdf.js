@@ -1463,6 +1463,15 @@ Worker.prototype.toCanvas = function toCanvas() {
     var options = _extends({}, this.opt.html2canvas);
     delete options.onrendered;
 
+    // vet_website: <img> tanpa src (mis. logo klinik belum diisi di Profile) membuat html2canvas
+    // gagal dengan "Error parsing CSS component value". Yang dihapus hanya salinan di container.
+    var emptyImages = this.prop.container.querySelectorAll('img');
+    for (var i = 0; i < emptyImages.length; i++) {
+      if (!emptyImages[i].getAttribute('src')) {
+        emptyImages[i].parentNode.removeChild(emptyImages[i]);
+      }
+    }
+
     return html2canvas(this.prop.container, options);
   }).then(function toCanvas_post(canvas) {
     // Handle old-fashioned 'onrendered' argument.

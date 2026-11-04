@@ -9,7 +9,7 @@ import pytz
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from frappe.model.document import Document
-from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, delete_journal_entries, apply_running_totals, journal_item_sort_key
+from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, delete_journal_entries, apply_running_totals, journal_item_sort_key, attach_entry_fields, items_by_account
 
 class VetCoa(Document):
 	pass
@@ -98,9 +98,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 		if journal_entry_names:
 			journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['name', 'total', 'account', 'parent', 'credit', 'debit'])
 
-			for ji in journal_items:
-				ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
-				ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
+			attach_entry_fields(journal_items)
 
 			apply_running_totals(journal_items)
 			journal_items.sort(key=journal_item_sort_key, reverse=True)
@@ -190,9 +188,7 @@ def get_coa_children(name, max_date=False, min_date=False, dc_mode=False, all_ch
 	if journal_entry_names:
 		journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['name', 'total', 'account', 'parent'])
 
-		for ji in journal_items:
-			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
-			ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
+		attach_entry_fields(journal_items)
 
 		apply_running_totals(journal_items)
 		journal_items.sort(key=journal_item_sort_key, reverse=True)
@@ -343,7 +339,7 @@ def get_coa_last_total(coa_name, max_date=False, journal_items=False):
 
 	if journal_items:
 		ji_list = journal_items
-		journal_item = next(filter(lambda item: item.account == coa_name and ((('4-' in coa_name or '5-' in coa_name or '6-' in coa_name or '7-' in coa_name or '8-' in coa_name) and item.journal != 'CLS') or ('1-' in coa_name or '2-' in coa_name or '3-' in coa_name)), journal_items), None)
+		journal_item = next(filter(lambda item: ((('4-' in coa_name or '5-' in coa_name or '6-' in coa_name or '7-' in coa_name or '8-' in coa_name) and item.journal != 'CLS') or ('1-' in coa_name or '2-' in coa_name or '3-' in coa_name)), items_by_account(journal_items).get(coa_name, [])), None)
 	else:
 		if max_date:
 			max_date_dt = dt.strptime(max_date, '%Y-%m-%d') - rd(days=1)
@@ -365,9 +361,7 @@ def get_coa_last_total(coa_name, max_date=False, journal_items=False):
 		
 		if 'parent' in filters:
 			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['name', 'account', 'debit', 'credit', 'total', 'parent'], order_by='creation desc')
-		for ji in ji_list:
-			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
-			ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
+		attach_entry_fields(ji_list)
 		
 		apply_running_totals(ji_list)
 		ji_list.sort(key=journal_item_sort_key, reverse=True)
@@ -407,8 +401,9 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False, i
 	journal_item = False
 
 	if journal_items and len(journal_items) > 0:
-		ji_list = journal_items
-		journal_item = next(filter(lambda item: item.account == coa_name and ((('4-' in coa_name or '5-' in coa_name or '6-' in coa_name or '7-' in coa_name or '8-' in coa_name) and item.journal != 'CLS') or ('1-' in coa_name or '2-' in coa_name or '3-' in coa_name)), journal_items), None)
+		# Hanya item akun ini; loop total di bawah memang hanya menghitung item dengan account == coa_name
+		ji_list = items_by_account(journal_items).get(coa_name, [])
+		journal_item = next(filter(lambda item: ((('4-' in coa_name or '5-' in coa_name or '6-' in coa_name or '7-' in coa_name or '8-' in coa_name) and item.journal != 'CLS') or ('1-' in coa_name or '2-' in coa_name or '3-' in coa_name)), items_by_account(journal_items).get(coa_name, [])), None)
 	else:
 		if max_date:
 			max_date_dt = dt.strptime(max_date, '%Y-%m-%d') - rd(days=1)
@@ -433,9 +428,7 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False, i
 		if journal_entry_names or is_coa_list:
 			ji_list = frappe.get_list("VetJournalItem", filters=filters, fields=['name', 'account', 'debit', 'credit', 'total', 'parent'], order_by='creation desc')
 
-		for ji in ji_list:
-			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
-			ji['journal'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'journal')
+		attach_entry_fields(ji_list)
 		
 		apply_running_totals(ji_list)
 		ji_list.sort(key=journal_item_sort_key, reverse=True)
@@ -480,7 +473,7 @@ def get_coa_total_debit_credit(name, journal_items=False):
 	journal_item = False
 	
 	if journal_items:
-		journal_item = next(filter(lambda item: item.account == name and ((('4-' in name or '5-' in name or '6-' in name or '7-' in name or '8-' in name) and item.journal != 'CLS') or ('1-' in name or '2-' in name or '3-' in name)), journal_items), None)
+		journal_item = next(filter(lambda item: ((('4-' in name or '5-' in name or '6-' in name or '7-' in name or '8-' in name) and item.journal != 'CLS') or ('1-' in name or '2-' in name or '3-' in name)), items_by_account(journal_items).get(name, [])), None)
 
 	### Terpengaruh ###
 
@@ -518,7 +511,7 @@ def get_coa_total_debit_credit_children(name, journal_items=False):
 	journal_item = False
 	
 	if journal_items:
-		journal_item = next(filter(lambda item: item.account == name and ((('4-' in name or '5-' in name or '6-' in name or '7-' in name or '8-' in name) and item.journal != 'CLS') or ('1-' in name or '2-' in name or '3-' in name)), journal_items), None)
+		journal_item = next(filter(lambda item: ((('4-' in name or '5-' in name or '6-' in name or '7-' in name or '8-' in name) and item.journal != 'CLS') or ('1-' in name or '2-' in name or '3-' in name)), items_by_account(journal_items).get(name, [])), None)
 
 	### Terpengaruh ###
 
@@ -676,8 +669,7 @@ def closing_pendapatan(journal_entry_names, clearing_account, closing_journal, j
 
 	for p in pendapatan_accounts:
 		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': p['name']}, order_by="creation desc", fields=["name", "account", "total", "parent"])
-		for ji in journal_items:
-			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
+		attach_entry_fields(journal_items, ('date',))
 
 		### Terpengaruh ###
 			
@@ -714,8 +706,7 @@ def closing_hpp(journal_entry_names, clearing_account, closing_journal, journal_
 
 	for h in hpp_biaya_accounts:
 		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["name", "account", "total", "parent"])
-		for ji in journal_items:
-			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
+		attach_entry_fields(journal_items, ('date',))
 
 		### Terpengaruh ###
 			
@@ -752,8 +743,7 @@ def closing_biaya(journal_entry_names, clearing_account, closing_journal, journa
 
 	for h in hpp_biaya_accounts:
 		journal_items = frappe.get_list("VetJournalItem", filters={'parent': ['in', journal_entry_names], 'account': h['name']}, order_by="creation desc", fields=["name", "account", "total", "parent"])
-		for ji in journal_items:
-			ji['date'] = frappe.db.get_value('VetJournalEntry', ji['parent'], 'date')
+		attach_entry_fields(journal_items, ('date',))
 		
 		### Terpengaruh ###
 			

@@ -151,7 +151,7 @@ class TindakanDokter extends React.Component {
     formSubmit(e){
         e.preventDefault();
         // Cegah double klik Lanjut, dan tunggu autosave selesai dulu
-        if (this.state.submitting || this.state.save_loading) {
+        if (this.state.submitting || this.state.save_loading || this.autosaveBusy()) {
             return
         }
         var new_data = this.state.data
@@ -211,9 +211,6 @@ class TindakanDokter extends React.Component {
     		type: "POST",
     		method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.confirm_tindakan_dokter",
     		args: {data: new_data},
-    		error: function(){
-    		    th.setState({submitting: false})
-    		},
     		callback: function(r){
     			if (r.message.tindakan_dokter) {
     				window.location.reload()
@@ -223,12 +220,12 @@ class TindakanDokter extends React.Component {
     				frappe.msgprint(r.message.error);
     			}
     		}
-    	});
+    	}).fail(xhr => onTransactionFailReload(xhr, () => th.setState({submitting: false})));
     }
     
     saveRekamMedis(e){
         e.preventDefault();
-        if (this.state.submitting || this.state.save_loading) {
+        if (this.state.submitting || this.state.save_loading || this.autosaveBusy()) {
             return
         }
         var th = this
@@ -238,9 +235,6 @@ class TindakanDokter extends React.Component {
     		type: "POST",
     		method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.save_rekam_medis",
     		args: {name: id},
-    		error: function(){
-    		    th.setState({submitting: false})
-    		},
     		callback: function(r){
     		    th.setState({submitting: false})
     			if (r.message.rekam_medis) {
@@ -250,7 +244,7 @@ class TindakanDokter extends React.Component {
     				frappe.msgprint(r.message.error);
     			}
     		}
-    	});
+    	}).fail(() => th.setState({submitting: false}));
     }
     
     // rekamMedisClick(e){
@@ -432,21 +426,54 @@ class TindakanDokter extends React.Component {
         this.setState({data: new_data});
 
         if (name != 'nama_dokter') {
-            this.setState({save_loading: true})
-            frappe.call({
-                type: "POST",
-                method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
-                args: {field: name, value: value, name: id},
-                callback: function(r){
-                    if (r.message != true) {
-                        frappe.msgprint(r.message.error)
-                        th.setState({data: r.message.data})
-                    }
-
-                    th.setState({save_loading: false})
-                },
-            });
+            this.queueAutosave(name, value)
         }
+    }
+
+    // Autosave saat mengetik: tunggu jeda ketik, lalu kirim satu request per field dalam satu waktu.
+    // Request per ketikan yang berjalan paralel bisa selesai tidak berurutan, sehingga nilai lama
+    // menimpa nilai terbaru di server.
+    queueAutosave(field, value) {
+        this.autosaveQueue = this.autosaveQueue || {}
+        var q = this.autosaveQueue[field] = this.autosaveQueue[field] || {}
+        q.value = value
+        q.dirty = true
+        clearTimeout(q.timer)
+        q.timer = setTimeout(() => this.flushAutosave(field), 400)
+        this.setState({save_loading: true})
+    }
+
+    flushAutosave(field) {
+        var th = this
+        var q = this.autosaveQueue[field]
+        if (q.inFlight || !q.dirty) {
+            return
+        }
+        q.dirty = false
+        q.inFlight = true
+        frappe.call({
+            type: "POST",
+            method:"vet_website.vet_website.doctype.vettindakandokter.vettindakandokter.autosave",
+            args: {field: field, value: q.value, name: id},
+            callback: function(r){
+                if (r.message != true) {
+                    q.dirty = false
+                    frappe.msgprint(r.message.error)
+                    th.setState({data: r.message.data})
+                }
+            },
+        }).always(function(){
+            q.inFlight = false
+            if (q.dirty) {
+                // Ada ketikan baru selama request berjalan: kirim nilai terbaru
+                th.flushAutosave(field)
+            }
+            th.setState({save_loading: th.autosaveBusy()})
+        });
+    }
+
+    autosaveBusy() {
+        return Object.values(this.autosaveQueue || {}).some(q => q.dirty || q.inFlight)
     }
 
     isNumeric(str) {

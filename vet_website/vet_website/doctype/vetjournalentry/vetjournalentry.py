@@ -332,8 +332,7 @@ def reconcile_account(account, date):
 	if journal_entry_names:
 		journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names], 'account': account}, fields=['name', 'parent'])
 
-		for ji in journal_items:
-			ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+		attach_entry_fields(journal_items, ('date',))
 
 		journal_items.sort(key=lambda x: x.date, reverse=True)
 
@@ -347,8 +346,7 @@ def reconcile_account(account, date):
 		if journal_entry_names:
 			journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names], 'account': account}, fields=['name', 'parent'])
 
-			for ji in journal_items:
-				ji['date'] = frappe.db.get_value('VetJournalEntry', ji.parent, 'date')
+			attach_entry_fields(journal_items, ('date',))
 
 			journal_items.sort(key=lambda x: x.date)
 
@@ -554,6 +552,31 @@ def recompute_account_total(account, name=None, from_date=None):
 		if row.total is None or abs(total - flt(row.total)) > 0.0001:
 			frappe.db.set_value('VetJournalItem', row.name, 'total', total, update_modified=False)
 		row.total = total
+
+def attach_entry_fields(journal_items, fields=('date', 'journal')):
+	"""Isi field VetJournalEntry (date, journal, ...) ke tiap item lewat satu query per 1000 parent,
+	bukan frappe.db.get_value per item (puluhan ribu query di laporan)."""
+	parents = list(set(ji.parent for ji in journal_items if ji.parent))
+	entries = {}
+	for i in range(0, len(parents), 1000):
+		for e in frappe.db.sql("select name, {0} from `tabVetJournalEntry` where name in %s".format(', '.join(fields)), (tuple(parents[i:i + 1000]),), as_dict=True):
+			entries[e.name] = e
+	for ji in journal_items:
+		entry = entries.get(ji.parent) or {}
+		for f in fields:
+			ji[f] = entry.get(f)
+	return journal_items
+
+def items_by_account(journal_items):
+	"""{account: [item, ...]} dengan urutan journal_items dipertahankan. Di-cache untuk list yang sama,
+	karena laporan memanggilnya sekali per akun dengan list yang sama."""
+	cache = getattr(frappe.local, 'vet_items_by_account', None)
+	if not cache or cache[0] is not journal_items:
+		grouped = {}
+		for ji in journal_items:
+			grouped.setdefault(ji.account, []).append(ji)
+		cache = frappe.local.vet_items_by_account = (journal_items, grouped)
+	return cache[1]
 
 def get_running_totals(accounts):
 	"""{item name: (urutan, saldo berjalan)} untuk semua item akun-akun ini, dihitung dari

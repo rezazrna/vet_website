@@ -228,10 +228,15 @@ class Rabies extends React.Component {
         })
 
         var filter_item = "mr-2 my-1"
+        var width_search = { width: 200 }
+        var width_mode = { width: 120 }
+        var width_month = { width: 140 }
+        var width_year = { width: 100 }
+        var sd_style = { color: '#397DA6' }
         var month_select, month_to_select
 
         if (this.state.mode == 'monthly' || this.state.mode == 'period') {
-            month_select = <div className={filter_item} style={{ width: 140 }}>
+            month_select = <div className={filter_item} style={width_month}>
                 <select name="month" className="form-control fs12" style={formStyle} value={this.state.month} onChange={e => this.filterChange(e)}>
                     {month_options}
                 </select>
@@ -240,8 +245,8 @@ class Rabies extends React.Component {
 
         if (this.state.mode == 'period') {
             month_to_select = [
-                <div key="sd" className={filter_item + " fs12 fw600"} style={{ color: '#397DA6' }}>s/d</div>,
-                <div key="month_to" className={filter_item} style={{ width: 140 }}>
+                <div key="sd" className={filter_item + " fs12 fw600"} style={sd_style}>s/d</div>,
+                <div key="month_to" className={filter_item} style={width_month}>
                     <select name="month_to" className="form-control fs12" style={formStyle} value={this.state.month_to} onChange={e => this.filterChange(e)}>
                         {month_options}
                     </select>
@@ -254,10 +259,10 @@ class Rabies extends React.Component {
 
         var filter_bar = (
             <div className="d-flex flex-wrap align-items-center" style={row_style2}>
-                <div className={filter_item} style={{ width: 200 }}>
+                <div className={filter_item} style={width_search}>
                     <input value={this.state.search || ''} className="form-control fs12" name="search" placeholder="Cari nama pemilik..." style={formStyle} onChange={e => this.setState({ search: e.target.value })} onKeyDown={(e) => e.key === 'Enter' ? this.setFilter() : null} />
                 </div>
-                <div className={filter_item} style={{ width: 120 }}>
+                <div className={filter_item} style={width_mode}>
                     <select name="mode" className="form-control fs12" style={formStyle} value={this.state.mode} onChange={e => this.setMode(e)}>
                         <option value="monthly">Monthly</option>
                         <option value="annual">Annual</option>
@@ -266,7 +271,7 @@ class Rabies extends React.Component {
                 </div>
                 {month_select}
                 {month_to_select}
-                <div className={filter_item} style={{ width: 100 }}>
+                <div className={filter_item} style={width_year}>
                     <select name="year" className="form-control fs12" style={formStyle} value={this.state.year} onChange={e => this.filterChange(e)}>
                         {year_options}
                     </select>

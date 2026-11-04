@@ -52,8 +52,9 @@ def submit_piutang_process(action, nominal, petOwner, method, tanggal=False):
 			# last_credit_search = frappe.get_list('VetOwnerCredit', filters=[{'pet_owner': petOwner}], fields=['credit'], order_by="date desc", limit_page_length=1)
 			if len(last_credit_search) != 0:
 				last_credit = last_credit_search[0].credit
-				if last_credit < float(nominal):
-					return {'error': 'Nominal melebihi deposit, jumlah deposit tersedia %s'% last_credit, 'nominal': last_credit}
+			# Dicek juga saat belum ada riwayat deposit (saldo 0), supaya tidak bisa ambil deposit yang tidak ada
+			if last_credit < float(nominal):
+				return {'error': 'Nominal melebihi deposit, jumlah deposit tersedia %s'% last_credit, 'nominal': last_credit}
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
 				'date': dt.strftime(dt.now(tz), "%Y-%m-%d %H:%M:%S"),
@@ -273,8 +274,9 @@ def submit_piutang_purchase_process(action, nominal, supplier, method, tanggal=F
 			last_credit_search = frappe.get_list('VetOwnerCredit', filters={'supplier': supplier}, fields=['credit'], order_by="date desc")
 			if len(last_credit_search) != 0:
 				last_credit = last_credit_search[0].credit
-				if last_credit < float(nominal):
-					return {'error': 'Nominal melebihi deposit, jumlah deposit tersedia %s'% last_credit, 'nominal': last_credit}
+			# Dicek juga saat belum ada riwayat deposit (saldo 0), supaya tidak bisa ambil deposit yang tidak ada
+			if last_credit < float(nominal):
+				return {'error': 'Nominal melebihi deposit, jumlah deposit tersedia %s'% last_credit, 'nominal': last_credit}
 			
 			owner_credit = frappe.new_doc('VetOwnerCredit')
 			owner_credit.update({
