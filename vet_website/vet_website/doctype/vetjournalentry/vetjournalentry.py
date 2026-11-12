@@ -468,11 +468,15 @@ def get_journal_accounts(parents=None, items=None):
 	else:
 		return []
 
-	return frappe.db.sql("""select ji.account, min(je.date) as date
+	rows = frappe.db.sql("""select cast(ji.account as binary) as account, min(je.date) as date
 		from `tabVetJournalItem` ji
 		join `tabVetJournalEntry` je on je.name = ji.parent
 		where {0}
-		group by ji.account""".format(condition), values, as_dict=True)
+		group by cast(ji.account as binary)""".format(condition), values, as_dict=True)
+	for r in rows:
+		if isinstance(r.account, bytes):
+			r.account = r.account.decode('utf-8')
+	return rows
 
 def recompute_accounts(affected):
 	for a in affected:
@@ -591,7 +595,8 @@ def recompute_account_total(account, name=None, from_date=None):
 
 	# Locking read membaca data ter-commit terbaru, bukan snapshot awal transaksi, jadi item
 	# yang baru di-commit transaksi lain (sambil kita menunggu lock) ikut terhitung.
-	rows = _account_rows([account], lock=True)
+	# Collation tidak membedakan huruf besar/kecil: buang baris akun lain seperti 'A' saat menghitung 'a'
+	rows = [r for r in _account_rows([account], lock=True) if r.account == account]
 
 	if from_date:
 		from_date = getdate(from_date)
@@ -721,13 +726,15 @@ def repair_account_totals(dry_run=1, account=None):
 	if account:
 		accounts = [account]
 	else:
-		accounts = [r[0] for r in frappe.db.sql("select distinct account from `tabVetJournalItem` where ifnull(account, '') != '' order by account")]
+		# distinct per akun persis (binary): 'a' dan 'A' adalah dua akun dengan saldo berjalan sendiri
+		accounts = sorted(set(r[0].decode('utf-8') if isinstance(r[0], bytes) else r[0] for r in frappe.db.sql(
+			"select distinct cast(account as binary) from `tabVetJournalItem` where ifnull(account, '') != ''")))
 
 	report = []
 	for acc in accounts:
 		if not dry_run:
 			lock_accounts([acc])
-		rows = _account_rows([acc], lock=not dry_run)
+		rows = [r for r in _account_rows([acc], lock=not dry_run) if r.account == acc]
 		next_total = _total_rule(acc)
 		wrong = []
 		prev = None
