@@ -9,7 +9,7 @@ import pytz
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from frappe.model.document import Document
-from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, delete_journal_entries, apply_running_totals, journal_item_sort_key, attach_entry_fields, items_by_account, get_running_totals
+from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, delete_journal_entries, apply_running_totals, journal_item_sort_key, attach_entry_fields, items_by_account, get_last_running_totals
 
 class VetCoa(Document):
 	pass
@@ -86,7 +86,7 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 
 		if is_coa_list and not limit_date:
 			# Saldo berjalan semua akun dihitung dalam satu query, dipakai get_coa_last_total_children
-			get_running_totals([c.name for c in frappe.get_all('VetCoa', fields=['name'])])
+			get_last_running_totals([c.name for c in frappe.get_all('VetCoa', fields=['name'])])
 
 		journal_entry_names = []
 		if limit_date:
@@ -438,11 +438,11 @@ def get_coa_last_total_children(coa_name, max_date=False, journal_items=False, i
 
 		
 		if is_coa_list and not journal_entry_names:
-			# Semua item akun: yang dipakai hanya saldo berjalan item terakhir, ambil langsung dari
-			# hasil hitung (urutan terbesar), tanpa mengambil dan mengurutkan semua item akun ini
-			totals = get_running_totals([coa_name])
-			if totals:
-				journal_item = frappe._dict(total=max(totals.values())[1])
+			# Semua item akun: yang dipakai hanya saldo berjalan item terakhir, dihitung di SQL
+			# tanpa mengambil semua item akun ini
+			last_totals = get_last_running_totals([coa_name])
+			if coa_name in last_totals:
+				journal_item = frappe._dict(total=last_totals[coa_name])
 		else:
 			# if 'parent' in filters:
 			if journal_entry_names or is_coa_list:

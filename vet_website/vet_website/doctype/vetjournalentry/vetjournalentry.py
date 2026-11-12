@@ -489,14 +489,75 @@ def delete_journal_entries(names):
 def set_journal_item_total(name, account):
 	recompute_account_total(account, name=name)
 
-def _account_rows(accounts, lock=False):
-	"""Semua item akun-akun ini, urut per akun sesuai urutan saldo berjalan."""
+def _account_rows(accounts, lock=False, from_date=None):
+	"""Item akun-akun ini (semua, atau mulai from_date), urut per akun sesuai urutan saldo berjalan."""
+	values = [tuple(accounts)]
+	date_condition = ''
+	if from_date:
+		date_condition = 'and je.date >= %s'
+		values.append(from_date)
 	return frappe.db.sql("""select ji.name, ji.account, ji.debit, ji.credit, ji.total, je.date
 		from `tabVetJournalItem` ji
 		join `tabVetJournalEntry` je on je.name = ji.parent
-		where ji.account in %s
+		where ji.account in %s {1}
 		order by ji.account, je.date, ji.parent, ji.creation
-		{0}""".format('lock in share mode' if lock else ''), (tuple(accounts),), as_dict=True)
+		{0}""".format('lock in share mode' if lock else '', date_condition), values, as_dict=True)
+
+def _signed_amount(account_type, debit, credit):
+	if account_type in ['Asset','Expense']:
+		return flt(debit) - flt(credit)
+	elif account_type in ['Equity','Income','Liability']:
+		return flt(credit) - flt(debit)
+	return 0
+
+def _opening_states(accounts, before_date):
+	"""Keadaan saldo berjalan tiap akun tepat sebelum before_date, dihitung di SQL tanpa mengambil
+	semua item: {account: (jumlah item, saldo item terakhir, tanggal item terakhir)}.
+
+	Hasilnya sama dengan next_total yang dirantai dari item pertama: akun neraca menjumlah semua
+	item, akun pendapatan/biaya (reset tiap tahun) hanya menjumlah item di tahun item terakhirnya.
+	Dikelompokkan per akun persis (binary), karena collation MariaDB tidak membedakan huruf besar/kecil
+	dan data lama punya akun seperti 'a' dan 'A'."""
+	wanted = set(accounts)
+	rows = frappe.db.sql("""select cast(ji.account as binary) as account, year(je.date) as yr,
+			count(*) as n, max(je.date) as last_date, sum(ji.debit) as debit, sum(ji.credit) as credit
+		from `tabVetJournalItem` ji
+		join `tabVetJournalEntry` je on je.name = ji.parent
+		where ji.account in %s and je.date < %s
+		group by cast(ji.account as binary), year(je.date)""", (tuple(accounts), before_date), as_dict=True)
+
+	years_by_account = {}
+	for r in rows:
+		account = r.account.decode('utf-8') if isinstance(r.account, bytes) else r.account
+		if account in wanted:
+			years_by_account.setdefault(account, []).append(r)
+
+	states = {}
+	for account, years in years_by_account.items():
+		last = max(years, key=lambda r: r.yr)
+		if any(p in account for p in INCOME_EXPENSE_PREFIXES):
+			counted = [last]
+		else:
+			counted = years
+		account_type = frappe.db.get_value('VetCoa', account, 'account_type')
+		total = sum(_signed_amount(account_type, r.debit, r.credit) for r in counted)
+		states[account] = (sum(r.n for r in years), total, last.last_date)
+	return states
+
+def get_last_running_totals(accounts):
+	"""{account: saldo berjalan item terakhir} untuk akun yang punya item. Sama dengan total item
+	terakhir hasil get_running_totals, tapi dihitung di SQL. Di-cache per request."""
+	cache = getattr(frappe.local, 'vet_last_running_totals', None)
+	if cache is None:
+		cache = frappe.local.vet_last_running_totals = {}
+
+	missing = sorted(set(a for a in accounts if a and a not in cache))
+	if missing:
+		states = _opening_states(missing, '9999-12-31')
+		for account in missing:
+			cache[account] = states[account][1] if account in states else None
+
+	return dict((a, cache[a]) for a in set(accounts) if a and cache.get(a) is not None)
 
 def _total_rule(account):
 	"""Fungsi next_total(prev, prev_total, row) untuk saldo berjalan akun ini."""
@@ -578,43 +639,65 @@ def items_by_account(journal_items):
 		cache = frappe.local.vet_items_by_account = (journal_items, grouped)
 	return cache[1]
 
-def get_running_totals(accounts):
-	"""{item name: (urutan, saldo berjalan)} untuk semua item akun-akun ini, dihitung dari
-	debit/credit (tidak membaca kolom total yang tersimpan). Di-cache per request."""
+def get_running_totals(accounts, from_date=None):
+	"""{item name: (urutan, saldo berjalan)} untuk item akun-akun ini, dihitung dari debit/credit
+	(tidak membaca kolom total yang tersimpan). Dengan from_date hanya item bertanggal >= from_date
+	yang diambil; keadaan sebelumnya dihitung di SQL lewat _opening_states, jadi laporan satu periode
+	tidak perlu mengambil seluruh riwayat jurnal. Di-cache per request."""
 	cache = getattr(frappe.local, 'vet_running_totals', None)
 	if cache is None:
 		cache = frappe.local.vet_running_totals = {}
+	from_date = getdate(from_date) if from_date else None
 
-	missing = sorted(set(a for a in accounts if a and a not in cache))
+	def covered(account):
+		entry = cache.get(account)
+		return entry is not None and (entry['from'] is None or (from_date is not None and entry['from'] <= from_date))
+
+	missing = sorted(set(a for a in accounts if a and not covered(a)))
 	if missing:
+		missing_set = set(missing)
+		# {account: (item sebelumnya, saldo sebelumnya, urutan sebelumnya)}
+		states = {}
+		if from_date:
+			for account, (n, total, last_date) in _opening_states(missing, from_date).items():
+				states[account] = (frappe._dict(date=last_date), total, n)
 		for account in missing:
-			cache[account] = {}
-		rules = dict((account, _total_rule(account)) for account in missing)
-		prev = None
-		prev_total = 0
-		order = 0
-		for row in _account_rows(missing):
-			if not prev or prev.account != row.account:
-				prev, prev_total, order = None, 0, 0
+			cache[account] = {'from': from_date, 'items': {}}
+
+		rules = {}
+		for row in _account_rows(missing, from_date=from_date):
+			account = row.account
+			if account not in missing_set:
+				# Collation tidak membedakan huruf besar/kecil: meminta 'a' ikut mengembalikan 'A'
+				continue
+			if account not in rules:
+				rules[account] = _total_rule(account)
+			prev, prev_total, order = states.get(account) or (None, 0, 0)
 			order += 1
-			prev_total = rules[row.account](prev, prev_total, row)
-			cache[row.account][row.name] = (order, prev_total)
-			prev = row
+			prev_total = rules[account](prev, prev_total, row)
+			cache[account]['items'][row.name] = (order, prev_total)
+			states[account] = (row, prev_total, order)
 
 	result = {}
-	for a in accounts:
-		result.update(cache.get(a, {}))
+	for a in set(accounts):
+		entry = cache.get(a)
+		if entry:
+			result.update(entry['items'])
 	return result
 
 def _clear_running_totals_cache(account):
-	cache = getattr(frappe.local, 'vet_running_totals', None)
-	if cache:
-		cache.pop(account, None)
+	for name in ('vet_running_totals', 'vet_last_running_totals'):
+		cache = getattr(frappe.local, name, None)
+		if cache:
+			cache.pop(account, None)
 
 def apply_running_totals(journal_items):
 	"""Ganti total tiap item (butuh field name dan account) dengan saldo berjalan hasil hitung,
-	dan isi running_order untuk mengurutkan item satu akun di tanggal yang sama."""
-	totals = get_running_totals(set(ji.account for ji in journal_items))
+	dan isi running_order untuk mengurutkan item satu akun di tanggal yang sama.
+	Kalau semua item punya field date, hanya item mulai tanggal paling awal yang diambil dari DB."""
+	dates = [ji.get('date') for ji in journal_items]
+	from_date = min(dates) if dates and all(dates) else None
+	totals = get_running_totals(set(ji.account for ji in journal_items), from_date=from_date)
 	for ji in journal_items:
 		t = totals.get(ji.name)
 		if t:

@@ -81,7 +81,8 @@
    "fieldname": "pet_owner",
    "fieldtype": "Link",
    "label": "Owner",
-   "options": "VetPetOwner"
+   "options": "VetPetOwner",
+   "search_index": 1
   },
   {
    "default": "Done",
@@ -146,7 +147,7 @@
    "label": "Purchase Status"
   }
  ],
- "modified": "2021-12-20 20:49:44.105411",
+ "modified": "2026-11-13 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "Vet Website",
  "name": "VetOwnerCredit",
