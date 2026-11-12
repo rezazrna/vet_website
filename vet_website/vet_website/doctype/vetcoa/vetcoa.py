@@ -9,6 +9,7 @@ import pytz
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta as rd
 from frappe.model.document import Document
+from frappe.utils import flt
 from vet_website.vet_website.doctype.vetjournalentry.vetjournalentry import new_journal_entry, delete_journal_entries, apply_running_totals, journal_item_sort_key, attach_entry_fields, items_by_account, get_last_running_totals
 
 class VetCoa(Document):
@@ -88,24 +89,45 @@ def get_coa_list(filters=None, all_children=False, mode=False, is_profit_loss=Fa
 			# Saldo berjalan semua akun dihitung dalam satu query, dipakai get_coa_last_total_children
 			get_last_running_totals([c.name for c in frappe.get_all('VetCoa', fields=['name'])])
 
-		journal_entry_names = []
-		if limit_date:
-			je_filters.update({'date': ['<=', limit_date]})
-			if min_trans_date:
-				je_filters.update({'date': ['between', [min_trans_date, limit_date]]})
-
-			journal_entry_search = frappe.get_list("VetJournalEntry", filters=je_filters, fields=["name"], order_by='date desc, reference desc')
-			if len(journal_entry_search):
-				journal_entry_names = list(j.name for j in journal_entry_search)
-
 		journal_items = []
-		if journal_entry_names:
-			journal_items = frappe.get_list('VetJournalItem', filters={'parent': ['in', journal_entry_names]}, fields=['name', 'total', 'account', 'parent', 'credit', 'debit'])
+		if limit_date:
+			if not frappe.has_permission('VetJournalEntry', 'read'):
+				raise frappe.PermissionError
 
-			attach_entry_fields(journal_items)
+			conditions = ['je.date <= %(limit_date)s']
+			values = {'limit_date': limit_date}
+			if min_trans_date:
+				conditions = ['je.date between %(min_date)s and %(limit_date)s']
+				values['min_date'] = min_trans_date
+			if is_profit_loss:
+				conditions.append("ifnull(je.journal, '') != 'CLS'")
+			where = ' and '.join(conditions)
 
-			apply_running_totals(journal_items)
-			journal_items.sort(key=journal_item_sort_key, reverse=True)
+			if dc_mode or is_coa_list:
+				# Butuh saldo berjalan item terakhir tiap akun: ambil item periode ini lewat satu join
+				journal_items = frappe.db.sql("""select ji.name, ji.total, ji.account, ji.parent, ji.credit, ji.debit, je.date, je.journal
+					from `tabVetJournalItem` ji
+					join `tabVetJournalEntry` je on je.name = ji.parent
+					where {0}""".format(where), values, as_dict=True)
+
+				apply_running_totals(journal_items)
+				journal_items.sort(key=journal_item_sort_key, reverse=True)
+			else:
+				# Laba-rugi dan neraca hanya menjumlah debit/credit item periode ini per akun
+				# (get_coa_last_total_children), jadi cukup satu baris jumlah per akun dan journal.
+				# Dikelompokkan per akun persis (binary), sama dengan perbandingan ji.account == coa_name.
+				journal_items = frappe.db.sql("""select cast(ji.account as binary) as account, ifnull(je.journal, '') as journal,
+						sum(ji.debit) as debit, sum(ji.credit) as credit, max(je.date) as date
+					from `tabVetJournalItem` ji
+					join `tabVetJournalEntry` je on je.name = ji.parent
+					where {0}
+					group by cast(ji.account as binary), ifnull(je.journal, '')""".format(where), values, as_dict=True)
+				for ji in journal_items:
+					if isinstance(ji.account, bytes):
+						ji.account = ji.account.decode('utf-8')
+					ji.name = '%s|%s' % (ji.account, ji.journal)
+					ji.debit = flt(ji.debit)
+					ji.credit = flt(ji.credit)
 
 		if not dc_mode:
 			for c in coa_list:
